@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRoomsTable extends Migration
+class CreateResourcesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateRoomsTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('rooms');
-        Schema::create('rooms', function (Blueprint $table) {
+        Schema::dropIfExists('resources');
+        Schema::create('resources', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->integer('institution_id')->unsigned();
@@ -34,6 +34,6 @@ class CreateRoomsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rooms');
+        Schema::dropIfExists('resources');
     }
 }

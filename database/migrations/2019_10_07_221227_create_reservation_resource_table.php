@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRoomReservationTable extends Migration
+class CreateReservationResourceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateRoomReservationTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('reservation_room');
-        Schema::create('reservation_room', function (Blueprint $table) {
+        Schema::dropIfExists('reservation_resource');
+        Schema::create('reservation_resource', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('room_id')->unsigned();
+            $table->integer('resource_id')->unsigned();
             $table->uuid('reservation_id');
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('cascade');
             $table->foreign('reservation_id')->references('id')->on('reservations')->onDelete('cascade');
         });
     }
