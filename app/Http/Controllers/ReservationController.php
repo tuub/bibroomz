@@ -10,9 +10,9 @@ class ReservationController extends Controller
     {
         if (auth()->user())
         {
-            return response()->json($request);
+            return response()->json('GREAT! THANK YOU!');
         }
 
-        return response()->json('LOGIN FIRST');
+        return response()->json('NOPE! NOT LOGGED IN!', 403);
     }
 }

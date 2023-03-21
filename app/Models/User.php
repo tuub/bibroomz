@@ -59,6 +59,10 @@ class User extends Authenticatable
      * RELATIONS
      ****************************************************************/
 
+    public function reservations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
     /*****************************************************************
      * METHODS
      ****************************************************************/

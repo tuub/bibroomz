@@ -1,4 +1,5 @@
 <template>
+    <Head title="Home" />
     <div class="flex flex-row gap-5">
         <div id="sidebar" class="basis-1/5 md:basis-1/5">
             <LoginForm></LoginForm>
@@ -9,18 +10,9 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
-
-export default {
-    components: {
-        Calendar,
-        LoginForm,
-    },
-}
-
-
 </script>
 
 <style scoped>

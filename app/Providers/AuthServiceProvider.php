@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Auth\AlmaUserProvider;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +28,14 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // Just return true on builtin method
+        if (env('AUTH_METHOD') == 'eloquent') {
+            return;
+        }
+
+        Auth::provider('alma', function ($app, array $config) {
+            // Return an instance of Illuminate\Contracts\Auth\UserProvider...
+            return new AlmaUserProvider(new User());
+        });
     }
 }
