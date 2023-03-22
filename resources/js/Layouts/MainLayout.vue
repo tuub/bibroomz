@@ -12,10 +12,14 @@
             <Navigation></Navigation>
         </header>
     </section>
+    <div v-if="$page.props.flash.message" class="alert">
+        {{ $page.props.flash.message }}
+    </div>
     <section id="content" class="p-6">
         <slot />
     </section>
     <modals-container></modals-container>
+    {{ $page }}
 </template>
 
 <script>

@@ -1,7 +1,7 @@
 import './bootstrap';
 
 import { createApp, h } from 'vue'
-import { createInertiaApp, Head, Link } from "@inertiajs/vue3";
+import {createInertiaApp, Head, Link, usePage} from "@inertiajs/vue3";
 import App from './Pages/App.vue'
 import mitt from 'mitt'
 import '../css/app.css'

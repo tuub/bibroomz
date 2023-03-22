@@ -13,8 +13,9 @@
                    name="institution_id"
                    id="institution_id"
             >
-            <div v-if="errors.institution_id" v-text="errors.institution_id" class="text-red-500 text-xs mt-1"></div>
+            <FormValidationError :message="form.errors.institution_id"></FormValidationError>
         </div>
+
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="title">
                 Title
@@ -25,7 +26,7 @@
                    name="title"
                    id="title"
             >
-            <div v-if="errors.title" v-text="errors.title" class="text-red-500 text-xs mt-1"></div>
+            <FormValidationError :message="form.errors.title"></FormValidationError>
         </div>
 
         <div class="mb-6">
@@ -38,7 +39,7 @@
                    name="location"
                    id="location"
             >
-            <div v-if="errors.location" v-text="errors.location" class="text-red-500 text-xs mt-1"></div>
+            <FormValidationError :message="form.errors.location"></FormValidationError>
         </div>
 
         <div class="mb-6">
@@ -51,7 +52,7 @@
                    name="description"
                    id="description"
             >
-            <div v-if="errors.description" v-text="errors.description" class="text-red-500 text-xs mt-1"></div>
+            <FormValidationError :message="form.errors.description"></FormValidationError>
         </div>
 
         <div class="mb-6">
@@ -64,11 +65,11 @@
                    name="capacity"
                    id="capacity"
             >
-            <div v-if="errors.capacity" v-text="errors.capacity" class="text-red-500 text-xs mt-1"></div>
+            <FormValidationError :message="form.errors.capacity"></FormValidationError>
         </div>
 
         <div class="mb-6">
-            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="processing">
+            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
                 Submit
             </button>
         </div>
@@ -77,8 +78,9 @@
 </template>
 <script setup>
 import { reactive, ref } from "vue";
-import { router } from "@inertiajs/vue3";
-//import { useForm} from "@inertiajs/vue3";
+//import { router } from "@inertiajs/vue3";
+import { useForm} from "@inertiajs/vue3";
+import FormValidationError from "../../../Shared/FormValidationError.vue";
 
 defineProps({
     errors: Object,
@@ -86,7 +88,7 @@ defineProps({
 
 let processing = ref(false);
 
-let form = reactive({
+let form = useForm({
     institution_id: '1',
     title: '',
     location: '',
@@ -96,10 +98,7 @@ let form = reactive({
 
 let submitForm = () => {
     processing.value = true;
-    router.post('/admin/resources', form, {
-        onStart: () => { processing.value = true },
-        onFinish: () => { processing.value = false },
-    });
+    form.post('/admin/resources');
 }
 
 </script>

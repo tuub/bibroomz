@@ -55,7 +55,6 @@ class AlmaUserProvider implements UserProvider
             return null;
         }
 
-        $log = [];
         $user = null;
         $userData = null;
 
@@ -63,10 +62,8 @@ class AlmaUserProvider implements UserProvider
         if ($credentials['username'] == getenv('ADMIN_USER') && $credentials['password'] == getenv('ADMIN_PASSWORD')) {
             $userData = [
                 'username' => getenv('ADMIN_USER'),
-                'barcode' => '0000',
-                'phone' => '0000',
+                'password' => Hash::make('Test123!'),
                 'email' => getenv('ADMIN_EMAIL'),
-                'is_healthy' => true,
             ];
         } else {
             $ws_credentials = [
@@ -85,35 +82,29 @@ class AlmaUserProvider implements UserProvider
                 ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
                 ->post();
 
-            //dd($response);
+            if ($response) {
+                $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
+                $response = XmlToArray::convert($response);
 
-            $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
-            $response = XmlToArray::convert($response);
+                /*
+                 * CODE 0 = Login OK
+                 * CODE 1 = Wrong credentials
+                 */
 
-            $log['Credentials'] = $ws_credentials['uid'];
-            $log['Response'] = $response['result'];
+                if ($response['result']['code'] == 0) {
+                    $userData = [
+                        'name' => $response['result']['primary_id'],
+                        'email' => null,
+                        'password' => Hash::make('Test123!'),
+                    ];
+                } else {
+                    // FIXME: Message invalid creds and return
+                    // $response['result']['messg']
+                }
+            }
 
-            $session_data = [
-                'auth_message' => $response['result']['messg'],
-            ];
-
-            session()->put($session_data);
-
-            /*
-             * CODE 0 = Login OK
-             * CODE 1 = Wrong credentials
-             */
-
-            if ($response['result']['code'] == 0) {
-
-                $userData = [
-                    'name' => $response['result']['primary_id'],
-                    'email' => null,
-                    'password' => Hash::make('Test123!'),
-                ];
-
-                $user = $userData ? User::where('name', $userData['name'])->first() : null;
-
+            if ($userData) {
+                $user = User::where('name', $userData['name'])->first();
                 if ($user) {
                     $user->update([
                         'email' => $userData['email'],
@@ -127,11 +118,16 @@ class AlmaUserProvider implements UserProvider
                         'last_login' => Carbon::now(),
                     ]);
                 }
-                $log['User'] = $user;
+                $session_data = [
+                    'auth_message' => 'Logged in!',
+                ];
+            } else {
+                $session_data = [
+                    'auth_message' => 'No response!',
+                ];
             }
+            session()->put($session_data);
         }
-
-        //Log::channel('auth')->info(Utility::implodeWithKeys(', ', $log, ' = '));
 
         if ($user) {
             return $user;
