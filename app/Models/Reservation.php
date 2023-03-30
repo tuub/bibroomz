@@ -67,9 +67,9 @@ class Reservation extends Model
     }
 
     // See: https://stackoverflow.com/a/25163557/6948765
-    public function getRoomAttribute()
+    public function getResourceAttribute()
     {
-        return $this->room()->first();
+        return $this->resource()->first();
     }
 
 

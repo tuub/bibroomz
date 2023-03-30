@@ -3,6 +3,7 @@ import './bootstrap';
 import { createApp, h } from 'vue'
 import {createInertiaApp, Head, Link, usePage} from "@inertiajs/vue3";
 import App from './Pages/App.vue'
+import { createPinia } from 'pinia'
 import mitt from 'mitt'
 import '../css/app.css'
 import VueFinalModal from 'vue-final-modal';
@@ -20,6 +21,8 @@ const opts = {
     componentName: "VueFinalModal",
     dynamicContainerName: "ModalsContainer"
 };
+
+const pinia = createPinia()
 
 createInertiaApp({
     // Default style
@@ -62,6 +65,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .provide('emitter', emitter)
             .use(VueFinalModal)
+            .use(pinia)
             // FIXME: Necessary?
             .component('Head', Head)
             .component('Link', Link)

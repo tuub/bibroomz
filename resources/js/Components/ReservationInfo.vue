@@ -1,19 +1,12 @@
 <template>
-    {{ reservationData }}
+    <h1 class="text-xl">Reservation Info</h1>
+    <div>
+        {{ data }}
+    </div>
 </template>
 
-<script>
-export default {
-    name: "ReservationInfo",
-    props: {
-        reservationData: Object,
-    },
-    setup(props) {
-        let reservationData = props.reservationData
-        return {
-            reservationData,
-        }
-
-    }
-}
+<script setup>
+defineProps({
+    data: Object,
+});
 </script>

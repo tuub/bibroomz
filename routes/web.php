@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function() {
         ]);
     });
 
+    Route::post('/reservations/add', [ReservationController::class, 'addReservation'])->name('reservation.add');
+
     Route::get('/admin/resources', function () {
         return Inertia::render('Admin/Resources/Index', [
             'resources' => Resource::query()
@@ -74,8 +76,7 @@ Route::middleware('auth')->group(function() {
 });
 
 
-
-Route::get('/login', [LoginController::class, 'login'])->name('login.tub');
 Route::get('/api/business_hours', [ResourceController::class, 'getBusinessHours'])->name('business_hours.get');
 Route::get('/api/resources', [ResourceController::class, 'getResources'])->name('resources.get');
-Route::post('/api/reservation/add', [ReservationController::class, 'addReservation'])->name('reservation.add');
+Route::get('/api/reservations', [ReservationController::class, 'getReservations'])->name('reservations.get');
+

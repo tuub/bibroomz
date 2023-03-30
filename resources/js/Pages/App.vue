@@ -21,8 +21,15 @@ import LoginForm from "../Components/LoginForm.vue";
 import UserReservations from "../Components/UserReservations.vue"
 import {computed} from "vue";
 import {usePage} from "@inertiajs/vue3";
+import {useUserStore} from  "../Stores/UserStore.js"
 
-const isAuthenticated = computed(() => usePage().props.auth !== null)
+const isAuthenticated = computed(() => usePage().props?.auth !== null).value
+if (isAuthenticated) {
+    const userStore = useUserStore();
+    userStore.addUser(usePage().props.auth.user)
+}
+
+
 </script>
 
 <style scoped>

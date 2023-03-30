@@ -15,12 +15,16 @@
 import{ computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 
+let currentUser = ''
+
 // https://github.com/inertiajs/inertia/discussions/505?sort=top#discussioncomment-381019
 const isAuthenticated = computed(() => usePage().props.auth !== null)
-const currentUser = computed(() => usePage().props.auth.user.name)
+if (isAuthenticated) {
+    currentUser = computed(() => usePage().props.auth.user.name)
+}
 
-console.log('currentUser')
-console.log(currentUser.value)
+//console.log('currentUser')
+//console.log(currentUser.value)
 // FIXME: computed prop "username"
 </script>
 

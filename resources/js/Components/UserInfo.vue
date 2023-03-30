@@ -1,19 +1,11 @@
 <template>
-    {{ userData }}
+    <h1 class="text-xl">User Info</h1>
+    {{ data }}
 </template>
 
-<script>
-export default {
-    name: "UserInfo",
-    props: {
-        userData: Object,
-    },
-    setup(props) {
-        let userData = props.userData
-        return {
-            userData,
-        }
+<script setup>
 
-    }
-}
+defineProps({
+    data: Object,
+});
 </script>
