@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
@@ -19,21 +20,45 @@ class LoginController extends Controller
             'password' => $request->password,
         ];
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $auth = Auth::attempt($credentials);
 
-            return redirect()->intended();
+        if ($auth) {
+
+            $response = [
+                'message' => 'Successfully logged in',
+                'user' => [
+                    'name' => auth()->user()->name,
+                    'email' => auth()->user()->email,
+                ]
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
         }
 
-        return back()->withErrors([
-            'The provided credentials do not match our records, dumbass!',
-        ])->onlyInput('username');
+        $response = [
+            'message' => 'Unauthorized',
+        ];
+
+        return response()->json($response, Response::HTTP_UNAUTHORIZED);
     }
 
     public function logout()
     {
         Auth::logout();
 
-        return redirect()->route('home');
+        //return redirect()->route('home');
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    public function check(Request $request)
+    {
+        $response = [
+            'status' => auth()->check(),
+            'user' => [
+                'name' => auth()->user()->name ?? null,
+                'email' => auth()->user()->email ?? null,
+            ]
+        ];
+        return response()->json($response);
     }
 }

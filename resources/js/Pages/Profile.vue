@@ -27,6 +27,8 @@
     <!-- 3xl == 48rems; 48 * 16 (root font-size, e.g. 16) = 768px -->
     <div class="max-w-3xl mx-auto">
         <h1 class="text-xl font-bold">Profile</h1>
+        <p>The current user is {{ user }}.</p>
+        <p>The current user reservations are {{ user_reservations }}.</p>
         <p>The current time is {{ time }}.</p>
         <p><Link href="/my" preserve-scroll>Refresh</Link></p>
     </div>
@@ -55,5 +57,7 @@ const showTheModal = () => {
 
 defineProps({
     time: String,
+    user: Object,
+    user_reservations: Object,
 })
 </script>

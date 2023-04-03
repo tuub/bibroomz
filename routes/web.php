@@ -23,15 +23,22 @@ Route::get('/', function () {
     return Inertia::render('App');
 })->name('home');
 
+Route::post('/check', [LoginController::class, 'check'])->name('check');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
-Route::middleware('auth')->group(function() {
+
+Route::middleware('auth:sanctum')->group(function() {
     Route::get('/my', function () {
         return Inertia::render('Profile', [
             'time' => now()->toTimeString(),
+            'user' => auth()->user(),
+            'user_reservations' => auth()->user()->reservations,
         ]);
     });
+});
+
+Route::middleware('auth')->group(function() {
 
     Route::post('/reservations/add', [ReservationController::class, 'addReservation'])->name('reservation.add');
 

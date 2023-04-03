@@ -12,12 +12,18 @@
 <script setup>
 import NavLink from "./NavLink.vue";
 import CurrentLogin from "./CurrentLogin.vue";
-import {computed} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {ref, watch} from "vue";
+import {useAuthStore} from "../Stores/AuthStore";
 
-const isAuthenticated = computed(() => usePage().props.auth !== null);
-let isAdmin = false;
-if (isAuthenticated) {
-    isAdmin = computed(() => usePage().props.auth.user !== null);
-}
+const authStore = useAuthStore();
+let isAuthenticated = ref(authStore.isAuthenticated);
+
+watch(
+    () => authStore.isAuthenticated,
+    () => {
+        console.log('isAuthenticated state changed, do something, captain assblast!')
+        isAuthenticated.value = authStore.isAuthenticated
+    },
+)
+
 </script>

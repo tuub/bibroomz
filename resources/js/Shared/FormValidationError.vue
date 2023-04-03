@@ -1,10 +1,10 @@
 <template>
-    <div v-if="message" v-text="message" class="text-red-500 text-sm mt-1"></div>
+    <div v-for="message in messages" v-text="message" class="text-red-500 text-sm mt-1"></div>
 </template>
 
 <script setup>
 let props = defineProps({
-    message: String
+    messages: Array
 })
 
 console.log(props)

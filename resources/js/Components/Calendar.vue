@@ -1,5 +1,6 @@
 <template>
     <div class='calendar'>
+
         <FullCalendar ref="refCalendar" class='calendar' :options="calendarOptions">
             <template v-slot:eventContent='arg'>
                 <div class="text-center">

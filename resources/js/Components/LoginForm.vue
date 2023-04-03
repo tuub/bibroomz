@@ -1,5 +1,6 @@
 <template>
     <h1 class="text-xl font-bold">Login</h1>
+    {{ errors }}
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="username">
@@ -11,7 +12,7 @@
                    name="username"
                    id="username"
             >
-            <FormValidationError :message="form.errors.username"></FormValidationError>
+            <!--<FormValidationError :messages="form.errors.username"></FormValidationError>-->
         </div>
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="password">
@@ -23,7 +24,7 @@
                    name="password"
                    id="password"
             >
-            <FormValidationError :message="form.errors.password"></FormValidationError>
+            <!--<FormValidationError :messages="form.errors.password"></FormValidationError>-->
         </div>
         <div class="mb-6">
             <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
@@ -36,20 +37,32 @@
 </template>
 
 <script setup>
-import { useForm } from "@inertiajs/vue3";
 import FormValidationError from "../Shared/FormValidationError.vue";
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '../Stores/AuthStore';
+import {reactive, ref} from "vue";
+const authStore = useAuthStore();
+const { user: authUser } = storeToRefs(authStore);
 
 defineProps({
     errors: Object
 })
 
-let form = useForm({
+const form = reactive({
     username: '',
     password: '',
 })
 
+const errors = ref([])
+
 let submitForm = () => {
-    console.log('AUTH')
-    form.post('/login');
+    const authStore = useAuthStore();
+    return authStore.login(form.username, form.password)
+        .catch((err) => {
+            console.log(err.response.data.errors)
+            errors.value = Object.values(err.response.data.errors).flat()
+            //let errors = result.response.data.errors
+            //Object.assign(form.errors, errors)
+    });
 }
 </script>

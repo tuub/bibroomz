@@ -24,7 +24,7 @@
 
 <script setup>
 import {inject, ref} from "vue";
-import Modal from "./Modal2.vue";
+//import Modal from "./Modal2.vue";
 import ReservationInfo from './ReservationInfo.vue';
 import UserInfo from './UserInfo.vue';
 

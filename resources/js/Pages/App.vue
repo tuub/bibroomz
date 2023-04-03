@@ -1,5 +1,6 @@
 <template>
     <Head title="Home" />
+    {{ isAuthenticated }}
     <div class="flex flex-row gap-5">
         <div id="sidebar" class="basis-1/5 md:basis-1/5">
             <div v-if="isAuthenticated">
@@ -19,15 +20,27 @@
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
 import UserReservations from "../Components/UserReservations.vue"
-import {computed} from "vue";
-import {usePage} from "@inertiajs/vue3";
-import {useUserStore} from  "../Stores/UserStore.js"
 
-const isAuthenticated = computed(() => usePage().props?.auth !== null).value
-if (isAuthenticated) {
-    const userStore = useUserStore();
-    userStore.addUser(usePage().props.auth.user)
-}
+import { useAuthStore } from '../Stores/AuthStore';
+import {onMounted, ref, watch} from "vue";
+
+const authStore = useAuthStore();
+let currentUser = ref('')
+let isAuthenticated = ref(authStore.isAuthenticated);
+
+watch(
+    () => authStore.isAuthenticated,
+    () => {
+        console.log('isAuthenticated state changed, do something, captain assblast!')
+        isAuthenticated.value = authStore.isAuthenticated
+        currentUser.value = authStore.user ?? '';
+    },
+)
+
+onMounted(() => {
+    // check auth session in backend
+    authStore.check()
+});
 
 
 </script>

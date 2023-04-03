@@ -4,6 +4,7 @@ import { createApp, h } from 'vue'
 import {createInertiaApp, Head, Link, usePage} from "@inertiajs/vue3";
 import App from './Pages/App.vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import mitt from 'mitt'
 import '../css/app.css'
 import VueFinalModal from 'vue-final-modal';
@@ -23,6 +24,7 @@ const opts = {
 };
 
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 createInertiaApp({
     // Default style
