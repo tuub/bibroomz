@@ -41,6 +41,8 @@ import FormValidationError from "../Shared/FormValidationError.vue";
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../Stores/AuthStore';
 import {reactive, ref} from "vue";
+
+// Auth store
 const authStore = useAuthStore();
 const { user: authUser } = storeToRefs(authStore);
 
@@ -48,21 +50,17 @@ defineProps({
     errors: Object
 })
 
+const errors = ref([])
 const form = reactive({
     username: '',
     password: '',
 })
 
-const errors = ref([])
-
 let submitForm = () => {
-    const authStore = useAuthStore();
     return authStore.login(form.username, form.password)
         .catch((err) => {
             console.log(err.response.data.errors)
             errors.value = Object.values(err.response.data.errors).flat()
-            //let errors = result.response.data.errors
-            //Object.assign(form.errors, errors)
     });
 }
 </script>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReservationController extends Controller
 {
@@ -21,15 +22,10 @@ class ReservationController extends Controller
 
         foreach ($reservations as $reservation) {
             //dd($reservation);
-            /*
+
             $status = $reservation->getStatus();
             $style = $status['css'];
             $user = $status['user'];
-            */
-
-            $status = 'FOO';
-            $style = 'YELLOW';
-            $user = 'FOOBAR';
 
             $output[] = [
                 'id' => $reservation->id,
@@ -61,6 +57,14 @@ class ReservationController extends Controller
         }
         if (auth()->user()) {
             $as_admin = false;
+
+            $request->validate([
+                'resource' => 'required',
+                'start' => 'required',
+                'end' => 'required',
+                'confirmer' => 'required',
+            ]);
+
             $reservation = new Reservation([
                 'user_id_01' => auth()->user()->id,
                 'user_id_02' => $as_admin ? auth()->user()->id : null,
@@ -71,7 +75,7 @@ class ReservationController extends Controller
                 'reserved_at' => Carbon::now(),
                 'booked_at' => $as_admin ? Carbon::now() : null,
             ]);
-            $op = $reservation->save() && $reservation->resource()->sync($request->resource);
+            $op = $reservation->save() && $reservation->resource()->sync($request->resource['id']);
 
             if ($op) {
                 return 'SUCCESS!';

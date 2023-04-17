@@ -16,25 +16,15 @@ let currentUser = ref(authStore.user)
 watch(
     () => authStore.isAuthenticated,
     () => {
-        console.log('isAuthenticated state changed, do something, captain assblast!')
+        console.log('Updated component after auth change: CurrentLogin')
         isAuthenticated.value = authStore.isAuthenticated
-        currentUser.value = authStore.user ?? '';
+        currentUser.value = authStore.user;
     },
 )
 
 let logoutUser = () => {
-    console.log('LOGOUT')
-
     return authStore.logout()
         .catch(error => console.log(error));
 }
-
-// console.log(authStore)
-
-// https://github.com/inertiajs/inertia/discussions/505?sort=top#discussioncomment-381019
-
-//console.log('currentUser')
-//console.log(currentUser.value)
-// FIXME: computed prop "username"
 </script>
 

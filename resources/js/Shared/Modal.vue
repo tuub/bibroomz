@@ -14,6 +14,9 @@
                         <slot name="header">DEFAULT HEADER</slot>
                     </h1>
                 </header>
+                <div class="italic">
+                    <slot name="description">DEFAULT DESCRIPTION</slot>
+                </div>
                 <div>
                     <slot name="content">DEFAULT CONTENT</slot>
                 </div>
@@ -26,6 +29,7 @@
                 </footer>
             </div>
         </div>
+
     </Transition>
 </template>
 

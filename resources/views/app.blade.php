@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="api-base-url" content="{{ url('/') }}" />
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="stylesheet" href="{!! url('css/app.css') !!}">
     <meta name="theme-color" content="#fafafa">
-    @vite('resources/css/app.css')
+    @vite('resources/sass/main.scss')
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     @inertiaHead
 </head>
 

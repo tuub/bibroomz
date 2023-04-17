@@ -1,29 +1,17 @@
 <template>
-    <Teleport to="body">
-        <Modal :show="showModal" @hide-modal="hideModal">
-            <template #header>
-                ADD RESERVATION MODAL
-            </template>
-            <template #content>
-                <form @submit.prevent="addReservation">
-                    <input v-model="reservationForm.resource" type="text" name="resource" id="resource" />
-                    <input v-model="reservationForm.start" type="text" name="start" id="start" />
-                    <input v-model="reservationForm.end" type="text" name="end" id="end" />
-                    <input v-model="reservationForm.confirmer" type="text" name="confirmer" id="confirmer" />
-                    <button>ADD</button>
-                    {{ apiStatus }}
-                    {{ reservationForm }}
-                </form>
-            </template>
-        </Modal>
-    </Teleport>
+    <form @submit.prevent="addReservation">
+        <input v-model="reservationForm.resource" type="text" class="input w-full max-w-xs" name="resource" id="resource" />
+        <input v-model="reservationForm.start" type="text" class="input w-full max-w-xs" name="start" id="start" />
+        <input v-model="reservationForm.end" type="text" class="input w-full max-w-xs" name="end" id="end" />
+        <input v-model="reservationForm.confirmer" type="text" class="input w-full max-w-xs" name="confirmer" id="confirmer" />
+        <button class="btn bg-green-500 text-white font-bold p-4">ADD</button>
+    </form>
 </template>
 
 <script setup>
-import Modal from "../../Shared/Modal.vue";
 import {useForm} from "@inertiajs/vue3";
 import {reactive} from "vue";
-import {useReservationStore} from "../../Stores/ReservationStore";
+import {useReservationStore} from "../Stores/ReservationStore";
 import {storeToRefs} from "pinia";
 
 /*
@@ -32,17 +20,19 @@ the propagation via props was not possible due to lack of experience on our side
 of reactivity of the variables.
  */
 const reservationStore = useReservationStore()
-const { resource, start, end } = storeToRefs(reservationStore)
+const { resource, resource_id, resource_title, start, end } = storeToRefs(reservationStore)
+
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 
 const props = defineProps({
     showModal: Boolean,
 });
 
-
-let apiStatus = reactive({
-    code: '',
-    message: '',
-})
+// ------------------------------------------------
+// Emits
+// ------------------------------------------------
 
 const emit = defineEmits(['hideModal', 'refetch-events'])
 
@@ -50,16 +40,23 @@ const hideModal = () => {
     emit('hideModal')
 }
 
+// ------------------------------------------------
+// API
+// ------------------------------------------------
+
+let apiStatus = reactive({
+    code: '',
+    message: '',
+})
+
 let reservationForm = useForm({
-    resource: resource,
+    resource: resource.id,
     start: start,
     end: end,
-    confirmer: '',
+    confirmer: 'TODO',
 });
 
-// ------------------------------------------------
-// Modal
-// ------------------------------------------------
+
 const addReservation = () => {
     console.log('*** ADD RESERVATION ***');
 

@@ -58,12 +58,25 @@ class AlmaUserProvider implements UserProvider
         $user = null;
         $userData = null;
 
+        # FIXME!!!
         // Is this the configured general admin user? Otherwise, call the configured external auth webservice
-        if ($credentials['username'] == getenv('ADMIN_USER') && $credentials['password'] == getenv('ADMIN_PASSWORD')) {
+        if ($credentials['username'] == env('ADMIN_USER') && $credentials['password'] == env('ADMIN_PASSWORD')) {
             $userData = [
-                'username' => getenv('ADMIN_USER'),
+                'name' => env('ADMIN_USER'),
                 'password' => Hash::make('Test123!'),
-                'email' => getenv('ADMIN_EMAIL'),
+                'email' => env('ADMIN_EMAIL'),
+            ];
+        } else if ($credentials['username'] == env('TEST_USER_01') && $credentials['password'] == env('TEST_USER_01_PASSWORD')) {
+            $userData = [
+                'name' => env('TEST_USER_01'),
+                'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
+                'email' => env('TEST_USER_01_EMAIL'),
+            ];
+        } else if ($credentials['username'] == env('TEST_USER_02') && $credentials['password'] == env('TEST_USER_02_PASSWORD')) {
+            $userData = [
+                'name' => env('TEST_USER_02'),
+                'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
+                'email' => env('TEST_USER_02_EMAIL'),
             ];
         } else {
             $ws_credentials = [
@@ -102,32 +115,33 @@ class AlmaUserProvider implements UserProvider
                     // $response['result']['messg']
                 }
             }
-
-            if ($userData) {
-                $user = User::where('name', $userData['name'])->first();
-                if ($user) {
-                    $user->update([
-                        'email' => $userData['email'],
-                        'last_login' => Carbon::now(),
-                    ]);
-                } else {
-                    $user = User::create([
-                        'name' => $userData['name'],
-                        'email' => $userData['email'],
-                        'password' => Hash::make('Test123!'),
-                        'last_login' => Carbon::now(),
-                    ]);
-                }
-                $session_data = [
-                    'auth_message' => 'Logged in!',
-                ];
-            } else {
-                $session_data = [
-                    'auth_message' => 'No response!',
-                ];
-            }
-            session()->put($session_data);
         }
+
+        if ($userData) {
+            $user = User::where('name', $userData['name'])->first();
+            if ($user) {
+                $user->update([
+                    'email' => $userData['email'],
+                    'last_login' => Carbon::now(),
+                ]);
+            } else {
+                $user = User::create([
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'password' => Hash::make('Test123!'),
+                    'last_login' => Carbon::now(),
+                ]);
+            }
+            $session_data = [
+                'auth_message' => 'Logged in!',
+            ];
+        } else {
+            $session_data = [
+                'auth_message' => 'No response!',
+            ];
+        }
+
+        session()->put($session_data);
 
         if ($user) {
             return $user;

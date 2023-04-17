@@ -21,7 +21,7 @@ let isAuthenticated = ref(authStore.isAuthenticated);
 watch(
     () => authStore.isAuthenticated,
     () => {
-        console.log('isAuthenticated state changed, do something, captain assblast!')
+        console.log('Updated component after auth change: Navigation')
         isAuthenticated.value = authStore.isAuthenticated
     },
 )

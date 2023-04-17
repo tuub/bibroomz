@@ -1,0 +1,68 @@
+@import "./_variables.scss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    outline: 0px #336699 solid;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+
+
+/* Calender header */
+.fc-header-toolbar {
+    h2 {
+        font-family: 'Merriweather', serif;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+}
+
+/* Today */
+.fc-unthemed td.fc-today { background-color: #fff !important; }
+
+/* Past Days */
+.fc-past { background-color: $status-closing; cursor: not-allowed; }
+
+/* Closed timeslots */
+.fc-nonbusiness { background-color: $status-closing; cursor: not-allowed; }
+
+/* Room header columns */
+.fc-widget-header th.fc-resource-cell { text-align: center; }
+
+.fc-ltr .fc-time-grid .fc-event-container { margin: 0 !important; }
+
+a.fc-event {
+    &.past-event { background-color: #ccc; opacity: 0.4; }
+    &.reservation { background-color: $status-reservation;  }
+    &.booking { background-color: $status-booking; }
+    &.user-reservation { background-color: $status-user-reservation; color: #000; }
+    &.user-confirmation { background-color: $status-user-confirmation; color: #000; }
+    &.user-booking { background-color: $status-user-booking; }
+    &.block { background-color: $status-block; color: #fff; pointer-events: none; }
+}
+
+div#status-legend {
+    margin-top: 1rem;
+    div {
+        border-width: 1px;
+        border-left-width: 30px;
+        padding-left: 10px;
+        &.reservation { border-color: $status-reservation; }
+        &.booking { border-color: $status-booking; }
+        &.user-reservation { border-color: $status-user-reservation;}
+        &.user-confirmation { border-color: $status-user-confirmation; }
+        &.user-booking { border-color: $status-user-booking; }
+        &.closing { border-color: $status-closing; }
+        &.block { border-color: $status-block; }
+    }
+}
+
+
+

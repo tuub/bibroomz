@@ -10,14 +10,14 @@
             </template>
         </FullCalendar>
 
-        {{ showModal }}
-
+        <!--
         <AddReservationModal
-            :showModal="showModal"
-            @hideModal="showModal = false"
+            :showModal="showAddModal"
+            @hideModal="showAddModal = false"
             @refetch-events="refetchEvents"
         >
         </AddReservationModal>
+        -->
 
     </div>
 </template>
@@ -31,9 +31,14 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import {inject, onMounted, reactive, ref} from "vue";
-import AddReservationModal from "./Modals/AddReservationModal.vue";
+import {inject, onMounted, ref, watch} from "vue";
+//import AddReservationModal from "./Modals/AddReservationModal.vue";
 import {useReservationStore} from "../Stores/ReservationStore";
+import {useAuthStore} from "../Stores/AuthStore";
+
+import AddReservation from "./Modals/AddReservation.vue";
+import ShowReservation from "./Modals/ShowReservation.vue";
+import useModal from "../Stores/Modal.ts";
 
 // ------------------------------------------------
 // Debug information
@@ -42,12 +47,18 @@ import {useReservationStore} from "../Stores/ReservationStore";
 //console.log(props)
 //console.log(context)
 
+// ------------------------------------------------
+// Options (should come from external file or database)
+// ------------------------------------------------
 let options = {
     timeSlotLength: '00:30:00',
     blockHourQuota: 4,
     futureDays: 14,
 }
 
+// ------------------------------------------------
+// Loading indicator
+// ------------------------------------------------
 let isLoading = false;
 
 // ------------------------------------------------
@@ -56,31 +67,27 @@ let isLoading = false;
 const emitter = inject('emitter');
 
 // ------------------------------------------------
-// Reservation
+// Emits
+// ------------------------------------------------
+const emit = defineEmits([
+    'show-status',
+    'open-modal-component'
+    ])
+
+// ------------------------------------------------
+// Stores
 // ------------------------------------------------
 let reservationStore = useReservationStore()
-
-/*
-const reservationInitState = reactive({
-    isSelected: false,
-    resource: '',
-    start: '',
-    end: '',
-})
-
-let reservation = reactive({ ...reservationInitState })
-
-const resetReservation = () => {
-    console.log('Resetting reservation')
-    Object.assign(reservation, reservationInitState);
-    console.log(reservation)
-}
-*/
+let authStore = useAuthStore()
 
 // ------------------------------------------------
-// Modal
+// FIXME: Modal
 // ------------------------------------------------
-let showModal = ref(false)
+const modal = useModal();
+
+// ------------------------------------------------
+// CALENDAR METHODS
+// ------------------------------------------------
 
 // ------------------------------------------------
 // refCalendar
@@ -91,11 +98,6 @@ const refCalendar = ref(null)
 // Init calendarApi
 // ------------------------------------------------
 let calendarApi = null
-
-const refetchEvents = () => {
-    console.log('Refetching reservations from API');
-    calendarApi.refetchEvents()
-}
 
 // ------------------------------------------------
 // Get calendar API instance and event bus
@@ -160,19 +162,49 @@ const getBusinessHours = () => {
     return result;
 }
 
+// ------------------------------------------------
+// Fetch events from backend
+// ------------------------------------------------
 const getEvents = (fetchInfo, successCallback, failureCallback) => {
-    let params = {
+    let payload = {
         start: fetchInfo.start,
         end: fetchInfo.end
     };
+    // show loading indicator
     isLoading = true;
 
-    axios({ method: 'GET', url: '/api/reservations', params: params})
+    axios({ method: 'GET', url: '/api/reservations', params: payload})
         .then((response) => {
             successCallback(response.data);
+            // hide loading indicator
             isLoading = false
         });
 }
+
+const refetchEvents = () => {
+    calendarApi.refetchEvents()
+    console.log('Refetched events from API');
+}
+
+// Refetch events if store state of isAuthenticated changes => after login / logout
+watch(
+    () => authStore.isAuthenticated,
+    () => {
+        console.log('Refetching events after auth change')
+        refetchEvents()
+    },
+)
+
+// Refetch events if store state of doCalendarRefetch changes => after modal action
+watch(
+    () => reservationStore.doCalendarRefetch,
+    () => {
+        console.log('Refetching events after modal action')
+        modal.close()
+        refetchEvents()
+        reservationStore.doCalendarRefetch = false
+    },
+)
 
 // ------------------------------------------------
 // Selection constraints
@@ -202,23 +234,82 @@ const isSelectAllow = (event) => {
 // ------------------------------------------------
 // Select action
 // ------------------------------------------------
-const onSelect = (selectionInfo) => {
-    let resource = selectionInfo.resource
-    let eventStart = selectionInfo.startStr
-    let eventEnd = selectionInfo.endStr
+const onSelect = (eventInfo) => {
+    console.log(eventInfo.resource)
+    if (!authStore.isAuthenticated) {
+        emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
+    } else {
+        let reservationData = {
+            isSelected: true,
+            resource: eventInfo.resource,
+            start: eventInfo.startStr,
+            end: eventInfo.endStr,
+            confirmer: '',
+        };
 
+        emit('open-modal-component', {
+            view: AddReservation,
+            content: {
+                title: 'Add Reservation',
+                description: "Add your reservation here, you won't regret it."
+            },
+            payload: reservationData,
+            actions: [
+                {
+                    label: 'Save reservation',
+                    callback: (payloadFromView) => {
+                        console.log(reservationStore.getIsStoredOk)
+                        if (reservationStore.addReservation(payloadFromView)) {
+                            modal.close();
+                        }
+                    },
+                }
+            ],
+        })
+    }
+}
+
+const onEventClick = (eventInfo) => {
     let reservationData = {
-        isSelected: true,
-        resource: resource.id,
-        start: eventStart,
-        end: eventEnd,
-    };
-    reservationStore.addCurrentReservation(reservationData)
+        resource: '',
+        reservation_id: '',
+        extraData: '',
+    }
 
-    console.log('Selected ' + resource.title + ' (' + resource.id + ')');
-    console.log('Slot: ' + eventStart + ' - ' + eventEnd);
-    showModal.value = true
-    console.log(showModal.value)
+    if (eventInfo.resource) {
+        /* This is a new selection */
+        let dataPath = eventInfo;
+        reservationData.resource = {
+            id: dataPath.resource._resource.id,
+            title: dataPath.resource._resource.title,
+        }
+    } else {
+        /* This is an event */
+        let dataPath = eventInfo.event;
+        reservationData.resource = {
+            id: dataPath.getResources()[0]._resource.id,
+            title: dataPath.getResources()[0]._resource.title,
+        },
+        reservationData.reservation_id = dataPath.id;
+        reservationData.extraData = dataPath.extendedProps;
+    }
+
+    emit('open-modal-component', {
+        view: ShowReservation,
+        content: {
+            title: 'Show Reservation',
+            description: "Info about reservation here."
+        },
+        payload: reservationData,
+        actions: [
+            {
+                label: 'OK',
+                callback: () => {
+                    modal.close();
+                },
+            }
+        ],
+    })
 }
 
 // ------------------------------------------------
@@ -257,7 +348,7 @@ const calendarOptions = {
     contentHeight: 'auto',
     stickyHeaderDates: true,
     weekends: true,
-    editable: true,
+    editable: false,
     nowIndicator: true,
     allDaySlot: false,
     longPressDelay: 0,
@@ -269,6 +360,7 @@ const calendarOptions = {
     selectable: isSelectable,
     selectAllow: isSelectAllow,
     select: onSelect,
+    eventClick: onEventClick,
 }
 </script>
 
@@ -280,5 +372,9 @@ const calendarOptions = {
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {
     overflow: visible;
+}
+
+a.fc-event, a.fc-event:hover {
+    cursor: pointer;
 }
 </style>

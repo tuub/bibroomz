@@ -34,6 +34,5 @@ class ResourceController extends Controller
         ];
 
         return json_encode($businessHours);
-
     }
 }
