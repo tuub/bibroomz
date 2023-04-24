@@ -1,9 +1,9 @@
 <template>
     <span id="label"
-          class="text-xs font-semibold inline-block py-2 px-3 uppercase rounded uppercase last:mr-0 mr-1"
+          class="text-xs font-semibold inline-block py-2 px-3 uppercase rounded uppercase last:mr-0 mr-1 mt-1"
           :class="[classTextColor, classBgColor]"
           :style="{'color': styleTextColor, 'background-color': styleBgColor}">
-        <span :class="iconClass" class="mr-1"></span>
+        <span :class="iconClass" class="mr-1" v-if="iconClass"></span>
         {{ text }}
     </span>
 </template>
@@ -22,11 +22,11 @@ const props = defineProps({
 })
 
 const classTextColor = computed(() => {
-    return props.textColorClass !== 'undefined' ? 'text-' + props.textColorClass : ''
+    return props.textColorClass !== 'undefined' ? props.textColorClass : ''
 })
 
 const classBgColor = computed(() => {
-    return props.bgColorClass !== 'undefined' ? 'bg-' + props.bgColorClass : ''
+    return props.bgColorClass !== 'undefined' ? props.bgColorClass : ''
 })
 
 const styleTextColor = computed(() => {
