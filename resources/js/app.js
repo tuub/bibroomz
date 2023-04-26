@@ -8,8 +8,6 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import mitt from 'mitt'
 import '../css/app.css'
 import VueFinalModal from 'vue-final-modal';
-import NotificationModal from "./Components/NotificationModal.vue";
-import ReservationModal from "./Components/ReservationModal.vue";
 import ReservationInfo from "./Components/ReservationInfo.vue";
 import UserInfo from "./Components/UserInfo.vue";
 import MainLayout from "./Layouts/MainLayout.vue";
@@ -71,8 +69,6 @@ createInertiaApp({
             // FIXME: Necessary?
             .component('Head', Head)
             .component('Link', Link)
-            .component('NotificationModal', NotificationModal)
-            .component('ReservationModal', ReservationModal)
             .component('ReservationInfo', ReservationInfo)
             .component('UserInfo', UserInfo)
             .use(plugin)
