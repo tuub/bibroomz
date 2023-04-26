@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReservationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateReservationsTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('reservations');
-        Schema::create('reservations', function (Blueprint $table) {
+        Schema::dropIfExists('happenings');
+        Schema::create('happenings', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
             $table->uuid('user_id_01');
@@ -28,7 +28,7 @@ class CreateReservationsTable extends Migration
             $table->dateTimeTz('start');
             $table->dateTimeTz('end');
             $table->dateTimeTz('reserved_at');
-            $table->dateTimeTz('booked_at')->nullable();
+            $table->dateTimeTz('confirmed_at')->nullable();
             $table->timestamps();
         });
     }
@@ -42,4 +42,4 @@ class CreateReservationsTable extends Migration
     {
         Schema::dropIfExists('reservations');
     }
-}
+};

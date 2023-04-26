@@ -1,4 +1,4 @@
-<!-- AddReservation.vue -->
+<!-- ShowHappening.vue -->
 <template>
     <div class="text-3xl font-bold">
         {{ content.title }}
@@ -6,11 +6,11 @@
     <div class="italic mt-4 mb-4">
         {{ content.description }}
     </div>
-    <ReservationInfo :reservation="payload"></ReservationInfo>
+    <HappeningInfo :happening="payload"></HappeningInfo>
 </template>
 
 <script setup>
-import ReservationInfo from "../ReservationInfo.vue";
+import HappeningInfo from "../HappeningInfo.vue";
 
 const props = defineProps({
     content: Object,

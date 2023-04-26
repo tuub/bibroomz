@@ -29,9 +29,9 @@ class Resource extends Model
         return $this->belongsTo(Institution::class);
     }
 
-    public function reservations(): HasMany
+    public function happenings(): HasMany
     {
-        return $this->hasMany(Reservation::class);
+        return $this->hasMany(Happening::class);
     }
 
     /*****************************************************************

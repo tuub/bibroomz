@@ -9,7 +9,7 @@ export const useAuthStore = defineStore({
         user: null,
         isAuthenticated: false,
         doRefreshInterface: false,
-        userEvents: {},
+        userHappenings: {},
     }),
     actions: {
         async csrf() {
@@ -18,7 +18,7 @@ export const useAuthStore = defineStore({
         async check() {
             await axios.post(`${baseUrl}/check`).then((response) => {
                 this.user = response.data.user
-                this.fetchUserEvents()
+                this.fetchUserHappenings()
                 this.isAuthenticated = response.data.status
                 this.doRefreshInterface = true
             })
@@ -29,7 +29,7 @@ export const useAuthStore = defineStore({
             await axios.post(`${baseUrl}/login`, {username, password}).then((response) => {
                 this.user = response.data
                 this.isAuthenticated = true;
-                this.fetchUserEvents()
+                this.fetchUserHappenings()
                 console.log(this.isAuthenticated)
 
             })
@@ -38,12 +38,22 @@ export const useAuthStore = defineStore({
             await axios.post(`${baseUrl}/logout`).then(() => {
                 this.user = null;
                 this.isAuthenticated = false;
-                this.userEvents = {};
+                this.userHappenings = {};
             })
         },
-        async fetchUserEvents() {
-            await axios.get(`${baseUrl}/my/events`).then((response) => {
-                this.userEvents = response.data
+        async fetchUserHappenings() {
+            await axios.get(`${baseUrl}/my/happenings`).then((response) => {
+                this.userHappenings = response.data
+            }).catch((response) => {
+                console.log('API Error:')
+                console.log(response)
+            });
+        },
+        async deleteUserHappening(id) {
+            await axios.delete(`${baseUrl}/happenings/${id}`).then((response) => {
+                console.log(response)
+                this.fetchUserHappenings()
+                this.doRefreshInterface = true
             }).catch((response) => {
                 console.log('API Error:')
                 console.log(response)
@@ -51,6 +61,6 @@ export const useAuthStore = defineStore({
         },
     },
     getters: {
-        getIsAuthenticated: (state) => state.isAuthenticated,
+        //getIsAuthenticated: (state) => state.isAuthenticated,
     },
 });

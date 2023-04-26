@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use http\Env\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -61,9 +60,9 @@ class User extends Authenticatable
      * RELATIONS
      ****************************************************************/
 
-    public function reservations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function happenings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Reservation::class, 'user_id_01', 'id');
+        return $this->hasMany(Happening::class, 'user_id_01', 'id');
     }
     /*****************************************************************
      * METHODS

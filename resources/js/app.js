@@ -8,7 +8,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import mitt from 'mitt'
 import '../css/app.css'
 import VueFinalModal from 'vue-final-modal';
-import ReservationInfo from "./Components/ReservationInfo.vue";
+import HappeningInfo from "./Components/HappeningInfo.vue";
 import UserInfo from "./Components/UserInfo.vue";
 import MainLayout from "./Layouts/MainLayout.vue";
 import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
@@ -69,8 +69,6 @@ createInertiaApp({
             // FIXME: Necessary?
             .component('Head', Head)
             .component('Link', Link)
-            .component('ReservationInfo', ReservationInfo)
-            .component('UserInfo', UserInfo)
             .use(plugin)
             .mount(el)
     },

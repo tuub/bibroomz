@@ -8,7 +8,7 @@
         <div id="sidebar" class="basis-1/5 md:basis-1/5">
             <Legend></Legend>
             <div v-if="isAuthenticated">
-                <UserEvents :events="userEvents"></UserEvents>
+                <UserHappenings :happenings="userHappenings"></UserHappenings>
             </div>
             <div v-else>
                 <LoginForm></LoginForm>
@@ -26,7 +26,7 @@
 <script setup>
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
-import UserEvents from "../Components/UserEvents.vue"
+import UserHappenings from "../Components/UserHappenings.vue"
 import Legend from "../Components/Legend.vue";
 
 import XModal from "../Shared/XModal.vue";
@@ -34,18 +34,18 @@ import useModal from "../Stores/Modal.ts";
 
 import { useAuthStore } from '../Stores/AuthStore';
 import {onMounted, ref, watch} from "vue";
-import {useReservationStore} from "../Stores/ReservationStore";
+import {useHappeningStore} from "../Stores/HappeningStore";
 import {storeToRefs} from "pinia";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
-const reservationStore = useReservationStore();
+const happeningStore = useHappeningStore();
 const modal = useModal();
 
-let { isAuthenticated, userEvents } = storeToRefs(authStore)
-let { doRefreshInterface } = storeToRefs(reservationStore)
+let { isAuthenticated, userHappenings } = storeToRefs(authStore)
+let { doRefreshInterface } = storeToRefs(happeningStore)
 // ------------------------------------------------
 // Status message
 // ------------------------------------------------
@@ -65,8 +65,8 @@ const getModal = (data) => {
 // Watchers
 // ------------------------------------------------
 watch(doRefreshInterface, () => {
-    authStore.fetchUserEvents().then(() => {
-        reservationStore.doRefreshInterface = false
+    authStore.fetchUserHappenings().then(() => {
+        happeningStore.doRefreshInterface = false
     })
 })
 // ------------------------------------------------

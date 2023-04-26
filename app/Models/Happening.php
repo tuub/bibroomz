@@ -8,7 +8,7 @@ use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
-class Reservation extends Model
+class Happening extends Model
 {
     /*****************************************************************
      * TRAITS
@@ -18,7 +18,7 @@ class Reservation extends Model
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
-    protected $table = 'reservations';
+    protected $table = 'happenings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
 
@@ -40,7 +40,7 @@ class Reservation extends Model
      * RELATIONS
      ****************************************************************/
 
-    // FIXME: a reservation belongs to 1 resource
+    // FIXME: a happening belongs to 1 resource
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
@@ -90,7 +90,7 @@ class Reservation extends Model
 
         // We have a login ...
         if (auth()->check()) {
-            // Reservation is confirmed ...
+            // Happening is confirmed ...
             if ($this->is_confirmed)
             {
                 // ... and belongs to you
@@ -119,7 +119,7 @@ class Reservation extends Model
                     $status['css'] = 'booking';
                 }
             }
-            // Reservation is unconfirmed ...
+            // Happening is unconfirmed ...
             else
             {
                 // ... and belongs to you

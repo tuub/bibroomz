@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
+use App\Models\Happening;
 use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class ReservationController extends Controller
+class HappeningController extends Controller
 {
-    public function getReservations(Request $request)
+    public function getHappenings(Request $request)
     {
         $output = [];
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
 
-        $reservations = Reservation::with('resource', 'user1', 'user2')
+        $happenings = Happening::with('resource', 'user1', 'user2')
             ->where('start', '>=', $from)
             ->where('end', '<=', $to)
             ->get();
 
-        foreach ($reservations as $reservation) {
-            //dd($reservation);
+        foreach ($happenings as $happening) {
+            //dd($happening);
 
-            $status = $reservation->getStatus();
+            $status = $happening->getStatus();
             $style = $status['css'];
             $user = $status['user'];
 
             $output[] = [
-                'id' => $reservation->id,
+                'id' => $happening->id,
                 'status' => $status, //$event['status'],
-                'resourceId' => $reservation->resource->id,
-                'start' => Carbon::parse($reservation->start)->format('Y-m-d H:i'),
-                'end' => Carbon::parse($reservation->end)->format('Y-m-d H:i'),
+                'resourceId' => $happening->resource->id,
+                'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
+                'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'user' => $user,
                 'classNames' => $style,
             ];
@@ -51,7 +51,7 @@ class ReservationController extends Controller
         return $date;
     }
 
-    public function addReservation(Request $request)
+    public function addHappening(Request $request)
     {
         if (!auth()->user()) {
             return redirect()->back()->with('error', 'Updating the demo user is not allowed.');
@@ -68,7 +68,7 @@ class ReservationController extends Controller
 
             $resource = Resource::find($request->resource['id']);
 
-            $reservation = new Reservation([
+            $happening = new Happening([
                 'user_id_01' => auth()->user()->id,
                 'user_id_02' => $as_admin ? auth()->user()->id : null,
                 'resource_id' => $resource->id,
@@ -77,10 +77,10 @@ class ReservationController extends Controller
                 'start' => self::carbonize($request->start)->format('Y-m-d H:i:s'),
                 'end' => self::carbonize($request->end)->format('Y-m-d H:i:s'),
                 'reserved_at' => Carbon::now(),
-                'booked_at' => $as_admin ? Carbon::now() : null,
+                'confirmed_at' => $as_admin ? Carbon::now() : null,
             ]);
 
-            $op = $reservation->save() && $reservation->resource()->associate($resource);
+            $op = $happening->save() && $happening->resource()->associate($resource);
 
             if ($op) {
                 return 'SUCCESS!';

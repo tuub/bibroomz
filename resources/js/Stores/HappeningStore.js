@@ -1,10 +1,10 @@
 import {defineStore} from "pinia";
 
-export const useReservationStore = defineStore({
-    id: 'reservation',
+export const useHappeningStore = defineStore({
+    id: 'happening',
     state: () => {
         return {
-            reservation: {
+            happening: {
                 resource: {},
                 start: '',
                 end: '',
@@ -15,8 +15,8 @@ export const useReservationStore = defineStore({
         }
     },
     actions: {
-        addReservation(reservationData) {
-            axios.post('/reservations/add', reservationData)
+        addHappening(happeningData) {
+            axios.post('/happenings/add', happeningData)
                 .then((response) => {
                     console.log('API response:')
                     console.log(response)
@@ -30,12 +30,26 @@ export const useReservationStore = defineStore({
                     this.validationErrors = error.response.data.errors
                     console.log(this.validationErrors)
                 })
-        }
+        },
+        editHappening(id) {
+            /*
+            axios.post(`${baseUrl}/happenings/edit/${id}`, happeningData)
+                .then((response) => {
+                    console.log(response)
+                })
+                .catch((error) => {
+                    console.log('API Error:');
+                    this.validationErrors = error.response.data.errors
+                    console.log(this.validationErrors)
+                })
+             */
+        },
+
     },
     getters: {
-        getReservationResource: (state) => state.reservation.resource,
-        getReservationStart: (state) => state.reservation.start,
-        getReservationEnd: (state) => state.reservation.end,
+        getHappeningResource: (state) => state.happening.resource,
+        getHappeningStart: (state) => state.happening.start,
+        getHappeningEnd: (state) => state.happening.end,
         getValidationErrors: (state) => state.validationErrors,
         getDoRefreshCalendar: (state) => state.doRefreshCalendar,
         getDoRefreshInterface: (state) => state.doRefreshInterface,

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\HappeningController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
@@ -28,22 +28,19 @@ Route::post('/check', [LoginController::class, 'check'])->name('check');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
+// API calls
+Route::get('/business_hours', [ResourceController::class, 'getBusinessHours'])->name('business_hours.get');
+Route::get('/resources', [ResourceController::class, 'getResources'])->name('resources.get');
+Route::get('/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
 
 Route::middleware('auth:sanctum')->group(function() {
-    Route::get('/my', function () {
-        return Inertia::render('Profile', [
-            'time' => now()->toTimeString(),
-            'user' => auth()->user(),
-            'user_reservations' => auth()->user()->reservations,
-        ]);
-    });
-    Route::get('/my/events', [UserController::class, 'getEvents'])->name('user_events');
+    Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
+    Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
+    Route::post('/happenings/add', [HappeningController::class, 'addHappening'])->name('happening.add');
+    Route::delete('/happenings/{id}', [UserController::class, 'deleteHappening'])->name('happening.delete');
 });
 
 Route::middleware('auth')->group(function() {
-
-    Route::post('/reservations/add', [ReservationController::class, 'addReservation'])->name('reservation.add');
-
     Route::get('/admin/resources', function () {
         return Inertia::render('Admin/Resources/Index', [
             'resources' => Resource::query()
@@ -83,9 +80,4 @@ Route::middleware('auth')->group(function() {
         return redirect('/admin/resources');
     });
 });
-
-
-Route::get('/api/business_hours', [ResourceController::class, 'getBusinessHours'])->name('business_hours.get');
-Route::get('/api/resources', [ResourceController::class, 'getResources'])->name('resources.get');
-Route::get('/api/reservations', [ReservationController::class, 'getReservations'])->name('reservations.get');
 

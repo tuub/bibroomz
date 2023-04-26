@@ -9,16 +9,6 @@
                 </div>
             </template>
         </FullCalendar>
-
-        <!--
-        <AddReservationModal
-            :showModal="showAddModal"
-            @hideModal="showAddModal = false"
-            @refetch-events="refetchEvents"
-        >
-        </AddReservationModal>
-        -->
-
     </div>
 </template>
 
@@ -32,12 +22,11 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
 import {inject, onMounted, reactive, ref, watch} from "vue";
-//import AddReservationModal from "./Modals/AddReservationModal.vue";
-import {useReservationStore} from "../Stores/ReservationStore";
+import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
-import AddReservation from "./Modals/AddReservation.vue";
-import ShowReservation from "./Modals/ShowReservation.vue";
+import AddHappening from "./Modals/AddHappening.vue";
+import ShowHappening from "./Modals/ShowHappening.vue";
 import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
 
@@ -78,7 +67,7 @@ const emit = defineEmits([
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-let reservationStore = useReservationStore()
+let happeningStore = useHappeningStore()
 let authStore = useAuthStore()
 
 let { isAuthenticated } = storeToRefs(authStore)
@@ -108,9 +97,9 @@ onMounted(() => {
     // Get Calendar API
     calendarApi = refCalendar.value.getApi()
     // Listen to emitter events
-    emitter.on('reservation-added', (event) => {
+    emitter.on('happening-added', (event) => {
         calendarApi.refetchEvents()
-        console.log('Refetched events.');
+        console.log('Refetched happenings.');
     })
 })
 
@@ -125,7 +114,7 @@ dayjs.extend(isBetween)
 // Fetch resources from backend
 // ------------------------------------------------
 const getResources = () => {
-    return '/api/resources';
+    return '/resources';
 }
 
 // ------------------------------------------------
@@ -146,7 +135,7 @@ const getValidRange = () => {
 // ------------------------------------------------
 const getBusinessHours = () => {
     let result = [];
-    axios.get('/api/business_hours').then((response) => {
+    axios.get('/business_hours').then((response) => {
         let data = response.data;
         for (let weekDay in data) {
             if (data.hasOwnProperty(weekDay)) {
@@ -165,9 +154,9 @@ const getBusinessHours = () => {
 }
 
 // ------------------------------------------------
-// Fetch events from backend
+// Fetch happenings from backend
 // ------------------------------------------------
-const getEvents = (fetchInfo, successCallback, failureCallback) => {
+const getHappenings = (fetchInfo, successCallback, failureCallback) => {
     let payload = {
         start: fetchInfo.start,
         end: fetchInfo.end
@@ -175,7 +164,7 @@ const getEvents = (fetchInfo, successCallback, failureCallback) => {
     // show loading indicator
     isLoading = true;
 
-    axios({ method: 'GET', url: '/api/reservations', params: payload})
+    axios({ method: 'GET', url: '/happenings', params: payload})
         .then((response) => {
             successCallback(response.data);
             // hide loading indicator
@@ -183,24 +172,32 @@ const getEvents = (fetchInfo, successCallback, failureCallback) => {
         });
 }
 
-const refetchEvents = () => {
+const refetchHappenings = () => {
     calendarApi.refetchEvents()
 }
 
-// Refetch events if store state of isAuthenticated changes => after login / logout
+// Refetch happenings if store state of isAuthenticated changes => after login / logout
 watch(isAuthenticated, (value) => {
-    console.log('Auth change: Refetching calendar events ' + value)
-    refetchEvents()
+    console.log('Auth change: Refetching happenings ' + value)
+    refetchHappenings()
 })
 
-// Refetch events if store state of doCalendarRefetch changes => after modal action
+// Refetch happenings if store state of doCalendarRefetch changes => after modal action
 watch(
-    () => reservationStore.doRefreshCalendar,
+    () => happeningStore.doRefreshCalendar,
     () => {
-        console.log('Refetching events after modal action')
+        console.log('Refetching happenings after modal action')
         modal.close()
-        refetchEvents()
-        reservationStore.doRefreshCalendar = false
+        refetchHappenings()
+        happeningStore.doRefreshCalendar = false
+    },
+)
+
+watch(
+    () => authStore.doRefreshInterface,
+    () => {
+        refetchHappenings()
+        authStore.doRefreshInterface = false
     },
 )
 
@@ -237,7 +234,7 @@ const onSelect = (eventInfo) => {
     if (!authStore.isAuthenticated) {
         emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
     } else {
-        let reservationData = reactive({
+        let happeningData = reactive({
             isSelected: true,
             resource: eventInfo.resource,
             start: eventInfo.startStr,
@@ -246,18 +243,18 @@ const onSelect = (eventInfo) => {
         });
 
         emit('open-modal-component', {
-            view: AddReservation,
+            view: AddHappening,
             content: {
                 title: 'Add Reservation',
                 description: "Add your reservation here, you won't regret it."
             },
-            payload: reservationData,
+            payload: happeningData,
             actions: [
                 {
                     label: 'Save reservation',
                     callback: (payloadFromView) => {
-                        if (reservationStore.addReservation(payloadFromView)) {
-                            authStore.fetchUserEvents()
+                        if (happeningStore.addHappening(payloadFromView)) {
+                            authStore.fetchUserHappenings()
                             modal.close();
                         }
                     },
@@ -268,37 +265,37 @@ const onSelect = (eventInfo) => {
 }
 
 const onEventClick = (eventInfo) => {
-    let reservationData = {
+    let happeningData = {
         resource: '',
-        reservation_id: '',
+        happening_id: '',
         extraData: '',
     }
 
     if (eventInfo.resource) {
         /* This is a new selection */
         let dataPath = eventInfo;
-        reservationData.resource = {
+        happeningData.resource = {
             id: dataPath.resource._resource.id,
             title: dataPath.resource._resource.title,
         }
     } else {
         /* This is an event */
         let dataPath = eventInfo.event;
-        reservationData.resource = {
+        happeningData.resource = {
             id: dataPath.getResources()[0]._resource.id,
             title: dataPath.getResources()[0]._resource.title,
         };
-        reservationData.reservation_id = dataPath.id;
-        reservationData.extraData = dataPath.extendedProps;
+        happeningData.happening_id = dataPath.id;
+        happeningData.extraData = dataPath.extendedProps;
     }
 
     emit('open-modal-component', {
-        view: ShowReservation,
+        view: ShowHappening,
         content: {
             title: 'Show Reservation',
             description: "Info about reservation here."
         },
-        payload: reservationData,
+        payload: happeningData,
         actions: [
             {
                 label: 'OK',
@@ -338,7 +335,7 @@ const calendarOptions = {
     validRange: getValidRange(),
     resources: getResources(),
     businessHours: getBusinessHours(),
-    events: getEvents,
+    events: getHappenings,
     slotMinTime: '09:00',
     slotMaxTime: '24:00',
     resourceOrder: 'title',

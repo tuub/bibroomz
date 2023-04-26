@@ -31,7 +31,6 @@
                 Submit
             </button>
         </div>
-        <p>Credentials: {{ form }}</p>
     </form>
 
 </template>

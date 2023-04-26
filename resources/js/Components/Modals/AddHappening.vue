@@ -1,4 +1,4 @@
-<!-- AddReservation.vue -->
+<!-- AddHappening.vue -->
 <template>
     <div class="text-3xl font-bold">
         {{ content.title }}
@@ -7,12 +7,12 @@
         {{ content.description }}
     </div>
 
-    <ReservationInfo :reservation="reservationData"></ReservationInfo>
+    <HappeningInfo :happening="happeningData"></HappeningInfo>
 
     <form @submit.prevent="updatePayload">
-        <input v-model="reservationData.start" type="text" class="input w-full max-w-xs" name="start" id="start" />
-        <input v-model="reservationData.end" type="text" class="input w-full max-w-xs" name="end" id="end" />
-        <input v-model="reservationData.confirmer" type="text" class="input w-full max-w-xs" name="confirmer" id="confirmer" />
+        <input v-model="happeningData.start" type="text" class="input w-full max-w-xs" name="start" id="start" />
+        <input v-model="happeningData.end" type="text" class="input w-full max-w-xs" name="end" id="end" />
+        <input v-model="happeningData.confirmer" type="text" class="input w-full max-w-xs" name="confirmer" id="confirmer" />
     </form>
 
     {{ validationErrors }}
@@ -21,15 +21,15 @@
 
 <script setup>
 import {onMounted, onUpdated, reactive, ref, watch} from "vue";
-import ReservationInfo from "../ReservationInfo.vue";
-import {useReservationStore} from "../../Stores/ReservationStore";
+import HappeningInfo from "../HappeningInfo.vue";
+import {useHappeningStore} from "../../Stores/HappeningStore";
 
-const reservationStore = useReservationStore()
+const happeningStore = useHappeningStore()
 let validationErrors = ref({})
 
 watch(
-    () => reservationStore.validationErrors,
-    () => { validationErrors.value = reservationStore.getValidationErrors },
+    () => happeningStore.validationErrors,
+    () => { validationErrors.value = happeningStore.getValidationErrors },
 )
 
 const emit = defineEmits([
@@ -41,7 +41,7 @@ const props = defineProps({
     payload: Object
 })
 
-let reservationData = reactive({
+let happeningData = reactive({
     resource: {
         id: props.payload.resource._resource.id,
         title: props.payload.resource._resource.title,
@@ -51,10 +51,11 @@ let reservationData = reactive({
     confirmer: 'BLA',
 })
 
-emit("update:payload", reservationData);
+// Perform first emit to enable prefilling of confirmer
+emit("update:payload", happeningData);
 
 // When reservationData changes, it will update the reference passed via v-model
-watch(reservationData, (value) => {
+watch(happeningData, (value) => {
     console.log('Emitting back:');
     console.log(value);
     emit("update:payload", value);
