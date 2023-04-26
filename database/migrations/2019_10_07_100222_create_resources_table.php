@@ -16,7 +16,7 @@ class CreateResourcesTable extends Migration
         Schema::dropIfExists('resources');
         Schema::create('resources', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->increments('id');
+            $table->uuid('id')->primary();
             $table->integer('institution_id')->unsigned();
             $table->foreign('institution_id')->references('id')->on('institutions');
             $table->string('title');

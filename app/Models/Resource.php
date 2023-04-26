@@ -2,25 +2,36 @@
 
 namespace App\Models;
 
+use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Resource extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUUID;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
+    protected $table = 'resources';
+    protected $uuidFieldName = 'id';
+    public $incrementing = false;
     public $timestamps = false;
     protected $fillable = ['institution_id', 'title', 'location', 'description', 'capacity', 'is_active'];
 
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-    public function institution(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
     }
 
     /*****************************************************************

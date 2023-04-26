@@ -21,6 +21,8 @@ class CreateReservationsTable extends Migration
             $table->foreign('user_id_01')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->uuid('user_id_02')->nullable();
             $table->foreign('user_id_02')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->uuid('resource_id')->nullable();
+            $table->foreign('resource_id')->references('id')->on('resources')->onUpdate('cascade')->onDelete('set null');
             $table->boolean('is_confirmed')->default(false);
             $table->string('confirmer')->nullable();
             $table->dateTimeTz('start');

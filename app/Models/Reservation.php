@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
 class Reservation extends Model
@@ -26,7 +27,7 @@ class Reservation extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['user_id_01', 'user_id_02', 'is_confirmed', 'confirmer', 'start', 'end', 'reserved_at', 'booked_at'];
+    protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_confirmed', 'confirmer', 'start', 'end', 'reserved_at', 'booked_at'];
 
     /**
      * The attributes that should be cast as datetimes.
@@ -39,9 +40,10 @@ class Reservation extends Model
      * RELATIONS
      ****************************************************************/
 
-    public function resource()
+    // FIXME: a reservation belongs to 1 resource
+    public function resource(): BelongsTo
     {
-        return $this->belongsToMany(Resource::class, 'reservation_resource');
+        return $this->belongsTo(Resource::class);
     }
 
     public function user1()

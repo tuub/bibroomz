@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -65,9 +66,12 @@ class ReservationController extends Controller
                 'confirmer' => 'required',
             ]);
 
+            $resource = Resource::find($request->resource['id']);
+
             $reservation = new Reservation([
                 'user_id_01' => auth()->user()->id,
                 'user_id_02' => $as_admin ? auth()->user()->id : null,
+                'resource_id' => $resource->id,
                 'is_confirmed' => $as_admin ?? false,
                 'confirmer' => $request->confirmer,
                 'start' => self::carbonize($request->start)->format('Y-m-d H:i:s'),
@@ -75,7 +79,8 @@ class ReservationController extends Controller
                 'reserved_at' => Carbon::now(),
                 'booked_at' => $as_admin ? Carbon::now() : null,
             ]);
-            $op = $reservation->save() && $reservation->resource()->sync($request->resource['id']);
+
+            $op = $reservation->save() && $reservation->resource()->associate($resource);
 
             if ($op) {
                 return 'SUCCESS!';
