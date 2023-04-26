@@ -5,20 +5,16 @@
 @tailwind utilities;
 
 * {
-    outline: 0px #336699 solid;
+    outline: 0 #336699 solid;
 }
 
 body {
     font-family: 'Open Sans', sans-serif;
 }
 
-
-
-
 /* Calender header */
 .fc-header-toolbar {
     h2 {
-        font-family: 'Merriweather', serif;
         font-size: 1rem;
         font-weight: 700;
     }

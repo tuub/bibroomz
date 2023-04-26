@@ -9,7 +9,7 @@ export const useAuthStore = defineStore({
         user: null,
         isAuthenticated: false,
         doRefreshInterface: false,
-        userHappenings: {},
+        userHappenings: [],
     }),
     actions: {
         async csrf() {
@@ -31,14 +31,13 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = true;
                 this.fetchUserHappenings()
                 console.log(this.isAuthenticated)
-
             })
         },
         async logout() {
             await axios.post(`${baseUrl}/logout`).then(() => {
                 this.user = null;
                 this.isAuthenticated = false;
-                this.userHappenings = {};
+                this.userHappenings = [];
             })
         },
         async fetchUserHappenings() {
@@ -49,18 +48,32 @@ export const useAuthStore = defineStore({
                 console.log(response)
             });
         },
-        async deleteUserHappening(id) {
-            await axios.delete(`${baseUrl}/happenings/${id}`).then((response) => {
-                console.log(response)
-                this.fetchUserHappenings()
-                this.doRefreshInterface = true
+        async fetchUserHappening(id) {
+            await axios.get(`${baseUrl}/my/happenings`).then((response) => {
+                this.userHappenings = response.data
             }).catch((response) => {
                 console.log('API Error:')
                 console.log(response)
             });
         },
-    },
-    getters: {
-        //getIsAuthenticated: (state) => state.isAuthenticated,
+        addUserHappening(happening) {
+            console.log('Happening to add via websockets:')
+            console.log(happening)
+            this.userHappenings.push(happening)
+            // Order userHappenings array by start datetime
+            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+        },
+        updateUserHappening(happening) {
+            console.log('Happening to update via websockets:')
+            let existingIndex = this.userHappenings.findIndex((obj => obj.id === happening.id));
+            this.userHappenings[existingIndex] = happening;
+            // Order userHappenings array by start datetime
+            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+        },
+        removeUserHappening(id) {
+            console.log('ID to delete via websockets: ' + id)
+            let index = this.userHappenings.findIndex(x => x.id === id)
+            this.userHappenings.splice(index, 1)
+        }
     },
 });

@@ -1,25 +1,15 @@
 import './bootstrap';
 
 import { createApp, h } from 'vue'
-import {createInertiaApp, Head, Link, usePage} from "@inertiajs/vue3";
-import App from './Pages/App.vue'
+import {createInertiaApp, Head, Link} from "@inertiajs/vue3";
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import mitt from 'mitt'
 import '../css/app.css'
-import VueFinalModal from 'vue-final-modal';
-import HappeningInfo from "./Components/HappeningInfo.vue";
-import UserInfo from "./Components/UserInfo.vue";
 import MainLayout from "./Layouts/MainLayout.vue";
 import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
 
 const emitter = mitt()
-
-const opts = {
-    key: "$vfm",
-    componentName: "VueFinalModal",
-    dynamicContainerName: "ModalsContainer"
-};
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
@@ -64,7 +54,6 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .provide('emitter', emitter)
-            .use(VueFinalModal)
             .use(pinia)
             // FIXME: Necessary?
             .component('Head', Head)

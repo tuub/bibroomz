@@ -37,7 +37,8 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
     Route::post('/happenings/add', [HappeningController::class, 'addHappening'])->name('happening.add');
-    Route::delete('/happenings/{id}', [UserController::class, 'deleteHappening'])->name('happening.delete');
+    Route::post('/happenings/update/{id}', [HappeningController::class, 'updateHappening'])->name('happening.add');
+    Route::delete('/happenings/delete/{id}', [HappeningController::class, 'deleteHappening'])->name('happening.delete');
 });
 
 Route::middleware('auth')->group(function() {

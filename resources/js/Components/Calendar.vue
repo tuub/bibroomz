@@ -1,6 +1,5 @@
 <template>
     <div class='calendar'>
-
         <FullCalendar ref="refCalendar" class='calendar' :options="calendarOptions">
             <template v-slot:eventContent='arg'>
                 <div class="text-center">
@@ -25,7 +24,7 @@ import {inject, onMounted, reactive, ref, watch} from "vue";
 import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
-import AddHappening from "./Modals/AddHappening.vue";
+import CreateHappening from "./Modals/CreateHappening.vue";
 import ShowHappening from "./Modals/ShowHappening.vue";
 import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
@@ -94,13 +93,8 @@ let calendarApi = null
 // Get calendar API instance and event bus
 // ------------------------------------------------
 onMounted(() => {
-    // Get Calendar API
+    // Init Calendar API
     calendarApi = refCalendar.value.getApi()
-    // Listen to emitter events
-    emitter.on('happening-added', (event) => {
-        calendarApi.refetchEvents()
-        console.log('Refetched happenings.');
-    })
 })
 
 // ------------------------------------------------
@@ -201,6 +195,15 @@ watch(
     },
 )
 
+watch(
+    () => happeningStore.doRefreshInterface,
+    () => {
+        refetchHappenings()
+        happeningStore.doRefreshInterface = false
+    },
+)
+
+
 // ------------------------------------------------
 // Selection constraints
 // ------------------------------------------------
@@ -243,10 +246,10 @@ const onSelect = (eventInfo) => {
         });
 
         emit('open-modal-component', {
-            view: AddHappening,
+            view: CreateHappening,
             content: {
-                title: 'Add Reservation',
-                description: "Add your reservation here, you won't regret it."
+                title: 'Create Reservation',
+                description: "Create your reservation here, you won't regret it."
             },
             payload: happeningData,
             actions: [

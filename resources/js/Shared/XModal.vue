@@ -36,7 +36,6 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from "vue";
 import { storeToRefs } from "pinia";
 import { useModal } from "../Stores/Modal.ts";
 

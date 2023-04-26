@@ -20,9 +20,4 @@ class UserController extends Controller
     {
         return auth()->user()->happenings()->with('resource')->orderBy('start')->get();
     }
-
-    public function deleteHappening($id)
-    {
-        return auth()->user()->happenings()->findOrFail($id)->delete();
-    }
 }

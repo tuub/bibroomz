@@ -45,7 +45,7 @@ const happeningStore = useHappeningStore();
 const modal = useModal();
 
 let { isAuthenticated, userHappenings } = storeToRefs(authStore)
-let { doRefreshInterface } = storeToRefs(happeningStore)
+
 // ------------------------------------------------
 // Status message
 // ------------------------------------------------
@@ -62,19 +62,26 @@ const getModal = (data) => {
 }
 
 // ------------------------------------------------
-// Watchers
-// ------------------------------------------------
-watch(doRefreshInterface, () => {
-    authStore.fetchUserHappenings().then(() => {
-        happeningStore.doRefreshInterface = false
-    })
-})
-// ------------------------------------------------
 // Mount
 // ------------------------------------------------
 onMounted(() => {
     // check auth session in backend
     authStore.check()
+
+    Echo.channel('happenings').listen('HappeningDeleted',(e)=>{
+        authStore.removeUserHappening(e.id)
+        happeningStore.doRefreshCalendar = true
+    })
+
+    Echo.channel('happenings').listen('HappeningCreated',(e)=>{
+        authStore.addUserHappening(e.happening)
+        happeningStore.doRefreshCalendar = true
+    })
+
+    Echo.channel('happenings').listen('HappeningUpdated',(e)=>{
+        authStore.updateUserHappening(e.happening)
+        happeningStore.doRefreshCalendar = true
+    })
 });
 
 

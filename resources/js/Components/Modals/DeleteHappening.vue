@@ -1,4 +1,4 @@
-<!-- AddHappening.vue -->
+<!-- UpdateHappening.vue -->
 <template>
     <div class="text-3xl font-bold">
         {{ content.title }}
@@ -9,18 +9,10 @@
 
     <HappeningInfo :happening="happeningData"></HappeningInfo>
 
-    <form @submit.prevent="updatePayload">
-        <input v-model="happeningData.start" type="text" class="input w-full max-w-xs" name="start" id="start" />
-        <input v-model="happeningData.end" type="text" class="input w-full max-w-xs" name="end" id="end" />
-        <input v-model="happeningData.confirmer" type="text" class="input w-full max-w-xs" name="confirmer" id="confirmer" />
-    </form>
-
-    {{ validationErrors }}
-
 </template>
 
 <script setup>
-import {onMounted, onUpdated, reactive, ref, watch} from "vue";
+import {reactive, ref, watch} from "vue";
 import HappeningInfo from "../HappeningInfo.vue";
 import {useHappeningStore} from "../../Stores/HappeningStore";
 
@@ -42,14 +34,16 @@ const props = defineProps({
 })
 
 let happeningData = reactive({
+    id: props.payload.id,
     resource: {
-        id: props.payload.resource._resource.id,
-        title: props.payload.resource._resource.title,
+        id: props.payload.resource.id,
+        title: props.payload.resource.title,
     },
     start: props.payload.start,
     end: props.payload.end,
     confirmer: 'BLA',
 })
+
 
 // Perform first emit to enable prefilling of confirmer
 emit("update:payload", happeningData);
@@ -60,4 +54,5 @@ watch(happeningData, (value) => {
     console.log(value);
     emit("update:payload", value);
 });
+
 </script>
