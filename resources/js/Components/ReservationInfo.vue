@@ -12,10 +12,10 @@
 <script setup>
 import Label from "../Shared/Label.vue";
 import dayjs from "dayjs";
-//import utc from 'dayjs/plugin/utc';
+import utc from 'dayjs/plugin/utc';
 import {computed} from "vue";
 
-//dayjs.extend(utc);
+dayjs.extend(utc);
 
 let props = defineProps({
     reservation: Object,

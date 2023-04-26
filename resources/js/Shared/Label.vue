@@ -22,12 +22,10 @@ const props = defineProps({
 })
 
 const classTextColor = computed(() => {
-    console.log('classTextColor = ' + props.textColorClass !== 'undefined' ? 'text-' + props.textColorClass : '')
     return props.textColorClass !== 'undefined' ? 'text-' + props.textColorClass : ''
 })
 
 const classBgColor = computed(() => {
-    console.log('classBgColor = ' + props.bgColorClass !== 'undefined' ? 'bg-' + props.bgColorClass : '')
     return props.bgColorClass !== 'undefined' ? 'bg-' + props.bgColorClass : ''
 })
 
@@ -38,13 +36,4 @@ const styleTextColor = computed(() => {
 const styleBgColor = computed(() => {
     return props.bgColor !== undefined ? props.bgColor : ''
 })
-
-//console.log('*******************')
-//console.log('props.textColor: ' + props.textColor)
-//console.log('props.textColorClass: ' + props.textColorClass)
-//console.log('props.bgColor: ' + props.bgColor)
-//console.log('props.bgColorClass: ' + props.bgColorClass)
-
-
-
 </script>

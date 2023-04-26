@@ -11,18 +11,9 @@
 
 <script setup>
 import {useAuthStore} from "../Stores/AuthStore.js";
-import {ref, watch} from "vue";
 import LegendItem from "./LegendItem.vue";
+import {storeToRefs} from "pinia";
 
 const authStore = useAuthStore();
-let isAuthenticated = ref(authStore.isAuthenticated);
-
-watch(
-    () => authStore.isAuthenticated,
-    () => {
-        console.log('Updated component after auth change: Legend')
-        isAuthenticated.value = authStore.isAuthenticated
-    },
-)
-
+let { isAuthenticated } = storeToRefs(authStore)
 </script>

@@ -9,10 +9,9 @@ export const useReservationStore = defineStore({
                 start: '',
                 end: '',
             },
-
             validationErrors: {},
-            isModalOpSuccessful: false,
-            doCalendarRefetch: false,
+            doRefreshCalendar: false,
+            doRefreshInterface: false,
         }
     },
     actions: {
@@ -22,9 +21,8 @@ export const useReservationStore = defineStore({
                     console.log('API response:')
                     console.log(response)
                     this.validationErrors = {}
-                    this.doCalendarRefetch = true
-                    this.isModalOpSuccessful = true
-                    console.log('Done.')
+                    this.doRefreshCalendar = true
+                    this.doRefreshInterface = true
                     return true
                 })
                 .catch((error) => {
@@ -39,7 +37,7 @@ export const useReservationStore = defineStore({
         getReservationStart: (state) => state.reservation.start,
         getReservationEnd: (state) => state.reservation.end,
         getValidationErrors: (state) => state.validationErrors,
-        getDoRefetch: (state) => state.doCalendarRefetch,
-        getIsModalOpSuccessful: (state) => state.isModalOpSuccessful,
+        getDoRefreshCalendar: (state) => state.doRefreshCalendar,
+        getDoRefreshInterface: (state) => state.doRefreshInterface,
     },
 });

@@ -31,7 +31,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import {inject, onMounted, ref, watch} from "vue";
+import {inject, onMounted, reactive, ref, watch} from "vue";
 //import AddReservationModal from "./Modals/AddReservationModal.vue";
 import {useReservationStore} from "../Stores/ReservationStore";
 import {useAuthStore} from "../Stores/AuthStore";
@@ -39,6 +39,7 @@ import {useAuthStore} from "../Stores/AuthStore";
 import AddReservation from "./Modals/AddReservation.vue";
 import ShowReservation from "./Modals/ShowReservation.vue";
 import useModal from "../Stores/Modal.ts";
+import {storeToRefs} from "pinia";
 
 // ------------------------------------------------
 // Debug information
@@ -80,6 +81,7 @@ const emit = defineEmits([
 let reservationStore = useReservationStore()
 let authStore = useAuthStore()
 
+let { isAuthenticated } = storeToRefs(authStore)
 // ------------------------------------------------
 // FIXME: Modal
 // ------------------------------------------------
@@ -183,26 +185,22 @@ const getEvents = (fetchInfo, successCallback, failureCallback) => {
 
 const refetchEvents = () => {
     calendarApi.refetchEvents()
-    console.log('Refetched events from API');
 }
 
 // Refetch events if store state of isAuthenticated changes => after login / logout
-watch(
-    () => authStore.isAuthenticated,
-    () => {
-        console.log('Refetching events after auth change')
-        refetchEvents()
-    },
-)
+watch(isAuthenticated, (value) => {
+    console.log('Auth change: Refetching calendar events ' + value)
+    refetchEvents()
+})
 
 // Refetch events if store state of doCalendarRefetch changes => after modal action
 watch(
-    () => reservationStore.doCalendarRefetch,
+    () => reservationStore.doRefreshCalendar,
     () => {
         console.log('Refetching events after modal action')
         modal.close()
         refetchEvents()
-        reservationStore.doCalendarRefetch = false
+        reservationStore.doRefreshCalendar = false
     },
 )
 
@@ -239,13 +237,13 @@ const onSelect = (eventInfo) => {
     if (!authStore.isAuthenticated) {
         emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
     } else {
-        let reservationData = {
+        let reservationData = reactive({
             isSelected: true,
             resource: eventInfo.resource,
             start: eventInfo.startStr,
             end: eventInfo.endStr,
             confirmer: '',
-        };
+        });
 
         emit('open-modal-component', {
             view: AddReservation,
@@ -258,8 +256,8 @@ const onSelect = (eventInfo) => {
                 {
                     label: 'Save reservation',
                     callback: (payloadFromView) => {
-                        console.log(reservationStore.getIsStoredOk)
                         if (reservationStore.addReservation(payloadFromView)) {
+                            authStore.fetchUserEvents()
                             modal.close();
                         }
                     },
@@ -289,7 +287,7 @@ const onEventClick = (eventInfo) => {
         reservationData.resource = {
             id: dataPath.getResources()[0]._resource.id,
             title: dataPath.getResources()[0]._resource.title,
-        },
+        };
         reservationData.reservation_id = dataPath.id;
         reservationData.extraData = dataPath.extendedProps;
     }

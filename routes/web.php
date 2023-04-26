@@ -3,6 +3,7 @@
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use App\Models\Resource;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function() {
             'user_reservations' => auth()->user()->reservations,
         ]);
     });
+    Route::get('/my/events', [UserController::class, 'getEvents'])->name('user_events');
 });
 
 Route::middleware('auth')->group(function() {

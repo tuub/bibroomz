@@ -8,48 +8,49 @@ export const useAuthStore = defineStore({
     state: () => ({
         user: null,
         isAuthenticated: false,
-        returnUrl: null,
+        doRefreshInterface: false,
+        userEvents: {},
     }),
     actions: {
         async csrf() {
             return await axios.get(`${baseUrl}/sanctum/csrf-cookie`)
         },
         async check() {
-            console.log('Checking for valid backend session');
-            const response = await axios.post(`${baseUrl}/check`)
-            console.log(response)
-            this.user = response.data.user
-            this.isAuthenticated = response.data.status
+            await axios.post(`${baseUrl}/check`).then((response) => {
+                this.user = response.data.user
+                this.fetchUserEvents()
+                this.isAuthenticated = response.data.status
+                this.doRefreshInterface = true
+            })
         },
         async login(username, password) {
-            console.log('Authenticating ' + username);
             await this.csrf()
 
-            const response = await axios.post(`${baseUrl}/login`, { username, password })
-            const user = response.data
+            await axios.post(`${baseUrl}/login`, {username, password}).then((response) => {
+                this.user = response.data
+                this.isAuthenticated = true;
+                this.fetchUserEvents()
+                console.log(this.isAuthenticated)
 
-            // update pinia state
-            this.user = user;
-            this.isAuthenticated = true;
-
-            // store user details and jwt in local storage to keep user logged in between page refreshes
-            //localStorage.setItem('user', JSON.stringify(user));
-            //localStorage.setItem('isAuthenticated', 'true');
-
-            // redirect to previous url or default to home page
-            //router.push(this.returnUrl || '/');
+            })
         },
         async logout() {
-            const user = await axios.post(`${baseUrl}/logout`)
-            this.user = null;
-            this.isAuthenticated = false;
-            //localStorage.removeItem('user');
-            //localStorage.removeItem('isAuthenticated');
-
-            //router.push('/login');
-        }
+            await axios.post(`${baseUrl}/logout`).then(() => {
+                this.user = null;
+                this.isAuthenticated = false;
+                this.userEvents = {};
+            })
+        },
+        async fetchUserEvents() {
+            await axios.get(`${baseUrl}/my/events`).then((response) => {
+                this.userEvents = response.data
+            }).catch((response) => {
+                console.log('API Error:')
+                console.log(response)
+            });
+        },
     },
     getters: {
-        isAuth: (state) => state.isAuthenticated,
+        getIsAuthenticated: (state) => state.isAuthenticated,
     },
 });

@@ -24,6 +24,7 @@ export const useModal = defineStore("modal", {
     }),
     actions: {
         open(view: Object, content: Object, payload: Object, actions?: ModalAction[]) {
+            /*
             console.log('*** MODAL OPENS ***');
             console.log('-> View');
             console.log(view);
@@ -33,7 +34,7 @@ export const useModal = defineStore("modal", {
             console.log(payload);
             console.log('-> Actions');
             console.log(actions);
-
+            */
             this.isOpen = true;
             // using markRaw to avoid over performance as reactive is not required
             this.view = markRaw(view);
