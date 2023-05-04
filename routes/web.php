@@ -4,10 +4,17 @@ use App\Http\Controllers\HappeningController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-use App\Models\Resource;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+use App\Http\Controllers\Admin\AdminController;
+
+use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
+use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
+use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
+use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,51 +41,65 @@ Route::get('/resources', [ResourceController::class, 'getResources'])->name('res
 Route::get('/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
 
 Route::middleware('auth:sanctum')->group(function() {
+    /* User actions */
     Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
     Route::post('/happenings/add', [HappeningController::class, 'addHappening'])->name('happening.add');
     Route::post('/happenings/update/{id}', [HappeningController::class, 'updateHappening'])->name('happening.add');
     Route::delete('/happenings/delete/{id}', [HappeningController::class, 'deleteHappening'])->name('happening.delete');
+
+    /************************************
+     * FIXME: LIMIT TO ADMIN VIA POLICIES
+     ************************************/
+    /* Dashboard */
+    Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])->name('admin.dashboard');
+
+    /* Happenings */
+    Route::get('/admin/happenings', [AdminHappeningController::class, 'getHappenings'])->name('admin.happening.index');
+    Route::get('/admin/happening/create', [AdminHappeningController::class, 'createHappening'])->name('admin.happening.create');
+    Route::get('/admin/happening/{id}/edit', [AdminHappeningController::class, 'editHappening'])->name('admin.happening.edit');
+    Route::post('/admin/happening/store', [AdminHappeningController::class, 'storeHappening'])->name('admin.happening.store');
+    Route::post('/admin/happening/update', [AdminHappeningController::class, 'updateHappening'])->name('admin.happening.update');
+    Route::post('/admin/happening/delete', [AdminHappeningController::class, 'deleteHappening'])->name('admin.happening.delete');
+
+    /* Institutions */
+    Route::get('/admin/institutions', [AdminInstitutionController::class, 'getInstitutions'])->name('admin.institution.index');
+    Route::get('/admin/institution/create', [AdminInstitutionController::class, 'createInstitution'])->name('admin.institution.create');
+    Route::get('/admin/institution/{id}/edit', [AdminInstitutionController::class, 'editInstitution'])->name('admin.institution.edit');
+    Route::post('/admin/institution/store', [AdminInstitutionController::class, 'storeInstitution'])->name('admin.institution.store');
+    Route::post('/admin/institution/update', [AdminInstitutionController::class, 'updateInstitution'])->name('admin.institution.update');
+    /* Institution Special */
+    Route::get('/admin/form/institutions', [AdminInstitutionController::class, 'getFormInstitutions'])->name('admin.institution.form');
+
+    /* Resources */
+    Route::get('/admin/resources', [AdminResourceController::class, 'getResources'])->name('admin.resource.index');
+    Route::get('/admin/resource/create', [AdminResourceController::class, 'createResource'])->name('admin.resource.create');
+    Route::get('/admin/resource/{id}/edit', [AdminResourceController::class, 'editResource'])->name('admin.resource.edit');
+    Route::post('/admin/resource/store', [AdminResourceController::class, 'storeResource'])->name('admin.resource.store');
+    Route::post('/admin/resource/update', [AdminResourceController::class, 'updateResource'])->name('admin.resource.update');
+    /* Resource Special */
+    Route::get('/admin/form/resources', [AdminResourceController::class, 'getFormResources'])->name('admin.resource.form');
+
+    /* Closings */
+    Route::get('/admin/closings/{closable_type}/{closable_id}', [AdminClosingController::class, 'getClosings'])->name('admin.closing.index');
+    Route::get('/admin/closing/create/{closable_type}/{closable_id}', [AdminClosingController::class, 'createClosing'])->name('admin.closing.create');
+    Route::get('/admin/closing/edit/{id}', [AdminClosingController::class, 'editClosing'])->name('admin.closing.edit');
+
+    Route::post('/admin/closing/store', [AdminClosingController::class, 'storeClosing'])->name('admin.closing.store');
+    Route::post('/admin/closing/update', [AdminClosingController::class, 'updateClosing'])->name('admin.closing.update');
+    Route::post('/admin/closing/delete', [AdminClosingController::class, 'deleteClosing'])->name('admin.closing.delete');
+
+    /* Users */
+    Route::get('/admin/users', [AdminUserController::class, 'getUsers'])->name('admin.user.index');
+    Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'editUser'])->name('admin.user.edit');
+    Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
+    /* Special */
+    Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
+
+
+
+    /* Stats */
+    Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');
+
+
 });
-
-Route::middleware('auth')->group(function() {
-    Route::get('/admin/resources', function () {
-        return Inertia::render('Admin/Resources/Index', [
-            'resources' => Resource::query()
-                ->when(Request::input('search'), function ($query, $search) {
-                    $query->where('title', 'LIKE', "%{$search}%")
-                        ->orWhere('location', 'LIKE', "%{$search}%")
-                        ->orWhere('description', 'LIKE', "%{$search}%");
-                })
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn($resource) => [
-                    'id' => $resource->id,
-                    'title' => $resource->title,
-                    'location' => $resource->location,
-                ]),
-            'filters' => Request::only(['search'])
-        ]);
-    });
-
-    Route::get('/admin/resources/create', function() {
-        return Inertia::render('Admin/Resources/Create');
-    });
-
-    Route::post('/admin/resources', function() {
-        sleep(3);
-        // Validate
-        $attributes = Request::validate([
-            'institution_id' => ['required', 'numeric'],
-            'title' => 'required',
-            'location' => 'required',
-            'description' => 'required',
-            'capacity' => ['numeric', 'gt:0']
-        ]);
-        // Create
-        Resource::create($attributes);
-        // Redirect
-        return redirect('/admin/resources');
-    });
-});
-

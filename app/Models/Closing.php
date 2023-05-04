@@ -6,46 +6,43 @@ use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Resource extends Model
+class Closing extends Model
 {
     use HasFactory, HasUUID;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
-    protected $table = 'resources';
+    protected $table = 'closings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
-    protected $fillable = ['institution_id', 'title', 'location', 'description', 'capacity', 'opens_at', 'closes_at', 'is_active'];
-    protected $with = ['closings'];
+    protected $fillable = ['closable_id', 'closable_type', 'start', 'end', 'description'];
+    protected $dates = ['start', 'end'];
 
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
     }
 
-    public function happenings(): HasMany
+    public function closable(): MorphTo
     {
-        return $this->hasMany(Happening::class);
-    }
-
-    public function closings(): MorphMany
-    {
-        return $this->morphMany(Closing::class, 'closable');
+        return $this->morphTo();
     }
 
     /*****************************************************************
-     * SCOPES
+     * METHODS
      ****************************************************************/
-    public function scopeActive($query)
+
+    public static function getClosableModel(string $closableType)
     {
-        return $query->where('is_active', true);
+        $fullModelName = __NAMESPACE__ . '\\' . ucfirst($closableType);
+        return new $fullModelName();
     }
 }

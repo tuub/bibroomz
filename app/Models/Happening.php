@@ -21,19 +21,7 @@ class Happening extends Model
     protected $table = 'happenings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_confirmed', 'confirmer', 'start', 'end', 'reserved_at', 'booked_at'];
-
-    /**
-     * The attributes that should be cast as datetimes.
-     *
-     * @var array<string, string>
-     */
     protected $dates = ['created_at', 'updated_at', 'start', 'end', 'reserved_at', 'booked_at'];
 
     /*****************************************************************
@@ -56,9 +44,12 @@ class Happening extends Model
         return $this->belongsTo(User::class, 'user_id_02', 'id');
     }
 
-    public function scopeWhereDateBetween($query, $fieldName, $fromDate, $toDate)
+    public function getUser1()
     {
-        return $query->whereDate($fieldName, '>=', $fromDate)->whereDate($fieldName, '<=', $toDate);
+        if ( ! $this->getAttribute('user_id_01')) {
+            return null;
+        }
+        return $this->getAttribute('user1');
     }
 
     public function getUser2()
@@ -69,6 +60,11 @@ class Happening extends Model
         return $this->getAttribute('user2');
     }
 
+    public function scopeWhereDateBetween($query, $fieldName, $fromDate, $toDate)
+    {
+        return $query->whereDate($fieldName, '>=', $fromDate)->whereDate($fieldName, '<=', $toDate);
+    }
+
     // See: https://stackoverflow.com/a/25163557/6948765
     public function getResourceAttribute()
     {
@@ -77,6 +73,7 @@ class Happening extends Model
 
     public function getStatus()
     {
+        //var_dump($this->user1);
         $user = [
             'reservation' => ['id' => $this->user1->id, 'name' => $this->user1->name],
             'confirmation' => ['id' => $this->user2->id ?? null, 'name' => $this->user2->name ?? null],

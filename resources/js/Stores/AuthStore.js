@@ -9,6 +9,7 @@ export const useAuthStore = defineStore({
         user: null,
         isAuthenticated: false,
         userHappenings: [],
+        errors: [],
     }),
     actions: {
         async csrf() {
@@ -25,6 +26,23 @@ export const useAuthStore = defineStore({
         async login(username, password) {
             await this.csrf()
 
+            axios.post(`${baseUrl}/login`, {
+                username,
+                password,
+            }).then(async (response) => {
+                this.user = response.data.user;
+                this.isAuthenticated = true;
+                await this.fetchUserHappenings();
+                this.subscribe();
+            }).catch((error) => {
+                console.log(error.response.data.message)
+                console.log(error.response.data)
+                if (error.response.data.errors) {
+                    this.errors.value = Object.values(error.response.data.errors).flat()
+                }
+            });
+
+            /*
             let response = await axios.post(`${baseUrl}/login`, {
                 username,
                 password,
@@ -35,7 +53,10 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = true;
                 await this.fetchUserHappenings();
                 this.subscribe();
+            } else {
+                console.log('AUTH ERROR')
             }
+             */
         },
         async logout() {
             let response = await axios.post(`${baseUrl}/logout`)

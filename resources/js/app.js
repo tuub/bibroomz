@@ -8,6 +8,8 @@ import mitt from 'mitt'
 import '../css/app.css'
 import MainLayout from "./Layouts/MainLayout.vue";
 import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
+import { ZiggyVue } from 'ziggy';
+import { Ziggy } from './ziggy';
 
 const emitter = mitt()
 
@@ -59,6 +61,7 @@ createInertiaApp({
             .component('Head', Head)
             .component('Link', Link)
             .use(plugin)
+            .use(ZiggyVue, Ziggy)
             .mount(el)
     },
     title: title => `Roomz - ${title}`,

@@ -21,7 +21,10 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./resources/js/', import.meta.url))
+            '@': fileURLToPath(new URL('./resources/js/', import.meta.url)),
+            ziggy: 'vendor/tightenco/ziggy/dist/vue.es.js',
+            // 'vendor/tightenco/ziggy/dist',
+            // 'vendor/tightenco/ziggy/dist/vue.es.js' if using the Vue plugin
         }
     }
 });

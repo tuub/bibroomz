@@ -6,6 +6,4 @@
 let props = defineProps({
     messages: Array
 })
-
-console.log(props)
 </script>

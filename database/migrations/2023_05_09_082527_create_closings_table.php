@@ -13,15 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('institutions');
-        Schema::create('institutions', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
+        Schema::create('closings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->string('short_title');
-            $table->string('slug');
-            $table->string('location')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->uuidMorphs('closable');
+            $table->datetime('start');
+            $table->datetime('end');
+            $table->text('description')->nullable();
         });
     }
 
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('institutions');
+        Schema::dropIfExists('closings');
     }
 };

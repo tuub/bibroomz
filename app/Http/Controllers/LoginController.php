@@ -37,6 +37,7 @@ class LoginController extends Controller
 
         $response = [
             'message' => 'Unauthorized',
+            'errors' => 'User not found!',
         ];
 
         return response()->json($response, Response::HTTP_UNAUTHORIZED);

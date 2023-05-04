@@ -26,8 +26,6 @@ class HappeningController extends Controller
             ->get();
 
         foreach ($happenings as $happening) {
-            //dd($happening);
-
             $status = $happening->getStatus();
             $style = $status['css'];
             $user = $status['user'];

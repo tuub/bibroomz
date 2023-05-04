@@ -56,10 +56,13 @@ const form = reactive({
 })
 
 let submitForm = () => {
+    // FIXME: not catching! err = undefined
     return authStore.login(form.username, form.password)
+        /*
         .catch((err) => {
+            console.log(err)
             console.log(err.response.data.errors)
             errors.value = Object.values(err.response.data.errors).flat()
-    });
+    });*/
 }
 </script>

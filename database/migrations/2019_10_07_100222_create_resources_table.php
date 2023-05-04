@@ -17,12 +17,14 @@ return new class extends Migration
         Schema::create('resources', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
-            $table->integer('institution_id')->unsigned();
+            $table->uuid('institution_id');
             $table->foreign('institution_id')->references('id')->on('institutions');
             $table->string('title');
             $table->text('location')->nullable();
             $table->text('description')->nullable();
             $table->string('capacity')->nullable();
+            $table->time('opens_at')->nullable();
+            $table->time('closes_at')->nullable();
             $table->boolean('is_active')->default(true);
         });
     }

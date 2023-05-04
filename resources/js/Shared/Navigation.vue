@@ -8,7 +8,7 @@
                 <NavLink href="/my" :active="$page.component === 'Profile'">Profile</NavLink>
             </li>
             <li v-if="isAuthenticated">
-                <NavLink href="/admin/resources" :active="$page.component === 'Admin/Resources/Index'">Admin</NavLink>
+                <NavLink href="/admin/dashboard" :active="$page.component === 'Admin/Dashboard'">Admin</NavLink>
             </li>
         </ul>
         <CurrentLogin></CurrentLogin>

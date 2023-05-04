@@ -18,6 +18,8 @@ class InstitutionFactory extends Factory
     {
         return [
             'title' => fake()->unique()->stateAbbr,
+            'short_title' => fake()->unique()->text(5),
+            'slug' => fake()->unique()->slug,
             'location' => fake()->streetAddress,
         ];
     }

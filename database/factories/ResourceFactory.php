@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Institution;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +22,8 @@ class ResourceFactory extends Factory
             'location' => fake()->streetAddress,
             'description' => fake()->text(125),
             'capacity' => fake()->numberBetween(1, 25),
+            'opens_at' => '09:00:00',
+            'closes_at' => '00:00:00',
             'is_active' => 1,
         ];
     }

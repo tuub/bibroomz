@@ -84,16 +84,20 @@ class AlmaUserProvider implements UserProvider
                 'pw' => $credentials['password'],
             ];
 
-            $response = Curl::to(env('AUTH_API_ENDPOINT'))
-                ->withData($ws_credentials)
-                ->withTimeout(env('AUTH_API_TIMEOUT'))
-                ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
-                ->withOption('SSL_VERIFYHOST', 0)
-                ->withOption('SSL_VERIFYPEER', 0)
-                ->withOption('POST', 1)
-                ->withOption('RETURNTRANSFER', true)
-                ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
-                ->post();
+            try {
+                $response = Curl::to(env('AUTH_API_ENDPOINT'))
+                    ->withData($ws_credentials)
+                    ->withTimeout(env('AUTH_API_TIMEOUT'))
+                    ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
+                    ->withOption('SSL_VERIFYHOST', 0)
+                    ->withOption('SSL_VERIFYPEER', 0)
+                    ->withOption('POST', 1)
+                    ->withOption('RETURNTRANSFER', true)
+                    ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
+                    ->post();
+            } catch (\Exception) {
+                return null;
+            }
 
             if ($response) {
                 $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);

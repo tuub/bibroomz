@@ -18,7 +18,6 @@
     <section id="content" class="p-6">
         <slot />
     </section>
-    {{ $page }}
 </template>
 
 <script>
