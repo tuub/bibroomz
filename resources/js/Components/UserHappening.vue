@@ -10,7 +10,7 @@
 
 <script setup>
 
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import {useHappeningStore} from "../Stores/HappeningStore"
@@ -49,15 +49,15 @@ let props = defineProps({
 // Computed
 // ------------------------------------------------
 const happeningDate = computed(() => {
-    return dayjs(props.happening.start).utc().format('DD.MM.YYYY');
+    return dayjs.utc(props.happening.start).format('DD.MM.YYYY');
 })
 
 const happeningStart = computed(() => {
-    return dayjs(props.happening.start).utc().format('HH:mm');
+    return dayjs.utc(props.happening.start).format('HH:mm');
 })
 
 const happeningEnd = computed(() => {
-    return dayjs(props.happening.end).utc().format('HH:mm');
+    return dayjs.utc(props.happening.end).format('HH:mm');
 })
 
 // ------------------------------------------------

@@ -25,10 +25,10 @@ return new class extends Migration
             $table->foreign('resource_id')->references('id')->on('resources')->onUpdate('cascade')->onDelete('set null');
             $table->boolean('is_confirmed')->default(false);
             $table->string('confirmer')->nullable();
-            $table->dateTimeTz('start');
-            $table->dateTimeTz('end');
-            $table->dateTimeTz('reserved_at');
-            $table->dateTimeTz('confirmed_at')->nullable();
+            $table->dateTime('start');
+            $table->dateTime('end');
+            $table->dateTime('reserved_at');
+            $table->dateTime('confirmed_at')->nullable();
             $table->timestamps();
         });
     }

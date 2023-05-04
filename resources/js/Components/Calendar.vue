@@ -28,6 +28,7 @@ import CreateHappening from "./Modals/CreateHappening.vue";
 import ShowHappening from "./Modals/ShowHappening.vue";
 import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
+import utc from "dayjs/plugin/utc";
 
 // ------------------------------------------------
 // Debug information
@@ -103,6 +104,7 @@ onMounted(() => {
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isBetween)
+dayjs.extend(utc)
 
 // ------------------------------------------------
 // Fetch resources from backend
@@ -212,9 +214,10 @@ const isSelectable = () => {
 }
 
 const isSelectAllow = (event) => {
-    let now = dayjs()
-    let tsStart = dayjs(event.start.getTime())
-    let tsEnd = dayjs(event.end.getTime())
+    let now = dayjs.utc()
+    let tsStart = dayjs(event.startStr)
+    let tsEnd = dayjs(event.endStr)
+
     let tsLenConfig = options.timeSlotLength.split(':')
     let tsLen = {
         'hours': parseInt(tsLenConfig[0]),
@@ -233,7 +236,7 @@ const isSelectAllow = (event) => {
 // Select action
 // ------------------------------------------------
 const onSelect = (eventInfo) => {
-    console.log(eventInfo.resource)
+    //console.log(eventInfo.resource)
     if (!authStore.isAuthenticated) {
         emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
     } else {
@@ -290,6 +293,8 @@ const onEventClick = (eventInfo) => {
         };
         happeningData.happening_id = dataPath.id;
         happeningData.extraData = dataPath.extendedProps;
+        happeningData.start = dayjs.utc(dataPath._instance.range.start);
+        happeningData.end = dayjs.utc(dataPath._instance.range.end);
     }
 
     emit('open-modal-component', {
@@ -335,6 +340,7 @@ const calendarOptions = {
         weekday: 'long',
     },
     locale: 'de',
+    timeZone: 'utc',
     validRange: getValidRange(),
     resources: getResources(),
     businessHours: getBusinessHours(),
