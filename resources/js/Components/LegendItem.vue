@@ -1,7 +1,9 @@
 <template>
-    <div :class="cssClass" class="rounded p-1 pl-10 uppercase text-xs mr-2">
+    <span class="text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
+         :class="cssClass">
         {{ label }}
-    </div>
+    </span>
+
 </template>
 
 <script setup>

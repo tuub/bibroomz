@@ -46,17 +46,22 @@ a.fc-event {
 
 div#status-legend {
     margin-top: 1rem;
-    div {
+
+    span {
+        flex-wrap: wrap;
+        /*
         border-width: 1px;
         border-left-width: 30px;
         padding-left: 10px;
-        &.reservation { border-color: $status-reservation; }
-        &.booking { border-color: $status-booking; }
-        &.user-reservation { border-color: $status-user-reservation;}
-        &.user-confirmation { border-color: $status-user-confirmation; }
-        &.user-booking { border-color: $status-user-booking; }
-        &.closing { border-color: $status-closing; }
-        &.block { border-color: $status-block; }
+         */
+        display: inline-block;
+        &.reservation { background-color: $status-reservation; color: #fff;  }
+        &.booking { background-color: $status-booking; }
+        &.user-reservation { background-color: $status-user-reservation;}
+        &.user-confirmation { background-color: $status-user-confirmation; color: #fff; }
+        &.user-booking { background-color: $status-user-booking; color: #fff; }
+        &.closing { background-color: $status-closing; }
+        &.block { background-color: $status-block; }
     }
 }
 
