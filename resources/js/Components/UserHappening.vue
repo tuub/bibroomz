@@ -1,10 +1,38 @@
 <template>
-    <div class="text-sm">
-        <p>{{ happeningDate }}, {{ happeningStart }} - {{ happeningEnd }}</p>
-        <p>Raum {{ happening.resource.title }}, {{ happening.resource.location }}</p>
-        <p>Confirmer: {{ happening.confirmer }}</p>
-        <button class="btn-xs bg-red-500 hover:bg-red-800 text-white" @click="deleteUserHappening(happening)">Delete</button>
-        <button class="btn-xs bg-blue-500 hover:bg-blue-800 text-white" @click="editUserHappening(happening)">Edit</button>
+    <div class="flex items-center space-x-4">
+        <div class="flex-1 min-w-0">
+            <p class="font-bold text-gray-900 truncate dark:text-white pb-1">
+                <i class="ri-calendar-event-line"></i>
+                {{ happeningDate }}
+                <i class="ri-arrow-right-line"></i>
+                {{ happeningStart }} - {{ happeningEnd }}
+            </p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white pb-1">
+                <i class="ri-home-line"></i>
+                {{ happening.resource.title }}
+            </p>
+            <p class="text-sm font-medium text-gray-900 truncate dark:text-white pb-1">
+                <i class="ri-map-pin-fill"></i>
+                {{ happening.resource.location }}
+            </p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white pb-1">
+                <i class="ri-user-follow-fill"></i>
+                {{ happening.confirmer }}
+                <i class="ri-check-double-line"></i>
+            </p>
+        </div>
+        <div class="inline-flex items-center text-base font-bold text-gray-900 dark:text-white">
+            <button class="inline-block btn-xs bg-gray-200 hover:bg-gray-500 text-black hover:text-white"
+                    title="Edit"
+                    @click="editUserHappening(happening)">
+                <i class="ri-edit-line"></i>
+            </button>
+            <button class="inline-block btn-xs bg-red-500 hover:bg-red-200 text-white hover:text-black"
+                    title="Delete"
+                    @click="deleteUserHappening(happening)">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        </div>
     </div>
 </template>
 
@@ -42,6 +70,7 @@ const emit = defineEmits([
 // Props
 // ------------------------------------------------
 let props = defineProps({
+    index: Number,
     happening: Object,
 })
 
@@ -64,8 +93,6 @@ const happeningEnd = computed(() => {
 // Modal Actions
 // ------------------------------------------------
 const editUserHappening = (happening) => {
-    console.log('DATA in editUserHappening modal definition:')
-    console.log(happening)
     let data = {
         view: EditHappening,
         content: {
@@ -99,20 +126,7 @@ const deleteUserHappening = (happening) => {
             {
                 label: 'Yes, delete',
                 callback: async (happening) => {
-                    /*
-                    happeningStore.deleteHappening(happening.id).then((response) => {
-                        console.log(response)
-                        modal.close()
-                    })
-                     */
-                    await happeningStore.deleteHappening(happening.id).then(() => {
-
-                    })
-
-                    //if (happeningStore.deleteHappening(happening.id)) {
-                        //authStore.removeUserHappening(happening.id)
-                    //    modal.close();
-                    //}
+                    await happeningStore.deleteHappening(happening.id)
                 },
             }
         ],

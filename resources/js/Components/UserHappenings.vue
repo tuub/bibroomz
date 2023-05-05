@@ -1,26 +1,29 @@
 <template>
-    <h1 class="text-xl font-bold">My Reservations</h1>
-    <div v-if="happeningsCount === 0" class="text-sm mt-5">
-        You have no current reservations. Add some!
-    </div>
-    <div v-if="happenings">
-        <HappeningCount :count="happeningsCount"></HappeningCount>
-        <!--
-        <TransitionGroup name="list"
-                         tag="ul"
-                         enter-from-class="opacity-0 scale-125"
-                         enter-to-class="opacity-100 scale-100"
-                         enter-active-class="transition duration-300"
-                         leave-from-class="opacity-100 scale-100"
-                         leave-to-class="opacity-0 scale-125"
-                         leave-active-class="transition duration-200"
-        >
-        -->
-        <TransitionGroup name="list" tag="ol" class="list-decimal mt-5 ml-5">
-            <li v-for="happening in happenings" :key="happening.id" class="mb-2">
-                <UserHappening :happening="happening"></UserHappening>
-            </li>
-        </TransitionGroup>
+    <div class="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+            <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
+                My reservations
+            </h5>
+            <span class="text-sm font-medium text-blue-600 dark:text-blue-500">
+                <HappeningCount :count="happeningsCount"></HappeningCount>
+            </span>
+        </div>
+        <div class="flow-root">
+            <div v-if="happeningsCount === 0" class="text-sm mt-5">
+                You have no current reservations.
+            </div>
+            <TransitionGroup v-if="happenings"
+                             name="list"
+                             tag="ul"
+                             role="list"
+                             class="divide-y divide-gray-200 dark:divide-gray-700">
+                <li class="py-3 sm:py-4"
+                    v-for="(happening, index) in happenings"
+                    :key="happening.id">
+                    <UserHappening :index="index" :happening="happening"></UserHappening>
+                </li>
+            </TransitionGroup>
+        </div>
     </div>
 </template>
 

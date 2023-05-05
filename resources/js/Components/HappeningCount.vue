@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-gray-200 p-2">
-        <p class="italic">{{ count }} reservations</p>
+    <div class="inline-flex items-center justify-center w-8 h-8 ml-2 font-bold text-blue-800 bg-blue-200 rounded-full">
+        {{ count }}
     </div>
 </template>
 
