@@ -17,9 +17,9 @@ export const useAuthStore = defineStore({
         async check() {
             await axios.post(`${baseUrl}/check`).then((response) => {
                 this.user = response.data.user
-                this.fetchUserHappenings()
                 this.isAuthenticated = response.data.status
-                this.doRefreshInterface = true
+                this.fetchUserHappenings()
+                this.subscribe();
             })
         },
         async login(username, password) {
