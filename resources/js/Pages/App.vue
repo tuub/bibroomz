@@ -33,7 +33,7 @@ import XModal from "../Shared/XModal.vue";
 import useModal from "../Stores/Modal.ts";
 
 import { useAuthStore } from '../Stores/AuthStore';
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 import {useHappeningStore} from "../Stores/HappeningStore";
 import {storeToRefs} from "pinia";
 
@@ -41,7 +41,6 @@ import {storeToRefs} from "pinia";
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
-const happeningStore = useHappeningStore();
 const modal = useModal();
 
 let { isAuthenticated, userHappenings } = storeToRefs(authStore)
@@ -67,24 +66,7 @@ const getModal = (data) => {
 onMounted(() => {
     // check auth session in backend
     authStore.check()
-
-    Echo.channel('happenings').listen('HappeningDeleted',(e)=>{
-        authStore.removeUserHappening(e.id)
-        happeningStore.doRefreshCalendar = true
-    })
-
-    Echo.channel('happenings').listen('HappeningCreated',(e)=>{
-        authStore.addUserHappening(e.happening)
-        happeningStore.doRefreshCalendar = true
-    })
-
-    Echo.channel('happenings').listen('HappeningUpdated',(e)=>{
-        authStore.updateUserHappening(e.happening)
-        happeningStore.doRefreshCalendar = true
-    })
 });
-
-
 </script>
 
 <style scoped>

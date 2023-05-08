@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import {inject, onMounted, reactive, ref, watch} from "vue";
+import { inject, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
@@ -50,6 +50,9 @@ let options = {
 // Loading indicator
 // ------------------------------------------------
 let isLoading = false;
+watchEffect(() => {
+    console.log('isLoading: %s', isLoading)
+})
 
 // ------------------------------------------------
 // Event Bus
@@ -71,8 +74,9 @@ let happeningStore = useHappeningStore()
 let authStore = useAuthStore()
 
 let { isAuthenticated } = storeToRefs(authStore)
+
 // ------------------------------------------------
-// FIXME: Modal
+// Modal
 // ------------------------------------------------
 const modal = useModal();
 
@@ -96,6 +100,10 @@ let calendarApi = null
 onMounted(() => {
     // Init Calendar API
     calendarApi = refCalendar.value.getApi()
+
+    Echo.channel("happenings").listen("HappeningsChanged", () => {
+        refetchHappenings();
+    });
 })
 
 // ------------------------------------------------
@@ -118,13 +126,15 @@ const getResources = () => {
 // ------------------------------------------------
 const getValidRange = () => {
     const startDate = new Date()
-    const endDate = new Date().setDate(startDate.getDate() + options.futureDays)
+    const endDate = new Date().setDate(
+        startDate.getDate() + options.futureDays
+    );
 
     return {
         start: startDate,
         end: endDate
-    }
-}
+    };
+};
 
 // ------------------------------------------------
 // Fetch business hours from backend
@@ -144,6 +154,8 @@ const getBusinessHours = () => {
                 });
             }
         }
+    }).catch((error) => {
+        console.log(error);
     });
 
     return result;
@@ -157,15 +169,16 @@ const getHappenings = (fetchInfo, successCallback, failureCallback) => {
         start: fetchInfo.start,
         end: fetchInfo.end
     };
-    // show loading indicator
+
     isLoading = true;
 
     axios({ method: 'GET', url: '/happenings', params: payload})
         .then((response) => {
             successCallback(response.data);
-            // hide loading indicator
             isLoading = false
-        });
+        }).catch((error) => {
+        failureCallback(error);
+    });
 }
 
 const refetchHappenings = () => {
@@ -174,37 +187,8 @@ const refetchHappenings = () => {
 
 // Refetch happenings if store state of isAuthenticated changes => after login / logout
 watch(isAuthenticated, (value) => {
-    console.log('Auth change: Refetching happenings ' + value)
     refetchHappenings()
 })
-
-// Refetch happenings if store state of doCalendarRefetch changes => after modal action
-watch(
-    () => happeningStore.doRefreshCalendar,
-    () => {
-        console.log('Refetching happenings after modal action')
-        modal.close()
-        refetchHappenings()
-        happeningStore.doRefreshCalendar = false
-    },
-)
-
-watch(
-    () => authStore.doRefreshInterface,
-    () => {
-        refetchHappenings()
-        authStore.doRefreshInterface = false
-    },
-)
-
-watch(
-    () => happeningStore.doRefreshInterface,
-    () => {
-        refetchHappenings()
-        happeningStore.doRefreshInterface = false
-    },
-)
-
 
 // ------------------------------------------------
 // Selection constraints
@@ -220,14 +204,16 @@ const isSelectAllow = (event) => {
 
     let tsLenConfig = options.timeSlotLength.split(':')
     let tsLen = {
-        'hours': parseInt(tsLenConfig[0]),
-        'minutes': parseInt((tsLenConfig[1]))
+        hours: parseInt(tsLenConfig[0]),
+        minutes: parseInt((tsLenConfig[1]))
     }
 
-    let isNotPast = tsStart.isSameOrAfter(now)
+    let isNotPast = tsStart.isSameOrAfter(now);
     let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now) &&
-        tsEnd.isSameOrBefore(tsStart.add(parseInt(options.blockHourQuota), 'hours'))
-    let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd)
+        tsEnd.isSameOrBefore(
+            tsStart.add(parseInt(options.blockHourQuota), 'hours')
+        );
+    let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
     return isValid && (isNotPast || isCurrentTimeSlot);
 }
@@ -236,7 +222,6 @@ const isSelectAllow = (event) => {
 // Select action
 // ------------------------------------------------
 const onSelect = (eventInfo) => {
-    //console.log(eventInfo.resource)
     if (!authStore.isAuthenticated) {
         emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
     } else {
@@ -258,11 +243,8 @@ const onSelect = (eventInfo) => {
             actions: [
                 {
                     label: 'Save reservation',
-                    callback: (payloadFromView) => {
-                        if (happeningStore.addHappening(payloadFromView)) {
-                            authStore.fetchUserHappenings()
-                            modal.close();
-                        }
+                    callback: async (payloadFromView) => {
+                        await happeningStore.addHappening(payloadFromView)
                     },
                 }
             ],
@@ -301,7 +283,7 @@ const onEventClick = (eventInfo) => {
         view: ShowHappening,
         content: {
             title: 'Show Reservation',
-            description: "Info about reservation here."
+            description: 'Info about reservation here.'
         },
         payload: happeningData,
         actions: [
@@ -310,10 +292,10 @@ const onEventClick = (eventInfo) => {
                 callback: () => {
                     modal.close();
                 },
-            }
+            },
         ],
-    })
-}
+    });
+};
 
 // ------------------------------------------------
 // Calendar setup

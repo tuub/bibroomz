@@ -23,10 +23,10 @@ class LoginController extends Controller
         $auth = Auth::attempt($credentials);
 
         if ($auth) {
-
             $response = [
                 'message' => 'Successfully logged in',
                 'user' => [
+                    'id' => auth()->user()->id,
                     'name' => auth()->user()->name,
                     'email' => auth()->user()->email,
                 ]
@@ -55,6 +55,7 @@ class LoginController extends Controller
         $response = [
             'status' => auth()->check(),
             'user' => [
+                'id' => auth()->user()->id ?? null,
                 'name' => auth()->user()->name ?? null,
                 'email' => auth()->user()->email ?? null,
             ]

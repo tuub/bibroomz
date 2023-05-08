@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUpdated, reactive, ref, watch} from "vue";
+import {reactive, ref, watch, watchEffect} from "vue";
 import HappeningInfo from "../HappeningInfo.vue";
 import {useHappeningStore} from "../../Stores/HappeningStore";
 
@@ -51,13 +51,7 @@ let happeningData = reactive({
     confirmer: 'BLA',
 })
 
-// Perform first emit to enable prefilling of confirmer
-emit("update:payload", happeningData);
-
-// When reservationData changes, it will update the reference passed via v-model
-watch(happeningData, (value) => {
-    console.log('Emitting back:');
-    console.log(value);
-    emit("update:payload", value);
+watchEffect(() => {
+    emit("update:payload", happeningData);
 });
 </script>

@@ -2,9 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -14,16 +12,26 @@ class HappeningDeleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $id;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($id)
+    public function __construct(
+        private $id,
+        private $user1,
+        private $user2 = null,
+    ) {
+    }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
     {
-        $this->id = $id;
+        return ['id' => $this->id];
     }
 
     /**
@@ -33,7 +41,11 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        //return new PrivateChannel('happenings');
-        return new Channel('happenings');
+        return array_merge(
+            [new PrivateChannel('happenings.' . $this->user1->id)],
+            $this->user2 && $this->user1 != $this->user2
+                ? [new PrivateChannel('happenings.' . $this->user2->id)]
+                : [],
+        );
     }
 }

@@ -13,8 +13,6 @@ export const useHappeningStore = defineStore({
                 end: '',
             },
             validationErrors: {},
-            doRefreshCalendar: false,
-            doRefreshInterface: false,
             doModalClose: false,
             modal: useModal(),
         }
@@ -22,39 +20,21 @@ export const useHappeningStore = defineStore({
     actions: {
         async addHappening(happeningData) {
             return axios.post(`${baseUrl}/happenings/add`, happeningData)
-                .then((response) => {
-                    console.log('Response from backend:')
-                    console.log(response)
-                    this.doRefreshCalendar = true
+                .then(() => {
+                    this.validationErrors = {}
                     this.modal.close()
                 }).catch((error) => {
                     console.log('API Error:')
-                    console.log(error)
-                })
-            //this.doRefreshInterface = true
-        },
-        addHappeningOld(happeningData) {
-            axios.post(`${baseUrl}/happenings/add`, happeningData)
-                .then((response) => {
-                    this.validationErrors = {}
-                    this.doRefreshCalendar = true
-                    this.doRefreshInterface = true
-                    return true
-                })
-                .catch((error) => {
-                    console.log('API Error:');
                     this.validationErrors = error.response.data.errors
                     console.log(this.validationErrors)
                 })
         },
-        editHappening(happeningData) {
+        async editHappening(happeningData) {
             let id = happeningData.id
-            axios.post(`${baseUrl}/happenings/update/${id}`, happeningData)
-                .then((response) => {
+            return axios.post(`${baseUrl}/happenings/update/${id}`, happeningData)
+                .then(() => {
                     this.validationErrors = {}
-                    this.doRefreshCalendar = true
-                    this.doRefreshInterface = true
-                    return true
+                    this.modal.close()
                 })
                 .catch((error) => {
                     console.log('API Error:');
@@ -64,32 +44,18 @@ export const useHappeningStore = defineStore({
         },
         async deleteHappening(id) {
             return await axios.delete(`${baseUrl}/happenings/delete/${id}`).then((response) => {
+                // FIXME: status message
                 this.modal.close()
             }).catch((error) => {
                 console.log('API Error:')
                 console.log(error)
             })
-            //this.doRefreshInterface = true
         }
-        /*
-        async deleteHappening(modal, id) {
-            try {
-                await axios.delete(`${baseUrl}/happenings/delete/${id}`)
-                modal.close()
-            } catch (error) {
-                console.log('API Error:')
-                console.log(error)
-            }
-            //this.doRefreshInterface = true
-        },
-         */
     },
     getters: {
         getHappeningResource: (state) => state.happening.resource,
         getHappeningStart: (state) => state.happening.start,
         getHappeningEnd: (state) => state.happening.end,
         getValidationErrors: (state) => state.validationErrors,
-        getDoRefreshCalendar: (state) => state.doRefreshCalendar,
-        getDoRefreshInterface: (state) => state.doRefreshInterface,
     },
 });

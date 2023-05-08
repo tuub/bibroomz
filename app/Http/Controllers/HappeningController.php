@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
+use App\Events\HappeningsChanged;
 use App\Events\HappeningUpdated;
 use App\Models\Happening;
 use App\Models\Resource;
@@ -85,6 +86,7 @@ class HappeningController extends Controller
             $happening = Happening::create($happeningData);
             $op = $happening->save() && $happening->resource()->associate($resource);
             broadcast(new HappeningCreated($happening));
+            broadcast(new HappeningsChanged());
 
             // FIXME: ADD SESSION FLASH HERE
 
@@ -116,13 +118,19 @@ class HappeningController extends Controller
         $happening = Happening::with('resource')->find($happening->id);
 
         broadcast(new HappeningUpdated($happening));
+        broadcast(new HappeningsChanged());
     }
 
     public function deleteHappening($id)
     {
+        $user1 = Happening::find($id)->user1;
+        $user2 = Happening::find($id)->user1;
+
         $op = auth()->user()->happenings()->findOrFail($id)->delete();
+
         if ($op) {
-            broadcast(new HappeningDeleted($id));
+            broadcast(new HappeningDeleted($id, $user1, $user2));
+            broadcast(new HappeningsChanged());
         }
     }
 }

@@ -22,11 +22,7 @@
 
                 <div class="modal-action">
                     <!-- render all actions and pass the model payload as parameter -->
-                    <button
-                        v-for="action in actions"
-                        class="btn"
-                        @click="action.callback(payload)"
-                    >
+                    <button v-for="action in actions" class="btn" @click="action.callback(payload)">
                         {{ action.label }}
                     </button>
                 </div>

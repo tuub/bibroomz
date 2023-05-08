@@ -6,25 +6,18 @@
 </template>
 
 <script setup>
-import {ref, watch} from "vue";
 import {useAuthStore} from "../Stores/AuthStore";
+import {storeToRefs} from "pinia";
 
 const authStore = useAuthStore();
-let isAuthenticated = ref(authStore.isAuthenticated);
-let currentUser = ref(authStore.user)
+let { isAuthenticated, user: currentUser } = storeToRefs(authStore);
 
-watch(
-    () => authStore.isAuthenticated,
-    () => {
-        console.log('Updated component after auth change: CurrentLogin')
-        isAuthenticated.value = authStore.isAuthenticated
-        currentUser.value = authStore.user;
-    },
-)
-
-let logoutUser = () => {
-    return authStore.logout()
-        .catch(error => console.log(error));
-}
+let logoutUser = async () => {
+    try {
+        return await authStore.logout();
+    } catch (error) {
+        return console.log(error);
+    }
+};
 </script>
 

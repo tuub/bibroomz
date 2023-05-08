@@ -48,7 +48,6 @@ import {useHappeningStore} from "../Stores/HappeningStore"
 import EditHappening from "./Modals/EditHappening.vue";
 import DeleteHappening from "./Modals/DeleteHappening.vue";
 import useModal from "../Stores/Modal";
-import {useAuthStore} from "../Stores/AuthStore";
 
 // ------------------------------------------------
 // DayJS
@@ -58,7 +57,6 @@ dayjs.extend(utc);
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const authStore = useAuthStore()
 const happeningStore = useHappeningStore()
 const modal = useModal()
 
@@ -73,7 +71,6 @@ const emit = defineEmits([
 // Props
 // ------------------------------------------------
 let props = defineProps({
-    index: Number,
     happening: Object,
 })
 
@@ -106,10 +103,8 @@ const editUserHappening = (happening) => {
         actions: [
             {
                 label: 'Update',
-                callback: (happening) => {
-                    if (happeningStore.editHappening(happening)) {
-                        modal.close();
-                    }
+                callback: async (happening) => {
+                    await happeningStore.editHappening(happening)
                 },
             }
         ],
@@ -136,5 +131,4 @@ const deleteUserHappening = (happening) => {
     }
     modal.open(data.view, data.content, data.payload, data.actions)
 }
-
 </script>

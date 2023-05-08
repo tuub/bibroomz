@@ -7,12 +7,12 @@
         {{ content.description }}
     </div>
 
-    <HappeningInfo :happening="happeningData"></HappeningInfo>
+    <HappeningInfo :happening="payload"></HappeningInfo>
 
 </template>
 
 <script setup>
-import {reactive, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import HappeningInfo from "../HappeningInfo.vue";
 import {useHappeningStore} from "../../Stores/HappeningStore";
 
@@ -24,35 +24,8 @@ watch(
     () => { validationErrors.value = happeningStore.getValidationErrors },
 )
 
-const emit = defineEmits([
-    'update:payload',
-])
-
 const props = defineProps({
     content: Object,
     payload: Object
 })
-
-let happeningData = reactive({
-    id: props.payload.id,
-    resource: {
-        id: props.payload.resource.id,
-        title: props.payload.resource.title,
-    },
-    start: props.payload.start,
-    end: props.payload.end,
-    confirmer: 'BLA',
-})
-
-
-// Perform first emit to enable prefilling of confirmer
-emit("update:payload", happeningData);
-
-// When reservationData changes, it will update the reference passed via v-model
-watch(happeningData, (value) => {
-    console.log('Emitting back:');
-    console.log(value);
-    emit("update:payload", value);
-});
-
 </script>

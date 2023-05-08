@@ -2,9 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -33,7 +31,11 @@ class HappeningCreated implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        //return new PrivateChannel('channel-name');
-        return new Channel('happenings');
+        return array_merge(
+            [new PrivateChannel('happenings.' . $this->happening->user1->id)],
+            $this->happening->user2
+                ? [new PrivateChannel('happenings.' . $this->happening->user2->id)]
+                : [],
+        );
     }
 }
