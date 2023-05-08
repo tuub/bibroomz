@@ -21,17 +21,20 @@
                 <i class="ri-check-double-line"></i>
             </p>
         </div>
-        <div class="inline-flex items-center text-base font-bold text-gray-900 dark:text-white">
-            <button class="inline-block btn-xs bg-gray-200 hover:bg-gray-500 text-black hover:text-white"
-                    title="Edit"
-                    @click="editUserHappening(happening)">
-                <i class="ri-edit-line"></i>
-            </button>
-            <button class="inline-block btn-xs bg-red-500 hover:bg-red-200 text-white hover:text-black"
-                    title="Delete"
-                    @click="deleteUserHappening(happening)">
-                <i class="ri-delete-bin-line"></i>
-            </button>
+        <div class="text-base font-bold text-gray-900 dark:text-white">
+            <p><a @click="deleteUserHappening(happening)"
+                  href="#"
+               class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-red-200 border border-gray-200 rounded-lg hover:bg-red-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2">
+                <i class="ri-delete-bin-line mr-1"></i>
+                Delete
+            </a></p>
+            <p>
+            <a @click="editUserHappening(happening)"
+               href="#"
+               class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2">
+                <i class="ri-edit-line mr-1"></i>
+                Edit
+            </a></p>
         </div>
     </div>
 </template>
