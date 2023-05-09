@@ -48,12 +48,16 @@ export const useAuthStore = defineStore({
             }
         },
         async fetchUserHappenings() {
-            await axios.get(`${baseUrl}/my/happenings`).then((response) => {
-                this.userHappenings = response.data
-            }).catch((response) => {
-                console.log('API Error:')
-                console.log(response)
-            });
+            if (this.isAuthenticated) {
+                await axios.get(`${baseUrl}/my/happenings`).then((response) => {
+                    this.userHappenings = response.data
+                }).catch((response) => {
+                    console.log('API Error:')
+                    console.log(response)
+                });
+            } else {
+                console.log('Only fetch user happenings when authenticated!')
+            }
         },
         addUserHappening(happening) {
             this.userHappenings.push(happening)
