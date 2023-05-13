@@ -60,23 +60,30 @@ export const useAuthStore = defineStore({
             }
         },
         addUserHappening(happening) {
-            this.userHappenings.push(happening)
-            // Order userHappenings array by start datetime
-            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+            let index = this._findUserHappeningIndex(happening.id)
+            if (index === -1) {
+                this.userHappenings.push(happening)
+                console.log(happening)
+                // Order userHappenings array by start datetime
+                this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+            } else {
+                console.log('Attempt to add multiple identical entries. Skipping.')
+            }
         },
         updateUserHappening(happening) {
-            let existingIndex = this.userHappenings.findIndex(
-                (obj) => obj.id === happening.id
-            );
-            this.userHappenings[existingIndex] = happening;
+            let index = this._findUserHappeningIndex(happening.id)
+            this.userHappenings[index] = happening;
             // Order userHappenings array by start datetime
             this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
         removeUserHappening(id) {
-            let index = this.userHappenings.findIndex(x => x.id === id)
+            let index = this._findUserHappeningIndex(id)
             if (index >= 0) {
                 this.userHappenings.splice(index, 1)
             }
+        },
+        _findUserHappeningIndex(id) {
+            return this.userHappenings.findIndex(x => x.id === id)
         },
         subscribe() {
             if (this.isAuthenticated) {
@@ -100,9 +107,8 @@ export const useAuthStore = defineStore({
                 let userChannel = `happenings.${this.user.id}`;
                 Echo.leave(userChannel);
             } else {
-                console.log('Could not unsubscribe to private channel, no auth')
+                console.log('Could not unsubscribe from private channel, no auth')
             }
         },
-
     },
 });
