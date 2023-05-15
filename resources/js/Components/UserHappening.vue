@@ -45,8 +45,7 @@ import {computed} from "vue";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import {useHappeningStore} from "../Stores/HappeningStore"
-import EditHappening from "./Modals/EditHappening.vue";
-import DeleteHappening from "./Modals/DeleteHappening.vue";
+import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import useModal from "../Stores/Modal";
 
 // ------------------------------------------------
@@ -59,13 +58,6 @@ dayjs.extend(utc);
 // ------------------------------------------------
 const happeningStore = useHappeningStore()
 const modal = useModal()
-
-// ------------------------------------------------
-// Emits
-// ------------------------------------------------
-const emit = defineEmits([
-    'open-modal-component'
-])
 
 // ------------------------------------------------
 // Props
@@ -94,17 +86,17 @@ const happeningEnd = computed(() => {
 // ------------------------------------------------
 const editUserHappening = (happening) => {
     let data = {
-        view: EditHappening,
+        view: HappeningModal,
         content: {
             title: 'Edit',
             description: 'Edit your reservation here',
         },
-        payload: happening,
+        payload: {...happening, editable: true},
         actions: [
             {
                 label: 'Update',
-                callback: async (happening) => {
-                    await happeningStore.editHappening(happening)
+                callback: (happening) => {
+                    return happeningStore.editHappening(happening);
                 },
             }
         ],
@@ -114,17 +106,17 @@ const editUserHappening = (happening) => {
 
 const deleteUserHappening = (happening) => {
     let data = {
-        view: DeleteHappening,
+        view: HappeningModal,
         content: {
             title: 'Confirm Delete',
             description: 'Are you sure you wanna delete your future?',
         },
-        payload: happening,
+        payload: {...happening, editable: false},
         actions: [
             {
                 label: 'Yes, delete',
-                callback: async (happening) => {
-                    await happeningStore.deleteHappening(happening.id)
+                callback: (happening) => {
+                    return happeningStore.deleteHappening(happening.id);
                 },
             }
         ],

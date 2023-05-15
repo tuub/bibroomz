@@ -24,8 +24,7 @@ import { inject, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
-import CreateHappening from "./Modals/CreateHappening.vue";
-import ShowHappening from "./Modals/ShowHappening.vue";
+import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
 import utc from "dayjs/plugin/utc";
@@ -230,21 +229,21 @@ const onSelect = (eventInfo) => {
             resource: eventInfo.resource,
             start: eventInfo.startStr,
             end: eventInfo.endStr,
-            confirmer: '',
+            // confirmer: '',
         });
 
         emit('open-modal-component', {
-            view: CreateHappening,
+            view: HappeningModal,
             content: {
                 title: 'Create Reservation',
                 description: "Create your reservation here, you won't regret it."
             },
-            payload: happeningData,
+            payload: {...happeningData, editable: true},
             actions: [
                 {
                     label: 'Save reservation',
-                    callback: async (payloadFromView) => {
-                        await happeningStore.addHappening(payloadFromView)
+                    callback: (payloadFromView) => {
+                        return happeningStore.addHappening(payloadFromView);
                     },
                 }
             ],
@@ -280,12 +279,12 @@ const onEventClick = (eventInfo) => {
     }
 
     emit('open-modal-component', {
-        view: ShowHappening,
+        view: HappeningModal,
         content: {
             title: 'Show Reservation',
             description: 'Info about reservation here.'
         },
-        payload: happeningData,
+        payload: {...happeningData, editable: false},
         actions: [
             {
                 label: 'OK',

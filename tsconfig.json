@@ -7,5 +7,10 @@
         "isolatedModules": true,
         "noEmit": true,
         "allowJs": true,
+        "paths": {
+            "@/*": [
+                "./resources/js/*"
+            ],
+        }
     }
 }

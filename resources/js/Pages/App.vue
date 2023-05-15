@@ -26,16 +26,17 @@
 <script setup>
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
-import UserHappenings from "../Components/UserHappenings.vue"
+import UserHappenings from "../Components/UserHappenings.vue";
 import Legend from "../Components/Legend.vue";
 
 import XModal from "../Shared/XModal.vue";
-import useModal from "../Stores/Modal.ts";
+import useModal from "../Stores/Modal";
 
-import { useAuthStore } from '../Stores/AuthStore';
-import {onMounted, ref} from "vue";
-import {useHappeningStore} from "../Stores/HappeningStore";
-import {storeToRefs} from "pinia";
+import { useAuthStore } from "../Stores/AuthStore";
+import { onMounted, ref } from "vue";
+import { storeToRefs } from "pinia";
+
+import { Modal as FlowbiteModal } from "flowbite";
 
 // ------------------------------------------------
 // Stores
@@ -64,6 +65,21 @@ const getModal = (data) => {
 // Mount
 // ------------------------------------------------
 onMounted(() => {
+    modal.init(
+        new FlowbiteModal(
+            document.getElementById("modal"),
+            {
+                closable: true,
+                placement: "center",
+                backdrop: "dynamic",
+                backdropClasses:
+                    "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
+                onHide: () => {
+                    modal.cleanup();
+                },
+            }
+        )
+    );
     // check auth session in backend
     authStore.check()
 });

@@ -7,40 +7,78 @@
         leave-to-class="opacity-0 scale-125"
         leave-active-class="transition duration-200"
     >
-        <!-- isOpen is reactive and taken from the store, define if it is rendered or not -->
-        <div v-if="isOpen" class="modal modal-open">
-            <div class="modal-box relative">
-                <!-- @click handles the event to close the modal calling the action directly in store -->
-                <label
-                    class="btn btn-sm btn-circle absolute right-2 top-2"
-                    @click="modal.close()"
-                >✕</label
-                >
+        <div
+            id="modal"
+            tabindex="-1"
+            aria-hidden="true"
+            class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+            <!-- Modal content -->
+            <form
+                ref="form"
+                class="relative w-full max-w-2xl max-h-full bg-white rounded-lg shadow dark:bg-gray-700 p-4"
+            >
+                <!-- Close button -->
+                <ModalCloseButton @close="modal.close"></ModalCloseButton>
 
-                <!-- dynamic components, using model to share values payload -->
-                <component :is="view" :content="content" v-model:payload="payload"></component>
+                <component
+                    :is="view"
+                    :content="content"
+                    v-model:payload="payload"
+                ></component>
 
-                <div class="modal-action">
-                    <!-- render all actions and pass the model payload as parameter -->
-                    <button v-for="action in actions" class="btn" @click="action.callback(payload)">
-                        {{ action.label }}
-                    </button>
+                <!-- Footer -->
+                <div class="pt-2 mt-2">
+                    <!-- Error alert -->
+                    <ModalAlert
+                        v-if="modal.error"
+                        :error="modal.error"
+                        @close="modal.error = null"
+                    />
+
+                    <!-- Action buttons -->
+                    <div class="flex items-end space-x-2">
+                        <button
+                            v-for="action in actions"
+                            @click="callAction(action, payload)"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            type="button"
+                        >
+                            {{ action.label }}
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </Transition>
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import { useModal } from "../Stores/Modal.ts";
+import { useModal, ModalAction } from "@/Stores/Modal";
+import ModalAlert from "@/Components/Modals/ModalAlert.vue";
+import ModalCloseButton from "@/Components/Modals/ModalCloseButton.vue"
 
 const modal = useModal();
 
-// reactive container to save the payload returned by the mounted view
-//const payload = reactive({});
-
 // convert all state properties to reactive references to be used on view
-const { isOpen, view, content, payload, actions } = storeToRefs(modal);
-</script>
+const { view, content, payload, actions } = storeToRefs(modal);
 
+const form = ref(null);
+
+const callAction = async (action: ModalAction, payload: Object) => {
+    // let valid = form.value.reportValidity();
+
+    modal.error = null;
+
+    if (true) {
+        try {
+            await action.callback(payload);
+            modal.close();
+        } catch (error) {
+            modal.error = error.response.data.message ?? error;
+        }
+    }
+};
+</script>

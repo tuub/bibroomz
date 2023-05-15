@@ -1,5 +1,4 @@
 import {defineStore} from "pinia";
-import useModal from "./Modal";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -12,44 +11,17 @@ export const useHappeningStore = defineStore({
                 start: '',
                 end: '',
             },
-            validationErrors: {},
-            doModalClose: false,
-            modal: useModal(),
         }
     },
     actions: {
-        async addHappening(happeningData) {
-            return axios.post(`${baseUrl}/happenings/add`, happeningData)
-                .then(() => {
-                    this.validationErrors = {}
-                    this.modal.close()
-                }).catch((error) => {
-                    console.log('API Error:')
-                    this.validationErrors = error.response.data.errors
-                    console.log(this.validationErrors)
-                })
+        addHappening(happening) {
+            return axios.post(`${baseUrl}/happenings/add`, happening);
         },
-        async editHappening(happeningData) {
-            let id = happeningData.id
-            return axios.post(`${baseUrl}/happenings/update/${id}`, happeningData)
-                .then(() => {
-                    this.validationErrors = {}
-                    this.modal.close()
-                })
-                .catch((error) => {
-                    console.log('API Error:');
-                    this.validationErrors = error.response.data.errors
-                    console.log(this.validationErrors)
-                })
+        editHappening(happening) {
+            return axios.post(`${baseUrl}/happenings/update/${happening.id}`, happening);
         },
-        async deleteHappening(id) {
-            return await axios.delete(`${baseUrl}/happenings/delete/${id}`).then((response) => {
-                // FIXME: status message
-                this.modal.close()
-            }).catch((error) => {
-                console.log('API Error:')
-                console.log(error)
-            })
+        deleteHappening(id) {
+            return axios.delete(`${baseUrl}/happenings/delete/${id}`);
         }
     },
     getters: {
