@@ -1,13 +1,13 @@
 <template>
-    <ul class="list-disc">
-        <li><Link href="/admin/happenings" class="underline">Happenings</Link></li>
-        <li><Link href="/admin/institutions" class="underline">Institutions</Link></li>
-        <li><Link href="/admin/resources" class="underline">Resources</Link></li>
-        <li><Link href="/admin/users" class="underline">Users</Link></li>
-        <li><Link href="/admin/stats" class="underline">Stats</Link></li>
-    </ul>
+    <div class="flex flex-wrap">
+        <DashboardCard title="Happenings" icon="ri-calendar-event-fill" content="Here you can edit all reservations." :link="route('admin.happening.index')"></DashboardCard>
+        <DashboardCard title="Institutions" icon="ri-home-smile-fill" content="Here you can edit all institutions." :link="route('admin.institution.index')"></DashboardCard>
+        <DashboardCard title="Resources" icon="ri-map-pin-fill" content="Here you can edit all rooms." :link="route('admin.resource.index')"></DashboardCard>
+        <DashboardCard title="Users" icon="ri-user-fill" content="Here you can see and ban users." :link="route('admin.user.index')"></DashboardCard>
+        <DashboardCard title="Stats" icon="ri-bar-chart-fill" content="Some statistics regarding the reservations." :link="route('admin.statistic.index')"></DashboardCard>
+    </div>
 </template>
 
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import DashboardCard from "../../Components/Admin/DashboardCard.vue";
 </script>

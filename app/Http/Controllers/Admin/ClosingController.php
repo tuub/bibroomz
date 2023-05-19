@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreClosingRequest;
-use App\Http\Requests\UpdateClosingRequest;
+use App\Http\Requests\Admin\StoreClosingRequest;
+use App\Http\Requests\Admin\UpdateClosingRequest;
 use App\Models\Closing;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ClosingController extends Controller
 {
@@ -22,7 +24,7 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function createClosing(Request $request)
+    public function createClosing(Request $request): Response
     {
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
 
@@ -33,7 +35,7 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function storeClosing(StoreClosingRequest $request)
+    public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -48,7 +50,7 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function editClosing(Request $request)
+    public function editClosing(Request $request): Response
     {
         $closing = Closing::find($request->id);
         $closable_type = explode('\\', $closing->closable_type);
@@ -60,7 +62,7 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function updateClosing(UpdateClosingRequest $request)
+    public function updateClosing(UpdateClosingRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -73,7 +75,7 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function deleteClosing(Request $request)
+    public function deleteClosing(Request $request): RedirectResponse
     {
         $closing = Closing::find($request->id);
         $closable_type = explode('\\', $closing->closable_type);

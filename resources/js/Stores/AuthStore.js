@@ -81,6 +81,10 @@ export const useAuthStore = defineStore({
             }
         },
         addUserHappening(happening) {
+
+            console.log(happening.id)
+            console.log(this.userHappenings)
+
             let index = this._findUserHappeningIndex(happening.id)
             if (index === -1) {
                 this.userHappenings.push(happening)
@@ -104,6 +108,8 @@ export const useAuthStore = defineStore({
             }
         },
         _findUserHappeningIndex(id) {
+            console.log(id)
+            console.log(this.userHappenings)
             return this.userHappenings.findIndex(x => x.id === id)
         },
         subscribe() {

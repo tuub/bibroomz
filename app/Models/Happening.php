@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Library\Utility;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
@@ -60,12 +63,19 @@ class Happening extends Model
         return $this->getAttribute('user2');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('end', '>=', Carbon::now());
+    }
+
+    // FIXME: needed?
     public function scopeWhereDateBetween($query, $fieldName, $fromDate, $toDate)
     {
         return $query->whereDate($fieldName, '>=', $fromDate)->whereDate($fieldName, '<=', $toDate);
     }
 
     // See: https://stackoverflow.com/a/25163557/6948765
+    // FIXME: needed?
     public function getResourceAttribute()
     {
         return $this->resource()->first();
@@ -73,7 +83,6 @@ class Happening extends Model
 
     public function getStatus()
     {
-        //var_dump($this->user1);
         $user = [
             'reservation' => ['id' => $this->user1->id, 'name' => $this->user1->name],
             'confirmation' => ['id' => $this->user2->id ?? null, 'name' => $this->user2->name ?? null],
@@ -170,6 +179,139 @@ class Happening extends Model
         return $status;
     }
 
+    public static function getAvailableStartTimeSlots($resource_id, $start, $end)
+    {
+        $response = [];
+
+        $room = Resource::find($resource_id);
+        $start = Utility::carbonize($start);
+        $end = Utility::carbonize($end);
+
+        $time_slot_interval = Utility::getTimeValuesFromEnvTimeString(env('RESERVATION_TIMESLOT_LENGTH'));
+        $alpha = self::getMinTimeSlot($room, $start, $end);
+        $omega = self::getMaxTimeSlot($room, $start, $end)->subMinutes($time_slot_interval['minute']);
+
+        $time_slots = CarbonPeriod::create($alpha, $time_slot_interval['minute'] . ' minutes', $omega);
+
+        foreach ($time_slots as $time_slot) {
+            $response[$time_slot->format(env('TIME_FORMAT'))] = $time_slot->toIso8601String();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $room_id
+     * @param $start
+     * @param $end
+     * @return array
+     */
+    public static function getAvailableEndTimeSlots($resource_id, $start, $end)
+    {
+        $response = [];
+
+        $room = Resource::find($resource_id);
+        $start = Utility::carbonize($start);
+        $end = Utility::carbonize($end);
+
+        $time_slot_interval = Utility::getTimeValuesFromEnvTimeString(env('RESERVATION_TIMESLOT_LENGTH'));
+        $alpha = self::getMinTimeSlot($room, $start, $end);
+        $omega = self::getMaxTimeSlot($room, $start, $end);
+
+        $alpha->addMinutes($start->diffInMinutes($alpha) + $time_slot_interval['minute']);
+
+        if (auth()->check() && auth()->user()->is_admin === false) {
+            $alpha_with_block_hour_quota = $start->clone()->addHours(env('RESERVATION_BLOCK_HOUR_QUOTA'));
+            if ($omega->gt($alpha_with_block_hour_quota)) {
+                $omega = $alpha_with_block_hour_quota;
+            }
+        }
+
+        $time_slots = CarbonPeriod::create($alpha, $time_slot_interval['minute'] . ' minutes', $omega);
+
+        foreach ($time_slots as $time_slot) {
+            $response[$time_slot->format(env('TIME_FORMAT'))] = $time_slot->toIso8601String();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $room
+     * @param $start
+     * @param $end
+     * @return mixed
+     */
+    public static function getMinTimeSlot($room, $start, $end)
+    {
+        $this_day_start = $start->clone()->setTime(0,0,0);
+        $this_day_end = $this_day_start->clone()->addDay()->subSeconds(1);
+
+        // Are there any reservations for today?
+        $this_day_room_reservations = self::getRoomsDayReservations($room, $this_day_start, $this_day_end);
+
+        // If so, give me one with start date the given end date ...
+        $previous_reservation = $this_day_room_reservations->filter(function ($item) use($start) {
+            return $item->end->lte($start);
+        })->first();
+
+        if ($previous_reservation) {
+            return $previous_reservation->end;
+        }
+
+        // If not, give me the first possible timeslot ...
+        // FIXME
+        $regular_start = Utility::getTimeValuesFromEnvTimeString(config('reservations.business_hours.' .
+            $start->dayOfWeek . '.start'));
+
+        return $this_day_start->addHours($regular_start['hour'])->addMinutes($regular_start['minute']);
+    }
+
+    /**
+     * @param $room
+     * @param $start
+     * @param $end
+     * @return mixed
+     */
+    public static function getMaxTimeSlot($room, $start, $end)
+    {
+        $this_day_start = $start->clone()->setTime(0, 0, 0);
+        $this_day_end = $this_day_start->clone()->addDay()->subSeconds(1);
+
+        // Are there any reservations for today?
+        $this_day_room_reservations = self::getRoomsDayReservations($room, $this_day_start, $this_day_end);
+
+        // If so, give me one with start date the given end date ...
+        $next_reservation = $this_day_room_reservations->sortBy('start')->filter(function ($item) use ($end) {
+            return $item->start->gte($end);
+        })->first();
+
+        if ($next_reservation) {
+            return $next_reservation->start;
+        }
+
+        // If not, give me the last possible timeslot ...
+
+        // Until the end of the day if I'm admin ...
+        //if (auth()->user()->is_admin) {
+        $regular_end = Utility::getTimeValuesFromEnvTimeString(config('reservations.business_hours.' .
+            $start->dayOfWeek . '.end'));
+        return $this_day_start->addHours($regular_end['hour'])->addMinutes($regular_end['minute']);
+        //}
+
+        // Otherwise only within the block quota ...
+        //return $start->clone()->addHours(env('RESERVATION_BLOCK_HOUR_QUOTA'));
+    }
+
+    public static function getRoomsDayReservations($resource, $day_start, $day_end)
+    {
+        return self::whereHas('resource', function($query) use ($resource) {
+            $query->where('id', $resource->id);
+        })
+            ->where('start', '>=', $day_start)
+            ->where('end', '<=', $day_end)
+            ->get();
+    }
 
 
 }

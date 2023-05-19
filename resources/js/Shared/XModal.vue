@@ -72,6 +72,8 @@ const form = ref(null);
 const callAction = async (action: ModalAction, payload: object) => {
     // let valid = form.value.reportValidity();
 
+    console.log(payload)
+
     modal.error = null;
 
     if (true) {

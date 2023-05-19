@@ -39,6 +39,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->
 Route::get('/business_hours', [ResourceController::class, 'getBusinessHours'])->name('business_hours.get');
 Route::get('/resources', [ResourceController::class, 'getResources'])->name('resources.get');
 Route::get('/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
+Route::post('/timeslots', [HappeningController::class, 'getTimeSlots'])->name('timeslots.get');
 
 Route::middleware('auth:sanctum')->group(function() {
     /* User actions */
@@ -95,8 +96,6 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
     /* Special */
     Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
-
-
 
     /* Stats */
     Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');

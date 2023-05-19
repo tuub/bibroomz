@@ -6,30 +6,38 @@ use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
 use App\Events\HappeningsChanged;
 use App\Events\HappeningUpdated;
+use App\Http\Requests\AddHappeningRequest;
+use App\Http\Requests\UpdateHappeningRequest;
+use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Resource;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class HappeningController extends Controller
 {
-    public function getHappenings(Request $request)
+    public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
+
+        $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to]);
 
         $happenings = Happening::with('resource', 'user1', 'user2')
             ->where('start', '>=', $from)
             ->where('end', '<=', $to)
             ->get();
 
+        $log['RESULT COUNT'] = $happenings->count();
+
         foreach ($happenings as $happening) {
             $status = $happening->getStatus();
             $style = $status['css'];
             $user = $status['user'];
 
+            // Note: resourceId and classNames have to be camelcased for FullCalendar recognition!
             $output[] = [
                 'id' => $happening->id,
                 'status' => $status, //$event['status'],
@@ -41,94 +49,137 @@ class HappeningController extends Controller
             ];
         }
 
+        Utility::sendToLog('happenings', $log);
+
         return response()->json($output);
     }
 
-    public static function carbonize($date)
+    public function addHappening(AddHappeningRequest $request)
     {
-        if (is_string($date)) {
-            return Carbon::parse($date);
-        }
-
-        return $date;
-    }
-
-    public function addHappening(Request $request)
-    {
+        // Check auth -> do we need this?
         if (!auth()->user()) {
-            return redirect()->back()->with('error', 'Updating the demo user is not allowed.');
+            return redirect()->back()->with('error', 'No session available.');
         }
-        if (auth()->user()) {
-            $as_admin = false;
 
-            $request->validate([
-                'resource' => 'required',
-                'start' => 'required',
-                'end' => 'required',
-                'confirmer' => 'required',
-            ]);
+        // Validate input
+        $validated = $request->validated();
 
-            $resource = Resource::find($request->resource['id']);
-            $happeningData = [
-                'user_id_01' => auth()->user()->id,
-                'user_id_02' => $as_admin ? auth()->user()->id : null,
-                'resource_id' => $resource->id,
-                'is_confirmed' => $as_admin ?? false,
-                'confirmer' => $request->confirmer,
-                'start' => self::carbonize($request->start)->format('Y-m-d H:i:s'),
-                'end' => self::carbonize($request->end)->format('Y-m-d H:i:s'),
-                'reserved_at' => Carbon::now(),
-                'confirmed_at' => $as_admin ? Carbon::now() : null,
-            ];
+        // Get resource object
+        $resource = Resource::find($validated['resource']['id']);
+        $log['RESOURCE'] = $resource['title'];
 
-            $happening = Happening::create($happeningData);
-            $op = $happening->save() && $happening->resource()->associate($resource);
+        // Compile happening payload
+        $happeningData = [
+            'user_id_01' => auth()->user()->id,
+            'user_id_02' => auth()->user()->is_admin ? auth()->user()->id : null,
+            'resource_id' => $resource['id'],
+            'is_confirmed' => auth()->user()->is_admin ?? false,
+            'confirmer' => $validated['confirmer'],
+            'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
+            'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
+            'reserved_at' => Carbon::now(),
+            'confirmed_at' => auth()->user()->is_admin ? Carbon::now() : null,
+        ];
+        $log['PAYLOAD'] = json_encode($happeningData);
+
+        // Create happening & relation
+        $happening = new Happening($happeningData);
+        $op = $happening->save() && $happening->resource()->associate($resource);
+        $log['RESULT'] = json_encode($happening);
+
+        if ($op) {
+            // Write log record
+            Utility::sendToLog('happenings', $log);
+
+            // Send broadcast events to frontend
             broadcast(new HappeningCreated($happening));
             broadcast(new HappeningsChanged());
-
-            // FIXME: ADD SESSION FLASH HERE
-
-            // FIXME: ADD SESSION FLASH HERE
         }
-        return false;
-        //return Inertia::render('Profile');
-        //
-        # return response()->json('NOPE! NOT LOGGED IN!', 403);
+
+        // FIXME: GET THE SESSION FLASH MESSAGE TO FRONTEND!
+        // BROADCAST?
+        // WHAT TO DO WITH NON INERTIA CALLS?
     }
 
-    public function updateHappening(Request $request)
+    public function updateHappening(UpdateHappeningRequest $request)
     {
-        $request->validate([
-            'start' => 'required',
-            'end' => 'required',
-            'confirmer' => 'required',
-        ]);
+        // Check auth -> do we need this?
+        if (!auth()->user()) {
+            return redirect()->back()->with('error', 'No session available.');
+        }
 
-        $happening = auth()->user()->happenings()->findOrFail($request->id);
+        // Validate input
+        $validated = $request->validated();
 
+        // Get happening object
+        $happening = auth()->user()->happenings()->findOrFail($validated['id']);
+        $log['HAPPENING'] = $happening;
+
+        // Compile happening payload
         $happeningData = [
-            'start' => self::carbonize($request->start)->format('Y-m-d H:i:s'),
-            'end' => self::carbonize($request->end)->format('Y-m-d H:i:s'),
-            'confirmer' => $request->confirmer,
+            'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
+            'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
+            'confirmer' => $validated['confirmer'],
         ];
+        $log['PAYLOAD'] = json_encode($happeningData);
 
-        $op = $happening->update($happeningData) && $happening->resource()->associate($request->resource['id']);;
-        $happening = Happening::with('resource')->find($happening->id);
+        // Update happening & relation
+        $op = $happening->update($happeningData) && $happening->resource()->associate($validated['id']);
 
-        broadcast(new HappeningUpdated($happening));
-        broadcast(new HappeningsChanged());
+        if ($op) {
+            // Get just updated relation object for broadcasting back
+            $happening = Happening::with('resource')->find($happening->id);
+            $log['RESULT'] = json_encode($happening);
+
+            // Write log record
+            Utility::sendToLog('happenings', $log);
+
+            // Send broadcast events to frontend
+            broadcast(new HappeningUpdated($happening));
+            broadcast(new HappeningsChanged());
+        }
+
+        // FIXME: GET THE SESSION FLASH MESSAGE TO FRONTEND!
+        // BROADCAST?
+        // WHAT TO DO WITH NON INERTIA CALLS?
     }
 
     public function deleteHappening($id)
     {
-        $user1 = Happening::find($id)->user1;
-        $user2 = Happening::find($id)->user1;
+        // Get happening object
+        $happening = auth()->user()->happenings()->findOrFail($id);
 
-        $op = auth()->user()->happenings()->findOrFail($id)->delete();
+        // Get users for private broadcast channels
+        $user1 = $happening->user1;
+        $user2 = $happening->user2;
+
+        // Delete happening
+        $op = $happening->delete();
 
         if ($op) {
+            // Send broadcast events to frontend
             broadcast(new HappeningDeleted($id, $user1, $user2));
             broadcast(new HappeningsChanged());
         }
+    }
+
+    public function getTimeSlots(Request $request): JsonResponse
+    {
+        $time_slots = [];
+
+        $time_slots['start'] = Happening::getAvailableStartTimeSlots($request->resource_id, $request->start, $request->end);
+        $time_slots['end'] = Happening::getAvailableEndTimeSlots($request->resource_id, $request->start, $request->end);
+        $time_slots['start_selected'] = Utility::carbonize($request->start)->toIso8601String();
+
+        $is_initial = filter_var($request->is_initial, FILTER_VALIDATE_BOOLEAN);
+        $is_end_value_present = !empty(array_search($request->end, array_values($time_slots['end']),true));
+
+        if ($is_initial === true || $is_end_value_present) {
+            $time_slots['end_selected'] = Utility::carbonize($request->end)->toIso8601String();
+        } else {
+            $time_slots['end_selected'] = array_values($time_slots['end'])[0];
+        }
+
+        return response()->json($time_slots);
     }
 }

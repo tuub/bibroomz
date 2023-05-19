@@ -51,6 +51,12 @@ return [
     */
 
     'channels' => [
+        'happenings' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/happenings.log'),
+            'level' => 'debug',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

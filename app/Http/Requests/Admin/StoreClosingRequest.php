@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateHappeningRequest extends FormRequest
+class StoreClosingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,11 @@ class UpdateHappeningRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => ['required', 'uuid'],
-            'resource' => 'required',
+            'closable_id' => 'required',
+            'closable_type' => 'required',
             'start' => 'required',
             'end' => 'required',
-            'confirmer' => 'required',
+            'description' => '',
         ];
     }
 }

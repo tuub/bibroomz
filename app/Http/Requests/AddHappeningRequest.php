@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateClosingRequest extends FormRequest
+class AddHappeningRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,10 @@ class UpdateClosingRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required',
+            'resource' => 'required',
             'start' => 'required',
             'end' => 'required',
-            'description' => '',
+            'confirmer' => 'required',
         ];
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreClosingRequest extends FormRequest
+class StoreHappeningRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,15 @@ class StoreClosingRequest extends FormRequest
      */
     public function rules()
     {
+        // FIXME: is_confirmed must be false if user_id_02 is not given and vice versa!
         return [
-            'closable_id' => 'required',
-            'closable_type' => 'required',
             'start' => 'required',
             'end' => 'required',
-            'description' => '',
+            'resource_id' => ['required', 'uuid'],
+            'user_id_01' => ['required', 'uuid'],
+            'user_id_02' => ['sometimes', 'nullable', 'uuid', 'required_with:is_confirmed|boolean'],
+            'confirmer' => 'string',
+            'is_confirmed' => ['boolean', 'required_if:user_id_02,'],
         ];
     }
 }
