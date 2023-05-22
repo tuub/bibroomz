@@ -165,6 +165,7 @@ class HappeningController extends Controller
 
     public function getTimeSlots(Request $request): JsonResponse
     {
+        sleep(1);
         $time_slots = [];
 
         $time_slots['start'] = Happening::getAvailableStartTimeSlots($request->resource_id, $request->start, $request->end);

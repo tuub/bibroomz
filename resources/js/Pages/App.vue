@@ -6,7 +6,6 @@
 
     <div class="flex flex-row gap-5">
         <div id="sidebar" class="basis-1/5 md:basis-1/5">
-            <Legend class="mb-5"></Legend>
             <div v-if="isAuthenticated">
                 <UserHappenings :happenings="userHappenings"></UserHappenings>
             </div>

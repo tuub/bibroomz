@@ -1,5 +1,6 @@
 <template>
     <div class='calendar'>
+        <Legend class="mb-5"></Legend>
         <FullCalendar ref="refCalendar" class='calendar' :options="calendarOptions">
             <template v-slot:eventContent='arg'>
                 <div class="text-center">
@@ -28,6 +29,8 @@ import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
 import utc from "dayjs/plugin/utc";
+import Legend from "./Legend.vue";
+import Spinner from "../Shared/Spinner.vue";
 
 // ------------------------------------------------
 // Debug information
@@ -48,7 +51,8 @@ let options = {
 // ------------------------------------------------
 // Loading indicator
 // ------------------------------------------------
-let isLoading = false;
+let isLoading = ref(false);
+
 watchEffect(() => {
     console.log('isLoading: %s', isLoading)
 })
@@ -164,24 +168,27 @@ const getBusinessHours = () => {
 // Fetch happenings from backend
 // ------------------------------------------------
 const getHappenings = (fetchInfo, successCallback, failureCallback) => {
+    isLoading.value = true
     let payload = {
         start: fetchInfo.start,
         end: fetchInfo.end
     };
 
-    isLoading = true;
-
     axios({ method: 'GET', url: '/happenings', params: payload})
         .then((response) => {
             successCallback(response.data);
-            isLoading = false
+            isLoading.value = false
         }).catch((error) => {
-        failureCallback(error);
+            failureCallback(error);
+            isLoading.value = false
     });
 }
 
 const refetchHappenings = () => {
+    isLoading.value = true
     calendarApi.refetchEvents()
+    isLoading.value = false
+
 }
 
 // Refetch happenings if store state of isAuthenticated changes => after login / logout

@@ -1,13 +1,16 @@
 <template>
     <div class="mt-4 space-y-3">
+        {{ happening }}
         <div class="grid md:grid-cols-2 md:gap-2">
-            {{ happening }}
             <div class="mb-6">
                 <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                     Start
                 </label>
-                <select v-model="timeSlots.start.selected"
+                <spinner size="small" v-if="isLoading"></spinner>
+                <select v-else
+                        v-model="timeSlots.start.selected"
                         @change="syncTimeSlotValues($event, timeSlots.start.selected, timeSlots.end.selected)"
+                        @input="$emit('update:input', $event.target.value)"
                         id="start"
                         name="start"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -23,8 +26,11 @@
                 <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                     End
                 </label>
-                <select v-model="timeSlots.end.selected"
+                <spinner size="small" v-if="isLoading"></spinner>
+                <select v-else
+                        v-model="timeSlots.end.selected"
                         @change="syncTimeSlotValues($event, timeSlots.start.selected, timeSlots.end.selected)"
+                        @input="$emit('update:input', $event.target.value)"
                         id="end"
                         name="end"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -36,18 +42,18 @@
                 </select>
             </div>
         </div>
-        <div class="relative z-0 w-full mb-6 group">
-            <HappeningFormInput
-                v-model:input="happening.confirmer"
-                type="text"
-                name="confirmer"
-                id="confirmer"
-                required
-            />
-            <label for="confirmer"
-                   class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-                Bestätigung durch:
+        <div class="mb-6">
+            <label for="confirmer" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                Confirmer
             </label>
+            <input v-model="happening.confirmer"
+                   @input="$emit('update:input', $event.target.value)"
+                   type="text"
+                   id="confirmer"
+                   name="confirmer"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   placeholder=""
+            >
         </div>
     </div>
 
@@ -59,12 +65,16 @@ import HappeningFormInput from "./HappeningFormInput.vue";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import { storeToRefs } from "pinia";
 import {onMounted, reactive, ref, computed} from "vue";
+import Spinner from "../../Shared/Spinner.vue";
 
 const props = defineProps({
     happening: Object,
 });
 
+const emit = defineEmits(["update:input"]);
+
 let isInitial = ref(true);
+let isLoading = ref(false);
 let timeSlots = ref({
     start: {
         range: {},
@@ -78,6 +88,7 @@ let timeSlots = ref({
 
 const getTimeSlotValues = (resource_id, start, end, event) => {
     if (isInitial || event !== null) {
+        isLoading.value = true
         let payload = {
             resource_id: resource_id,
             start: start,
@@ -95,6 +106,7 @@ const getTimeSlotValues = (resource_id, start, end, event) => {
                     selected: response.data['end_selected'],
                 },
             };
+            isLoading.value = false
         })
         isInitial.value = false;
     }
