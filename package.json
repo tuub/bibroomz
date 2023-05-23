@@ -49,6 +49,7 @@
         "vue-chart-3": "^3.1.8",
         "vue-loader": "^17.0.0",
         "vue-select": "^4.0.0-beta.6",
-        "vue-select-3": "^1.0.1"
+        "vue-select-3": "^1.0.1",
+        "vue-toastification": "^2.0.0-rc.5"
     }
 }

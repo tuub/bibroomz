@@ -24,7 +24,7 @@ class LoginController extends Controller
 
         if ($auth) {
             $response = [
-                'message' => 'Successfully logged in',
+                'message' => 'Successfully logged in!',
                 'user' => [
                     'id' => auth()->user()->id,
                     'name' => auth()->user()->name,
@@ -48,7 +48,7 @@ class LoginController extends Controller
         Auth::logout();
 
         //return redirect()->route('home');
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out!']);
     }
 
     public function check(Request $request)

@@ -10,6 +10,8 @@ import MainLayout from "./Layouts/MainLayout.vue";
 import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from 'ziggy';
 import { Ziggy } from './ziggy';
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 
 const emitter = mitt()
 
@@ -62,6 +64,21 @@ createInertiaApp({
             .component('Link', Link)
             .use(plugin)
             .use(ZiggyVue, Ziggy)
+            .use(Toast, {
+                maxToasts: 5,
+                newestOnTop: true,
+                position: "bottom-right",
+                timeout: 10000,
+                closeOnClick: true,
+                pauseOnFocusLoss: true,
+                pauseOnHover: true,
+                draggable: true,
+                draggablePercent: 0.6,
+                showCloseButtonOnHover: true,
+                closeButton: "button",
+                icon: true,
+                rtl: false,
+            })
             .mount(el)
     },
     title: title => `Roomz - ${title}`,

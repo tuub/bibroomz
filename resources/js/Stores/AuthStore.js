@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
+import { useToast } from 'vue-toastification';
+// import dayjs from 'dayjs';
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
+
+const toast = useToast();
 
 export const useAuthStore = defineStore({
     id: 'auth',
@@ -34,12 +38,14 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = true;
                 await this.fetchUserHappenings();
                 this.subscribe();
+
+                toast.success(`${response.data.message}`);
             }).catch((error) => {
-                console.log(error.response.data.message)
-                console.log(error.response.data)
                 if (error.response.data.errors) {
                     this.errors.value = Object.values(error.response.data.errors).flat()
                 }
+
+                    toast.error(`Login attempt failed: ${error.response.data.errors}`);
             });
 
             /*
@@ -66,6 +72,8 @@ export const useAuthStore = defineStore({
                 this.user = null;
                 this.isAuthenticated = false;
                 this.userHappenings = [];
+
+                toast.success(`${response.data.message}`);
             }
         },
         async fetchUserHappenings() {
@@ -118,12 +126,15 @@ export const useAuthStore = defineStore({
                 Echo.private(userChannel)
                     .listen("HappeningCreated", (e) => {
                         this.addUserHappening(e.happening);
+                        toast.success(`Happening created! ${e.happening.id}`);
                     })
                     .listen("HappeningUpdated", (e) => {
                         this.updateUserHappening(e.happening);
+                        toast.success(`Happening updated! ${e.happening.id}`);
                     })
                     .listen("HappeningDeleted", (e) => {
                         this.removeUserHappening(e.id);
+                        toast.success(`Happening deleted! ${e.id}`);
                     });
             } else {
                 console.log('Could not subscribe to private channel, no auth')

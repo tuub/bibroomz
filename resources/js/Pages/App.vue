@@ -32,7 +32,7 @@ import XModal from "../Shared/XModal.vue";
 import useModal from "../Stores/Modal";
 
 import { useAuthStore } from "../Stores/AuthStore";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 import { Modal as FlowbiteModal } from "flowbite";
@@ -82,6 +82,9 @@ onMounted(() => {
     // check auth session in backend
     authStore.check()
 });
+onUnmounted(() => {
+    authStore.unsubscribe();
+})
 </script>
 
 <style scoped>

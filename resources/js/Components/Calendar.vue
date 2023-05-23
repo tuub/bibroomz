@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import { inject, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { inject, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
@@ -31,6 +31,8 @@ import {storeToRefs} from "pinia";
 import utc from "dayjs/plugin/utc";
 import Legend from "./Legend.vue";
 import Spinner from "../Shared/Spinner.vue";
+
+import { useToast } from "vue-toastification";
 
 // ------------------------------------------------
 // Debug information
@@ -107,6 +109,9 @@ onMounted(() => {
     Echo.channel("happenings").listen("HappeningsChanged", () => {
         refetchHappenings();
     });
+})
+onUnmounted(() => {
+    Echo.leave("happenings");
 })
 
 // ------------------------------------------------
@@ -229,7 +234,7 @@ const isSelectAllow = (event) => {
 // ------------------------------------------------
 const onSelect = (eventInfo) => {
     if (!authStore.isAuthenticated) {
-        emit('show-status', 'WHAT DO YOU WANT, ALIEN!?')
+        useToast().error('Must be authenticated!');
     } else {
         let happeningData = reactive({
             isSelected: true,
