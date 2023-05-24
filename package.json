@@ -33,6 +33,7 @@
         "@headlessui/vue": "^1.7.0",
         "@inertiajs/progress": "^0.2.7",
         "@inertiajs/vue3": "^1.0.2",
+        "@soketi/soketi": "^1.5.0",
         "@tailwindcss/typography": "^0.5.9",
         "@vitejs/plugin-vue": "^3.0.3",
         "chart.js": "^3.9.1",

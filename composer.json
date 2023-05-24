@@ -6,7 +6,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "beyondcode/laravel-websockets": "^1.14",
         "binarycabin/laravel-uuid": "^1.0",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.6.9",
@@ -14,10 +13,12 @@
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
+        "pusher/pusher-php-server": "^7.2",
         "tightenco/ziggy": "^1.5",
         "vyuldashev/xml-to-array": "^1.1"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.13",
         "doctrine/dbal": "^3.4",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",

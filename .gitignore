@@ -16,3 +16,4 @@ yarn-error.log
 /.vscode
 *.log
 /public/vendor
+resources/js/ziggy.js
