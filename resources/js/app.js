@@ -65,13 +65,13 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .use(Toast, {
-                maxToasts: 5,
+                maxToasts: 10,
                 newestOnTop: true,
                 position: "bottom-right",
-                timeout: 10000,
+                timeout: 5000,
                 closeOnClick: true,
-                pauseOnFocusLoss: true,
-                pauseOnHover: true,
+                pauseOnFocusLoss: false,
+                pauseOnHover: false,
                 draggable: true,
                 draggablePercent: 0.6,
                 showCloseButtonOnHover: true,
