@@ -1,0 +1,12 @@
+{
+    "apps": [
+        {
+            "name": "soketi",
+            "cwd": "/srv/git/roomz",
+            "script": "npx soketi start --config=soketi.json",
+            "env": {
+                "NODE_ENV": "production"
+            }
+        }
+    ]
+}
