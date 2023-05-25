@@ -165,7 +165,7 @@ class HappeningController extends Controller
 
     public function getTimeSlots(Request $request): JsonResponse
     {
-        sleep(1);
+        // sleep(1);
         $time_slots = [];
 
         $time_slots['start'] = Happening::getAvailableStartTimeSlots($request->resource_id, $request->start, $request->end);
@@ -173,7 +173,7 @@ class HappeningController extends Controller
         $time_slots['start_selected'] = Utility::carbonize($request->start)->toIso8601String();
 
         $is_initial = filter_var($request->is_initial, FILTER_VALIDATE_BOOLEAN);
-        $is_end_value_present = !empty(array_search($request->end, array_values($time_slots['end']),true));
+        $is_end_value_present = !empty(array_search(Utility::carbonize($request->end)->toIso8601String(), array_values($time_slots['end']),true));
 
         if ($is_initial === true || $is_end_value_present) {
             $time_slots['end_selected'] = Utility::carbonize($request->end)->toIso8601String();
