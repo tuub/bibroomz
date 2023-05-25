@@ -41,11 +41,17 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return array_merge(
-            [new PrivateChannel('happenings.' . $this->user1->id)],
-            $this->user2 && $this->user1 != $this->user2
-                ? [new PrivateChannel('happenings.' . $this->user2->id)]
-                : [],
-        );
+        $user1 = $this->user1;
+        $user2 = $this->user2;
+
+        $channel1 = new PrivateChannel('happenings.' . $user1->id);
+
+        if (is_null($user2) or $user1->is($user2)) {
+            return $channel1;
+        }
+
+        $channel2 = new PrivateChannel('happenings.' . $user2->id);
+
+        return [$channel1, $channel2];
     }
 }

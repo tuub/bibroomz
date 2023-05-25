@@ -31,11 +31,17 @@ class HappeningCreated implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return array_merge(
-            [new PrivateChannel('happenings.' . $this->happening->user1->id)],
-            $this->happening->user2
-                ? [new PrivateChannel('happenings.' . $this->happening->user2->id)]
-                : [],
-        );
+        $user1 = $this->happening->user1;
+        $user2 = $this->happening->user2;
+
+        $channel1 = new PrivateChannel('happenings.' . $user1->id);
+
+        if (is_null($user2) or $user1->is($user2)) {
+            return $channel1;
+        }
+
+        $channel2 = new PrivateChannel('happenings.' . $user2->id);
+
+        return [$channel1, $channel2];
     }
 }
