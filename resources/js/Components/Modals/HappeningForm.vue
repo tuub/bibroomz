@@ -1,6 +1,5 @@
 <template>
     <div class="mt-4 space-y-3">
-        {{ happening }}
         <div class="grid md:grid-cols-2 md:gap-2">
             <div class="mb-6">
                 <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
@@ -8,16 +7,18 @@
                 </label>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
-                        v-model="timeSlots.start.selected"
-                        @change="syncTimeSlotValues($event, timeSlots.start.selected, timeSlots.end.selected)"
+                        @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
+                        v-model="start_time_slot_selected"
                         @input="$emit('update:input', $event.target.value)"
                         id="start"
                         name="start"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option v-for="(startTimeSlot, startTimeSlotKey) in timeSlots.start.range"
-                            :value="startTimeSlot"
-                            :key="startTimeSlotKey">
-                        {{ startTimeSlotKey }}
+                    <option v-for="start_time_slot in start_time_slots"
+                            :value="start_time_slot.time"
+                            :key="start_time_slot.time"
+                            :selected="start_time_slot.is_selected"
+                            :disabled="start_time_slot.is_disabled">
+                        {{ start_time_slot.label }}
                     </option>
                 </select>
             </div>
@@ -28,16 +29,18 @@
                 </label>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
-                        v-model="timeSlots.end.selected"
-                        @change="syncTimeSlotValues($event, timeSlots.start.selected, timeSlots.end.selected)"
+                        @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
+                        v-model="end_time_slot_selected"
                         @input="$emit('update:input', $event.target.value)"
                         id="end"
                         name="end"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option v-for="(endTimeSlot, endTimeSlotKey) in timeSlots.end.range"
-                            :value="endTimeSlot"
-                            :key="endTimeSlotKey">
-                        {{ endTimeSlotKey }}
+                    <option v-for="end_time_slot in end_time_slots"
+                            :value="end_time_slot.time"
+                            :key="end_time_slot.time"
+                            :selected="end_time_slot.is_selected"
+                            :disabled="end_time_slot.is_disabled">
+                        {{ end_time_slot.label }}
                     </option>
                 </select>
             </div>
@@ -61,10 +64,9 @@
 </template>
 
 <script setup>
-import HappeningFormInput from "./HappeningFormInput.vue";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import { storeToRefs } from "pinia";
-import {onMounted, reactive, ref, computed} from "vue";
+import {ref, onBeforeMount} from "vue";
 import Spinner from "../../Shared/Spinner.vue";
 
 const props = defineProps({
@@ -75,16 +77,11 @@ const emit = defineEmits(["update:input"]);
 
 let isInitial = ref(true);
 let isLoading = ref(false);
-let timeSlots = ref({
-    start: {
-        range: {},
-        selected: ''
-    },
-    end: {
-        range: {},
-        selected: ''
-    },
-});
+
+let start_time_slots = ref({});
+let end_time_slots = ref({});
+let start_time_slot_selected = ref({})
+let end_time_slot_selected = ref({})
 
 const getTimeSlotValues = (resource_id, start, end, event) => {
     if (isInitial || event !== null) {
@@ -94,18 +91,21 @@ const getTimeSlotValues = (resource_id, start, end, event) => {
             start: start,
             end: end,
             event: event,
+            happening_id: props.happening?.id,
         }
-        axios.post('/timeslots', payload).then((response) => {
-            timeSlots.value = {
-                start: {
-                    range: response.data['start'],
-                    selected: response.data['start_selected'],
-                },
-                end: {
-                    range: response.data['end'],
-                    selected: response.data['end_selected'],
-                },
-            };
+        axios.post('/resource/' + resource_id + '/time_slots', payload).then((response) => {
+            start_time_slots.value = response.data['start']
+            if (response.data['start']) {
+                start_time_slot_selected.value = response.data['start'].filter(obj => {
+                    return obj.is_selected === true
+                })[0].time
+            }
+            end_time_slots.value = response.data['end']
+            if (response.data['end']) {
+                end_time_slot_selected.value = response.data['end'].filter(obj => {
+                    return obj.is_selected === true
+                })[0].time
+            }
             isLoading.value = false
         })
         isInitial.value = false;
@@ -119,17 +119,17 @@ const initTimeSlots = () => {
     }
 }
 
-const syncTimeSlotValues = ($event, selectedStart, selectedEnd) => {
-    getTimeSlotValues(props.happening.resource.id, selectedStart, selectedEnd, $event);
-    props.happening.start = selectedStart
+const syncTimeSlotValues = ($event, start_selected, end_selected) => {
+    getTimeSlotValues(props.happening.resource.id, start_selected, end_selected, $event);
+    props.happening.start = start_time_slot_selected
     // FIXME: not changed!
-    props.happening.end = selectedEnd
+    props.happening.end = end_time_slot_selected
 }
 
 const happeningStore = useHappeningStore();
 let { validationErrors } = storeToRefs(happeningStore);
 
-onMounted(() => {
+onBeforeMount(() => {
     initTimeSlots()
 })
 

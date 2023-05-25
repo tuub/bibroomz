@@ -40,26 +40,31 @@
                 :key="resource.id"
                 class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
             >
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <th scope="row" class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {{ resource.title }}
                 </th>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 align-top">
                     {{ resource.location }}
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 align-top">
                     {{ resource.institution.title }}
                 </td>
-                <td class="px-6 py-4">
-                    {{ formatTime(resource.opens_at) }} - {{ formatTime(resource.closes_at) }}
+                <td class="px-6 py-4 align-top">
+                    <p v-for="business_hour in resource.business_hours">
+                        {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }}
+                        (
+                            {{ business_hour.week_days.map(entry => entry.name).join(', ') }}
+                        )
+                    </p>
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 align-top text-center">
                     {{ resource.capacity }}
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 align-top text-center">
                     <i class="ri-checkbox-circle-line text-green-500" v-if="resource.is_active"></i>
                     <i class="ri-close-circle-line text-red-500" v-if="!resource.is_active"></i>
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 align-top text-right">
                     <Link :href="route('admin.resource.edit', {
                         id: resource.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
@@ -71,6 +76,12 @@
                         closable_id: resource.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         Closings
+                    </Link>
+                    |
+                    <Link method="post" as="button" :href="route('admin.resource.delete', {
+                        id: resource.id,
+                    })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        Delete
                     </Link>
                 </td>
             </tr>

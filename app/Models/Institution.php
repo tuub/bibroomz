@@ -34,4 +34,12 @@ class Institution extends Model
     {
         return $this->morphMany(Closing::class, 'closable');
     }
+
+    /*****************************************************************
+     * SCOPES
+     ****************************************************************/
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

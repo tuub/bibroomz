@@ -36,10 +36,11 @@ Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // API calls
-Route::get('/business_hours', [ResourceController::class, 'getBusinessHours'])->name('business_hours.get');
 Route::get('/resources', [ResourceController::class, 'getResources'])->name('resources.get');
 Route::get('/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
-Route::post('/timeslots', [HappeningController::class, 'getTimeSlots'])->name('timeslots.get');
+//Route::post('/time_slots', [HappeningController::class, 'getTimeSlots'])->name('time_slots.get');
+Route::post('/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])->name('resource.business_hours.form');
+
 
 Route::middleware('auth:sanctum')->group(function() {
     /* User actions */
@@ -78,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/admin/resource/{id}/edit', [AdminResourceController::class, 'editResource'])->name('admin.resource.edit');
     Route::post('/admin/resource/store', [AdminResourceController::class, 'storeResource'])->name('admin.resource.store');
     Route::post('/admin/resource/update', [AdminResourceController::class, 'updateResource'])->name('admin.resource.update');
+    Route::post('/admin/resource/delete', [AdminResourceController::class, 'deleteResource'])->name('admin.resource.delete');
     /* Resource Special */
     Route::get('/admin/form/resources', [AdminResourceController::class, 'getFormResources'])->name('admin.resource.form');
 
@@ -99,6 +101,4 @@ Route::middleware('auth:sanctum')->group(function() {
 
     /* Stats */
     Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');
-
-
 });

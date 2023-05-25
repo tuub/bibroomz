@@ -3,16 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreResourceRequest;
+use App\Http\Requests\Admin\UpdateResourceRequest;
+use App\Models\BusinessHour;
 use App\Models\Resource;
+use App\Models\WeekDay;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ResourceController extends Controller
 {
-    public static function getResources(Request $request)
+    public static function getResources(): Response
     {
         return Inertia::render('Admin/Resources/Index', [
-            'resources' => Resource::with(['institution', 'closings'])->get()
+            'resources' => Resource::with(['institution', 'business_hours', 'business_hours.week_days', 'closings'])
+                ->get()
         ]);
     }
 
@@ -21,54 +29,72 @@ class ResourceController extends Controller
         return Resource::get(['id', 'title']);
     }
 
-    public function createResource(Request $request)
-    {
-        return Inertia::render('Admin/Resources/Form');
-    }
-
-    public function storeResource(Request $request)
-    {
-        // Validate
-        $attributes = $request->validate([
-            'institution_id' => 'required',
-            'title' => 'required',
-            'location' => 'required',
-            'description' => 'required',
-            'capacity' => ['numeric', 'gt:0'],
-            'opens_at' => 'required',
-            'closes_at' => 'required',
-            'is_active' => 'required',
-        ]);
-        // Create
-        Resource::create($attributes);
-        // Redirect
-        return redirect('/admin/resources');
-    }
-
-    public function editResource(Request $request)
-    {
-        $resource = Resource::where('id', $request->id)->with('closings')->firstOrFail();
-        return Inertia::render('Admin/Resources/Form', $resource);
-    }
-
-    public function updateResource(Request $request)
+    public function deleteResource(Request $request): RedirectResponse
     {
         $resource = Resource::find($request->id);
+        $resource->delete();
 
-        // Validate
-        $attributes = $request->validate([
-            'institution_id' => 'required',
-            'title' => 'required',
-            'location' => 'required',
-            'description' => 'required',
-            'capacity' => ['numeric', 'gt:0'],
-            'opens_at' => 'required',
-            'closes_at' => 'required',
-            'is_active' => 'required',
+        return redirect()->route('admin.resource.index');
+    }
+
+    public function createResource(): Response
+    {
+        $week_days = WeekDay::get();
+
+        return Inertia::render('Admin/Resources/Form', [
+            'week_days' => $week_days,
         ]);
-        // Update
-        $resource->update($attributes);
-        // Redirect
-        return redirect('/admin/resources');
+    }
+
+    public function storeResource(StoreResourceRequest $request): RedirectResponse
+    {
+        $resource = Resource::create($request->except('business_hours'));
+
+        $this->updateOrCreateBusinessHours($request->business_hours, $resource);
+
+        return redirect()->route('admin.resource.index');
+    }
+
+    public function editResource(Request $request): Response
+    {
+        $resource = Resource::where('id', $request->id)->with([
+            'closings',
+            'business_hours',
+            'business_hours.week_days:id'
+        ])->firstOrFail();
+
+        $week_days = WeekDay::get();
+
+        return Inertia::render('Admin/Resources/Form', [
+            'resource' => $resource,
+            'week_days' => $week_days,
+        ]);
+    }
+
+    public function updateResource(UpdateResourceRequest $request): RedirectResponse
+    {
+        $resource = Resource::find($request->id);
+        $resource->update($request->except('business_hours'));
+
+        BusinessHour::where('resource_id', $resource->id)
+            ->whereNotIn('id', array_column($request->business_hours, 'id'))
+            ->delete();
+
+        $this->updateOrCreateBusinessHours($request->business_hours, $resource);
+
+        return redirect()->route('admin.resource.index');
+    }
+
+    private function updateOrCreateBusinessHours($business_hours, $resource)
+    {
+        foreach ($business_hours as $business_hour) {
+            $result = BusinessHour::updateOrCreate(['id' => $business_hour['id']], [
+                'resource_id' => $resource->id,
+                'start' => $business_hour['start'],
+                'end' => $business_hour['end'],
+            ]);
+
+            $result?->week_days()->sync($business_hour['week_days']);
+        }
     }
 }

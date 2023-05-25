@@ -97,7 +97,7 @@
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                        placeholder=""
                 >
-                <FormValidationError :message="form.errors.start"></FormValidationError>
+                <FormValidationError :message="form.errors.confirmer"></FormValidationError>
             </div>
         </div>
 
@@ -151,7 +151,7 @@ let users = ref([]);
 // Save original confirmer for later rollback
 const savedConfirmer = form['confirmer']
 
-const updateConfirmer = () => {
+const updateConfirmer = (event) => {
     let index = users.value.findIndex(x => x.id === event.target.value)
     if (index === -1) {
         form['confirmer'] = savedConfirmer

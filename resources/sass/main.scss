@@ -31,6 +31,18 @@ body {
 /* Closed timeslots */
 .fc-nonbusiness { background-color: $status-closing; cursor: not-allowed; }
 
+/* Background Events: Closings */
+// FIXME
+.fc-bg-event {
+    background-color: $status-closing !important;
+    cursor: not-allowed;
+    opacity: 100% !important;
+    background-image:
+        linear-gradient(45deg, $status-closing 50%, blue 50%) !important;
+        //repeating-linear-gradient(transparent, transparent 10px, white 10px, white 12px),
+        //repeating-linear-gradient(to right, transparent, transparent 10px, white 10px, white 32px) !important;
+}
+
 /* Room header columns */
 .fc-widget-header th.fc-resource-cell { text-align: center; }
 

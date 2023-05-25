@@ -10,6 +10,7 @@ use App\Http\Requests\AddHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
 use App\Library\Utility;
 use App\Models\Happening;
+use App\Models\Institution;
 use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -20,14 +21,21 @@ class HappeningController extends Controller
     public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
+
+        // FIXME
+        $institution = Institution::active()->first();
+
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
 
         $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to]);
 
+        $institution_resources = $institution->resources()->pluck('id')->all();
+
         $happenings = Happening::with('resource', 'user1', 'user2')
             ->where('start', '>=', $from)
             ->where('end', '<=', $to)
+            ->whereIn('resource_id', $institution_resources)
             ->get();
 
         $log['RESULT COUNT'] = $happenings->count();
@@ -48,6 +56,44 @@ class HappeningController extends Controller
                 'classNames' => $style,
             ];
         }
+
+        // Since FullCalendar does not support closings as entities we have to include them
+        // as happenings (sic!). We do it here for now until we find a better solution or
+        // do it in the frontend.
+        $institution_closings = $institution->closings;
+        $institution_resources = $institution->resources;
+
+        foreach ($institution_closings as $closing) {
+            foreach ($institution_resources as $resource) {
+                $output[] = [
+                    'id' => $closing->id,
+                    'status' => NULL,
+                    'resourceId' => $resource->id,
+                    'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
+                    'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                    'user' => NULL,
+                    'classNames' => 'closed',
+                    'display' => 'background',
+                ];
+            }
+        }
+
+        foreach ($institution_resources as $resource) {
+            foreach ($resource->closings as $closing) {
+                $output[] = [
+                    'id' => $closing->id,
+                    'status' => NULL,
+                    'resourceId' => $resource->id,
+                    'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
+                    'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                    'user' => NULL,
+                    'classNames' => 'closed',
+                    'display' => 'background',
+                ];
+            }
+        }
+
+        $log['OUTPUT'] = $output;
 
         Utility::sendToLog('happenings', $log);
 
@@ -163,6 +209,7 @@ class HappeningController extends Controller
         }
     }
 
+    /*
     public function getTimeSlots(Request $request): JsonResponse
     {
         // sleep(1);
@@ -183,4 +230,5 @@ class HappeningController extends Controller
 
         return response()->json($time_slots);
     }
+    */
 }

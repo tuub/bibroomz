@@ -24,10 +24,10 @@ class UpdateClosingRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required',
-            'start' => 'required',
-            'end' => 'required',
-            'description' => '',
+            'id' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
+            'description' => [''],
         ];
     }
 }

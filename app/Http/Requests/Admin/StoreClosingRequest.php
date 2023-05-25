@@ -24,11 +24,11 @@ class StoreClosingRequest extends FormRequest
     public function rules()
     {
         return [
-            'closable_id' => 'required',
-            'closable_type' => 'required',
-            'start' => 'required',
-            'end' => 'required',
-            'description' => '',
+            'closable_id' => ['required'],
+            'closable_type' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
+            'description' => [''],
         ];
     }
 }

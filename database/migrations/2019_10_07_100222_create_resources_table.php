@@ -23,8 +23,6 @@ return new class extends Migration
             $table->text('location')->nullable();
             $table->text('description')->nullable();
             $table->string('capacity')->nullable();
-            $table->time('opens_at')->nullable();
-            $table->time('closes_at')->nullable();
             $table->boolean('is_active')->default(true);
         });
     }

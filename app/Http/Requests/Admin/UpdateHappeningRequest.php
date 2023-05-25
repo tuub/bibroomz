@@ -25,12 +25,12 @@ class UpdateHappeningRequest extends FormRequest
     {
         // FIXME: is_confirmed must be false if user_id_02 is not given and vice versa!
         return [
-            'start' => 'required',
-            'end' => 'required',
+            'start' => ['required'],
+            'end' => ['required'],
             'resource_id' => ['required', 'uuid'],
             'user_id_01' => ['required', 'uuid'],
             'user_id_02' => ['sometimes', 'nullable', 'uuid', 'required_with:is_confirmed|boolean'],
-            'confirmer' => 'string',
+            'confirmer' => ['string'],
             'is_confirmed' => ['boolean', 'required_if:user_id_02,'],
         ];
     }

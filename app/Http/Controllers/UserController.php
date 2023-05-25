@@ -19,6 +19,8 @@ class UserController extends Controller
     public function getUserHappenings(Request $request)
     {
         //dd(auth()->user()->happenings()->with('resource')->active()->orderBy('start')->get());
-        return auth()->user()->happenings()->with('resource')->active()->orderBy('start')->get();
+        return auth()->user()->happenings()->with('resource')->whereHas('resource', function ($query) {
+            $query->active();
+        })->current()->orderBy('start')->get();
     }
 }

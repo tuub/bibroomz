@@ -1,9 +1,9 @@
 <template>
-    <div v-for="message in messages" v-text="message" class="text-red-500 text-sm mt-1"></div>
+    <div v-text="message" class="text-red-500 text-sm mt-1"></div>
 </template>
 
 <script setup>
 let props = defineProps({
-    messages: Array
+    message: String,
 })
 </script>

@@ -39,7 +39,7 @@ module.exports = {
             timeSlots: {
                 'GET': {
                     method: 'GET',
-                    uri: 'api/timeslots'
+                    uri: 'api/_timeslots'
                 },
             },
             businessHours: {

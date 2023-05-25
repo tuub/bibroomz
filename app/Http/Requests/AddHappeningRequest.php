@@ -24,10 +24,10 @@ class AddHappeningRequest extends FormRequest
     public function rules()
     {
         return [
-            'resource' => 'required',
-            'start' => 'required',
-            'end' => 'required',
-            'confirmer' => 'required',
+            'resource' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
+            'confirmer' => ['required'],
         ];
     }
 }

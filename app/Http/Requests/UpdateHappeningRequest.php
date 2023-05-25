@@ -25,10 +25,10 @@ class UpdateHappeningRequest extends FormRequest
     {
         return [
             'id' => ['required', 'uuid'],
-            'resource' => 'required',
-            'start' => 'required',
-            'end' => 'required',
-            'confirmer' => 'required',
+            'resource' => ['required'],
+            'start' => ['required'],
+            'end' => ['required'],
+            'confirmer' => ['required'],
         ];
     }
 }

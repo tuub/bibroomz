@@ -2,9 +2,9 @@
     <Head title="Resource Form" />
     <h1 class="text-3xl">Resource Form</h1>
 
-    {{ closings }}
-
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
+
+        {{ form.errors }}
 
         <!-- Select: Institution -->
         <div class="mb-6">
@@ -21,7 +21,7 @@
                     {{ institution.title }}
                 </option>
             </select>
-            <FormValidationError :message="form.errors.institution_id"></FormValidationError>
+            <FormValidationError v-if="form.errors.institution_id" :message="form.errors.institution_id"></FormValidationError>
         </div>
 
         <!-- Input: Title -->
@@ -37,7 +37,7 @@
                    placeholder=""
                    required
             >
-            <FormValidationError :message="form.errors.title"></FormValidationError>
+            <FormValidationError v-if="form.errors.title" :message="form.errors.title"></FormValidationError>
         </div>
 
         <!-- Input: Location -->
@@ -51,9 +51,9 @@
                    id="location"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                    placeholder=""
-                   required
+
             >
-            <FormValidationError :message="form.errors.location"></FormValidationError>
+            <FormValidationError v-if="form.errors.location" :message="form.errors.location"></FormValidationError>
         </div>
 
         <!-- Textarea: Description -->
@@ -69,7 +69,7 @@
                       placeholder="Write your thoughts here..."
             >
             </textarea>
-            <FormValidationError :message="form.errors.description"></FormValidationError>
+            <FormValidationError v-if="form.errors.description" :message="form.errors.description"></FormValidationError>
         </div>
 
         <!-- Input: Capacity -->
@@ -91,37 +91,7 @@
                     <span class="ml-2 font-bold">{{ form.capacity }}</span>
                 </div>
             </div>
-            <FormValidationError :message="form.errors.capacity"></FormValidationError>
-        </div>
-
-        <!-- Input: Opens at / Closes at -->
-        <div class="grid gap-6 mb-6 md:grid-cols-2">
-            <div>
-                <label for="opens_at" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Opens at
-                </label>
-                <input v-model="form.opens_at"
-                       type="text"
-                       id="opens_at"
-                       name="opens_at"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                       placeholder=""
-                >
-                <FormValidationError :message="form.errors.opens_at"></FormValidationError>
-            </div>
-            <div>
-                <label for="closes_at" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Closes at
-                </label>
-                <input v-model="form.closes_at"
-                       type="text"
-                       id="closes_at"
-                       name="closes_at"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                       placeholder=""
-                       >
-                <FormValidationError :message="form.errors.closes_at"></FormValidationError>
-            </div>
+            <FormValidationError v-if="form.errors.capacity" :message="form.errors.capacity"></FormValidationError>
         </div>
 
         <!-- Checkbox: Is active -->
@@ -136,10 +106,32 @@
                     Is active
                 </span>
             </label>
+            <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <div class="mb-6">
-            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
+        <business-hour-field v-for="(time_slot, index) in form.business_hours"
+                         :time_slot="time_slot"
+                         :key="time_slot.id"
+                         :index="index"
+                         :is_last="index === form.business_hours.length - 1"
+                         :is_new="isNaN(time_slot.id) === false"
+                         :days_of_week="days_of_week"
+                         @updateWeekDays="updateWeekDays"
+                         @removeBusinessHourField="removeBusinessHourField">
+        </business-hour-field>
+        <FormValidationError v-if="form.errors.business_hours" :message="form.errors.business_hours"></FormValidationError>
+        <div class="flex flex-wrap -mx-2 mb-4 mt-6">
+            <div class="w-full px-3 text-center">
+                <a href="#"
+                      @click="addBusinessHourField"
+                      class="p-3 bg-green-600 text-white my-13">
+                    Add Business Hours
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-6" id="submitButton">
+            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="isProcessing">
                 Submit
             </button>
         </div>
@@ -147,41 +139,86 @@
     </form>
 </template>
 <script setup>
-import {onMounted, reactive, ref} from "vue";
-//import { router } from "@inertiajs/vue3";
+import {onMounted, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
+import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
 
 defineProps({
     errors: Object,
 });
 
-let processing = ref(false);
+let isProcessing = ref(false);
 let $page = usePage()
 
-let closings = $page.props.closings
+let resource = $page.props.resource
+let days_of_week = $page.props.week_days
+
+// FIXME: this is cool but not cool. We should control the data coming from the backend in another way.
+// We should find a way to define the data coming from a relation, in this case belongsToMany relation week_days.
+let business_hours = []
+if (resource?.business_hours) {
+    for (let business_hour of resource.business_hours) {
+        let week_days = business_hour.week_days.map(week_day => week_day.id).sort();
+        business_hours.push({...business_hour, week_days: week_days});
+    }
+}
 
 let form = useForm({
-    id: $page.props.id ?? '',
-    institution_id: $page.props.institution_id ?? '',
-    title: $page.props.title ?? '',
-    location: $page.props.location ?? '',
-    description: $page.props.description ?? '',
-    capacity: $page.props.capacity ?? '0',
-    opens_at: $page.props.opens_at ?? '',
-    closes_at: $page.props.closes_at ?? '',
-    is_active: $page.props.is_active === 1,
+    id: resource?.id ?? '',
+    institution_id: resource?.institution_id ?? '',
+    title: resource?.title ?? '',
+    location: resource?.location ?? '',
+    description: resource?.description ?? '',
+    capacity: resource?.capacity ?? '0',
+    is_active: resource?.is_active === 1,
+    business_hours: business_hours ?? [],
 });
 
 let institutions = ref({})
 
+let businessHourTemplate = {
+    id: 0,
+    resource_id: form.id,
+    start: undefined,
+    end: undefined,
+    week_days: [],
+}
+
+const addBusinessHourField = (e) => {
+    e.preventDefault()
+    // Here we're using Object.assign to prevent reactivity by reference!
+    // See: https://stackoverflow.com/a/54079074/6948765
+    let business_hour_field = Object.assign({}, businessHourTemplate)
+    business_hour_field.id = generateUid()
+    form.business_hours.push(business_hour_field)
+
+    document.getElementById('submitButton').scrollIntoView();
+}
+
+const removeBusinessHourField = () => {
+    form.business_hours.splice(-1)
+}
+
+const updateWeekDays = (e) => {
+    let currentTimeSlot = form.business_hours.find(business_hour => business_hour.id === e.id);
+    currentTimeSlot['week_days'] = days_of_week
+        .filter(el => e.checkedWeekDays.includes(el.id))
+        .map(el => el.id)
+}
+
+const generateUid = () => {
+    return Date.now().toString();
+}
+
 let submitForm = () => {
-    processing.value = true;
+    isProcessing.value = true;
     if (form.id) {
         form.post('/admin/resource/update');
     } else {
         form.post('/admin/resource/store');
     }
+    isProcessing.value = false;
 }
 
 onMounted(() => {

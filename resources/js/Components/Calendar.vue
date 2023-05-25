@@ -4,6 +4,9 @@
         <FullCalendar ref="refCalendar" class='calendar' :options="calendarOptions">
             <template v-slot:eventContent='arg'>
                 <div class="text-center">
+                    <div v-if="arg.event.display == 'background'">
+                        IST ZU!
+                    </div>
                     <b>{{ arg.timeText }}</b>
                     <i>{{ arg.event.title }}</i>
                 </div>
@@ -336,7 +339,6 @@ const calendarOptions = {
     timeZone: 'utc',
     validRange: getValidRange(),
     resources: getResources(),
-    businessHours: getBusinessHours(),
     events: getHappenings,
     slotMinTime: '09:00',
     slotMaxTime: '24:00',
@@ -354,6 +356,7 @@ const calendarOptions = {
     slotDuration: '00:30:00',
     slotLabelInterval: '00:30:00',
     selectOverlap: false,
+    selectConstraint: 'businessHours',
     selectable: isSelectable,
     selectAllow: isSelectAllow,
     select: onSelect,
@@ -373,5 +376,15 @@ const calendarOptions = {
 
 a.fc-event, a.fc-event:hover {
     cursor: pointer;
+}
+
+/*
+.fc-non-business {
+    background-color: #BEBEBE !important;
+}
+*/
+
+div.fc-timegrid-slots tr {
+    background-color: #fff;
 }
 </style>
