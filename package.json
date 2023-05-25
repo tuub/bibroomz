@@ -37,7 +37,6 @@
         "@tailwindcss/typography": "^0.5.9",
         "@vitejs/plugin-vue": "^3.0.3",
         "chart.js": "^3.9.1",
-        "daisyui": "^2.51.6",
         "dayjs": "^1.11.7",
         "flowbite": "^1.6.5",
         "flowbite-datepicker": "^1.2.2",
