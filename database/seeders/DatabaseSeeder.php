@@ -19,5 +19,9 @@ class DatabaseSeeder extends Seeder
         Institution::factory(1)
             ->has(Resource::factory()->count(5))
             ->create();
+
+        $this->call([
+            WeekDaySeeder::class,
+        ]);
     }
 }

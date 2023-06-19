@@ -79,21 +79,6 @@ class Happening extends Model
         return NULL;
     }
 
-    // FIXME: needed?
-    /*
-    public function scopeWhereDateBetween($query, $fieldName, $fromDate, $toDate)
-    {
-        return $query->whereDate($fieldName, '>=', $fromDate)->whereDate($fieldName, '<=', $toDate);
-    }
-
-    // See: https://stackoverflow.com/a/25163557/6948765
-    // FIXME: needed?
-    public function getResourceAttribute()
-    {
-        return $this->resource()->first();
-    }
-    */
-
     /*****************************************************************
      * METHODS
      ****************************************************************/

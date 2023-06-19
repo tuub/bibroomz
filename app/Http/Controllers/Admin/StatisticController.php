@@ -13,25 +13,4 @@ class StatisticController extends Controller
     {
         return Inertia::render('Admin/Stats');
     }
-
-    public function editUser(Request $request)
-    {
-        $user = User::find($request->id);
-        return Inertia::render('Admin/Users/Form', $user);
-    }
-
-    public function updateUser(Request $request)
-    {
-        $user = User::find($request->id);
-
-        // Validate
-        $attributes = $request->validate([
-            'name' => ['required'],
-            'email' => ['required', 'email'],
-        ]);
-        // Update
-        $user->update($attributes);
-        // Redirect
-        return redirect('/admin/users');
-    }
 }

@@ -53,7 +53,7 @@
         </div>
 
         <div class="mb-6">
-            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
+            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="isProcessing">
                 Submit
             </button>
         </div>
@@ -69,7 +69,7 @@ defineProps({
     errors: Object,
 });
 
-let processing = ref(false);
+let isProcessing = ref(false);
 let $page = usePage()
 
 let form = useForm({
@@ -81,10 +81,10 @@ let form = useForm({
 });
 
 let submitForm = () => {
-    processing.value = true;
+    isProcessing.value = true;
     if (form.id) {
-        form.post('/admin/users/update');
+        form.post('/admin/user/update');
     }
+    isProcessing.value = false;
 }
-
 </script>

@@ -64,6 +64,6 @@ class InstitutionController extends Controller
         // Update
         $resource->update($attributes);
         // Redirect
-        return redirect('/admin/institutions');
+        return redirect()->route('admin.institution.index');
     }
 }

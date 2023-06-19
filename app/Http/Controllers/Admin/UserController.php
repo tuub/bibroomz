@@ -39,6 +39,6 @@ class UserController extends Controller
         // Update
         $user->update($attributes);
         // Redirect
-        return redirect('/admin/users');
+        return redirect()->route('admin.user.index');
     }
 }
