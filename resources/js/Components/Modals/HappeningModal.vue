@@ -25,12 +25,16 @@ const emit = defineEmits(["update:payload"]);
 
 const editable = props.payload.editable;
 
+console.log('------------------')
+console.log(props.payload)
+console.log('------------------')
+
 let happening = reactive({
     id: props.payload.id,
     resource: props.payload.resource,
     start: dayjs.utc(props.payload.start).format('YYYY-MM-DDTHH:mm:ss'),
     end: dayjs.utc(props.payload.end).format('YYYY-MM-DDTHH:mm:ss'),
-    confirmer: props.payload.confirmer ?? 'BLA',
+    confirmer: props.payload.user_02,
 });
 
 if (editable) {

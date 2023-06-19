@@ -26,17 +26,21 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
 import { inject, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
-import {useHappeningStore} from "../Stores/HappeningStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
-import HappeningModal from "@/Components/Modals/HappeningModal.vue";
-import useModal from "../Stores/Modal.ts";
 import {storeToRefs} from "pinia";
 import utc from "dayjs/plugin/utc";
 import Legend from "./Legend.vue";
 import Spinner from "../Shared/Spinner.vue";
 
 import { useToast } from "vue-toastification";
+
+import {
+    useConfirmModal,
+    useCreateModal,
+    useEditDeleteModal,
+    useInfoModal,
+} from "@/Composables/modalActions";
 
 // ------------------------------------------------
 // Debug information
@@ -79,15 +83,9 @@ const emit = defineEmits([
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-let happeningStore = useHappeningStore()
 let authStore = useAuthStore()
 
 let { isAuthenticated } = storeToRefs(authStore)
-
-// ------------------------------------------------
-// Modal
-// ------------------------------------------------
-const modal = useModal();
 
 // ------------------------------------------------
 // CALENDAR METHODS
@@ -149,31 +147,6 @@ const getValidRange = () => {
 };
 
 // ------------------------------------------------
-// Fetch business hours from backend
-// ------------------------------------------------
-const getBusinessHours = () => {
-    let result = [];
-    axios.get('/business_hours').then((response) => {
-        let data = response.data;
-        for (let weekDay in data) {
-            if (data.hasOwnProperty(weekDay)) {
-                result.push({
-                    daysOfWeek: [weekDay],
-                    startTime: data[weekDay].start,
-                    endTime: data[weekDay].end,
-                    className: 'closed',
-                    rendering: 'inverse-background',
-                });
-            }
-        }
-    }).catch((error) => {
-        console.log(error);
-    });
-
-    return result;
-}
-
-// ------------------------------------------------
 // Fetch happenings from backend
 // ------------------------------------------------
 const getHappenings = (fetchInfo, successCallback, failureCallback) => {
@@ -201,7 +174,7 @@ const refetchHappenings = () => {
 }
 
 // Refetch happenings if store state of isAuthenticated changes => after login / logout
-watch(isAuthenticated, (value) => {
+watch(isAuthenticated, () => {
     refetchHappenings()
 })
 
@@ -248,34 +221,20 @@ const onSelect = (eventInfo) => {
             // confirmer: '',
         });
 
-        emit('open-modal-component', {
-            view: HappeningModal,
-            content: {
-                title: 'Create Reservation',
-                description: "Create your reservation here, you won't regret it."
-            },
-            payload: {...happeningData, editable: true},
-            actions: [
-                {
-                    label: 'Save reservation',
-                    callback: (payloadFromView) => {
-                        return happeningStore.addHappening(payloadFromView);
-                    },
-                }
-            ],
-        })
+        emit('open-modal-component', useCreateModal(happeningData));
     }
 }
 
 const onEventClick = (eventInfo) => {
     let happeningData = {
+        id: '',
         resource: '',
-        happening_id: '',
         extraData: '',
     }
     let isBgEvent = eventInfo.el.classList.contains('fc-bg-event')
 
     if (eventInfo.resource) {
+        console.log(eventInfo.resource)
         /* This is a new selection */
         let dataPath = eventInfo;
         happeningData.resource = {
@@ -285,33 +244,27 @@ const onEventClick = (eventInfo) => {
     } else {
         /* This is an event */
         let dataPath = eventInfo.event;
+        console.log(dataPath)
         happeningData.resource = {
             id: dataPath.getResources()[0]._resource.id,
             title: dataPath.getResources()[0]._resource.title,
         };
-        happeningData.happening_id = dataPath.id;
-        happeningData.extraData = dataPath.extendedProps;
+        happeningData.id = dataPath.id;
+        happeningData.user_02 = dataPath.extendedProps.status.user.confirmation;
         happeningData.start = dayjs.utc(dataPath._instance.range.start);
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
     }
 
     if (!isBgEvent) {
-        emit('open-modal-component', {
-            view: HappeningModal,
-            content: {
-                title: 'Show Reservation',
-                description: 'Info about reservation here.'
-            },
-            payload: {...happeningData, editable: false},
-            actions: [
-                {
-                    label: 'OK',
-                    callback: () => {
-                        modal.close();
-                    },
-                },
-            ],
-        });
+        let can = eventInfo.event.extendedProps.can;
+
+        if (can.edit && can.delete) {
+            emit('open-modal-component', useEditDeleteModal(happeningData));
+        } else if (can.confirm) {
+            emit('open-modal-component', useConfirmModal(happeningData));
+        } else {
+            emit('open-modal-component', useInfoModal(happeningData));
+        }
     }
 }
 

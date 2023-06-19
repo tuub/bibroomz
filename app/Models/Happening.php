@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Psr\Log\NullLogger;
 
 class Happening extends Model
 {
@@ -79,103 +81,87 @@ class Happening extends Model
         return NULL;
     }
 
+    public function getPermissions($user)
+    {
+        return [
+            'confirm' => $user ? $user->can('confirm', $this) : false,
+            'edit' => $user ? $user->can('update', $this) : false,
+            'delete' => $user ? $user->can('delete', $this) : false,
+        ];
+    }
+
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    public function getStatus()
+    private function isMine(): bool
     {
-        $user = [
-            'reservation' => ['id' => $this->user1->id, 'name' => $this->user1->name],
-            'confirmation' => ['id' => $this->user2->id ?? null, 'name' => $this->user2->name ?? null],
-        ];
+        $user = auth()->user();
 
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->getKey() === $this->user1->getKey()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isMyToConfirm(): bool
+    {
+        return auth()->user()->name === $this->confirmer;
+    }
+
+    private function isMyConfirmed(): bool
+    {
+        return auth()->user()->id === $this->user_id_02;
+    }
+
+    private function isConfirmed(): bool
+    {
+        return $this->is_confirmed;
+    }
+
+    public function getStatus(): array
+    {
         $status = [
-            'title' => 'info',
-            'roles' => [],
-            'css' => 'info'
+            'user' => [],
         ];
 
-        // We have a login ...
         if (auth()->check()) {
-            // Happening is confirmed ...
-            if ($this->is_confirmed)
-            {
-                // ... and belongs to you
-                if (in_array(auth()->user()->id, [$this->user1->id, $this->user2->id], true))
-                {
-                    $status['title'] = 'user-booking';
-                    $status['roles'] = ['UPDATE', 'DELETE'];
-                    $status['css'] = 'user-booking';
-
-                    if (auth()->user()->id === $this->user1->id) {
-                        $user['reservation']['id'] = auth()->user()->id;
-                        $user['reservation']['name'] = auth()->user()->name;
-                        $user['confirmation']['id'] = $this->user2->id;
-                        $user['confirmation']['name'] = $this->user2->name;
-                    } else {
-                        $user['reservation']['id'] = $this->user1->id;
-                        $user['reservation']['name'] = $this->user1->name;
-                        $user['confirmation']['id'] = auth()->user()->id;
-                        $user['confirmation']['name'] = auth()->user()->name;
-                    }
+            if ($this->isConfirmed()) {
+                if ($this->isMine()) {
+                    $status['type'] = 'user-booking';
+                    $status['user']['reservation'] = $this->user1->name;
+                    $status['user']['confirmation'] = $this->user2->name;
+                } elseif ($this->isMyConfirmed()) {
+                    $status['type'] = 'user-confirmed';
+                    $status['user']['reservation'] = $this->user1->name;
+                    $status['user']['confirmation'] = $this->user2->name;
+                } else {
+                    $status['type'] = 'booking';
                 }
-                // ... and belongs to somebody else
-                else
-                {
-                    $status['title'] = 'info';
-                    $status['css'] = 'booking';
-                }
-            }
-            // Happening is unconfirmed ...
-            else
-            {
-                // ... and belongs to you
-                if (auth()->user()->id === $this->user1->id) {
-                    $status['title'] = 'user-reservation';
-                    $status['roles'] = ['UPDATE', 'DELETE'];
-                    $status['css'] = 'user-reservation';
-                    $user['reservation']['id'] = auth()->user()->id;
-                    $user['reservation']['name'] = auth()->user()->name;
-                    $user['confirmation']['uid'] = $this->confirmer;
-                }
-                // ... and you are the confirmer
-                elseif (auth()->user()->name === $this->confirmer)
-                {
-                    $status['title'] = 'user-confirmation';
-                    $status['roles'] = ['CONFIRM'];
-                    $status['css'] = 'user-confirmation';
-                    $user['reservation']['id'] = $this->user1->id;
-                    $user['reservation']['name'] = $this->user1->name;
-                    $user['confirmation']['id'] = auth()->user()->id;
-                    $user['confirmation']['name'] = auth()->user()->name;
-                }
-                // ... and you are not the confirmer
-                elseif (auth()->user()->uid !== $this->confirmer)
-                {
-                    $status['title'] = 'info';
-                    $status['css'] = 'reservation';
-                }
-                // ... and has nothing to do with you
-                else
-                {
-                    $status['title'] = 'reservation';
-                }
-            }
-        }
-        // No login
-        else
-        {
-            // ... and is confirmed
-            if ($this->is_confirmed) {
-                $status['title'] = 'info';
-                $status['css'] = 'booking';
-                // ... and is not confirmed
             } else {
-                $status['title'] = 'info';
-                $status['css'] = 'reservation';
+                if ($this->isMine()) {
+                    $status['type'] = 'user-reservation';
+                    $status['user']['reservation'] = $this->user1->name;
+                    $status['user']['confirmation'] = $this->confirmer;
+                } elseif ($this->isMyToConfirm()) {
+                    $status['type'] = 'user-to-confirm';
+                    $status['user']['reservation'] = $this->user1->name;
+                    $status['user']['confirmation'] = $this->confirmer;
+                } else {
+                    $status['type'] = 'reservation';
+                }
+            }
+        } else {
+            if ($this->isConfirmed()) {
+                $status['type'] = 'booking';
+            } else {
+                $status['type'] = 'reservation';
             }
         }
-        $status = Arr::add($status, 'user', $user);
 
         return $status;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\HappeningConfirmed;
 use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
 use App\Events\HappeningsChanged;
@@ -12,6 +13,7 @@ use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,8 +35,8 @@ class HappeningController extends Controller
         $institution_resources = $institution->resources()->pluck('id')->all();
 
         $happenings = Happening::with('resource', 'user1', 'user2')
-            ->where('start', '>=', $from)
-            ->where('end', '<=', $to)
+            ->whereDate('start', '>=', $from)
+            ->whereDate('end', '<=', $to)
             ->whereIn('resource_id', $institution_resources)
             ->get();
 
@@ -42,18 +44,16 @@ class HappeningController extends Controller
 
         foreach ($happenings as $happening) {
             $status = $happening->getStatus();
-            $style = $status['css'];
-            $user = $status['user'];
 
             // Note: resourceId and classNames have to be camelCased for FullCalendar recognition!
             $output[] = [
                 'id' => $happening->id,
-                'status' => $status, //$event['status'],
+                'status' => $status,
                 'resourceId' => $happening->resource->id,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
-                'user' => $user,
-                'classNames' => $style,
+                'classNames' => $status['type'],
+                'can' => $happening->getPermissions(auth()->user()),
             ];
         }
 
@@ -64,34 +64,38 @@ class HappeningController extends Controller
         $institution_resources = $institution->resources;
 
         foreach ($institution_closings as $closing) {
-            foreach ($institution_resources as $resource) {
-                $output[] = [
-                    'id' => $closing->id,
-                    'status' => NULL,
-                    'resourceId' => $resource->id,
-                    'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
-                    'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
-                    'description' => $closing->description,
-                    'user' => NULL,
-                    'classNames' => 'closed',
-                    'display' => 'background',
-                ];
+            if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
+                foreach ($institution_resources as $resource) {
+                    $output[] = [
+                        'id' => $closing->id,
+                        'status' => NULL,
+                        'resourceId' => $resource->id,
+                        'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
+                        'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                        'description' => $closing->description,
+                        'user' => NULL,
+                        'classNames' => 'closed',
+                        'display' => 'background',
+                    ];
+                }
             }
         }
 
         foreach ($institution_resources as $resource) {
             foreach ($resource->closings as $closing) {
-                $output[] = [
-                    'id' => $closing->id,
-                    'status' => NULL,
-                    'resourceId' => $resource->id,
-                    'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
-                    'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
-                    'description' => $closing->description,
-                    'user' => NULL,
-                    'classNames' => 'closed',
-                    'display' => 'background',
-                ];
+                if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
+                    $output[] = [
+                        'id' => $closing->id,
+                        'status' => NULL,
+                        'resourceId' => $resource->id,
+                        'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
+                        'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                        'description' => $closing->description,
+                        'user' => NULL,
+                        'classNames' => 'closed',
+                        'display' => 'background',
+                    ];
+                }
             }
         }
 
@@ -111,6 +115,11 @@ class HappeningController extends Controller
 
         // Validate input
         $validated = $request->validated();
+
+        // Query policy
+        if (auth()->user()->cannot('create', Happening::class)) {
+            abort(401, 'You are not allowed to create.');
+        }
 
         // Get resource object
         $resource = Resource::find($validated['resource']['id']);
@@ -140,13 +149,14 @@ class HappeningController extends Controller
             Utility::sendToLog('happenings', $log);
 
             // Send broadcast events to frontend
-            broadcast(new HappeningCreated($happening));
+            $user1 = $happening->user1;
+            $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
+            broadcast(new HappeningCreated($happening, $user1));
+            if ($user2) {
+                broadcast(new HappeningCreated($happening, $user2));
+            }
             broadcast(new HappeningsChanged());
         }
-
-        // FIXME: GET THE SESSION FLASH MESSAGE TO FRONTEND!
-        // BROADCAST?
-        // WHAT TO DO WITH NON INERTIA CALLS?
     }
 
     public function updateHappening(UpdateHappeningRequest $request)
@@ -163,11 +173,16 @@ class HappeningController extends Controller
         $happening = auth()->user()->happenings()->findOrFail($validated['id']);
         $log['HAPPENING'] = $happening;
 
+        // Query policy
+        if (auth()->user()->cannot('update', $happening)) {
+            abort(401, 'You are not allowed to update.');
+        }
+
         // Compile happening payload
         $happeningData = [
             'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
             'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
-            'confirmer' => $validated['confirmer'],
+            // 'confirmer' => $validated['confirmer'],
         ];
         $log['PAYLOAD'] = json_encode($happeningData);
 
@@ -183,13 +198,45 @@ class HappeningController extends Controller
             Utility::sendToLog('happenings', $log);
 
             // Send broadcast events to frontend
-            broadcast(new HappeningUpdated($happening));
+            $user1 = $happening->user1;
+            $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
+            broadcast(new HappeningUpdated($happening, $user1));
+            if ($user2) {
+                broadcast(new HappeningUpdated($happening, $user2));
+            }
             broadcast(new HappeningsChanged());
         }
+    }
 
-        // FIXME: GET THE SESSION FLASH MESSAGE TO FRONTEND!
-        // BROADCAST?
-        // WHAT TO DO WITH NON INERTIA CALLS?
+    public function confirmHappening($id)
+    {
+        // Get happening object
+        $happening = Happening::findOrFail($id);
+
+        // Query policy
+        if (auth()->user()->cannot('confirm', $happening)) {
+            abort(401, 'You are not allowed to confirm.');
+        }
+
+        $op = $happening->update([
+            'user_id_02' => auth()->user()->getKey(),
+            'is_confirmed' => true,
+            'confirmer' => null,
+        ]);
+
+        if ($op) {
+            // Get just updated relation object for broadcasting back
+            $happening = Happening::with('resource')->find($happening->id);
+            $log['RESULT'] = json_encode($happening);
+
+            // Write log record
+            Utility::sendToLog('happenings', $log);
+
+            // Send broadcast events to frontend
+            broadcast(new HappeningConfirmed($happening, $happening->user1));
+            broadcast(new HappeningConfirmed($happening, $happening->user2));
+            broadcast(new HappeningsChanged());
+        }
     }
 
     public function deleteHappening($id)
@@ -197,9 +244,15 @@ class HappeningController extends Controller
         // Get happening object
         $happening = auth()->user()->happenings()->findOrFail($id);
 
+        // Query policy
+        if (auth()->user()->cannot('delete', $happening)) {
+            abort(401, 'You are not allowed to delete.');
+        }
+
         // Get users for private broadcast channels
         $user1 = $happening->user1;
-        $user2 = $happening->user2;
+        $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
+
 
         // Delete happening
         $op = $happening->delete();
@@ -210,27 +263,4 @@ class HappeningController extends Controller
             broadcast(new HappeningsChanged());
         }
     }
-
-    /*
-    public function getTimeSlots(Request $request): JsonResponse
-    {
-        // sleep(1);
-        $time_slots = [];
-
-        $time_slots['start'] = Happening::getAvailableStartTimeSlots($request->resource_id, $request->start, $request->end);
-        $time_slots['end'] = Happening::getAvailableEndTimeSlots($request->resource_id, $request->start, $request->end);
-        $time_slots['start_selected'] = Utility::carbonize($request->start)->toIso8601String();
-
-        $is_initial = filter_var($request->is_initial, FILTER_VALIDATE_BOOLEAN);
-        $is_end_value_present = !empty(array_search(Utility::carbonize($request->end)->toIso8601String(), array_values($time_slots['end']),true));
-
-        if ($is_initial === true || $is_end_value_present) {
-            $time_slots['end_selected'] = Utility::carbonize($request->end)->toIso8601String();
-        } else {
-            $time_slots['end_selected'] = array_values($time_slots['end'])[0];
-        }
-
-        return response()->json($time_slots);
-    }
-    */
 }

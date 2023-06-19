@@ -128,6 +128,10 @@ export const useAuthStore = defineStore({
                         this.addUserHappening(e.happening);
                         toast.success(`Happening created! ${e.happening.id}`);
                     })
+                    .listen("HappeningConfirmed", (e) => {
+                        this.updateUserHappening(e.happening);
+                        toast.success(`Happening confirmed! ${e.happening.id}`);
+                    })
                     .listen("HappeningUpdated", (e) => {
                         this.updateUserHappening(e.happening);
                         toast.success(`Happening updated! ${e.happening.id}`);

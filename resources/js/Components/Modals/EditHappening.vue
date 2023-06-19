@@ -42,6 +42,8 @@ const props = defineProps({
     payload: Object
 })
 
+console.log(props.payload.start)
+
 let happeningData = reactive({
     id: props.payload.id,
     resource: {

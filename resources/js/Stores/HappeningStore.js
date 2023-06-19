@@ -15,13 +15,17 @@ export const useHappeningStore = defineStore({
     },
     actions: {
         addHappening(happening) {
-            return axios.post(`${baseUrl}/happenings/add`, happening);
+            return axios.post(`${baseUrl}/happening/add`, happening);
         },
         editHappening(happening) {
-            return axios.post(`${baseUrl}/happenings/update/${happening.id}`, happening);
+            return axios.post(`${baseUrl}/happening/update/${happening.id}`, happening);
+        },
+        confirmHappening(happening) {
+            console.log(happening)
+            return axios.post(`${baseUrl}/happening/confirm/${happening.id}`, happening);
         },
         deleteHappening(id) {
-            return axios.delete(`${baseUrl}/happenings/delete/${id}`);
+            return axios.delete(`${baseUrl}/happening/delete/${id}`);
         }
     },
     getters: {
