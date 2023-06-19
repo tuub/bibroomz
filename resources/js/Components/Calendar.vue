@@ -4,8 +4,9 @@
         <FullCalendar ref="refCalendar" class='calendar' :options="calendarOptions">
             <template v-slot:eventContent='arg'>
                 <div class="text-center">
-                    <div v-if="arg.event.display == 'background'">
-                        IST ZU!
+                    <div v-if="arg.event.display == 'background'"
+                         class="border-b-2 pt-5 text-xl">
+                        {{ arg.event.extendedProps.description }}
                     </div>
                     <b>{{ arg.timeText }}</b>
                     <i>{{ arg.event.title }}</i>
@@ -272,6 +273,7 @@ const onEventClick = (eventInfo) => {
         happening_id: '',
         extraData: '',
     }
+    let isBgEvent = eventInfo.el.classList.contains('fc-bg-event')
 
     if (eventInfo.resource) {
         /* This is a new selection */
@@ -293,23 +295,25 @@ const onEventClick = (eventInfo) => {
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
     }
 
-    emit('open-modal-component', {
-        view: HappeningModal,
-        content: {
-            title: 'Show Reservation',
-            description: 'Info about reservation here.'
-        },
-        payload: {...happeningData, editable: false},
-        actions: [
-            {
-                label: 'OK',
-                callback: () => {
-                    modal.close();
-                },
+    if (!isBgEvent) {
+        emit('open-modal-component', {
+            view: HappeningModal,
+            content: {
+                title: 'Show Reservation',
+                description: 'Info about reservation here.'
             },
-        ],
-    });
-};
+            payload: {...happeningData, editable: false},
+            actions: [
+                {
+                    label: 'OK',
+                    callback: () => {
+                        modal.close();
+                    },
+                },
+            ],
+        });
+    }
+}
 
 // ------------------------------------------------
 // Calendar setup

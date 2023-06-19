@@ -45,7 +45,7 @@ class HappeningController extends Controller
             $style = $status['css'];
             $user = $status['user'];
 
-            // Note: resourceId and classNames have to be camelcased for FullCalendar recognition!
+            // Note: resourceId and classNames have to be camelCased for FullCalendar recognition!
             $output[] = [
                 'id' => $happening->id,
                 'status' => $status, //$event['status'],
@@ -71,6 +71,7 @@ class HappeningController extends Controller
                     'resourceId' => $resource->id,
                     'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                     'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                    'description' => $closing->description,
                     'user' => NULL,
                     'classNames' => 'closed',
                     'display' => 'background',
@@ -86,6 +87,7 @@ class HappeningController extends Controller
                     'resourceId' => $resource->id,
                     'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                     'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
+                    'description' => $closing->description,
                     'user' => NULL,
                     'classNames' => 'closed',
                     'display' => 'background',
