@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class Resource extends Model
@@ -67,28 +68,157 @@ class Resource extends Model
      * METHODS
      ****************************************************************/
     // FIXME: where to use? See platzbuchung-lite
-    public function isCurrentlyOpen(): bool
-    {
-        foreach ($this->business_hours() as $business_hour) {
-            if ($business_hour->week_days()->count() > 0) {
-                if ($business_hour->week_days->where('day_of_week', Carbon::today()->dayOfWeek)->first()) {
-                    $opening = Utility::getDateTimeFromStrings(
-                        Carbon::today()->toDateString(),
-                        $business_hour->start
-                    );
-                    $closing = Utility::getDateTimeFromStrings(
-                        Carbon::today()->toDateString(),
-                        $business_hour->end
-                    );
+    // public function isCurrentlyOpen(): bool
+    // {
+    //     foreach ($this->business_hours() as $business_hour) {
+    //         if ($business_hour->week_days()->count() > 0) {
+    //             if ($business_hour->week_days->where('day_of_week', Carbon::today()->dayOfWeek)->first()) {
+    //                 $opening = Utility::getDateTimeFromStrings(
+    //                     Carbon::today()->toDateString(),
+    //                     $business_hour->start
+    //                 );
+    //                 $closing = Utility::getDateTimeFromStrings(
+    //                     Carbon::today()->toDateString(),
+    //                     $business_hour->end
+    //                 );
 
-                    if (Carbon::now()->isBetween($opening, $closing)) {
-                        return true;
-                    }
+    //                 if (Carbon::now()->isBetween($opening, $closing)) {
+    //                     return true;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return false;
+    // }
+
+    // public function isOpen(CarbonImmutable $start, CarbonImmutable $end): bool
+    // {
+    //     if ($this->isClosing($start, $end)) {
+    //         return false;
+    //     }
+
+    //     if ($this->isBusinessHours($start, $end)) {
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+
+    // private function isClosing(CarbonImmutable $start, CarbonImmutable $end): bool
+    // {
+    //     $closings = $this->closings->merge($this->institution->closings);
+
+    //     foreach ($closings as $closing) {
+    //         if ($start < $closing->end && $end > $closing->start) {
+    //             return true;
+    //         }
+    //     }
+
+    //     return false;
+    // }
+
+    // private function isBusinessHours(CarbonImmutable $start, CarbonImmutable $end): bool
+    // {
+    //     $business_hours = $this->business_hours;
+
+    //     foreach ($business_hours as $business_hour) {
+    //         $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
+
+    //         $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($start);
+    //         $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($start);
+
+    //         if (in_array($start->dayOfWeek, $week_days)) {
+    //             if ($start >= $business_hour_start && $end <= $business_hour_end) {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+
+    //     return false;
+    // }
+
+    public function findClosed(CarbonImmutable $start, CarbonImmutable $end)
+    {
+        $closed = false;
+        $closings = $this->closings->merge($this->institution->closings);
+
+        Log::debug('findClosed - start: ' . $start . ', end: ' . $end);
+
+        foreach ($closings as $closing) {
+            Log::debug('findClosed - closing start: ' . $closing->start . ', end: ' . $closing->end);
+
+            if ($start >= $closing->start && $end <= $closing->end) {
+                // start and end are in closing: not happening
+                $closed = true;
+                break;
+            } elseif ($start >= $closing->start && $start < $closing->end) {
+                // start is in closing: start happening after closing end
+                $start = $closing->end;
+            } elseif ($end > $closing->start  && $end <= $closing->end) {
+                // end is in closing: end happening before closing start
+                $end = $closing->start;
+            } elseif ($start < $closing->start && $end > $closing->end) {
+                // start < closing->start < closing->end < end:
+                // pick (start, closing->start) or (closing->end, end), wichever is longer
+                if ($start->diffInMinutes($closing->start) < $end->diffInMinutes($closing->end)) {
+                    $start = $closing->end;
+                } else {
+                    $end = $closing->start;
                 }
             }
         }
 
-        return false;
+        Log::debug('findClosed - closed: ' . ($closed ? 'true' : 'false') . ', start: ' . $start . ', end: ' . $end);
+
+        return [$closed, $start, $end];
+    }
+
+    public function findOpen(CarbonImmutable $start, CarbonImmutable $end)
+    {
+        $open = false;
+        $business_hours = $this->business_hours;
+
+        Log::debug('findOpen - start: ' . $start . ', end: ' . $end);
+
+        foreach ($business_hours as $business_hour) {
+            $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
+
+            $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($start);
+            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($start);
+
+            if (in_array($start->dayOfWeek, $week_days)) {
+                Log::debug('findOpen - business hour start: ' . $business_hour_start . ', end: ' . $business_hour_end);
+
+                if ($start >= $business_hour_start && $end <= $business_hour_end) {
+                    // business_hour->start <= start < end <= business_hour->end
+                    $open = true;
+                    break;
+                }
+
+                if (
+                    $start >= $business_hour_start && $start < $business_hour_end
+                    && $end > $business_hour_end
+                ) {
+                    // business_hour->start <= start < business_hour->end < end
+                    $open = true;
+                    $end = $business_hour_end;
+                }
+
+                if (
+                    $end > $business_hour_start && $end <= $business_hour_end
+                    && $start < $business_hour_start
+                ) {
+                    // start < business_hour->start < end <= business_hour->end
+                    $open = true;
+                    $start = $business_hour_start;
+                }
+            }
+        }
+
+        Log::debug('findOpen - open: ' . ($open ? 'true' : 'false') . ', start: ' . $start . ', end: ' . $end);
+
+        return [$open, $start, $end];
     }
 
     /**

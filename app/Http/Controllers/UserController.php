@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Happening;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Carbon\CarbonImmutable;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function getUserProfile(Request $request)
+    public function getUserProfile()
     {
         return Inertia::render('Profile', [
             'time' => now()->toTimeString(),
@@ -30,7 +30,19 @@ class UserController extends Controller
             ->orWhere('confirmer', auth()->user()->name)
             ->current()
             ->orderBy('start')
-            ->get();
+            ->get()
+            ->map(function ($happening) {
+                $start = CarbonImmutable::parse($happening->start);
+                $end = CarbonImmutable::parse($happening->end);
+
+                [$open, $start, $end] = $happening->resource->findOpen($start, $end);
+                [$closed, $start, $end] = $happening->resource->findClosed($start, $end);
+
+                $happening->start = $start;
+                $happening->end = $end;
+
+                return ($open && !$closed) ? $happening : null;
+            })->filter(fn ($h) => $h);
 
 
 
@@ -42,7 +54,7 @@ class UserController extends Controller
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions(auth()->user()),
-                'is_confirmed'=> $happening->is_confirmed,
+                'is_confirmed' => $happening->is_confirmed,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,

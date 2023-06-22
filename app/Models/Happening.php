@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Library\Utility;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;

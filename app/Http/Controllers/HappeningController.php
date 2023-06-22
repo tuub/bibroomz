@@ -15,8 +15,10 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HappeningController extends Controller
 {
@@ -38,7 +40,19 @@ class HappeningController extends Controller
             ->whereDate('start', '>=', $from)
             ->whereDate('end', '<=', $to)
             ->whereIn('resource_id', $institution_resources)
-            ->get();
+            ->get()
+            ->map(function ($happening) {
+                $start = CarbonImmutable::parse($happening->start);
+                $end = CarbonImmutable::parse($happening->end);
+
+                [$open, $start, $end] = $happening->resource->findOpen($start, $end);
+                [$closed, $start, $end] = $happening->resource->findClosed($start, $end);
+
+                $happening->start = $start;
+                $happening->end = $end;
+
+                return ($open && !$closed) ? $happening : null;
+            })->filter(fn ($h) => $h);
 
         $log['RESULT COUNT'] = $happenings->count();
 
