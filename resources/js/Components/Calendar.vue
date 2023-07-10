@@ -251,7 +251,7 @@ const onEventClick = (eventInfo) => {
             title: dataPath.getResources()[0]._resource.title,
         };
         happeningData.id = dataPath.id;
-        happeningData.user_02 = dataPath.extendedProps.status.user.confirmation;
+        happeningData.user_02 = dataPath.extendedProps.status?.user?.confirmation;
         happeningData.start = dayjs.utc(dataPath._instance.range.start);
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
     }

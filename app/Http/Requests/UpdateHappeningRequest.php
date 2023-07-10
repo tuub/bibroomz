@@ -28,7 +28,7 @@ class UpdateHappeningRequest extends FormRequest
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
-            'confirmer' => ['required'],
+            // 'confirmer' => ['required'],
         ];
     }
 }

@@ -27,7 +27,9 @@ class AddHappeningRequest extends FormRequest
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
-            'confirmer' => ['required', 'not_in:' . auth()->user()->name],
+            'confirmer' => [
+                auth()->user()->is_admin ? '' : 'required', 'not_in:' . auth()->user()->name,
+            ],
         ];
     }
 }

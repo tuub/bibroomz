@@ -132,11 +132,11 @@ class Happening extends Model
                 if ($this->isMine()) {
                     $status['type'] = 'user-booking';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->user2->name;
+                    $status['user']['confirmation'] = $this->user2?->name;
                 } elseif ($this->isMyConfirmed()) {
                     $status['type'] = 'user-confirmed';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->user2->name;
+                    $status['user']['confirmation'] = $this->user2?->name;
                 } else {
                     $status['type'] = 'booking';
                 }
