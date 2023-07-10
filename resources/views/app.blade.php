@@ -13,7 +13,9 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     @inertiaHead
 </head>
-
+<script>
+    window.Settings = {!! auth()->user()  !!}
+</script>
 <noscript>
     The Roomz application needs JavaScript enabled to work. Please enable it to continue.
 </noscript>

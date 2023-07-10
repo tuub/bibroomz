@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class InstitutionController extends Controller
@@ -38,7 +41,18 @@ class InstitutionController extends Controller
             'is_active' => 'required',
         ]);
         // Create
-        Institution::create($attributes);
+        $institution = Institution::create($attributes);
+
+        // Init settings
+        $settings = Setting::getInitialValues();
+        foreach ($settings as $key => $value) {
+            $setting = new Setting([
+                'key' => $key,
+                'value' => $value,
+            ]);
+            $institution->settings()->save($setting);
+        }
+
         // Redirect
         return redirect('/admin/institutions');
     }

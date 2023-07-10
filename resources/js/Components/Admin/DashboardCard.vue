@@ -6,12 +6,6 @@
                 {{ title }}
             </h5>
         </Link>
-        <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">
-            {{ content }}
-        </p>
-        <Link :href="link" class="btn inline-flex items-center text-black hover:text-white bg-gray-200">
-            <i class="ri-tools-fill">Administer</i>
-        </Link>
     </div>
 </template>
 

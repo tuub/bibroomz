@@ -51,7 +51,7 @@ class HappeningController extends Controller
     {
         $validated = $request->validated();
 
-        $happening = Happening::find($request->id);#
+        $happening = Happening::find($request->id);
         $happening->update($validated);
 
         return redirect()->route('admin.happening.index');

@@ -15,6 +15,7 @@
         </div>
         <div id="calendar" class="basis-4/5 md:basis-4/5">
             <Calendar
+                :settings="settings"
                 @show-status="showStatus"
                 @open-modal-component="getModal">
             </Calendar>
@@ -26,7 +27,6 @@
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
 import UserHappenings from "../Components/UserHappenings.vue";
-import Legend from "../Components/Legend.vue";
 
 import XModal from "../Shared/XModal.vue";
 import useModal from "../Stores/Modal";
@@ -36,6 +36,15 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 import { Modal as FlowbiteModal } from "flowbite";
+
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+let props = defineProps({
+    settings: Object,
+})
+
+console.log(props.settings)
 
 // ------------------------------------------------
 // Stores

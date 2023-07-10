@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HappeningController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 
 /*
@@ -27,9 +29,7 @@ use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('App');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::post('/check', [LoginController::class, 'check'])->name('check');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
@@ -95,6 +95,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
         /* Special */
         Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
+
+        /* Settings */
+        Route::get('/admin/settings', [AdminSettingController::class, 'getSettings'])->name('admin.setting.index');
+        Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])->name('admin.setting.edit');
+        Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])->name('admin.setting.update');
 
         /* Stats */
         Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');

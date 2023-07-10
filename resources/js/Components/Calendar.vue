@@ -50,13 +50,17 @@ import {
 //console.log(context)
 
 // ------------------------------------------------
-// Options (should come from external file or database)
+// Props
 // ------------------------------------------------
-let options = {
-    timeSlotLength: '00:30:00',
-    blockHourQuota: 4,
-    futureDays: 14,
-}
+const props = defineProps({
+    settings: Object
+})
+
+// ------------------------------------------------
+// Config (from backend)
+// ------------------------------------------------
+let settings = props.settings
+let getConfig = (key) => { return settings.find(o => o.key === key).value }
 
 // ------------------------------------------------
 // Loading indicator
@@ -84,8 +88,7 @@ const emit = defineEmits([
 // Stores
 // ------------------------------------------------
 let authStore = useAuthStore()
-
-let { isAuthenticated } = storeToRefs(authStore)
+let { isAuthenticated, isAdmin } = storeToRefs(authStore)
 
 // ------------------------------------------------
 // CALENDAR METHODS
@@ -135,14 +138,12 @@ const getResources = () => {
 // Calculate valid start and end date
 // ------------------------------------------------
 const getValidRange = () => {
-    const startDate = new Date()
-    const endDate = new Date().setDate(
-        startDate.getDate() + options.futureDays
-    );
+    const startDate = dayjs()
+    const endDate = startDate.add(getConfig('weeks_in_advance') * 7, 'day')
 
     return {
-        start: startDate,
-        end: endDate
+        start: startDate.toDate(),
+        end: endDate.toDate()
     };
 };
 
@@ -190,7 +191,7 @@ const isSelectAllow = (event) => {
     let tsStart = dayjs(event.startStr)
     let tsEnd = dayjs(event.endStr)
 
-    let tsLenConfig = options.timeSlotLength.split(':')
+    let tsLenConfig = getConfig('time_slot_length').split(':')
     let tsLen = {
         hours: parseInt(tsLenConfig[0]),
         minutes: parseInt((tsLenConfig[1]))
@@ -198,9 +199,9 @@ const isSelectAllow = (event) => {
 
     let isNotPast = tsStart.isSameOrAfter(now);
     let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now) &&
-        tsEnd.isSameOrBefore(
-            tsStart.add(parseInt(options.blockHourQuota), 'hours')
-        );
+        (isAdmin || tsEnd.isSameOrBefore(
+            tsStart.add(parseInt(getConfig('quota_happening_block_hours')), 'hours')
+        ));
     let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
     return isValid && (isNotPast || isCurrentTimeSlot);
@@ -210,7 +211,7 @@ const isSelectAllow = (event) => {
 // Select action
 // ------------------------------------------------
 const onSelect = (eventInfo) => {
-    if (!authStore.isAuthenticated) {
+    if (!isAuthenticated) {
         useToast().error('Must be authenticated!');
     } else {
         let happeningData = reactive({
@@ -297,8 +298,8 @@ const calendarOptions = {
     validRange: getValidRange(),
     resources: getResources(),
     events: getHappenings,
-    slotMinTime: '09:00',
-    slotMaxTime: '24:00',
+    slotMinTime: getConfig('start_time_slot'),
+    slotMaxTime: getConfig('end_time_slot'),
     resourceOrder: 'title',
     height: 'auto',
     contentHeight: 'auto',
@@ -310,8 +311,8 @@ const calendarOptions = {
     longPressDelay: 0,
     unselectAuto: true,
     selectMirror: true,
-    slotDuration: '00:30:00',
-    slotLabelInterval: '00:30:00',
+    slotDuration: getConfig('time_slot_length') + ':00',
+    slotLabelInterval: getConfig('time_slot_length') + ':00',
     selectOverlap: false,
     selectConstraint: 'businessHours',
     selectable: isSelectable,

@@ -12,6 +12,7 @@ export const useAuthStore = defineStore({
     state: () => ({
         user: null,
         isAuthenticated: false,
+        isAdmin: false,
         userHappenings: [],
         errors: [],
     }),
@@ -21,8 +22,10 @@ export const useAuthStore = defineStore({
         },
         async check() {
             await axios.post(`${baseUrl}/check`).then((response) => {
+                console.log(response)
                 this.user = response.data.user
                 this.isAuthenticated = response.data.status
+                this.isAdmin = response.data.admin
                 this.fetchUserHappenings()
                 this.subscribe();
             })

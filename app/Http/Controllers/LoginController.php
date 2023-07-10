@@ -55,6 +55,7 @@ class LoginController extends Controller
     {
         $response = [
             'status' => auth()->check(),
+            'admin' => auth()->user()->is_admin ?? false,
             'user' => [
                 'id' => auth()->user()->id ?? null,
                 'name' => auth()->user()->name ?? null,
