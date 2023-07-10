@@ -197,12 +197,13 @@ const isSelectAllow = (event) => {
         minutes: parseInt((tsLenConfig[1]))
     }
 
+    let maxHours = parseInt(getConfig('quota_happening_block_hours'));
+
     let isNotPast = tsStart.isSameOrAfter(now);
-    let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now) &&
-        (isAdmin || tsEnd.isSameOrBefore(
-            tsStart.add(parseInt(getConfig('quota_happening_block_hours')), 'hours')
-        ));
     let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
+
+    let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now)
+    isValid &&= isAdmin.value || tsEnd.isSameOrBefore(tsStart.add(maxHours, 'hours'));
 
     return isValid && (isNotPast || isCurrentTimeSlot);
 }
@@ -211,7 +212,7 @@ const isSelectAllow = (event) => {
 // Select action
 // ------------------------------------------------
 const onSelect = (eventInfo) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated.value) {
         useToast().error('Must be authenticated!');
     } else {
         let happeningData = reactive({

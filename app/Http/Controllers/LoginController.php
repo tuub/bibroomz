@@ -25,6 +25,7 @@ class LoginController extends Controller
         if ($auth) {
             $response = [
                 'message' => 'Successfully logged in!',
+                'admin' => auth()->user()->is_admin ?? false,
                 'user' => [
                     'id' => auth()->user()->id,
                     'name' => auth()->user()->name,

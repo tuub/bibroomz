@@ -236,6 +236,10 @@ class Resource extends Model
         $time_slots = $time_slots->map(function ($time_slot) use ($start) {
             $max_hours = env('RESERVATION_BLOCK_HOUR_QUOTA');
 
+            if (auth()->user()->is_admin) {
+                $max_hours = 24;
+            }
+
             if ($time_slot['time'] <= ($start)) {
                 $time_slot['is_disabled'] = true;
             }

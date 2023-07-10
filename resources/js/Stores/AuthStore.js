@@ -38,6 +38,7 @@ export const useAuthStore = defineStore({
                 password,
             }).then(async (response) => {
                 this.user = response.data.user;
+                this.isAdmin = response.data.admin;
                 this.isAuthenticated = true;
                 await this.fetchUserHappenings();
                 this.subscribe();
@@ -74,6 +75,7 @@ export const useAuthStore = defineStore({
                 this.unsubscribe();
                 this.user = null;
                 this.isAuthenticated = false;
+                this.isAdmin = false;
                 this.userHappenings = [];
 
                 toast.success(`${response.data.message}`);
