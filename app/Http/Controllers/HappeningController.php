@@ -139,6 +139,26 @@ class HappeningController extends Controller
         $resource = Resource::find($validated['resource']['id']);
         $log['RESOURCE'] = $resource['title'];
 
+        $start = new CarbonImmutable($validated['start']);
+        $end = new CarbonImmutable($validated['end']);
+
+        // check if resource is closed
+        [$closed] = $resource->findClosed($start, $end);
+        if ($closed) {
+            abort(400, 'Resource is closed.');
+        }
+
+        // check if resource is open
+        [$open] = $resource->findOpen($start, $end);
+        if (!$open) {
+            abort(400, 'Resource is not open.');
+        }
+
+        // check if something is already happening
+        if ($resource->isHappening($start, $end)) {
+            abort(400, 'Something is already happening.');
+        }
+
         // Compile happening payload
         $happeningData = [
             'user_id_01' => auth()->user()->id,
@@ -146,8 +166,8 @@ class HappeningController extends Controller
             'resource_id' => $resource['id'],
             'is_confirmed' => auth()->user()->is_admin ?? false,
             'confirmer' => $validated['confirmer'],
-            'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
-            'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
             'confirmed_at' => auth()->user()->is_admin ? Carbon::now() : null,
         ];

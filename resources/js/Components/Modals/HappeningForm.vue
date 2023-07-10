@@ -97,13 +97,13 @@ const getTimeSlotValues = (resource_id, start, end, event) => {
         axios.post('/resource/' + resource_id + '/time_slots', payload).then((response) => {
             start_time_slots.value = response.data['start']
             if (response.data['start']) {
-                start_time_slot_selected.value = response.data['start'].filter(obj => {
+                start_time_slot_selected.value = response.data['start']?.filter(obj => {
                     return obj.is_selected === true
                 })[0].time
             }
             end_time_slots.value = response.data['end']
             if (response.data['end']) {
-                end_time_slot_selected.value = response.data['end'].filter(obj => {
+                end_time_slot_selected.value = response.data['end']?.filter(obj => {
                     return obj.is_selected === true
                 })[0].time
             }

@@ -67,77 +67,6 @@ class Resource extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    // FIXME: where to use? See platzbuchung-lite
-    // public function isCurrentlyOpen(): bool
-    // {
-    //     foreach ($this->business_hours() as $business_hour) {
-    //         if ($business_hour->week_days()->count() > 0) {
-    //             if ($business_hour->week_days->where('day_of_week', Carbon::today()->dayOfWeek)->first()) {
-    //                 $opening = Utility::getDateTimeFromStrings(
-    //                     Carbon::today()->toDateString(),
-    //                     $business_hour->start
-    //                 );
-    //                 $closing = Utility::getDateTimeFromStrings(
-    //                     Carbon::today()->toDateString(),
-    //                     $business_hour->end
-    //                 );
-
-    //                 if (Carbon::now()->isBetween($opening, $closing)) {
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return false;
-    // }
-
-    // public function isOpen(CarbonImmutable $start, CarbonImmutable $end): bool
-    // {
-    //     if ($this->isClosing($start, $end)) {
-    //         return false;
-    //     }
-
-    //     if ($this->isBusinessHours($start, $end)) {
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
-    // private function isClosing(CarbonImmutable $start, CarbonImmutable $end): bool
-    // {
-    //     $closings = $this->closings->merge($this->institution->closings);
-
-    //     foreach ($closings as $closing) {
-    //         if ($start < $closing->end && $end > $closing->start) {
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }
-
-    // private function isBusinessHours(CarbonImmutable $start, CarbonImmutable $end): bool
-    // {
-    //     $business_hours = $this->business_hours;
-
-    //     foreach ($business_hours as $business_hour) {
-    //         $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
-
-    //         $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($start);
-    //         $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($start);
-
-    //         if (in_array($start->dayOfWeek, $week_days)) {
-    //             if ($start >= $business_hour_start && $end <= $business_hour_end) {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-
-    //     return false;
-    // }
-
     public function findClosed(CarbonImmutable $start, CarbonImmutable $end)
     {
         $closed = false;
@@ -219,6 +148,19 @@ class Resource extends Model
         Log::debug('findOpen - open: ' . ($open ? 'true' : 'false') . ', start: ' . $start . ', end: ' . $end);
 
         return [$open, $start, $end];
+    }
+
+    public function isHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
+    {
+        foreach ($this->happenings->whereNotIn('id', [$happening?->id]) as $_happening) {
+            if ($start >= $_happening->start && $start < $_happening->end) {
+                return true;
+            } elseif ($end >= $_happening->end && $end < $_happening->end) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
