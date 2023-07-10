@@ -159,17 +159,19 @@ class HappeningController extends Controller
             abort(400, 'Something is already happening.');
         }
 
+        $is_admin = auth()->user()->is_admin;
+
         // Compile happening payload
         $happeningData = [
             'user_id_01' => auth()->user()->id,
-            'user_id_02' => auth()->user()->is_admin ? auth()->user()->id : null,
+            // 'user_id_02' => $is_admin ? auth()->user()->id : null,
             'resource_id' => $resource['id'],
-            'is_confirmed' => auth()->user()->is_admin ?? false,
-            'confirmer' => $validated['confirmer'],
+            'is_confirmed' => $is_admin,
+            'confirmer' => !$is_admin ? $validated['confirmer'] : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
-            'confirmed_at' => auth()->user()->is_admin ? Carbon::now() : null,
+            'confirmed_at' => $is_admin ? Carbon::now() : null,
         ];
         $log['PAYLOAD'] = json_encode($happeningData);
 
@@ -182,14 +184,7 @@ class HappeningController extends Controller
             // Write log record
             Utility::sendToLog('happenings', $log);
 
-            // Send broadcast events to frontend
-            $user1 = $happening->user1;
-            $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
-            broadcast(new HappeningCreated($happening, $user1));
-            if ($user2) {
-                broadcast(new HappeningCreated($happening, $user2));
-            }
-            broadcast(new HappeningsChanged());
+            $this->broadcast(HappeningCreated::class, $happening);
         }
     }
 
@@ -231,14 +226,7 @@ class HappeningController extends Controller
             // Write log record
             Utility::sendToLog('happenings', $log);
 
-            // Send broadcast events to frontend
-            $user1 = $happening->user1;
-            $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
-            broadcast(new HappeningUpdated($happening, $user1));
-            if ($user2) {
-                broadcast(new HappeningUpdated($happening, $user2));
-            }
-            broadcast(new HappeningsChanged());
+            $this->broadcast(HappeningUpdated::class, $happening);
         }
     }
 
@@ -266,35 +254,33 @@ class HappeningController extends Controller
             // Write log record
             Utility::sendToLog('happenings', $log);
 
-            // Send broadcast events to frontend
-            broadcast(new HappeningConfirmed($happening, $happening->user1));
-            broadcast(new HappeningConfirmed($happening, $happening->user2));
-            broadcast(new HappeningsChanged());
+            $this->broadcast(HappeningConfirmed::class, $happening);
         }
     }
 
     public function deleteHappening($id)
     {
-        // Get happening object
         $happening = auth()->user()->happenings()->findOrFail($id);
 
-        // Query policy
         if (auth()->user()->cannot('delete', $happening)) {
             abort(401, 'You are not allowed to delete.');
         }
 
-        // Get users for private broadcast channels
-        $user1 = $happening->user1;
-        $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
-
-
-        // Delete happening
-        $op = $happening->delete();
-
-        if ($op) {
-            // Send broadcast events to frontend
-            broadcast(new HappeningDeleted($id, $user1, $user2));
-            broadcast(new HappeningsChanged());
+        if ($happening->delete()) {
+            $this->broadcast(HappeningDeleted::class, $happening);
         }
+    }
+
+    private function broadcast(String $broadcastEvent, Happening $happening)
+    {
+        $user1 = $happening->user1;
+        broadcast(new $broadcastEvent($happening, $user1));
+
+        $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
+        if ($user2) {
+            broadcast(new $broadcastEvent($happening, $user2));
+        }
+
+        broadcast(new HappeningsChanged());
     }
 }
