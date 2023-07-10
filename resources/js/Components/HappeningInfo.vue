@@ -14,13 +14,22 @@ import {computed} from "vue";
 import utc from "dayjs/plugin/utc";
 import duration from "dayjs/plugin/duration"
 
-dayjs.extend(utc);
-dayjs.extend(duration);
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     happening: Object,
 });
 
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(utc);
+dayjs.extend(duration);
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const happeningResource = computed(() => {
     return props.happening.resource.title;
 })
@@ -46,5 +55,4 @@ const happeningLength = computed(() => {
 
     return lengthValues['number'] + ' ' + lengthValues['unit'];
 })
-
 </script>

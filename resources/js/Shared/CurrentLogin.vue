@@ -9,9 +9,19 @@
 import {useAuthStore} from "../Stores/AuthStore";
 import {storeToRefs} from "pinia";
 
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
 const authStore = useAuthStore();
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let { isAuthenticated, user: currentUser } = storeToRefs(authStore);
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 let logoutUser = async () => {
     try {
         return await authStore.logout();

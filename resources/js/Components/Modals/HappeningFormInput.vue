@@ -7,6 +7,17 @@
 </template>
 
 <script setup>
-const props = defineProps({ input: String });
-const emit = defineEmits(["update:input"]);
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+const props = defineProps({
+    input: String
+});
+
+// ------------------------------------------------
+// Emits
+// ------------------------------------------------
+const emit = defineEmits([
+    'update:input',
+])
 </script>

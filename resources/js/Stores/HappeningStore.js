@@ -21,7 +21,6 @@ export const useHappeningStore = defineStore({
             return axios.post(`${baseUrl}/happening/update/${happening.id}`, happening);
         },
         confirmHappening(happening) {
-            console.log(happening)
             return axios.post(`${baseUrl}/happening/confirm/${happening.id}`, happening);
         },
         deleteHappening(id) {

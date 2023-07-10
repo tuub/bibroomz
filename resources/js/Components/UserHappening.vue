@@ -63,24 +63,12 @@
 </template>
 
 <script setup>
-
 import {computed} from "vue";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import {useHappeningStore} from "../Stores/HappeningStore"
 import useModal from "../Stores/Modal";
 import { useConfirmModal, useDeleteModal, useEditModal } from "@/Composables/modalActions";
-
-// ------------------------------------------------
-// DayJS
-// ------------------------------------------------
-dayjs.extend(utc);
-
-// ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const happeningStore = useHappeningStore()
-const modal = useModal()
 
 // ------------------------------------------------
 // Props
@@ -90,8 +78,14 @@ let props = defineProps({
 })
 
 // ------------------------------------------------
-// Computed
+// DayJS
 // ------------------------------------------------
+dayjs.extend(utc);
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const modal = useModal()
 const happeningDate = computed(() => {
     return dayjs.utc(props.happening.start).format('DD.MM.YYYY');
 })
@@ -116,7 +110,6 @@ const confirmUserHappening = (happening) => {
     let confirmModal = useConfirmModal(happening);
     modal.open(confirmModal.view, confirmModal.content, confirmModal.payload, confirmModal.actions);
 }
-
 
 const deleteUserHappening = (happening) => {
     let deleteModal = useDeleteModal(happening);

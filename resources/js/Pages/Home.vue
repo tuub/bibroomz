@@ -1,5 +1,13 @@
 <template>
-    <Head title="Home" />
+    <Head :title="institution.title" />
+
+    <Navigation></Navigation>
+
+    <!--
+    <div class="header text-4xl font-bold text-center">
+        <h1>{{ institutionTitle }}</h1>
+    </div>
+    -->
 
     <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
     <x-modal />
@@ -15,6 +23,7 @@
         </div>
         <div id="calendar" class="basis-4/5 md:basis-4/5">
             <Calendar
+                :institution="institution"
                 :settings="settings"
                 @show-status="showStatus"
                 @open-modal-component="getModal">
@@ -24,6 +33,7 @@
 </template>
 
 <script setup>
+import Navigation from "@/Shared/Navigation.vue";
 import Calendar from "../Components/Calendar.vue";
 import LoginForm from "../Components/LoginForm.vue";
 import UserHappenings from "../Components/UserHappenings.vue";
@@ -31,8 +41,9 @@ import UserHappenings from "../Components/UserHappenings.vue";
 import XModal from "../Shared/XModal.vue";
 import useModal from "../Stores/Modal";
 
+import { useAppStore } from "../Stores/AppStore";
 import { useAuthStore } from "../Stores/AuthStore";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 import { Modal as FlowbiteModal } from "flowbite";
@@ -41,30 +52,32 @@ import { Modal as FlowbiteModal } from "flowbite";
 // Props
 // ------------------------------------------------
 let props = defineProps({
+    institution: Object,
     settings: Object,
+    is_multi_tenancy: Boolean,
 })
-
-console.log(props.settings)
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
+const appStore = useAppStore();
 const authStore = useAuthStore();
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const modal = useModal();
-
-let { isAuthenticated, userHappenings } = storeToRefs(authStore)
-
-// ------------------------------------------------
-// Status message
-// ------------------------------------------------
 let statusMessage = ref('')
+let { isAuthenticated, userHappenings } = storeToRefs(authStore)
+let { institution } = storeToRefs(appStore)
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const showStatus = (status) => {
     statusMessage.value = status
 }
 
-// ------------------------------------------------
-// Modal
-// ------------------------------------------------
 const getModal = (data) => {
     modal.open(data.view, data.content, data.payload, data.actions);
 }
@@ -72,6 +85,11 @@ const getModal = (data) => {
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
+onBeforeMount(()  => {
+    authStore.setCurrentInstitution(props.institution)
+    appStore.setCurrentInstitution(props.institution, props.is_multi_tenancy)
+})
+
 onMounted(() => {
     modal.init(
         new FlowbiteModal(

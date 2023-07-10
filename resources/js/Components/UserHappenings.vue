@@ -28,15 +28,20 @@
 </template>
 
 <script setup>
-
 import UserHappening from './UserHappening.vue'
 import {computed} from "vue";
 import HappeningCount from "./HappeningCount.vue";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     happenings: Object,
 })
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const happeningsCount = computed(() => {
     return props.happenings.length
 })

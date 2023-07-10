@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreInstitutionRequest;
+use App\Http\Requests\Admin\UpdateInstitutionRequest;
 use App\Models\Institution;
-use App\Models\Resource;
 use App\Models\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class InstitutionController extends Controller
@@ -30,18 +29,9 @@ class InstitutionController extends Controller
         return Inertia::render('Admin/Institutions/Form');
     }
 
-    public function storeInstitution(Request $request)
+    public function storeInstitution(StoreInstitutionRequest $request)
     {
-        // Validate
-        $attributes = $request->validate([
-            'title' => 'required',
-            'short_title' => 'required',
-            'slug' => 'required',
-            'location' => 'required',
-            'is_active' => 'required',
-        ]);
-        // Create
-        $institution = Institution::create($attributes);
+        $institution = Institution::create($request->all());
 
         // Init settings
         $settings = Setting::getInitialValues();
@@ -54,7 +44,7 @@ class InstitutionController extends Controller
         }
 
         // Redirect
-        return redirect('/admin/institutions');
+        return redirect()->route('admin.institution.index');
     }
 
     public function editInstitution(Request $request)
@@ -63,20 +53,13 @@ class InstitutionController extends Controller
         return Inertia::render('Admin/Institutions/Form', $institution);
     }
 
-    public function updateInstitution(Request $request)
+    public function updateInstitution(UpdateInstitutionRequest $request)
     {
-        $resource = Institution::find($request->id);
+        $resource = Institution::findOrFail($request->id);
 
-        // Validate
-        $attributes = $request->validate([
-            'title' => 'required',
-            'short_title' => 'required',
-            'slug' => 'required',
-            'location' => 'required',
-            'is_active' => 'required',
-        ]);
         // Update
-        $resource->update($attributes);
+        $resource->update($request->all());
+
         // Redirect
         return redirect()->route('admin.institution.index');
     }

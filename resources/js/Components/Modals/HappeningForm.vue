@@ -65,14 +65,19 @@
 </template>
 
 <script setup>
+import { useAppStore } from "@/Stores/AppStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import { storeToRefs } from "pinia";
 import {ref, onBeforeMount} from "vue";
 import Spinner from "../../Shared/Spinner.vue";
+import {useAuthStore} from "@/Stores/AuthStore";
 
 const props = defineProps({
     happening: Object,
 });
+
+let appStore = useAppStore()
+let { institutionSlug } = storeToRefs(appStore)
 
 const emit = defineEmits(["update:input"]);
 
@@ -94,7 +99,7 @@ const getTimeSlotValues = (resource_id, start, end, event) => {
             event: event,
             happening_id: props.happening?.id,
         }
-        axios.post('/resource/' + resource_id + '/time_slots', payload).then((response) => {
+        axios.post('/' + institutionSlug + '/resource/' + resource_id + '/time_slots', payload).then((response) => {
             start_time_slots.value = response.data['start']
             if (response.data['start']) {
                 start_time_slot_selected.value = response.data['start']?.filter(obj => {

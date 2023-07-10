@@ -127,13 +127,20 @@ import {onMounted, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 
-defineProps({
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+let props = defineProps({
     errors: Object,
 });
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let processing = ref(false);
 let $page = usePage()
-
+let resources = ref([]);
+let users = ref([]);
 let form = useForm({
     id: $page.props.id ?? '',
     resource_id: $page.props.resource_id ?? '',
@@ -145,12 +152,12 @@ let form = useForm({
     is_confirmed: $page.props.is_confirmed === 1,
 });
 
-let resources = ref([]);
-let users = ref([]);
-
 // Save original confirmer for later rollback
 const savedConfirmer = form['confirmer']
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const updateConfirmer = (event) => {
     let index = users.value.findIndex(x => x.id === event.target.value)
     if (index === -1) {
@@ -163,6 +170,7 @@ const updateConfirmer = (event) => {
 }
 
 const getResources = () => {
+    // FIXME: institutions
     axios.get('/admin/form/resources').then((response) => {
         resources.value = response.data
     })
@@ -183,9 +191,11 @@ let submitForm = () => {
     }
 }
 
+// ------------------------------------------------
+// Mount
+// ------------------------------------------------
 onMounted( () => {
     getResources();
     getUsers();
 });
-
 </script>

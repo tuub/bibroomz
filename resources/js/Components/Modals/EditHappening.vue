@@ -25,25 +25,23 @@ import HappeningInfo from "../HappeningInfo.vue";
 import {useHappeningStore} from "../../Stores/HappeningStore";
 import dayjs from "dayjs";
 
-const happeningStore = useHappeningStore()
-let validationErrors = ref({})
-
-watch(
-    () => happeningStore.validationErrors,
-    () => { validationErrors.value = happeningStore.getValidationErrors },
-)
-
-const emit = defineEmits([
-    'update:payload',
-])
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 const props = defineProps({
     content: Object,
     payload: Object
 })
 
-console.log(props.payload.start)
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const happeningStore = useHappeningStore()
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+let validationErrors = ref({})
 let happeningData = reactive({
     id: props.payload.id,
     resource: {
@@ -54,6 +52,21 @@ let happeningData = reactive({
     end: dayjs.utc(props.payload.end),
     confirmer: props.payload.confirmer,
 })
+
+// ------------------------------------------------
+// Emits
+// ------------------------------------------------
+const emit = defineEmits([
+    'update:payload',
+])
+
+// ------------------------------------------------
+// Watchers
+// ------------------------------------------------
+watch(
+    () => happeningStore.validationErrors,
+    () => { validationErrors.value = happeningStore.getValidationErrors },
+)
 
 watchEffect(() => {
     emit("update:payload", happeningData);

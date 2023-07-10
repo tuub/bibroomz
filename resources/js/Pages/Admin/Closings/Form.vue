@@ -61,6 +61,9 @@ import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     closing: Object,
     closable: Object,
@@ -68,9 +71,11 @@ let props = defineProps({
     errors: Object,
 });
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let processing = ref(false);
 let $page = usePage()
-
 let form = useForm({
     id: $page.props.closing.id ?? '',
     start: $page.props.closing.start ?? '',
@@ -80,6 +85,9 @@ let form = useForm({
     closable_type: $page.props.closable_type,
 });
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 let submitForm = () => {
     processing.value = true;
     if (form.id) {

@@ -29,17 +29,11 @@ use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 |
 */
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'getStart'])->name('start');
 
 Route::post('/check', [LoginController::class, 'check'])->name('check');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
-
-// API calls
-Route::get('/resources', [ResourceController::class, 'getResources'])->name('resources.get');
-Route::get('/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
-Route::post('/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])->name('resource.business_hours.form');
-
 
 Route::middleware('auth:sanctum')->group(function () {
     /* User actions */
@@ -70,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/institution/update', [AdminInstitutionController::class, 'updateInstitution'])->name('admin.institution.update');
         /* Institution Special */
         Route::get('/admin/form/institutions', [AdminInstitutionController::class, 'getFormInstitutions'])->name('admin.institution.form');
+        Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])->name('admin.setting.index');
 
         /* Resources */
         Route::get('/admin/resources', [AdminResourceController::class, 'getResources'])->name('admin.resource.index');
@@ -82,8 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/form/resources', [AdminResourceController::class, 'getFormResources'])->name('admin.resource.form');
 
         /* Closings */
-        Route::get('/admin/closings/{closable_type}/{closable_id}', [AdminClosingController::class, 'getClosings'])->name('admin.closing.index');
-        Route::get('/admin/closing/create/{closable_type}/{closable_id}', [AdminClosingController::class, 'createClosing'])->name('admin.closing.create');
+        Route::get('/admin/{closable_type}/{closable_id}/closings', [AdminClosingController::class, 'getClosings'])->name('admin.closing.index');
+        Route::get('/admin/closing/{closable_type}/{closable_id}/create', [AdminClosingController::class, 'createClosing'])->name('admin.closing.create');
         Route::get('/admin/closing/edit/{id}', [AdminClosingController::class, 'editClosing'])->name('admin.closing.edit');
         Route::post('/admin/closing/store', [AdminClosingController::class, 'storeClosing'])->name('admin.closing.store');
         Route::post('/admin/closing/update', [AdminClosingController::class, 'updateClosing'])->name('admin.closing.update');
@@ -97,7 +92,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
 
         /* Settings */
-        Route::get('/admin/settings', [AdminSettingController::class, 'getSettings'])->name('admin.setting.index');
         Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])->name('admin.setting.edit');
         Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])->name('admin.setting.update');
 
@@ -105,3 +99,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');
     });
 });
+
+// Institution Home
+Route::get('/{slug}', [HomeController::class, 'getInstitutionalHome'])->name('home');
+// API calls
+Route::get('/{slug}/resources', [ResourceController::class, 'getResources'])->name('resources.get');
+Route::get('/{slug}/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
+Route::post('/{slug}/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])->name('resource.business_hours.form');

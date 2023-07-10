@@ -17,6 +17,18 @@ import HappeningInfo from '../Components/HappeningInfo.vue';
 import UserInfo from '../Components/UserInfo.vue';
 import { ref } from 'vue'
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+let props = defineProps({
+    time: String,
+    user: Object,
+    happenings: Object,
+})
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let happeningData = {
     resource: '1',
     start: '15:30:00',
@@ -26,10 +38,4 @@ let userData = {
     id: '99',
     name: 'dummy',
 }
-
-defineProps({
-    time: String,
-    user: Object,
-    happenings: Object,
-})
 </script>

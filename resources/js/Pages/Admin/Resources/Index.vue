@@ -93,13 +93,23 @@
 <script setup>
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(customParseFormat)
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     resources: Object,
     filters: Object,
 })
 
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(customParseFormat)
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const formatTime = ((time) => {
     return dayjs(time, 'HH:mm:ss').format('HH:mm');
 })

@@ -6,16 +6,21 @@ use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
-    public static function getResources(): \Illuminate\Http\JsonResponse
+    public static function getResources(Request $request): JsonResponse
     {
         $output = [];
 
-        // FIXME
-        $institution = Institution::active()->first();
+        $institution = Institution::where('slug', $request->slug)->first();
+
+        if (!$institution) {
+            abort(404);
+        }
+
         $resources = Resource::active()->where('institution_id', $institution->id)->get();
 
         foreach ($resources as $resource) {

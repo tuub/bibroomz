@@ -68,6 +68,51 @@
             <FormValidationError :message="form.errors.location"></FormValidationError>
         </div>
 
+        <!-- Input: Home URI -->
+        <div class="mb-6">
+            <label for="home_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                Home URI
+            </label>
+            <input v-model="form.home_uri"
+                   type="text"
+                   name="home_uri"
+                   id="home_uri"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   placeholder=""
+            >
+            <FormValidationError :message="form.errors.home_uri"></FormValidationError>
+        </div>
+
+        <!-- Input: Logo URI -->
+        <div class="mb-6">
+            <label for="logo_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                Logo URI
+            </label>
+            <input v-model="form.logo_uri"
+                   type="text"
+                   name="logo_uri"
+                   id="logo_uri"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   placeholder=""
+            >
+            <FormValidationError :message="form.errors.logo_uri"></FormValidationError>
+        </div>
+
+        <!-- Input: Teaser URI -->
+        <div class="mb-6">
+            <label for="teaser_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                Teaser URI
+            </label>
+            <input v-model="form.teaser_uri"
+                   type="text"
+                   name="teaser_uri"
+                   id="teaser_uri"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   placeholder=""
+            >
+            <FormValidationError :message="form.errors.teaser_uri"></FormValidationError>
+        </div>
+
         <!-- Checkbox: Is active -->
         <div class="mb-6">
             <label class="relative inline-flex items-center cursor-pointer">
@@ -106,29 +151,42 @@ import FormValidationError from "../../../Shared/FormValidationError.vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc)
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 defineProps({
     errors: Object,
 });
 
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(utc)
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let processing = ref(false);
 let $page = usePage()
-
 let closings = $page.props.closings
-
-const formatDateTime = ((dateTime) => {
-    return dayjs.utc(dateTime).format('DD.MM.YYYY HH:mm');
-})
-
 let form = useForm({
     id: $page.props.id ?? '',
     title: $page.props.title ?? '',
     short_title: $page.props.short_title ?? '',
     slug: $page.props.slug ?? '',
     location: $page.props.location ?? '',
+    home_uri: $page.props.home_uri ?? '',
+    logo_uri: $page.props.logo_uri ?? '',
+    teaser_uri: $page.props.teaser_uri ?? '',
     is_active: $page.props.is_active === 1,
 });
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+const formatDateTime = ((dateTime) => {
+    return dayjs.utc(dateTime).format('DD.MM.YYYY HH:mm');
+})
 
 let submitForm = () => {
     processing.value = true;

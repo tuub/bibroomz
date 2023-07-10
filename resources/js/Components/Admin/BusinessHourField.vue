@@ -2,20 +2,13 @@
     <div class="flex flex-wrap -mx-3 mb-2 mt-4">
         <div class="w-full mx-3 font-bold text-black">
             Business Hours #{{ index+1 }}
-            <a href="#"
-                  v-if="is_last"
-                  @click="removeBusinessHourField"
-                  class="p5">
+            <a v-if="is_last" href="#" class="p5" @click="removeBusinessHourField">
                 <i class="ri-delete-bin-line"></i>
             </a>
         </div>
         <div class="w-full px-3 mb-6 md:mb-0">
             <span v-for="day_of_week in days_of_week">
-                <input type="checkbox"
-                       :value="day_of_week.id"
-                       name="week_days[]"
-                       v-model="checkedWeekDays"
-                       @change="updateWeekDays"/>
+                <input type="checkbox" :value="day_of_week.id" name="week_days[]" v-model="checkedWeekDays" @change="updateWeekDays"/>
                 {{ day_of_week.name }}
             </span>
         </div>
@@ -41,9 +34,11 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
 
-import {onMounted, ref} from "vue";
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     time_slot: Object,
     index: Number,
@@ -52,10 +47,19 @@ let props = defineProps({
     days_of_week: Array,
 })
 
+// ------------------------------------------------
+// Emits
+// ------------------------------------------------
 const emit = defineEmits(['removeBusinessHourField', 'updateWeekDays'])
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let checkedWeekDays = ref([])
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const removeBusinessHourField = () => {
     emit('removeBusinessHourField', {
         time_slot: props.time_slot
@@ -76,6 +80,9 @@ const updateWeekDays = () => {
     })
 }
 
+// ------------------------------------------------
+// Mount
+// ------------------------------------------------
 onMounted(() => {
     checkedWeekDays.value = getWeekDays()
 })

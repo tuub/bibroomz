@@ -2,8 +2,6 @@
     <Head title="Setting Form" />
     <h1 class="text-3xl">Setting Form</h1>
 
-    {{ form.key }}
-
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
         <!-- Input: Key -->
@@ -49,19 +47,27 @@ import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 
-defineProps({
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+let props = defineProps({
     errors: Object,
 });
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let isProcessing = ref(false);
 let $page = usePage()
-
 let form = useForm({
     id: $page.props.id ?? '',
     key: $page.props.key ?? '',
     value: $page.props.value ?? '',
 });
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 let submitForm = () => {
     isProcessing.value = true;
     if (form.id) {

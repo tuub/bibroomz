@@ -9,9 +9,11 @@
 </template>
 
 <script setup>
-
 import {computed} from "vue";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 const props = defineProps({
     text: String,
     bgColor: String,
@@ -21,6 +23,9 @@ const props = defineProps({
     iconClass: String,
 })
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const classTextColor = computed(() => {
     return props.textColorClass !== 'undefined' ? props.textColorClass : ''
 })

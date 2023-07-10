@@ -25,7 +25,9 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import { inject, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
+import { inject, onMounted, onUnmounted, reactive, ref, watch, watchEffect, computed } from "vue";
+
+import {useAppStore} from "../Stores/AppStore";
 import {useAuthStore} from "../Stores/AuthStore";
 
 import {storeToRefs} from "pinia";
@@ -52,24 +54,48 @@ import {
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
+let props = defineProps({
     settings: Object
 })
 
 // ------------------------------------------------
-// Config (from backend)
+// Stores
 // ------------------------------------------------
+let appStore = useAppStore()
+let authStore = useAuthStore()
+
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
+dayjs.extend(isBetween)
+dayjs.extend(utc)
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const refCalendar = ref(null)
+let calendarApi = null
+let isLoading = ref(false);
 let settings = props.settings
 let getConfig = (key) => { return settings.find(o => o.key === key).value }
+let { institutionSlug } = storeToRefs(appStore)
+let { isAuthenticated, isAdmin } = storeToRefs(authStore)
 
 // ------------------------------------------------
-// Loading indicator
+// Watchers
 // ------------------------------------------------
-let isLoading = ref(false);
+// Refetch happenings if store state of isAuthenticated changes => after login / logout
+watch(isAuthenticated, () => {
+    refetchHappenings()
+})
 
+/*
 watchEffect(() => {
     console.log('isLoading: %s', isLoading)
 })
+*/
 
 // ------------------------------------------------
 // Event Bus
@@ -85,27 +111,7 @@ const emit = defineEmits([
     ])
 
 // ------------------------------------------------
-// Stores
-// ------------------------------------------------
-let authStore = useAuthStore()
-let { isAuthenticated, isAdmin } = storeToRefs(authStore)
-
-// ------------------------------------------------
-// CALENDAR METHODS
-// ------------------------------------------------
-
-// ------------------------------------------------
-// refCalendar
-// ------------------------------------------------
-const refCalendar = ref(null)
-
-// ------------------------------------------------
-// Init calendarApi
-// ------------------------------------------------
-let calendarApi = null
-
-// ------------------------------------------------
-// Get calendar API instance and event bus
+// Mount
 // ------------------------------------------------
 onMounted(() => {
     // Init Calendar API
@@ -120,23 +126,15 @@ onUnmounted(() => {
 })
 
 // ------------------------------------------------
-// DayJS plugins
+// CALENDAR METHODS
 // ------------------------------------------------
-dayjs.extend(isSameOrAfter)
-dayjs.extend(isSameOrBefore)
-dayjs.extend(isBetween)
-dayjs.extend(utc)
 
-// ------------------------------------------------
 // Fetch resources from backend
-// ------------------------------------------------
 const getResources = () => {
-    return '/resources';
+    return '/' + institutionSlug.value + '/resources';
 }
 
-// ------------------------------------------------
 // Calculate valid start and end date
-// ------------------------------------------------
 const getValidRange = () => {
     const startDate = dayjs()
     const endDate = startDate.add(getConfig('weeks_in_advance') * 7, 'day')
@@ -147,9 +145,7 @@ const getValidRange = () => {
     };
 };
 
-// ------------------------------------------------
 // Fetch happenings from backend
-// ------------------------------------------------
 const getHappenings = (fetchInfo, successCallback, failureCallback) => {
     isLoading.value = true
     let payload = {
@@ -157,7 +153,7 @@ const getHappenings = (fetchInfo, successCallback, failureCallback) => {
         end: fetchInfo.end
     };
 
-    axios({ method: 'GET', url: '/happenings', params: payload})
+    axios({ method: 'GET', url: '/' + institutionSlug.value + '/happenings', params: payload})
         .then((response) => {
             successCallback(response.data);
             isLoading.value = false
@@ -171,17 +167,9 @@ const refetchHappenings = () => {
     isLoading.value = true
     calendarApi.refetchEvents()
     isLoading.value = false
-
 }
 
-// Refetch happenings if store state of isAuthenticated changes => after login / logout
-watch(isAuthenticated, () => {
-    refetchHappenings()
-})
-
-// ------------------------------------------------
 // Selection constraints
-// ------------------------------------------------
 const isSelectable = () => {
     return true;
 }
@@ -209,9 +197,7 @@ const isSelectAllow = (event) => {
     return isValid && (isNotPast || isCurrentTimeSlot);
 }
 
-// ------------------------------------------------
 // Select action
-// ------------------------------------------------
 const onSelect = (eventInfo) => {
     if (!isAuthenticated.value) {
         useToast().error('Must be authenticated!');

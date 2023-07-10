@@ -16,19 +16,23 @@ import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { reactive, watchEffect } from "vue";
 import dayjs from "dayjs";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 const props = defineProps({
     content: Object,
     payload: Object,
 });
 
+// ------------------------------------------------
+// Emits
+// ------------------------------------------------
 const emit = defineEmits(["update:payload"]);
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const editable = props.payload.editable;
-
-console.log('------------------')
-console.log(props.payload)
-console.log('------------------')
-
 let happening = reactive({
     id: props.payload.id,
     resource: props.payload.resource,
@@ -37,6 +41,9 @@ let happening = reactive({
     confirmer: props.payload.user_02,
 });
 
+// ------------------------------------------------
+// Watchers
+// ------------------------------------------------
 if (editable) {
     watchEffect(() => {
         emit("update:payload", happening);

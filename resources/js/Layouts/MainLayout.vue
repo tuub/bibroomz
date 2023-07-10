@@ -1,10 +1,9 @@
 <template>
     <Head>
-        <title>Roomz</title>
-        <meta
-            type="description"
-            content="Roomz - Raumverwaltung"
-            head-key="description">
+        <title>{{ appName }}</title>
+        <meta type="description"
+              :content="appName"
+              head-key="description">
     </Head>
     <section id="header" class="p-6 bg-gray-200">
         <Navigation></Navigation>
@@ -14,12 +13,17 @@
     </section>
 </template>
 
-<script>
-import Navigation from "../Shared/Navigation.vue";
+<script setup>
+import Navigation from "@/Shared/Navigation.vue";
+import { useAppStore } from "@/Stores/AppStore"
 
-export default {
-    components: {
-        Navigation,
-    }
-}
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+let appName = appStore.appName;
 </script>

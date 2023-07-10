@@ -12,11 +12,13 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 const props = defineProps({
     title: String,
     icon: String,
     content: String,
     link: String,
 });
-
 </script>

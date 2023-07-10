@@ -20,7 +20,7 @@ class Institution extends Model
     protected $uuidFieldName = 'id';
     public $timestamps = false;
     public $incrementing = false;
-    protected $fillable = [ 'title', 'short_title', 'slug', 'location', 'is_active'];
+    protected $fillable = [ 'title', 'short_title', 'slug', 'location', 'home_uri', 'logo_uri', 'teaser_uri', 'is_active'];
     protected $morphClass = 'institution';
 
     /*****************************************************************

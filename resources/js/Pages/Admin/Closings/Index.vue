@@ -4,7 +4,7 @@
     <div class="flex justify-between mb-6">
         <div class="flex items-center">
             <h1 class="text-3xl">Closings for {{ closable_type }} "{{ closable.title }}"</h1>
-            <Link :href="`/admin/closing/create/${closable_type}/${closable.id}`" class="text-blue-500 text-sm ml-3">Create Closing</Link>
+            <Link :href="route('admin.closing.create', {closable_type: closable_type, closable_id: closable.id})" class="text-blue-500 text-sm ml-3">Create Closing</Link>
         </div>
     </div>
 
@@ -77,19 +77,32 @@ import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import {usePage} from "@inertiajs/vue3";
-dayjs.extend(customParseFormat)
-dayjs.extend(utc)
 
-let $page = usePage()
-
-const formatDateTime = ((dataTime) => {
-    return dayjs.utc(dataTime).format('DD.MM.YYYY HH:mm');
-})
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     closings: Object,
     closable: Object,
     closable_type: String,
     filters: Object,
+})
+
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(customParseFormat)
+dayjs.extend(utc)
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+let $page = usePage()
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+const formatDateTime = ((dataTime) => {
+    return dayjs.utc(dataTime).format('DD.MM.YYYY HH:mm');
 })
 </script>

@@ -25,7 +25,7 @@
                     Location
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    # Resources
+                    Resources
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
                     Active
@@ -72,6 +72,12 @@
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         Closings
                     </Link>
+                    |
+                    <Link :href="route('admin.setting.index', {
+                        id: institution.id,
+                    })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        Settings
+                    </Link>
                 </td>
             </tr>
             </tbody>
@@ -82,10 +88,17 @@
 <script setup>
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(customParseFormat)
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     institutions: Object,
     filters: Object,
 })
+
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(customParseFormat)
 </script>

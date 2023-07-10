@@ -1,7 +1,6 @@
 import * as dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
-// import dayjs from 'dayjs';
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -16,6 +15,7 @@ export const useAuthStore = defineStore({
         isAdmin: false,
         userHappenings: [],
         errors: [],
+        currentInstitution: null,
     }),
     actions: {
         async csrf() {
@@ -23,7 +23,6 @@ export const useAuthStore = defineStore({
         },
         async check() {
             await axios.post(`${baseUrl}/check`).then((response) => {
-                console.log(response)
                 this.user = response.data.user
                 this.isAuthenticated = response.data.status
                 this.isAdmin = response.data.admin
@@ -50,24 +49,8 @@ export const useAuthStore = defineStore({
                     this.errors.value = Object.values(error.response.data.errors).flat()
                 }
 
-                    toast.error(`Login attempt failed: ${error.response.data.errors}`);
+                toast.error(`Login attempt failed: ${error.response.data.errors}`);
             });
-
-            /*
-            let response = await axios.post(`${baseUrl}/login`, {
-                username,
-                password,
-            });
-
-            if (response) {
-                this.user = response.data.user;
-                this.isAuthenticated = true;
-                await this.fetchUserHappenings();
-                this.subscribe();
-            } else {
-                console.log('AUTH ERROR')
-            }
-             */
         },
         async logout() {
             let response = await axios.post(`${baseUrl}/logout`)
@@ -82,9 +65,12 @@ export const useAuthStore = defineStore({
                 toast.success(`${response.data.message}`);
             }
         },
+        setCurrentInstitution(institution) {
+            this.currentInstitution = institution
+        },
         async fetchUserHappenings() {
             if (this.isAuthenticated) {
-                await axios.get(`${baseUrl}/my/happenings`).then((response) => {
+                await axios.get(`${baseUrl}/my/happenings`, {params: {institution_id: this.currentInstitution.id}}).then((response) => {
                     this.userHappenings = response.data
                 }).catch((response) => {
                     console.log('API Error:')
@@ -95,14 +81,9 @@ export const useAuthStore = defineStore({
             }
         },
         addUserHappening(happening) {
-
-            console.log(happening.id)
-            console.log(this.userHappenings)
-
             let index = this._findUserHappeningIndex(happening.id)
             if (index === -1) {
                 this.userHappenings.push(happening)
-                console.log(happening)
                 // Order userHappenings array by start datetime
                 this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
             } else {
@@ -122,8 +103,6 @@ export const useAuthStore = defineStore({
             }
         },
         _findUserHappeningIndex(id) {
-            console.log(id)
-            console.log(this.userHappenings)
             return this.userHappenings.findIndex(x => x.id === id)
         },
         subscribe() {

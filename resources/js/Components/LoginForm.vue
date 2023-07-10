@@ -1,6 +1,8 @@
 <template>
     <h1 class="text-xl font-bold">Login</h1>
-    {{ errors }}
+
+    <div v-if="errors.length > 0">{{ errors }}</div>
+
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="username">
@@ -41,28 +43,40 @@ import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../Stores/AuthStore';
 import {reactive, ref} from "vue";
 
-// Auth store
-const authStore = useAuthStore();
-const { user: authUser } = storeToRefs(authStore);
-
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 defineProps({
     errors: Object
 })
 
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore();
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const { user: authUser } = storeToRefs(authStore);
 const errors = ref([])
 const form = reactive({
     username: '',
     password: '',
 })
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 let submitForm = () => {
     // FIXME: not catching! err = undefined
     return authStore.login(form.username, form.password)
-        /*
-        .catch((err) => {
-            console.log(err)
-            console.log(err.response.data.errors)
-            errors.value = Object.values(err.response.data.errors).flat()
-    });*/
+    /*
+    .catch((err) => {
+        console.log(err)
+        console.log(err.response.data.errors)
+        errors.value = Object.values(err.response.data.errors).flat()
+    });
+    */
 }
 </script>

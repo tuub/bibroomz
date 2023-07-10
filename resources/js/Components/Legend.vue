@@ -15,6 +15,13 @@ import {useAuthStore} from "../Stores/AuthStore.js";
 import LegendItem from "./LegendItem.vue";
 import {storeToRefs} from "pinia";
 
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
 const authStore = useAuthStore();
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let { isAuthenticated } = storeToRefs(authStore)
 </script>

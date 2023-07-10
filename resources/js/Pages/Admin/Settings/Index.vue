@@ -52,6 +52,9 @@
 </template>
 
 <script setup>
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     settings: Object,
 })

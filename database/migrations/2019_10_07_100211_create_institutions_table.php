@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('short_title');
             $table->string('slug');
             $table->string('location')->nullable();
+            $table->string('home_uri')->nullable();
+            $table->string('logo_uri')->nullable();
+            $table->string('teaser_uri')->nullable();
             $table->boolean('is_active')->default(true);
         });
     }

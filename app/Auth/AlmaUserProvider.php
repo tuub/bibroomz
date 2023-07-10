@@ -63,20 +63,23 @@ class AlmaUserProvider implements UserProvider
         if ($credentials['username'] == env('ADMIN_USER') && $credentials['password'] == env('ADMIN_PASSWORD')) {
             $userData = [
                 'name' => env('ADMIN_USER'),
-                'password' => Hash::make('Test123!'),
+                'password' => Hash::make(env('ADMIN_PASSWORD')),
                 'email' => env('ADMIN_EMAIL'),
+                'is_admin' => true,
             ];
         } else if ($credentials['username'] == env('TEST_USER_01') && $credentials['password'] == env('TEST_USER_01_PASSWORD')) {
             $userData = [
                 'name' => env('TEST_USER_01'),
                 'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
                 'email' => env('TEST_USER_01_EMAIL'),
+                'is_admin' => false,
             ];
         } else if ($credentials['username'] == env('TEST_USER_02') && $credentials['password'] == env('TEST_USER_02_PASSWORD')) {
             $userData = [
                 'name' => env('TEST_USER_02'),
                 'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
                 'email' => env('TEST_USER_02_EMAIL'),
+                'is_admin' => false,
             ];
         } else {
             $ws_credentials = [
@@ -126,12 +129,14 @@ class AlmaUserProvider implements UserProvider
             if ($user) {
                 $user->update([
                     'email' => $userData['email'],
+                    'is_admin' => $userData['is_admin'],
                     'last_login' => Carbon::now(),
                 ]);
             } else {
                 $user = User::create([
                     'name' => $userData['name'],
                     'email' => $userData['email'],
+                    'is_admin' => $userData['is_admin'],
                     'password' => Hash::make('Test123!'),
                     'last_login' => Carbon::now(),
                 ]);

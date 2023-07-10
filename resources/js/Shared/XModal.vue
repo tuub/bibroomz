@@ -62,27 +62,25 @@ import { ModalAction, useModal } from "@/Stores/Modal";
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const modal = useModal();
-
 // convert all state properties to reactive references to be used on view
 const { view, content, payload, actions } = storeToRefs(modal);
-
 const form = ref(null);
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const callAction = async (action: ModalAction, payload: object) => {
     // let valid = form.value.reportValidity();
-
-    console.log(payload)
-
     modal.error = null;
-
-    if (true) {
-        try {
-            await action.callback(payload);
-            modal.close();
-        } catch (error) {
-            modal.error = error.response.data.message ?? error;
-        }
+    try {
+        await action.callback(payload);
+        modal.close();
+    } catch (error) {
+        modal.error = error.response.data.message ?? error;
     }
 };
 </script>

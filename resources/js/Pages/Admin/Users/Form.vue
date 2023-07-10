@@ -65,13 +65,18 @@ import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 
-defineProps({
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+let props = defineProps({
     errors: Object,
 });
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 let isProcessing = ref(false);
 let $page = usePage()
-
 let form = useForm({
     id: $page.props.id ?? '',
     name: $page.props.name ?? '',
@@ -80,6 +85,9 @@ let form = useForm({
     banned_at: $page.props.banned_at ?? '',
 });
 
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 let submitForm = () => {
     isProcessing.value = true;
     if (form.id) {

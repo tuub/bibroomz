@@ -25,9 +25,11 @@ class HappeningController extends Controller
     public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
+        $institution = Institution::where('slug', $request->slug)->first();
 
-        // FIXME
-        $institution = Institution::active()->first();
+        if (!$institution) {
+            abort(404);
+        }
 
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);

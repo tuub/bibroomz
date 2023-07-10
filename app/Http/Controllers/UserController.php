@@ -6,6 +6,7 @@ use App\Models\Happening;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -19,11 +20,12 @@ class UserController extends Controller
         ]);
     }
 
-    public function getUserHappenings()
+    public function getUserHappenings(Request $request)
     {
+        $institution_id = $request->institution_id;
         $output = [];
-        $happenings = Happening::with('resource')->whereHas('resource', function ($query) {
-            $query->active();
+        $happenings = Happening::with('resource')->whereHas('resource', function ($query) use ($institution_id) {
+            $query->where('institution_id', $institution_id)->active();
         })
             ->where('user_id_01', auth()->user()->getKey())
             ->orWhere('user_id_02', auth()->user()->getKey())
@@ -43,8 +45,6 @@ class UserController extends Controller
 
                 return ($open && !$closed) ? $happening : null;
             })->filter(fn ($h) => $h);
-
-
 
         foreach ($happenings as $happening) {
             $output[] = [

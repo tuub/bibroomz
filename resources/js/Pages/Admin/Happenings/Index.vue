@@ -100,12 +100,22 @@
 <script setup>
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
-dayjs.extend(utc)
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     happenings: Object,
 })
 
+// ------------------------------------------------
+// DayJS
+// ------------------------------------------------
+dayjs.extend(utc)
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
 const formatDate = ((dataTime) => {
     return dayjs.utc(dataTime).format('DD.MM.YYYY');
 })
@@ -113,6 +123,4 @@ const formatDate = ((dataTime) => {
 const formatTime = ((time) => {
     return dayjs.utc(time).format('HH:mm');
 })
-
-
 </script>

@@ -3,6 +3,9 @@
 </template>
 
 <script setup>
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     message: String,
 })

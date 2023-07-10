@@ -13,9 +13,9 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    public static function getSettings(): Response
+    public static function getSettings(Request $request): Response
     {
-        $institution = Institution::findByUuid('3a9fe080-1f01-11ee-b0f6-2be1ce345d94');
+        $institution = Institution::findOrFail($request->id);
         return Inertia::render('Admin/Settings/Index', [
             'settings' => $institution->settings,
         ]);
