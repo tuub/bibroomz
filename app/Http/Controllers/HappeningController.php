@@ -292,5 +292,52 @@ class HappeningController extends Controller
         if ($resource->isHappening($start, $end, $happening)) {
             abort(400, 'Something is already happening.');
         }
+
+        $user = auth()->user();
+        if ($user->can('admin')) {
+            return;
+        }
+
+        $settings = $resource->institution->settings;
+
+        $quota_happening_block_hours = $settings->where('key', 'quota_happening_block_hours')->pluck('value')->first();
+        $quota_weekly_happenings = $settings->where('key', 'quota_weekly_happenings')->pluck('value')->first();
+        $quota_weekly_hours = $settings->where('key', 'quota_weekly_hours')->pluck('value')->first();
+        $quota_daily_hours = $settings->where('key', 'quota_daily_hours')->pluck('value')->first();
+
+        $happening_block_hours = $start->floatDiffInHours($end);
+        if ($happening_block_hours > $quota_happening_block_hours) {
+            abort(400, 'Exceeded block hours quota.');
+        }
+
+        $weekly_happenings = 1;
+        $weekly_hours = $happening_block_hours;
+        $daily_hours = $happening_block_hours;
+
+        foreach ($user->happenings->whereNotIn('id', [$happening?->id]) as $_happening) {
+            $_start = new CarbonImmutable($_happening->start);
+            $_end = new CarbonImmutable($_happening->end);
+
+            if ($_start->isSameWeek($start)) {
+                $weekly_happenings += 1;
+                $weekly_hours += $_start->floatDiffInHours($_end);
+            }
+
+            if ($_start->isSameDay($start)) {
+                $daily_hours += $_start->floatDiffInHours($_end);
+            }
+        }
+
+        if ($weekly_happenings > $quota_weekly_happenings) {
+            abort(400, 'Exceeded weekly happenings quota.');
+        }
+
+        if ($weekly_hours > $quota_weekly_hours) {
+            abort(400, 'Exceeded weekly hours quota.');
+        }
+
+        if ($daily_hours > $quota_daily_hours) {
+            abort(400, 'Exceeded daily hours quota.');
+        }
     }
 }
