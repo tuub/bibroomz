@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
@@ -44,11 +45,9 @@ class LoginController extends Controller
         return response()->json($response, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
-
-        //return redirect()->route('home');
         return response()->json(['message' => 'Successfully logged out!']);
     }
 

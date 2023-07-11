@@ -1,6 +1,7 @@
 import * as dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
+import { router } from '@inertiajs/vue3'
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -61,6 +62,9 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = false;
                 this.isAdmin = false;
                 this.userHappenings = [];
+
+                // FIXME, #57
+                router.visit('/');
 
                 toast.success(`${response.data.message}`);
             }
