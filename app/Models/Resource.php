@@ -72,11 +72,7 @@ class Resource extends Model
         $closed = false;
         $closings = $this->closings->merge($this->institution->closings);
 
-        Log::debug('findClosed - start: ' . $start . ', end: ' . $end);
-
         foreach ($closings as $closing) {
-            Log::debug('findClosed - closing start: ' . $closing->start . ', end: ' . $closing->end);
-
             if ($start >= $closing->start && $end <= $closing->end) {
                 // start and end are in closing: not happening
                 $closed = true;
@@ -98,8 +94,6 @@ class Resource extends Model
             }
         }
 
-        Log::debug('findClosed - closed: ' . ($closed ? 'true' : 'false') . ', start: ' . $start . ', end: ' . $end);
-
         return [$closed, $start, $end];
     }
 
@@ -108,8 +102,6 @@ class Resource extends Model
         $open = false;
         $business_hours = $this->business_hours;
 
-        Log::debug('findOpen - start: ' . $start . ', end: ' . $end);
-
         foreach ($business_hours as $business_hour) {
             $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
 
@@ -117,8 +109,6 @@ class Resource extends Model
             $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($start);
 
             if (in_array($start->dayOfWeek, $week_days)) {
-                Log::debug('findOpen - business hour start: ' . $business_hour_start . ', end: ' . $business_hour_end);
-
                 if ($start >= $business_hour_start && $end <= $business_hour_end) {
                     // business_hour->start <= start < end <= business_hour->end
                     $open = true;
@@ -145,17 +135,21 @@ class Resource extends Model
             }
         }
 
-        Log::debug('findOpen - open: ' . ($open ? 'true' : 'false') . ', start: ' . $start . ', end: ' . $end);
-
         return [$open, $start, $end];
     }
 
     public function isHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
     {
+        // Log::debug('Happening: ' . $happening?->id. ', ' . $start . ', ' . $end);
+
         foreach ($this->happenings->whereNotIn('id', [$happening?->id]) as $_happening) {
+            // Log::debug('Also: ' . $_happening->id . ', ' . $_happening->start . ', ' . $_happening->end);
+
             if ($start >= $_happening->start && $start < $_happening->end) {
+                // happening start < start < happening end
                 return true;
-            } elseif ($end >= $_happening->end && $end < $_happening->end) {
+            } elseif ($start < $_happening->start && $end > $_happening->start) {
+                // start < happening start < end
                 return true;
             }
         }

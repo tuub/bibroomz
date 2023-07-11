@@ -142,22 +142,7 @@ class HappeningController extends Controller
         $start = new CarbonImmutable($validated['start']);
         $end = new CarbonImmutable($validated['end']);
 
-        // check if resource is closed
-        [$closed] = $resource->findClosed($start, $end);
-        if ($closed) {
-            abort(400, 'Resource is closed.');
-        }
-
-        // check if resource is open
-        [$open] = $resource->findOpen($start, $end);
-        if (!$open) {
-            abort(400, 'Resource is not open.');
-        }
-
-        // check if something is already happening
-        if ($resource->isHappening($start, $end)) {
-            abort(400, 'Something is already happening.');
-        }
+        $this->isHappeningValid($resource, $start, $end);
 
         $is_admin = auth()->user()->is_admin;
 
@@ -206,6 +191,11 @@ class HappeningController extends Controller
         if (auth()->user()->cannot('update', $happening)) {
             abort(401, 'You are not allowed to update.');
         }
+
+        $start = new CarbonImmutable($validated['start']);
+        $end = new CarbonImmutable($validated['end']);
+
+        $this->isHappeningValid($happening->resource, $start, $end, $happening);
 
         // Compile happening payload
         $happeningData = [
@@ -282,5 +272,25 @@ class HappeningController extends Controller
         }
 
         broadcast(new HappeningsChanged());
+    }
+
+    private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void
+    {
+        // check if resource is closed
+        [$closed] = $resource->findClosed($start, $end);
+        if ($closed) {
+            abort(400, 'Resource is closed.');
+        }
+
+        // check if resource is open
+        [$open] = $resource->findOpen($start, $end);
+        if (!$open) {
+            abort(400, 'Resource is not open.');
+        }
+
+        // check if something is already happening
+        if ($resource->isHappening($start, $end, $happening)) {
+            abort(400, 'Something is already happening.');
+        }
     }
 }
