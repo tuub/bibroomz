@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 // import dayjs from 'dayjs';
@@ -157,5 +158,42 @@ export const useAuthStore = defineStore({
                 console.log('Could not unsubscribe from private channel, no auth')
             }
         },
+        isExceedingQuotas(start, end) {
+            // FIXME: get quotas
+            const quota_happening_block_hours = 4;
+            const quota_weekly_happenings = 5;
+            const quota_weekly_hours = 12;
+            const quota_daily_hours = 4;
+
+            const happening_block_hours = end.diff(start, 'hours', true);
+            if (happening_block_hours > quota_happening_block_hours) {
+                return true;
+            }
+
+            let weekly_happenings = 1;
+            let weekly_hours = happening_block_hours;
+            let daily_hours = happening_block_hours;
+
+            for (let happening of this.userHappenings) {
+                if (start.isSame(happening.start, 'week')) {
+                    weekly_happenings += 1;
+                    weekly_hours += dayjs(happening.end).diff(happening.start, 'hours', true);
+                }
+
+                if (start.isSame(happening.start, 'day')) {
+                    daily_hours += dayjs(happening.end).diff(happening.start, 'hours', true);
+                }
+            }
+
+            if (weekly_happenings > quota_weekly_happenings) {
+                return true;
+            } else if (weekly_hours > quota_weekly_hours) {
+                return true;
+            } else if (daily_hours > quota_daily_hours) {
+                return true;
+            }
+
+            return false;
+        }
     },
 });

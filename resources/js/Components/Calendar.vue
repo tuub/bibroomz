@@ -197,13 +197,14 @@ const isSelectAllow = (event) => {
         minutes: parseInt((tsLenConfig[1]))
     }
 
-    let maxHours = parseInt(getConfig('quota_happening_block_hours'));
-
     let isNotPast = tsStart.isSameOrAfter(now);
     let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
     let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now)
-    isValid &&= isAdmin.value || tsEnd.isSameOrBefore(tsStart.add(maxHours, 'hours'));
+
+    if (authStore.isExceedingQuotas(tsStart, tsEnd)) {
+        return false;
+    }
 
     return isValid && (isNotPast || isCurrentTimeSlot);
 }
