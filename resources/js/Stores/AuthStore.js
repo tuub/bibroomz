@@ -174,7 +174,20 @@ export const useAuthStore = defineStore({
             let weekly_hours = happening_block_hours;
             let daily_hours = happening_block_hours;
 
-            for (let happening of this.userHappenings) {
+            const happenings = this.userHappenings.filter(happening => {
+                if (happening.user_01 == this.user.name) {
+                    return true;
+                }
+
+                if (happening.user_02 == this.user.name &&
+                        happening.is_confirmed) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            for (let happening of happenings) {
                 if (start.isSame(happening.start, 'week')) {
                     weekly_happenings += 1;
                     weekly_hours += dayjs(happening.end).diff(happening.start, 'hours', true);

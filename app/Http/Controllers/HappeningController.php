@@ -222,26 +222,28 @@ class HappeningController extends Controller
 
     public function confirmHappening($id)
     {
-        // Get happening object
         $happening = Happening::findOrFail($id);
 
-        // Query policy
-        if (auth()->user()->cannot('confirm', $happening)) {
+        /** @var User */
+        $user = auth()->user();
+
+        if ($user->cannot('confirm', $happening)) {
             abort(401, 'You are not allowed to confirm.');
         }
 
-        $op = $happening->update([
-            'user_id_02' => auth()->user()->getKey(),
-            'is_confirmed' => true,
-            'confirmer' => null,
-        ]);
+        $start = new CarbonImmutable($happening->start);
+        $end = new CarbonImmutable($happening->end);
 
-        if ($op) {
-            // Get just updated relation object for broadcasting back
-            $happening = Happening::with('resource')->find($happening->id);
+        if ($happening->resource->isExceedingQuotas($start, $end, $happening)) {
+            abort(400, 'Exceeding quotas.');
+        }
+
+        $happening->user_id_02 = $user->getKey();
+        $happening->is_confirmed = true;
+        $happening->confirmer = null;
+
+        if ($happening->saveOrFail()) {
             $log['RESULT'] = json_encode($happening);
-
-            // Write log record
             Utility::sendToLog('happenings', $log);
 
             $this->broadcast(HappeningConfirmed::class, $happening);
@@ -250,9 +252,11 @@ class HappeningController extends Controller
 
     public function deleteHappening($id)
     {
-        $happening = auth()->user()->happenings()->findOrFail($id);
+        /** @var User */
+        $user = auth()->user();
+        $happening = $user->happenings()->findOrFail($id);
 
-        if (auth()->user()->cannot('delete', $happening)) {
+        if ($user->cannot('delete', $happening)) {
             abort(401, 'You are not allowed to delete.');
         }
 

@@ -525,6 +525,7 @@ class Resource extends Model
      */
     public function isExceedingQuotas(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
     {
+        /** @var User */
         $user = auth()->user();
         if ($user->can('admin')) {
             return false;
@@ -546,7 +547,12 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        foreach ($user->happenings->whereNotIn('id', [$happening?->id]) as $_happening) {
+        $happenings = Happening::where('user_id_01', $user->getKey())
+            ->orWhere('user_id_02', $user->getKey())
+            ->whereNot('id', $happening?->id)
+            ->get();
+
+        foreach ($happenings as $_happening) {
             $_start = new CarbonImmutable($_happening->start);
             $_end = new CarbonImmutable($_happening->end);
 
