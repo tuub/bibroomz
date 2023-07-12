@@ -63,6 +63,9 @@ When using on a production server, you probably want to proxy the websockets con
 
 #### Apache2
 As learned in https://stackoverflow.com/a/43592531
+
+Module `rewrite` must be enabled.
+
 ````
 <IfModule mod_ssl.c>
     <VirtualHost _default_:443>
