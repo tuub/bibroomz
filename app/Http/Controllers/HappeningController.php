@@ -272,14 +272,14 @@ class HappeningController extends Controller
     private function broadcast(String $broadcastEvent, Happening $happening)
     {
         $user1 = $happening->user1;
-        broadcast(new $broadcastEvent($happening, $user1));
+        $broadcastEvent::dispatch($happening, $user1);
 
         $user2 = $happening->user2 ?? User::where('name', $happening->confirmer)->first();
         if ($user2) {
-            broadcast(new $broadcastEvent($happening, $user2));
+            $broadcastEvent::dispatch($happening, $user2);
         }
 
-        broadcast(new HappeningsChanged());
+        HappeningsChanged::dispatch();
     }
 
     private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void

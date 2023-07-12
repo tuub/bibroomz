@@ -14,8 +14,8 @@ class HappeningDeleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private $id;
-    private $user;
+    public array $happening;
+    public User $user;
 
     /**
      * Create a new event instance.
@@ -24,7 +24,7 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function __construct(Happening $happening, User $user)
     {
-        $this->id = $happening->id;
+        $this->happening = $happening->only(['id', 'start', 'end']);
         $this->user = $user;
     }
 
@@ -35,7 +35,7 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
-        return ['id' => $this->id];
+        return ['id' => $this->happening['id']];
     }
 
     /**

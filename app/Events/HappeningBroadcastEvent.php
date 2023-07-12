@@ -15,8 +15,8 @@ class HappeningBroadcastEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected $happening;
-    protected $user;
+    public Happening $happening;
+    public User $user;
 
     /**
      * Create a new event instance.
@@ -48,7 +48,7 @@ class HappeningBroadcastEvent implements ShouldBroadcast
                 'user_02' => User::find($happening->user_id_02)->name ?? $happening->confirmer,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
-                'is_confirmed'=> $happening->is_confirmed,
+                'is_confirmed' => $happening->is_confirmed,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
