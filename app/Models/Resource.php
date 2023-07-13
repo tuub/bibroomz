@@ -547,9 +547,9 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        $happenings = Happening::where('user_id_01', $user->getKey())
+        $happenings = Happening::whereNot('id', $happening?->id)
+            ->where('user_id_01', $user->getKey())
             ->orWhere('user_id_02', $user->getKey())
-            ->whereNot('id', $happening?->id)
             ->get();
 
         foreach ($happenings as $_happening) {
