@@ -45,4 +45,25 @@ class Closing extends Model
         $fullModelName = __NAMESPACE__ . '\\' . ucfirst($closableType);
         return new $fullModelName();
     }
+
+    public function getHappeningsAffected()
+    {
+        return $this->closable->happenings
+            ->where('end', '>', $this->start)
+            ->where('start', '<', $this->end);
+    }
+
+    public function getUsersAffected()
+    {
+        return $this->getHappeningsAffected()->flatMap(function ($happening) {
+            return $happening->users();
+        })->unique();
+    }
+
+    public function getUserHappeningsAffected(User $user)
+    {
+        return $this->getHappeningsAffected()->filter(function ($happening) use ($user) {
+            return $happening->isBelongingTo($user);
+        });
+    }
 }

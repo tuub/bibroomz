@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\UpdateClosingRequest;
+use App\Mail\ClosingCreated;
+use App\Mail\ClosingUpdated;
 use App\Models\Closing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -42,7 +46,15 @@ class ClosingController extends Controller
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
         $closing = Closing::create($validated);
 
-        $closable->closings()->save($closing);
+        if ($closable->closings()->save($closing)) {
+            $users = $closing->getUsersAffected();
+
+            foreach ($users as $user) {
+                $happenings = $closing->getUserHappeningsAffected($user);
+
+                Mail::to($user)->queue(new ClosingCreated($closing, $happenings));
+            }
+        }
 
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,
@@ -67,7 +79,25 @@ class ClosingController extends Controller
         $validated = $request->validated();
 
         $closing = Closing::find($request->id);
-        $closing->update($validated);
+
+        // get previously affected users/happenings
+        $users = $closing->getUsersAffected();
+        foreach ($users as $user) {
+            $happenings = $closing->getUserHappeningsAffected($user);
+
+            $previously[$user->id] = $happenings;
+        }
+
+        if ($closing->update($validated)) {
+            // send mails to affected users
+            $users = $closing->getUsersAffected();
+
+            foreach ($users as $user) {
+                $happenings = $closing->getUserHappeningsAffected($user);
+
+                Mail::to($user)->queue(new ClosingUpdated($closing, $happenings, $previously[$user->id]));
+            }
+        }
 
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,

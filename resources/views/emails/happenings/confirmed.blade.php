@@ -1,1 +1,2 @@
-{{ $happening->id }}
+Happening confirmed:
+    @include('emails/happening')

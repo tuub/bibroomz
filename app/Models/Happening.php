@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Psr\Log\NullLogger;
+use Illuminate\Database\Eloquent\Builder;
+use InvalidArgumentException;
 
 class Happening extends Model
 {
@@ -31,7 +30,6 @@ class Happening extends Model
      * RELATIONS
      ****************************************************************/
 
-    // FIXME: a happening belongs to 1 resource
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
@@ -47,36 +45,36 @@ class Happening extends Model
         return $this->belongsTo(User::class, 'user_id_02', 'id');
     }
 
-    public function getUser1()
-    {
-        if ( ! $this->getAttribute('user_id_01')) {
-            return null;
-        }
-        return $this->getAttribute('user1');
-    }
+    // public function getUser1()
+    // {
+    //     if (!$this->getAttribute('user_id_01')) {
+    //         return null;
+    //     }
+    //     return $this->getAttribute('user1');
+    // }
 
-    public function getUser2()
-    {
-        if ( ! $this->getAttribute('user_id_02')) {
-            return null;
-        }
-        return $this->getAttribute('user2');
-    }
+    // public function getUser2()
+    // {
+    //     if (!$this->getAttribute('user_id_02')) {
+    //         return null;
+    //     }
+    //     return $this->getAttribute('user2');
+    // }
 
     /*****************************************************************
      * SCOPES
      ****************************************************************/
 
-    // Get only happenings that are not in the past
-    public function scopeCurrent($query)
+    /**
+     * Get only happenings that are not in the past.
+     *
+     * @param Builder $query
+     * @return Builder
+     * @throws InvalidArgumentException
+     */
+    public function scopeCurrent(Builder $query): Builder
     {
         return $query->where('end', '>=', Carbon::now());
-    }
-
-    // FIXME: Get only happenings where resources are active and not affected by business hours and closings
-    public function scopeActive($query)
-    {
-        return NULL;
     }
 
     public function getPermissions($user)
@@ -93,17 +91,7 @@ class Happening extends Model
      ****************************************************************/
     private function isMine(): bool
     {
-        $user = auth()->user();
-
-        if (!$user) {
-            return false;
-        }
-
-        if ($user->getKey() === $this->user1->getKey()) {
-            return true;
-        }
-
-        return false;
+        return auth()->user()->id === $this->user_id_01;
     }
 
     private function isMyToConfirm(): bool
@@ -116,9 +104,14 @@ class Happening extends Model
         return auth()->user()->id === $this->user_id_02;
     }
 
-    private function isConfirmed(): bool
+    public function isConfirmed(): bool
     {
         return $this->is_confirmed;
+    }
+
+    public function isBelongingTo(User $user): bool
+    {
+        return $user->id === $this->user_id_01 || $user->id === $this->user_id_02 || $user->name === $this->confirmer;
     }
 
     public function getStatus(): array
@@ -162,5 +155,41 @@ class Happening extends Model
         }
 
         return $status;
+    }
+
+    public function users(bool $is_confirmer_included = true)
+    {
+        $users = collect();
+
+        $user1 = $this->user1;
+        $user2 = $this->user2;
+
+        if ($user1) {
+            $users->push($user1);
+        }
+
+        if ($user2) {
+            $users->push($user2);
+        }
+
+        if ($is_confirmer_included) {
+            $confirmer = User::where('name', $this->confirmer)->first();
+
+            if ($confirmer) {
+                $users->push($confirmer);
+            }
+        }
+
+        return $users;
+    }
+
+    public function usersWithConfirmer()
+    {
+        return $this->users(is_confirmer_included: true);
+    }
+
+    public function usersWithoutConfirmer()
+    {
+        return $this->users(is_confirmer_included: false);
     }
 }
