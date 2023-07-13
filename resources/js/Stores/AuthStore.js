@@ -165,6 +165,10 @@ export const useAuthStore = defineStore({
             const quota_weekly_hours = 12;
             const quota_daily_hours = 4;
 
+            if (this.isAdmin) {
+                return false;
+            }
+
             const happening_block_hours = end.diff(start, 'hours', true);
             if (happening_block_hours > quota_happening_block_hours) {
                 return true;
