@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+# php artisan migrate:fresh
+# php artisan db:seed
+
+npm run dev -- --host &
+php artisan serve --host 0.0.0.0 &
+
+wait
