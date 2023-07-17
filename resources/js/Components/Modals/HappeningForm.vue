@@ -45,7 +45,7 @@
                 </select>
             </div>
         </div>
-        <div class="mb-6">
+        <div v-if="happening.isNeedingConfirmer && !isAdmin" class="mb-6">
             <label for="confirmer" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                 Confirmer
             </label>
@@ -70,7 +70,7 @@ import { useHappeningStore } from "@/Stores/HappeningStore";
 import { storeToRefs } from "pinia";
 import {ref, onBeforeMount} from "vue";
 import Spinner from "../../Shared/Spinner.vue";
-import {useAuthStore} from "@/Stores/AuthStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 const props = defineProps({
     happening: Object,
@@ -80,6 +80,9 @@ let appStore = useAppStore()
 let { institutionSlug } = storeToRefs(appStore)
 
 const emit = defineEmits(["update:input"]);
+
+const authStore = useAuthStore();
+let { isAdmin } = storeToRefs(authStore);
 
 let isInitial = ref(true);
 let isLoading = ref(false);

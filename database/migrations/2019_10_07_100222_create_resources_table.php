@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('capacity')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_needing_confirmer')->default(true);
         });
     }
 

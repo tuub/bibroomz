@@ -197,10 +197,13 @@ const onSelect = (eventInfo) => {
     } else {
         let happeningData = reactive({
             isSelected: true,
-            resource: eventInfo.resource,
+            resource: {
+                id: eventInfo.resource.id,
+                title: eventInfo.resource.title,
+            },
             start: eventInfo.startStr,
             end: eventInfo.endStr,
-            // confirmer: '',
+            isNeedingConfirmer: eventInfo.resource.extendedProps.isNeedingConfirmer,
         });
 
         emit('open-modal-component', useCreateModal(happeningData));
@@ -208,25 +211,25 @@ const onSelect = (eventInfo) => {
 }
 
 const onEventClick = (eventInfo) => {
-    let happeningData = {
-        id: '',
-        resource: '',
-        extraData: '',
-    }
+    let happeningData = {}
     let isBgEvent = eventInfo.el.classList.contains('fc-bg-event')
 
     if (eventInfo.resource) {
-        console.log(eventInfo.resource)
         /* This is a new selection */
+        console.log('NEW SELECTION');
+
         let dataPath = eventInfo;
+
         happeningData.resource = {
             id: dataPath.resource._resource.id,
             title: dataPath.resource._resource.title,
         }
     } else {
         /* This is an event */
+        console.log('EVENT CLICKED');
+
         let dataPath = eventInfo.event;
-        console.log(dataPath)
+
         happeningData.resource = {
             id: dataPath.getResources()[0]._resource.id,
             title: dataPath.getResources()[0]._resource.title,
@@ -235,6 +238,7 @@ const onEventClick = (eventInfo) => {
         happeningData.user_02 = dataPath.extendedProps.status?.user?.confirmation;
         happeningData.start = dayjs.utc(dataPath._instance.range.start);
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
+        happeningData.isNeedingConfirmer = dataPath.extendedProps.isNeedingConfirmer;
     }
 
     if (!isBgEvent) {

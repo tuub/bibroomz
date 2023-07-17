@@ -104,6 +104,21 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
+        <!-- Checkbox: Must confirm -->
+        <div class="mb-6">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="form.is_needing_confirmer"
+                       type="checkbox"
+                       class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                    Must confirm
+                </span>
+            </label>
+            <FormValidationError v-if="form.errors.is_needing_confirmer" :message="form.errors.is_needing_confirmer"></FormValidationError>
+        </div>
+
         <business-hour-field v-for="(time_slot, index) in form.business_hours"
                          :time_slot="time_slot"
                          :key="time_slot.id"
@@ -172,6 +187,7 @@ let form = useForm({
     description: resource?.description ?? '',
     capacity: resource?.capacity ?? '0',
     is_active: resource?.is_active === 1,
+    is_needing_confirmer: resource?.is_needing_confirmer === 1,
     business_hours: business_hours ?? [],
 });
 

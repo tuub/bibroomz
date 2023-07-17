@@ -30,7 +30,15 @@ class Resource extends Model
     protected string $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
-    protected $fillable = ['institution_id', 'title', 'location', 'description', 'capacity', 'is_active'];
+    protected $fillable = [
+        'institution_id',
+        'title',
+        'location',
+        'description',
+        'capacity',
+        'is_active',
+        'is_needing_confirmer',
+    ];
     protected $with = ['closings'];
 
     /*****************************************************************

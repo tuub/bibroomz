@@ -30,6 +30,9 @@
                 <th scope="col" class="px-6 py-3 text-center">
                     Active
                 </th>
+                <th scope="col" class="px-6 py-3 text-center">
+                    Must confirm
+                </th>
                 <th scope="col" class="px-6 py-3">
                     <span class="sr-only">Actions</span>
                 </th>
@@ -63,6 +66,10 @@
                 <td class="px-6 py-4 align-top text-center">
                     <i class="ri-checkbox-circle-line text-green-500" v-if="resource.is_active"></i>
                     <i class="ri-close-circle-line text-red-500" v-if="!resource.is_active"></i>
+                </td>
+                <td class="px-6 py-4 align-top text-center">
+                    <i class="ri-checkbox-circle-line text-green-500" v-if="resource.is_needing_confirmer"></i>
+                    <i class="ri-close-circle-line text-red-500" v-if="!resource.is_needing_confirmer"></i>
                 </td>
                 <td class="px-6 py-4 align-top text-right">
                     <Link :href="route('admin.resource.edit', {

@@ -36,13 +36,15 @@ class HappeningBroadcastEvent implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
-        // Because we're lazy goons
         $happening = $this->happening;
+
+        $owner = User::find($happening->user_id_01);
+        $is_needing_confirmer = $happening->resource->is_needing_confirmer && !$owner->is_admin;
 
         return [
             'happening' => [
                 'id' => $happening->id,
-                'user_01' => User::find($happening->user_id_01)->name,
+                'user_01' => $owner->name,
                 'user_02' => User::find($happening->user_id_02)->name ?? $happening->confirmer,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
@@ -55,6 +57,7 @@ class HappeningBroadcastEvent implements ShouldBroadcast
                 'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'confirmed_at' => Carbon::parse($happening->confirmed_at)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions($this->user),
+                'isNeedingConfirmer' => $is_needing_confirmer,
             ],
         ];
     }

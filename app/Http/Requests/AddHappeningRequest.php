@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Resource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class AddHappeningRequest extends FormRequest
 {
@@ -23,12 +25,17 @@ class AddHappeningRequest extends FormRequest
      */
     public function rules()
     {
+        $resource = Resource::find($this->resource['id']);
+
+        $is_admin = auth()->user()->is_admin;
+        $is_needing_confirmer = $resource->is_needing_confirmer && !$is_admin;
+
         return [
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
             'confirmer' => [
-                auth()->user()->is_admin ? '' : 'required', 'not_in:' . auth()->user()->name,
+                $is_needing_confirmer ? 'required' : '', 'not_in:' . auth()->user()->name,
             ],
         ];
     }

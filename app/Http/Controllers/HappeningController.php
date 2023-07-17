@@ -70,6 +70,7 @@ class HappeningController extends Controller
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'classNames' => $status['type'],
                 'can' => $happening->getPermissions(auth()->user()),
+                'isNeedingConfirmer' => $happening->resource->is_needing_confirmer,
             ];
         }
 
@@ -147,14 +148,15 @@ class HappeningController extends Controller
         $this->isHappeningValid($resource, $start, $end);
 
         $is_admin = auth()->user()->is_admin;
+        $is_confirmed = !$resource->is_needing_confirmer || $is_admin;
 
         // Compile happening payload
         $happeningData = [
             'user_id_01' => auth()->user()->id,
             // 'user_id_02' => $is_admin ? auth()->user()->id : null,
-            'resource_id' => $resource['id'],
-            'is_confirmed' => $is_admin,
-            'confirmer' => !$is_admin ? $validated['confirmer'] : null,
+            'resource_id' => $resource->id,
+            'is_confirmed' => $is_confirmed,
+            'confirmer' => !$is_confirmed ? $validated['confirmer'] : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),

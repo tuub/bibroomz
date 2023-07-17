@@ -62,6 +62,7 @@ class UserController extends Controller
                 ],
                 'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'confirmed_at' => Carbon::parse($happening->confirmed_at)->format('Y-m-d H:i'),
+                'isNeedingConfirmer' => $happening->resource->is_needing_confirmer,
             ];
         }
 

@@ -38,6 +38,7 @@ class ResourceController extends Controller
                 'id' => $resource->id,
                 'title' => $resource->title,
                 'businessHours' => $business_hours,
+                'isNeedingConfirmer' => $resource->is_needing_confirmer,
             ];
         }
 
