@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,6 +11,7 @@ class HomeController extends Controller
 {
     public function getStart(): Response|RedirectResponse
     {
+        // FIXME: output
         $institutions = Institution::active()->get();
 
         if ($institutions->count() == 1) {
@@ -32,11 +31,17 @@ class HomeController extends Controller
             return redirect()->route('start');
         }
 
-        $settings = $institution->settings;
+        $settings = [];
+        foreach ($institution->settings as $setting) {
+            $settings[$setting->key] = $setting->value;
+        }
+
+        // FIXME: We dont know why we need ->withoutRelations() here ...
+        $output = $institution->withoutRelations()->toArray();
+        $output['settings'] = $settings;
 
         return Inertia::render('Home', [
-            'institution' => $institution,
-            'settings' => $settings,
+            'institution' => $output,
             'is_multi_tenancy' => Institution::active()->count() > 1,
         ]);
     }

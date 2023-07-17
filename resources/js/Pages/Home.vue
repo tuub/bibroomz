@@ -3,12 +3,6 @@
 
     <Navigation></Navigation>
 
-    <!--
-    <div class="header text-4xl font-bold text-center">
-        <h1>{{ institutionTitle }}</h1>
-    </div>
-    -->
-
     <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
     <x-modal />
 
@@ -23,8 +17,6 @@
         </div>
         <div id="calendar" class="basis-4/5 md:basis-4/5">
             <Calendar
-                :institution="institution"
-                :settings="settings"
                 @show-status="showStatus"
                 @open-modal-component="getModal">
             </Calendar>
@@ -53,7 +45,6 @@ import { Modal as FlowbiteModal } from "flowbite";
 // ------------------------------------------------
 let props = defineProps({
     institution: Object,
-    settings: Object,
     is_multi_tenancy: Boolean,
 })
 
@@ -69,7 +60,6 @@ const authStore = useAuthStore();
 const modal = useModal();
 let statusMessage = ref('')
 let { isAuthenticated, userHappenings } = storeToRefs(authStore)
-let { institution } = storeToRefs(appStore)
 
 // ------------------------------------------------
 // Methods
@@ -86,7 +76,6 @@ const getModal = (data) => {
 // Mount
 // ------------------------------------------------
 onBeforeMount(()  => {
-    authStore.setCurrentInstitution(props.institution)
     appStore.setCurrentInstitution(props.institution, props.is_multi_tenancy)
 })
 

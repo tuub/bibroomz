@@ -48,15 +48,7 @@ import {
 // Debug information
 // ------------------------------------------------
 
-//console.log(props)
 //console.log(context)
-
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
-let props = defineProps({
-    settings: Object
-})
 
 // ------------------------------------------------
 // Stores
@@ -78,10 +70,11 @@ dayjs.extend(utc)
 const refCalendar = ref(null)
 let calendarApi = null
 let isLoading = ref(false);
-let settings = props.settings
-let getConfig = (key) => { return settings.find(o => o.key === key).value }
-let { institutionSlug } = storeToRefs(appStore)
 let { isAuthenticated, isAdmin } = storeToRefs(authStore)
+
+let institution = appStore.institution
+let institutionSettings = institution.settings
+let institutionSlug = institution.slug
 
 // ------------------------------------------------
 // Watchers
@@ -131,13 +124,13 @@ onUnmounted(() => {
 
 // Fetch resources from backend
 const getResources = () => {
-    return '/' + institutionSlug.value + '/resources';
+    return '/' + institutionSlug + '/resources';
 }
 
 // Calculate valid start and end date
 const getValidRange = () => {
     const startDate = dayjs()
-    const endDate = startDate.add(getConfig('weeks_in_advance') * 7, 'day')
+    const endDate = startDate.add(institutionSettings['weeks_in_advance'] * 7, 'day')
 
     return {
         start: startDate.toDate(),
@@ -153,7 +146,7 @@ const getHappenings = (fetchInfo, successCallback, failureCallback) => {
         end: fetchInfo.end
     };
 
-    axios({ method: 'GET', url: '/' + institutionSlug.value + '/happenings', params: payload})
+    axios({ method: 'GET', url: '/' + institutionSlug + '/happenings', params: payload})
         .then((response) => {
             successCallback(response.data);
             isLoading.value = false
@@ -179,7 +172,7 @@ const isSelectAllow = (event) => {
     let tsStart = dayjs(event.startStr)
     let tsEnd = dayjs(event.endStr)
 
-    let tsLenConfig = getConfig('time_slot_length').split(':')
+    let tsLenConfig = institutionSettings['time_slot_length'].split(':')
     let tsLen = {
         hours: parseInt(tsLenConfig[0]),
         minutes: parseInt((tsLenConfig[1]))
@@ -286,8 +279,8 @@ const calendarOptions = {
     validRange: getValidRange(),
     resources: getResources(),
     events: getHappenings,
-    slotMinTime: getConfig('start_time_slot'),
-    slotMaxTime: getConfig('end_time_slot'),
+    slotMinTime: institutionSettings['start_time_slot'],
+    slotMaxTime: institutionSettings['end_time_slot'],
     resourceOrder: 'title',
     height: 'auto',
     contentHeight: 'auto',
@@ -299,8 +292,8 @@ const calendarOptions = {
     longPressDelay: 0,
     unselectAuto: true,
     selectMirror: true,
-    slotDuration: getConfig('time_slot_length') + ':00',
-    slotLabelInterval: getConfig('time_slot_length') + ':00',
+    slotDuration: institutionSettings['time_slot_length'] + ':00',
+    slotLabelInterval: institutionSettings['time_slot_length'] + ':00',
     selectOverlap: false,
     selectConstraint: 'businessHours',
     selectable: isSelectable,

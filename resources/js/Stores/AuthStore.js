@@ -2,6 +2,7 @@ import * as dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { router } from '@inertiajs/vue3'
+import {useAppStore} from "@/Stores/AppStore";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -16,7 +17,6 @@ export const useAuthStore = defineStore({
         isAdmin: false,
         userHappenings: [],
         errors: [],
-        currentInstitution: null,
     }),
     actions: {
         async csrf() {
@@ -63,18 +63,15 @@ export const useAuthStore = defineStore({
                 this.isAdmin = false;
                 this.userHappenings = [];
 
-                // FIXME, #57
                 router.visit('/');
 
                 toast.success(`${response.data.message}`);
             }
         },
-        setCurrentInstitution(institution) {
-            this.currentInstitution = institution
-        },
         async fetchUserHappenings() {
             if (this.isAuthenticated) {
-                await axios.get(`${baseUrl}/my/happenings`, {params: {institution_id: this.currentInstitution.id}}).then((response) => {
+                let institution = useAppStore().institution
+                await axios.get(`${baseUrl}/my/happenings`, {params: {institution_id: institution.id}}).then((response) => {
                     this.userHappenings = response.data
                 }).catch((response) => {
                     console.log('API Error:')
@@ -142,11 +139,13 @@ export const useAuthStore = defineStore({
             }
         },
         isExceedingQuotas(start, end) {
-            // FIXME: get quotas
-            const quota_happening_block_hours = 4;
-            const quota_weekly_happenings = 5;
-            const quota_weekly_hours = 12;
-            const quota_daily_hours = 4;
+
+            let institution = useAppStore().institution
+
+            const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
+            const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
+            const quota_weekly_hours = institution.settings.quota_weekly_happenings;
+            const quota_daily_hours = institution.settings.quota_daily_hours;
 
             if (this.isAdmin) {
                 return false;
@@ -162,16 +161,12 @@ export const useAuthStore = defineStore({
             let daily_hours = happening_block_hours;
 
             const happenings = this.userHappenings.filter(happening => {
-                if (happening.user_01 == this.user.name) {
+                if (happening.user_01 === this.user.name) {
                     return true;
                 }
 
-                if (happening.user_02 == this.user.name &&
-                        happening.is_confirmed) {
-                    return true;
-                }
-
-                return false;
+                return !!(happening.user_02 === this.user.name &&
+                    happening.is_confirmed);
             });
 
             for (let happening of happenings) {
