@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Library;
 
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -16,6 +17,12 @@ class Utility {
         }
 
         return $date;
+    }
+
+    public static function getCarbonNow(): CarbonImmutable
+    {
+        $tz_offset = CarbonImmutable::now(env('APP_TIMEZONE'))->offsetHours;
+        return CarbonImmutable::now()->addHours($tz_offset);
     }
 
     public static function sendToLog(string $channel, array $data, string $level='info'): void

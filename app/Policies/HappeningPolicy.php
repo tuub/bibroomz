@@ -29,7 +29,7 @@ class HappeningPolicy
      */
     public function update(User $user, Happening $happening): bool
     {
-        return $user->getKey() === $happening->user1->getKey();
+        return !$happening->isPast() && $user->getKey() === $happening->user1->getKey();
     }
 
     /**
@@ -41,7 +41,7 @@ class HappeningPolicy
      */
     public function delete(User $user, Happening $happening): bool
     {
-        return $user->getKey() === $happening->user1->getKey();
+        return !$happening->isPast() && $user->getKey() === $happening->user1->getKey();
     }
 
     /**
@@ -53,7 +53,7 @@ class HappeningPolicy
      */
     public function confirm(User $user, Happening $happening): bool
     {
-        return $user->name === $happening->confirmer;
+        return !$happening->isPast() && $user->name === $happening->confirmer;
     }
 
     /**

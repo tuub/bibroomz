@@ -362,10 +362,7 @@ class Resource extends Model
     private function removePastTimeSlots(Collection $time_slots): Collection
     {
         return $time_slots->filter(function ($time_slot) {
-            // HACK!
-            $tz_offset = CarbonImmutable::now(env('APP_TIMEZONE'))->offsetHours;
-            $now = CarbonImmutable::now()->addHours($tz_offset);
-
+            $now = Utility::getCarbonNow();
             // keep future time slots
             if ($time_slot['time']->isAfter($now)) {
                 return true;

@@ -33,6 +33,6 @@ class SettingController extends Controller
         $setting = Setting::find($request->id);
         $setting->update($validated);
 
-        return redirect()->route('admin.setting.index');
+        return redirect()->route('admin.setting.index', ['id' => $setting->institution_id]);
     }
 }

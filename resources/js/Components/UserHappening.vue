@@ -34,7 +34,7 @@
             </p>
         </div>
         <!-- FIXME: do this in policy! -->
-        <div v-if="!isPastHappening" class="text-base font-bold text-gray-900">
+        <div class="text-base font-bold text-gray-900">
             <p>
                 <a v-if="happening.can.delete"
                    @click="deleteUserHappening(happening)"

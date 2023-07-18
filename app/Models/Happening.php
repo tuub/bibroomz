@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Library\Utility;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
@@ -124,6 +126,13 @@ class Happening extends Model
     public function isBelongingTo(User $user): bool
     {
         return $user->id === $this->user_id_01 || $user->id === $this->user_id_02 || $user->name === $this->confirmer;
+    }
+
+    public function isPast(): bool
+    {
+
+
+        return $this->end < Utility::getCarbonNow();
     }
 
     public function getStatus(): array

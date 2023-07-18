@@ -2,6 +2,8 @@
     <Head title="Setting Form" />
     <h1 class="text-3xl">Setting Form</h1>
 
+    {{ form.id }}
+
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
         <!-- Input: Key -->
