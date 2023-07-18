@@ -77,7 +77,7 @@ const props = defineProps({
 });
 
 let appStore = useAppStore()
-let { institutionSlug } = storeToRefs(appStore)
+let slug = appStore.institution.slug
 
 const emit = defineEmits(["update:input"]);
 
@@ -102,7 +102,7 @@ const getTimeSlotValues = (resource_id, start, end, event) => {
             event: event,
             happening_id: props.happening?.id,
         }
-        axios.post('/' + institutionSlug + '/resource/' + resource_id + '/time_slots', payload).then((response) => {
+        axios.post('/' + slug + '/resource/' + resource_id + '/time_slots', payload).then((response) => {
             start_time_slots.value = response.data['start']
             if (response.data['start']) {
                 start_time_slot_selected.value = response.data['start']?.filter(obj => {

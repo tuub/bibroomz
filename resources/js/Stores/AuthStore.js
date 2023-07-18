@@ -139,12 +139,11 @@ export const useAuthStore = defineStore({
             }
         },
         isExceedingQuotas(start, end) {
-
             let institution = useAppStore().institution
 
             const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
             const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
-            const quota_weekly_hours = institution.settings.quota_weekly_happenings;
+            const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
             if (this.isAdmin) {
@@ -165,8 +164,7 @@ export const useAuthStore = defineStore({
                     return true;
                 }
 
-                return !!(happening.user_02 === this.user.name &&
-                    happening.is_confirmed);
+                return happening.user_02 === this.user.name && happening.is_confirmed;
             });
 
             for (let happening of happenings) {
