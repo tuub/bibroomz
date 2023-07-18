@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Library\Utility;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Carbon\CarbonImmutable;
-use Carbon\CarbonPeriodImmutable;
+use Carbon\CarbonPeriod;
 use Carbon\Exceptions\InvalidFormatException;
 use Carbon\Exceptions\InvalidTimeZoneException;
 use Carbon\Exceptions\InvalidTypeException;
@@ -201,18 +201,42 @@ class Resource extends Model
     }
 
     /**
-     * @param CarbonPeriodImmutable $time_slots
+     * @param CarbonImmutable $date
+     * @return CarbonPeriod
+     */
+    private function initTimePeriod(CarbonImmutable $date): CarbonPeriod
+    {
+        $time_slot_length = $this->institution->settings->where('key', 'time_slot_length')->first()->value;
+        $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
+
+        $period = CarbonPeriod::start($date->startOfDay())->end($date->endOfDay());
+
+        if ($interval['hour'] > 0) {
+            $period = $period->hours($interval['hour']);
+        }
+
+        if ($interval['minute'] > 0) {
+            $period = $period->minutes($interval['minute']);
+        }
+
+        return $period;
+    }
+
+    /**
+     * @param CarbonPeriod $time_slots
      * @param CarbonImmutable $selected
      * @return Collection
      */
-    private function initTimeSlots(CarbonPeriodImmutable $time_slots, CarbonImmutable $selected): Collection
+    private function initTimeSlots(CarbonPeriod $time_slots, CarbonImmutable $selected): Collection
     {
         return collect($time_slots)->map(function ($time_slot) use ($selected) {
             $time_slot = new CarbonImmutable($time_slot);
 
+            $time_format = $this->institution->settings->where('key', 'time_format')->first()->value;
+
             return [
                 'time' => $time_slot,
-                'label' => $time_slot->format(env('TIME_FORMAT')),
+                'label' => $time_slot->format($time_format),
                 'is_disabled' => true,
                 'is_selected' => $time_slot == $selected,
             ];
@@ -227,9 +251,7 @@ class Resource extends Model
      */
     private function getStartTimeSlots(CarbonImmutable $start, Happening $happening = null): Collection
     {
-        $interval = Utility::getTimeValuesFromEnvTimeString(env('RESERVATION_TIMESLOT_LENGTH'));
-
-        $time_slots = $this->initTimeSlots(CarbonPeriodImmutable::start($start->startOfDay())->minutes($interval['minute'])->end($start->endOfDay()), $start);
+        $time_slots = $this->initTimeSlots($this->initTimePeriod($start), $start);
 
         $time_slots = $this->removePastTimeSlots($time_slots);
         $time_slots = $this->enableBusinessHours($time_slots);
@@ -249,9 +271,7 @@ class Resource extends Model
      */
     private function getEndTimeSlots(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): Collection
     {
-        $interval = Utility::getTimeValuesFromEnvTimeString(env('RESERVATION_TIMESLOT_LENGTH'));
-
-        $time_slots = $this->initTimeSlots(CarbonPeriodImmutable::start($start->startOfDay())->minutes($interval['minute'])->end($start->endOfDay()), $end);
+        $time_slots = $this->initTimeSlots($this->initTimePeriod($start), $end);
 
         $time_slots = $this->removePastTimeSlots($time_slots);
         $time_slots = $this->enableBusinessHours($time_slots, is_end: true);
@@ -363,16 +383,17 @@ class Resource extends Model
     {
         return $time_slots->filter(function ($time_slot) {
             $now = Utility::getCarbonNow();
+
             // keep future time slots
             if ($time_slot['time']->isAfter($now)) {
                 return true;
             }
 
             // keep current time slot
-            $interval = Utility::getTimeValuesFromEnvTimeString(env('RESERVATION_TIMESLOT_LENGTH'));
-            $diff = $time_slot['time']->diffInMinutes($now);
+            $time_slot_length = $this->institution->settings->where('key', 'time_slot_length')->first()->value;
+            $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
-            if ($diff < $interval['minute']) {
+            if ($time_slot['time']->diffInMinutes($now) < $interval['minute'] + 60 * $interval['hour']) {
                 return true;
             }
 

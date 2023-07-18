@@ -185,7 +185,7 @@ const isSelectAllow = (event) => {
     let isNotPast = tsStart.isSameOrAfter(now);
     let isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
-    let isValid = tsStart.add(tsLen.minutes, 'minutes').isAfter(now)
+    let isValid = tsStart.add(tsLen.hours, 'hours').add(tsLen.minutes, 'minutes').isAfter(now)
 
     if (authStore.isExceedingQuotas(tsStart, tsEnd)) {
         return false;
