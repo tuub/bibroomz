@@ -77,6 +77,18 @@ class Happening extends Model
         return $query->where('end', '>=', Carbon::now());
     }
 
+    /**
+     * Get only happenings that are within the current week.
+     *
+     * @param Builder $query
+     * @return Builder
+     * @throws InvalidArgumentException
+     */
+    public function scopeWeekly(Builder $query): Builder
+    {
+        return $query->where('start', '>=', Carbon::now()->startOfWeek());
+    }
+
     public function getPermissions($user)
     {
         return [

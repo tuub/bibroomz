@@ -1,36 +1,40 @@
 <template>
     <div class="flex items-center space-x-4">
-        <div class="flex-1 min-w-0">
-
-            <p class="font-bold text-gray-900 truncate dark:text-white pb-1">
+        <div class="flex-1 min-w-0"  :class="isPastHappening ? 'text-gray-400' : 'text-gray-900'">
+            <span v-if="isPastHappening"
+                class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-gray-200 uppercase last:mr-0 mr-1">
+                Past Event
+            </span>
+            <p class="font-bold truncate dark:text-white pb-1">
                 <i class="ri-calendar-event-line"></i>
                 {{ happeningDate }}
                 <i class="ri-arrow-right-line"></i>
                 {{ happeningStart }} - {{ happeningEnd }}
             </p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white pb-1">
+            <p class="text-sm font-medium pb-1">
                 <i class="ri-home-line"></i>
                 {{ happening.resource.title }}
             </p>
-            <p class="text-sm font-medium text-gray-900 truncate dark:text-white pb-1">
+            <p class="text-sm font-medium truncate pb-1">
                 <i class="ri-map-pin-fill"></i>
                 {{ happening.resource.location }}
             </p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white pb-1">
+            <p class="text-sm font-medium pb-1">
                 <i class="ri-user-fill"></i>
                 {{ happening.user_01 }}
             </p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white pb-1">
+            <p class="text-sm font-medium pb-1">
                 <i class="ri-user-follow-fill"></i>
                 {{ happening.user_02 }}
-                <span v-if="happening.is_confirmed"
-                      class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded text-white bg-green-500 uppercase last:mr-0 mr-1">
+                <span v-if="!isPastHappening && happening.is_confirmed"
+                      class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-green-300 uppercase last:mr-0 mr-1">
                     <i class="ri-check-line"></i>
                     Confirmed
                 </span>
             </p>
         </div>
-        <div class="text-base font-bold text-gray-900 dark:text-white">
+        <!-- FIXME: do this in policy! -->
+        <div v-if="!isPastHappening" class="text-base font-bold text-gray-900">
             <p>
                 <a v-if="happening.can.delete"
                    @click="deleteUserHappening(happening)"
@@ -96,6 +100,10 @@ const happeningStart = computed(() => {
 
 const happeningEnd = computed(() => {
     return dayjs.utc(props.happening.end).format('HH:mm');
+})
+
+const isPastHappening = computed(() => {
+    return dayjs.utc(props.happening.start).isBefore(dayjs());
 })
 
 // ------------------------------------------------

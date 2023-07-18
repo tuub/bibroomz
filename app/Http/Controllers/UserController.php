@@ -30,7 +30,7 @@ class UserController extends Controller
             ->where('user_id_01', auth()->user()->getKey())
             ->orWhere('user_id_02', auth()->user()->getKey())
             ->orWhere('confirmer', auth()->user()->name)
-            ->current()
+            ->weekly()
             ->orderBy('start')
             ->get()
             ->map(function ($happening) {
