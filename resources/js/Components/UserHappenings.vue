@@ -8,6 +8,9 @@
                 <HappeningCount :count="happeningsCount"></HappeningCount>
             </span>
         </div>
+        <div v-if="!isAdmin" class="text-sm font-medium">
+            <HappeningQuotas></HappeningQuotas>
+        </div>
         <div class="flow-root">
             <div v-if="happeningsCount === 0" class="text-sm mt-5">
                 You have no current reservations.
@@ -28,20 +31,30 @@
 </template>
 
 <script setup>
+import {useAuthStore} from "@/Stores/AuthStore";
 import UserHappening from './UserHappening.vue'
 import {computed} from "vue";
 import HappeningCount from "./HappeningCount.vue";
+import HappeningQuotas from "./HappeningQuotas.vue";
+import {storeToRefs} from "pinia";
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore()
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
+const props = defineProps({
     happenings: Object,
 })
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+let { isAdmin } = storeToRefs(authStore)
+
 const happeningsCount = computed(() => {
     return props.happenings.length
 })

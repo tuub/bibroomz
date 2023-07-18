@@ -84,6 +84,10 @@ watch(isAuthenticated, () => {
     refetchHappenings()
 })
 
+watch(() => authStore.userHappenings, () => {
+    authStore.updateQuotas(calendarApi.getDate());
+}, { deep: true} );
+
 /*
 watchEffect(() => {
     console.log('isLoading: %s', isLoading)
@@ -254,6 +258,10 @@ const onEventClick = (eventInfo) => {
     }
 }
 
+const onDatesSet = (dateInfo) => {
+    authStore.updateQuotas(dateInfo.start)
+}
+
 // ------------------------------------------------
 // Calendar setup
 // ------------------------------------------------
@@ -304,6 +312,7 @@ const calendarOptions = {
     selectAllow: isSelectAllow,
     select: onSelect,
     eventClick: onEventClick,
+    datesSet: onDatesSet,
 }
 </script>
 

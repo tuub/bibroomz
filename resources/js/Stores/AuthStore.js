@@ -17,6 +17,7 @@ export const useAuthStore = defineStore({
         isAdmin: false,
         userHappenings: [],
         errors: [],
+        quotas: {},
     }),
     actions: {
         async csrf() {
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = false;
                 this.isAdmin = false;
                 this.userHappenings = [];
+                this.quotas = {};
 
                 router.visit('/');
 
@@ -138,6 +140,33 @@ export const useAuthStore = defineStore({
                 console.log('Could not unsubscribe from private channel, no auth')
             }
         },
+        updateQuotas(currentDate) {
+            currentDate = dayjs(currentDate);
+
+            const happenings = this.userHappenings.filter(happening => {
+                if (happening.user_01 === this.user.name) {
+                    return true;
+                }
+
+                if (happening.user_02 === this.user.name && happening.is_confirmed) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            const isSameDay = (date) => currentDate.isSame(date, 'day');
+            const isSameWeek = (date) => currentDate.isSame(date, 'week');
+
+            const happeningHoursSum = (hours, happening) => hours + dayjs(happening.end).diff(happening.start, 'hours', true);
+
+            const sameDayHappenings = happenings.filter((happening) => isSameDay(happening.start));
+            const sameWeekHappenings = happenings.filter((happening) => isSameWeek(happening.start));
+
+            this.quotas.daily_hours = sameDayHappenings.reduce(happeningHoursSum, 0);
+            this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
+            this.quotas.weekly_happenings = sameWeekHappenings.length;
+        },
         isExceedingQuotas(start, end) {
             let institution = useAppStore().institution
 
@@ -150,39 +179,29 @@ export const useAuthStore = defineStore({
                 return false;
             }
 
-            const happening_block_hours = end.diff(start, 'hours', true);
+            const selectLength = end.diff(start, 'hours', true);
+
+            const happening_block_hours = selectLength;
             if (happening_block_hours > quota_happening_block_hours) {
+                toast.error(`Block hours quota limit exceeded: ${happening_block_hours}h of ${quota_happening_block_hours}h`);
                 return true;
             }
 
-            let weekly_happenings = 1;
-            let weekly_hours = happening_block_hours;
-            let daily_hours = happening_block_hours;
-
-            const happenings = this.userHappenings.filter(happening => {
-                if (happening.user_01 === this.user.name) {
-                    return true;
-                }
-
-                return happening.user_02 === this.user.name && happening.is_confirmed;
-            });
-
-            for (let happening of happenings) {
-                if (start.isSame(happening.start, 'week')) {
-                    weekly_happenings += 1;
-                    weekly_hours += dayjs(happening.end).diff(happening.start, 'hours', true);
-                }
-
-                if (start.isSame(happening.start, 'day')) {
-                    daily_hours += dayjs(happening.end).diff(happening.start, 'hours', true);
-                }
-            }
-
+            let weekly_happenings = this.quotas.weekly_happenings + 1
             if (weekly_happenings > quota_weekly_happenings) {
+                toast.error(`Weekly happenings quota limit exceeded: ${weekly_happenings} of ${quota_weekly_happenings}`);
                 return true;
-            } else if (weekly_hours > quota_weekly_hours) {
+            }
+
+            let weekly_hours = this.quotas.weekly_hours + selectLength
+            if (weekly_hours > quota_weekly_hours) {
+                toast.error(`Weekly hours quota limit exceeded: ${weekly_hours}h of ${quota_weekly_hours}h`);
                 return true;
-            } else if (daily_hours > quota_daily_hours) {
+            }
+
+            let daily_hours = this.quotas.daily_hours + selectLength
+            if (daily_hours > quota_daily_hours) {
+                toast.error(`Daily hours quota limit exceeded: ${daily_hours}h of ${quota_daily_hours}h`);
                 return true;
             }
 

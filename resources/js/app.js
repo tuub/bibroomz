@@ -78,6 +78,15 @@ createInertiaApp({
                 closeButton: "button",
                 icon: true,
                 rtl: false,
+                filterBeforeCreate: (toast, toasts) => {
+                    const isQuotaToast = (toast) => toast.content.match(/quota limit exceeded/);
+
+                    if (isQuotaToast(toast) && toasts.filter(isQuotaToast).length > 0) {
+                        return false;
+                    }
+
+                    return toast;
+                },
             })
             .mount(el)
     },
