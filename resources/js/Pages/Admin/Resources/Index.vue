@@ -1,5 +1,5 @@
 <template>
-    <Head title="Admin/Resources" />
+    <PageHead title="Admin Resources Form" page_type="admin" />
 
     <div class="flex justify-between mb-6">
         <div class="flex items-center">
@@ -100,6 +100,7 @@
 <script setup>
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

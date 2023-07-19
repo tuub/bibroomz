@@ -1,5 +1,6 @@
 <template>
-    <Head title="Resource Form" />
+    <PageHead title="Admin Resources Index" page_type="admin" />
+
     <h1 class="text-3xl">Resource Form</h1>
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
@@ -153,6 +154,7 @@ import {onMounted, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

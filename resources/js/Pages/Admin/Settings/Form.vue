@@ -1,5 +1,6 @@
 <template>
-    <Head title="Setting Form" />
+    <PageHead title="Admin Settings Form" page_type="admin" />
+
     <h1 class="text-3xl">Setting Form</h1>
 
     {{ form.id }}
@@ -48,6 +49,7 @@
 import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

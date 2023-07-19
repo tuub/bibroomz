@@ -1,5 +1,5 @@
 <template>
-    <Head title="Admin/Users" />
+    <PageHead title="Admin Users Index" page_type="admin" />
 
     <div class="flex justify-between mb-6">
         <div class="flex items-center">
@@ -69,6 +69,8 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
+import PageHead from "@/Shared/PageHead.vue";
+
 let props = defineProps({
     users: Object,
 })

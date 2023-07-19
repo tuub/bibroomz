@@ -1,7 +1,5 @@
 <template>
-    <Head :title="institution.title" />
-
-    <Navigation></Navigation>
+    <PageHead :title="institutionTitle" />
 
     <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
     <x-modal />
@@ -25,20 +23,20 @@
 </template>
 
 <script setup>
-import Navigation from "@/Shared/Navigation.vue";
-import Calendar from "../Components/Calendar.vue";
-import LoginForm from "../Components/LoginForm.vue";
-import UserHappenings from "../Components/UserHappenings.vue";
+import Calendar from "@/Components/Calendar.vue";
+import LoginForm from "@/Components/LoginForm.vue";
+import UserHappenings from "@/Components/UserHappenings.vue";
 
-import XModal from "../Shared/XModal.vue";
-import useModal from "../Stores/Modal";
+import XModal from "@/Shared/XModal.vue";
+import useModal from "@/Stores/Modal";
 
-import { useAppStore } from "../Stores/AppStore";
-import { useAuthStore } from "../Stores/AuthStore";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 import { Modal as FlowbiteModal } from "flowbite";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props
@@ -59,6 +57,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const modal = useModal();
 let statusMessage = ref('')
+let { institutionTitle } = storeToRefs(appStore)
 let { isAuthenticated, userHappenings } = storeToRefs(authStore)
 
 // ------------------------------------------------
@@ -98,6 +97,7 @@ onMounted(() => {
     // check auth session in backend
     authStore.check()
 });
+
 onUnmounted(() => {
     authStore.unsubscribe();
 })

@@ -1,5 +1,5 @@
 <template>
-    <Head title="Admin/Closings" />
+    <PageHead title="Admin Closings Index" page_type="admin" />
 
     <div class="flex justify-between mb-6">
         <div class="flex items-center">
@@ -77,6 +77,7 @@ import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import {usePage} from "@inertiajs/vue3";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

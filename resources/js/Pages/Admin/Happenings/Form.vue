@@ -1,5 +1,6 @@
 <template>
-    <Head title="Happening Form" />
+    <PageHead title="Admin Happenings Form" page_type="admin" />
+
     <h1 class="text-3xl">Happening Form</h1>
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
@@ -126,6 +127,7 @@
 import {onMounted, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

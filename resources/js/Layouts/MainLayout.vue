@@ -5,9 +5,6 @@
               :content="appName"
               head-key="description">
     </Head>
-    <section id="header" class="p-6 bg-gray-200">
-        <Navigation></Navigation>
-    </section>
     <section id="content" class="p-6">
         <slot />
     </section>

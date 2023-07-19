@@ -4,6 +4,7 @@ const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 export const useHappeningStore = defineStore({
     id: 'happening',
+    persist: true,
     state: () => {
         return {
             happening: {

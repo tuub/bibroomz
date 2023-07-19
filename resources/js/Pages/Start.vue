@@ -1,5 +1,5 @@
 <template>
-    <Head title="Start" />
+    <PageHead title="Start" page_type="splash" />
 
     <div class="flex items-center justify-center">
         <InstitutionCard v-for="institution in institutions"
@@ -18,6 +18,7 @@
 import InstitutionCard from '../Components/InstitutionCard.vue';
 import {onMounted} from "vue";
 import {useAppStore} from "../Stores/AppStore";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props

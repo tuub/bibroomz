@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useAppStore = defineStore({
     id: 'app',
+    persist: true,
     state: () => {
         return {
             app_name: import.meta.env.VITE_APP_NAME,

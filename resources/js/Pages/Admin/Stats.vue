@@ -1,4 +1,5 @@
 <template>
+    <PageHead title="Admin Statistics" page_type="admin" />
     <DoughnutChart :chartData="testData" />
 </template>
 
@@ -6,12 +7,13 @@
 import { defineComponent } from 'vue';
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
+import PageHead from "@/Shared/PageHead.vue";
 
 Chart.register(...registerables);
 
 export default defineComponent({
     name: 'Home',
-    components: { DoughnutChart },
+    components: {PageHead, DoughnutChart },
     setup() {
         const testData = {
             labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],

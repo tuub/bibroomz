@@ -1,21 +1,24 @@
 <template>
-    <Head title="My Profile" />
+    <PageHead title="My Profile" />
 
     <!-- 2xl == 42rems; 42 * 16 (root font-size, e.g. 16) = 672px -->
     <!-- 3xl == 48rems; 48 * 16 (root font-size, e.g. 16) = 768px -->
     <div class="max-w-3xl mx-auto">
         <h1 class="text-xl font-bold">Profile</h1>
+        {{ quotas }}
         <p>The current user is {{ user }}.</p>
-        <p>The current user reservations are {{ user_happenings }}.</p>
+        <p>The current user reservations are {{ happenings }}.</p>
         <p>The current time is {{ time }}.</p>
         <p><Link href="/my" preserve-scroll>Refresh</Link></p>
     </div>
 </template>
 
 <script setup>
-import HappeningInfo from '../Components/HappeningInfo.vue';
-import UserInfo from '../Components/UserInfo.vue';
-import { ref } from 'vue'
+import PageHead from "@/Shared/PageHead.vue";
+import {useAuthStore} from "@/Stores/AuthStore";
+import {storeToRefs} from "pinia";
+import {onMounted} from "vue";
+import {Modal as FlowbiteModal} from "flowbite";
 
 // ------------------------------------------------
 // Props
@@ -27,15 +30,12 @@ let props = defineProps({
 })
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore()
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let happeningData = {
-    resource: '1',
-    start: '15:30:00',
-    end: '18:00:00',
-}
-let userData = {
-    id: '99',
-    name: 'dummy',
-}
+let { quotas } = storeToRefs(authStore)
 </script>

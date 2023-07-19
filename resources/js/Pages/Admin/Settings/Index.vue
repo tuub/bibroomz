@@ -1,5 +1,5 @@
 <template>
-    <Head title="Admin/Settings" />
+    <PageHead title="Admin Settings Index" page_type="admin" />
 
     <div class="flex justify-between mb-6">
         <div class="flex items-center">
@@ -55,6 +55,8 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
+import PageHead from "@/Shared/PageHead.vue";
+
 let props = defineProps({
     settings: Object,
 })

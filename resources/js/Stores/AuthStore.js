@@ -10,7 +10,7 @@ const toast = useToast();
 
 export const useAuthStore = defineStore({
     id: 'auth',
-    //persist: true,
+    persist: true,
     state: () => ({
         user: null,
         isAuthenticated: false,

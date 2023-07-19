@@ -1,5 +1,6 @@
 <template>
-    <Head title="Resource Form" />
+    <PageHead title="Admin Institutions Form" page_type="admin" />
+
     <h1 class="text-3xl">Institution Form</h1>
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
@@ -150,6 +151,7 @@ import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------
 // Props
