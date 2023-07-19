@@ -87,7 +87,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import NavLink from "./NavLink.vue";
+import NavLink from "../NavLink.vue";
 import Brand from "@/Shared/Brand.vue";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
 import { usePage } from "@inertiajs/vue3";

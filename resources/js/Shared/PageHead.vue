@@ -3,20 +3,19 @@
         <slot />
     </Head>
     <section id="header" class="p-6 bg-gray-200">
-        <Navigation v-if="isRegularPage"></Navigation>
-        <AdminNavigation v-if="isAdminPage"></AdminNavigation>
         <SplashNavigation v-if="isSplashPage"></SplashNavigation>
+        <RegularNavigation v-if="isRegularPage"></RegularNavigation>
+        <AdminNavigation v-if="isAdminPage"></AdminNavigation>
     </section>
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { Head } from '@inertiajs/vue3'
 import { computed } from "vue";
-import Navigation from "@/Shared/Navigation.vue";
-import AdminNavigation from "@/Shared/AdminNavigation.vue";
-import SplashNavigation from "@/Shared/SplashNavigation.vue";
+import RegularNavigation from "@/Shared/Navigation/RegularNavigation.vue";
+import AdminNavigation from "@/Shared/Navigation/AdminNavigation.vue";
+import SplashNavigation from "@/Shared/Navigation/SplashNavigation.vue";
 
 const props = defineProps({
     title: String,
@@ -29,7 +28,6 @@ const props = defineProps({
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const appStore = useAppStore();
 const authStore = useAuthStore();
 
 let appName = import.meta.env.VITE_APP_NAME
@@ -45,9 +43,4 @@ const isRegularPage = computed(() => {
 const isAdminPage = computed(() => {
     return props.page_type === 'admin'
 })
-
-// ------------------------------------------------
-// Mount
-// ------------------------------------------------
-
 </script>

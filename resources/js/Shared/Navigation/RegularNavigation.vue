@@ -63,10 +63,9 @@
 <script setup>
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import NavLink from "./NavLink.vue";
-import { initFlowbite } from "flowbite";
+import NavLink from "../NavLink.vue";
 import { storeToRefs } from "pinia";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import Brand from "@/Shared/Brand.vue";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
 import { usePage } from "@inertiajs/vue3";

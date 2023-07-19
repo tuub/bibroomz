@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import Navigation from "@/Shared/Navigation.vue";
+import Navigation from "@/Shared/Navigation/RegularNavigation.vue";
 import { useAppStore } from "@/Stores/AppStore"
 
 // ------------------------------------------------
