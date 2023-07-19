@@ -58,8 +58,8 @@ a.fc-event {
     &.reservation { background-color: $status-reservation;  }
     &.booking { background-color: $status-booking; }
     &.user-reservation { background-color: $status-user-reservation; color: #000; }
-    &.user-to-confirm { background-color: $status-user-to-confirm; color: #000; }
-    &.user-confirmed { background-color: $status-user-confirmed; color: #000; }
+    &.user-to-verify { background-color: $status-user-to-verify; color: #000; }
+    &.user-verified { background-color: $status-user-verified; color: #000; }
     &.user-booking { background-color: $status-user-booking; }
     &.block { background-color: $status-block; color: #fff; pointer-events: none; }
 }
@@ -73,8 +73,8 @@ div#status-legend {
         &.reservation { background-color: $status-reservation; color: #fff;  }
         &.booking { background-color: $status-booking; }
         &.user-reservation { background-color: $status-user-reservation;}
-        &.user-to-confirm { background-color: $status-user-to-confirm; color: #fff; }
-        &.user-confirmed { background-color: $status-user-confirmed; color: #fff; }
+        &.user-to-verify { background-color: $status-user-to-verify; color: #fff; }
+        &.user-verified { background-color: $status-user-verified; color: #fff; }
         &.user-booking { background-color: $status-user-booking; color: #fff; }
         &.closing { background-color: $status-closing; }
         &.block { background-color: $status-block; }

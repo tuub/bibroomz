@@ -44,21 +44,21 @@ export function useInfoModal(happening) {
     };
 }
 
-export function useConfirmModal(happening) {
+export function useVerifyModal(happening) {
     const happeningStore = useHappeningStore();
 
     return {
         view: HappeningModal,
         content: {
-            title: "Confirm Happening",
-            description: "Are you sure you wanna confirm this?",
+            title: "Verify Happening",
+            description: "Are you sure you wanna verify this?",
         },
         payload: { ...happening, editable: false },
         actions: [
             {
-                label: "Yes, confirm",
+                label: "Yes, verify",
                 callback: (happening) => {
-                    return happeningStore.confirmHappening(happening);
+                    return happeningStore.verifyHappening(happening);
                 },
             },
         ],

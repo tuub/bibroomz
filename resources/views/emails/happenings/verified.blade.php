@@ -1,2 +1,2 @@
-Happening confirmed:
+Happening verified:
     @include('emails/happening')

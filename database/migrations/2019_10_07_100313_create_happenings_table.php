@@ -23,12 +23,12 @@ return new class extends Migration
             $table->foreign('user_id_02')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->uuid('resource_id')->nullable();
             $table->foreign('resource_id')->references('id')->on('resources')->onUpdate('cascade')->onDelete('set null');
-            $table->boolean('is_confirmed')->default(false);
-            $table->string('confirmer')->nullable();
+            $table->boolean('is_verified')->default(false);
+            $table->string('verifier')->nullable();
             $table->dateTime('start');
             $table->dateTime('end');
             $table->dateTime('reserved_at');
-            $table->dateTime('confirmed_at')->nullable();
+            $table->dateTime('verified_at')->nullable();
             $table->timestamps();
         });
     }

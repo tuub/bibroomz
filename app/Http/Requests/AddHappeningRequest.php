@@ -28,14 +28,14 @@ class AddHappeningRequest extends FormRequest
         $resource = Resource::find($this->resource['id']);
 
         $is_admin = auth()->user()->is_admin;
-        $is_needing_confirmer = $resource->is_needing_confirmer && !$is_admin;
+        $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
-            'confirmer' => [
-                $is_needing_confirmer ? 'required' : '', 'not_in:' . auth()->user()->name,
+            'verifier' => [
+                $is_verification_required ? 'required' : '', 'not_in:' . auth()->user()->name,
             ],
         ];
     }

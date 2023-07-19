@@ -38,7 +38,7 @@ class Resource extends Model
         'description',
         'capacity',
         'is_active',
-        'is_needing_confirmer',
+        'is_verification_required',
     ];
     protected $with = ['closings'];
 

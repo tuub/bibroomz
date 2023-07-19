@@ -1,6 +1,6 @@
 @php
     $user = $happening->user1->name;
-    $confirmer = $happening->user2?->name ?? $happening->confirmer;
+    $verifier = $happening->user2?->name ?? $happening->verifier;
 
     $resource = $happening->resource;
     $institution = $resource->institution;
@@ -11,8 +11,8 @@
     Start: {{ $happening->start }}
     End: {{ $happening->end }}
     User: {{ $user }}
-@if ($confirmer)
-    Confirmer: {{ $confirmer }}
+@if ($verifier)
+    Verifier: {{ $verifier }}
 @endif
-    {{ $happening->isConfirmed() ? 'Confirmed' : 'Pending Confirmation' }}
+    {{ $happening->isVerified() ? 'Verified' : 'Pending Verification' }}
     {{-- Empty Line --}}

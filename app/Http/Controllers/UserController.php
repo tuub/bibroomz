@@ -32,7 +32,7 @@ class UserController extends Controller
             ->whereHas('resource', fn (Builder $query) => $query->where('institution_id', $institution_id)->active())
             ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
                 ->orWhere('user_id_02', $user->getKey())
-                ->orWhere('confirmer', $user->name))
+                ->orWhere('verifier', $user->name))
             ->weekly()
             ->orderBy('start')
             ->get()
@@ -54,11 +54,11 @@ class UserController extends Controller
             $output[] = [
                 'id' => $happening->id,
                 'user_01' => User::find($happening->user_id_01)->name,
-                'user_02' => User::find($happening->user_id_02)->name ?? $happening->confirmer,
+                'user_02' => User::find($happening->user_id_02)->name ?? $happening->verifier,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions(auth()->user()),
-                'is_confirmed' => $happening->is_confirmed,
+                'is_verified' => $happening->is_verified,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
@@ -66,8 +66,8 @@ class UserController extends Controller
                     'institution_id' => $happening->resource->institution_id,
                 ],
                 'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
-                'confirmed_at' => Carbon::parse($happening->confirmed_at)->format('Y-m-d H:i'),
-                'isNeedingConfirmer' => $happening->resource->is_needing_confirmer,
+                'verified_at' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
+                'isVerificationRequired' => $happening->resource->is_verification_required,
             ];
         }
 

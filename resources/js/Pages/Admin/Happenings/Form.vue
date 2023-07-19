@@ -69,7 +69,7 @@
             <FormValidationError :message="form.errors.user_id_01"></FormValidationError>
         </div>
 
-        <!-- Select: User 2 / Confirmer -->
+        <!-- Select: User 2 / Verifier -->
         <div class="grid gap-6 mb-6 md:grid-cols-2">
             <div>
                 <label for="user_id_02" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
@@ -78,7 +78,7 @@
                 <select v-model="form.user_id_02"
                         id="user_id_02"
                         name="user_id_02"
-                        @change="updateConfirmer($event)"
+                        @change="updateVerifier($event)"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="">Choose</option>
                     <option v-for="user in users" :value="user.id" :key="user.id">
@@ -88,30 +88,30 @@
                 <FormValidationError :message="form.errors.user_id_02"></FormValidationError>
             </div>
             <div>
-                <label for="confirmer" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Confirmer
+                <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                    Verifier
                 </label>
-                <input v-model="form.confirmer"
+                <input v-model="form.verifier"
                        type="text"
-                       id="confirmer"
-                       name="confirmer"
+                       id="verifier"
+                       name="verifier"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                        placeholder=""
                 >
-                <FormValidationError :message="form.errors.confirmer"></FormValidationError>
+                <FormValidationError :message="form.errors.verifier"></FormValidationError>
             </div>
         </div>
 
-        <!-- Checkbox: Is confirmed -->
+        <!-- Checkbox: Is verified -->
         <div class="mb-6">
             <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_confirmed"
+                <input v-model="form.is_verified"
                        type="checkbox"
                        class="sr-only peer"
                 >
                 <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                 <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Is confirmed
+                    Is verified
                 </span>
             </label>
         </div>
@@ -150,24 +150,24 @@ let form = useForm({
     end: $page.props.end ?? '',
     user_id_01: $page.props.user_id_01 ?? '',
     user_id_02: $page.props.user_id_02 ?? '',
-    confirmer: $page.props.confirmer ?? '',
-    is_confirmed: $page.props.is_confirmed === 1,
+    verifier: $page.props.verifier ?? '',
+    is_verified: $page.props.is_verified === 1,
 });
 
-// Save original confirmer for later rollback
-const savedConfirmer = form['confirmer']
+// Save original verifier for later rollback
+const savedVerifier = form['verifier']
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const updateConfirmer = (event) => {
+const updateVerifier = (event) => {
     let index = users.value.findIndex(x => x.id === event.target.value)
     if (index === -1) {
-        form['confirmer'] = savedConfirmer
-        form['is_confirmed'] = false
+        form['verifier'] = savedVerifier
+        form['is_verified'] = false
     } else {
-        form['confirmer'] = users.value[index].name
-        form['is_confirmed'] = true
+        form['verifier'] = users.value[index].name
+        form['is_verified'] = true
     }
 }
 

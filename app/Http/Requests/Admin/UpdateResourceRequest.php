@@ -30,7 +30,7 @@ class UpdateResourceRequest extends FormRequest
             'description' => ['required'],
             'capacity' => ['numeric', 'gt:0'],
             'is_active' => ['required'],
-            'is_needing_confirmer' => ['required'],
+            'is_verification_required' => ['required'],
             'business_hours' => ['array', 'required_if:is_active,true'],
             'business_hours.*.start' => ['required_with:business_hours'],
             'business_hours.*.end' => ['required_with:business_hours'],

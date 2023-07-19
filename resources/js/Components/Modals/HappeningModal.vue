@@ -38,8 +38,8 @@ let happening = reactive({
     resource: props.payload.resource,
     start: dayjs.utc(props.payload.start).format('YYYY-MM-DDTHH:mm:ss'),
     end: dayjs.utc(props.payload.end).format('YYYY-MM-DDTHH:mm:ss'),
-    isNeedingConfirmer: props.payload.isNeedingConfirmer,
-    confirmer: props.payload.user_02,
+    isVerificationRequired: props.payload.isVerificationRequired,
+    verifier: props.payload.user_02,
 });
 
 // ------------------------------------------------

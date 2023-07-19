@@ -39,25 +39,25 @@ class HappeningBroadcastEvent implements ShouldBroadcast
         $happening = $this->happening;
 
         $owner = User::find($happening->user_id_01);
-        $is_needing_confirmer = $happening->resource->is_needing_confirmer && !$owner->is_admin;
+        $is_verification_required = $happening->resource->is_verification_required && !$owner->is_admin;
 
         return [
             'happening' => [
                 'id' => $happening->id,
                 'user_01' => $owner->name,
-                'user_02' => User::find($happening->user_id_02)->name ?? $happening->confirmer,
+                'user_02' => User::find($happening->user_id_02)->name ?? $happening->verifier,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
-                'is_confirmed' => $happening->is_confirmed,
+                'is_verified' => $happening->is_verified,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
                     'location' => $happening->resource->location,
                 ],
                 'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
-                'confirmed_at' => Carbon::parse($happening->confirmed_at)->format('Y-m-d H:i'),
+                'verified_at' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions($this->user),
-                'isNeedingConfirmer' => $is_needing_confirmer,
+                'is_verification_required' => $is_verification_required,
             ],
         ];
     }

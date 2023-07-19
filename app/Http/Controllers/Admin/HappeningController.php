@@ -25,20 +25,23 @@ class HappeningController extends Controller
 
     public function storeHappening(Request $request)
     {
+        // FIXME: Request Class! See other reauest classes!
         // Validate
         $attributes = $request->validate([
             'resource_id' => ['required'],
             'start' => 'required',
             'end' => 'required',
             'user_id_01' => 'required',
-            'confirmer' => 'required',
+            'verifier' => 'required',
         ]);
 
         $attributes['reserved_at'] = Carbon::now();
+
         // Create
         Happening::create($attributes);
+
         // Redirect
-        return redirect('/admin/happenings');
+        return redirect()->route('admin.happening.index');
     }
 
     public function editHappening(Request $request)
@@ -49,6 +52,7 @@ class HappeningController extends Controller
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
+        // FIXME: See other reauest classes!
         $validated = $request->validated();
 
         $happening = Happening::find($request->id);

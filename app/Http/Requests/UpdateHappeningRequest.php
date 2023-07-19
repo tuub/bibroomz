@@ -23,12 +23,14 @@ class UpdateHappeningRequest extends FormRequest
      */
     public function rules()
     {
+        // FIXME: check verifier requirement here
+
         return [
             'id' => ['required', 'uuid'],
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
-            // 'confirmer' => ['required'],
+            // 'verifier' => ['required'],
         ];
     }
 }

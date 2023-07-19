@@ -45,15 +45,15 @@ class HappeningPolicy
     }
 
     /**
-     * Determine if the given happening can be confirmed by the user.
+     * Determine if the given happening can be verified by the user.
      *
      * @param User $user
      * @param Happening $happening
      * @return bool
      */
-    public function confirm(User $user, Happening $happening): bool
+    public function verify(User $user, Happening $happening): bool
     {
-        return !$happening->isPast() && $user->name === $happening->confirmer;
+        return !$happening->isPast() && $user->name === $happening->verifier;
     }
 
     /**

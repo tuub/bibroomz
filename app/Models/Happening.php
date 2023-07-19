@@ -25,7 +25,7 @@ class Happening extends Model
     protected $table = 'happenings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
-    protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_confirmed', 'confirmer', 'start', 'end', 'reserved_at', 'booked_at'];
+    protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_verified', 'verifier', 'start', 'end', 'reserved_at', 'booked_at'];
     protected $dates = ['created_at', 'updated_at', 'start', 'end', 'reserved_at', 'booked_at'];
 
     /*****************************************************************
@@ -94,7 +94,7 @@ class Happening extends Model
     public function getPermissions($user)
     {
         return [
-            'confirm' => $user ? $user->can('confirm', $this) : false,
+            'verify' => $user ? $user->can('verify', $this) : false,
             'edit' => $user ? $user->can('update', $this) : false,
             'delete' => $user ? $user->can('delete', $this) : false,
         ];
@@ -108,30 +108,28 @@ class Happening extends Model
         return auth()->user()->id === $this->user_id_01;
     }
 
-    private function isMyToConfirm(): bool
+    private function isMyToVerify(): bool
     {
-        return auth()->user()->name === $this->confirmer;
+        return auth()->user()->name === $this->verifier;
     }
 
-    private function isMyConfirmed(): bool
+    private function isMyVerified(): bool
     {
         return auth()->user()->id === $this->user_id_02;
     }
 
-    public function isConfirmed(): bool
+    public function isVerified(): bool
     {
-        return $this->is_confirmed;
+        return $this->is_verified;
     }
 
     public function isBelongingTo(User $user): bool
     {
-        return $user->id === $this->user_id_01 || $user->id === $this->user_id_02 || $user->name === $this->confirmer;
+        return $user->id === $this->user_id_01 || $user->id === $this->user_id_02 || $user->name === $this->verifier;
     }
 
     public function isPast(): bool
     {
-
-
         return $this->end < Utility::getCarbonNow();
     }
 
@@ -142,15 +140,15 @@ class Happening extends Model
         ];
 
         if (auth()->check()) {
-            if ($this->isConfirmed()) {
+            if ($this->isVerified()) {
                 if ($this->isMine()) {
                     $status['type'] = 'user-booking';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->user2?->name;
-                } elseif ($this->isMyConfirmed()) {
-                    $status['type'] = 'user-confirmed';
+                    $status['user']['verification'] = $this->user2?->name;
+                } elseif ($this->isMyVerified()) {
+                    $status['type'] = 'user-verified';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->user2?->name;
+                    $status['user']['verification'] = $this->user2?->name;
                 } else {
                     $status['type'] = 'booking';
                 }
@@ -158,17 +156,17 @@ class Happening extends Model
                 if ($this->isMine()) {
                     $status['type'] = 'user-reservation';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->confirmer;
-                } elseif ($this->isMyToConfirm()) {
-                    $status['type'] = 'user-to-confirm';
+                    $status['user']['verification'] = $this->verifier;
+                } elseif ($this->isMyToVerify()) {
+                    $status['type'] = 'user-to-verify';
                     $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['confirmation'] = $this->confirmer;
+                    $status['user']['verification'] = $this->verifier;
                 } else {
                     $status['type'] = 'reservation';
                 }
             }
         } else {
-            if ($this->isConfirmed()) {
+            if ($this->isVerified()) {
                 $status['type'] = 'booking';
             } else {
                 $status['type'] = 'reservation';
@@ -178,7 +176,7 @@ class Happening extends Model
         return $status;
     }
 
-    public function users(bool $is_confirmer_included = true)
+    public function users(bool $is_verifier_included = true)
     {
         $users = collect();
 
@@ -193,24 +191,26 @@ class Happening extends Model
             $users->push($user2);
         }
 
-        if ($is_confirmer_included) {
-            $confirmer = User::where('name', $this->confirmer)->first();
+        if ($is_verifier_included) {
+            $verifier = User::where('name', $this->verifier)->first();
 
-            if ($confirmer) {
-                $users->push($confirmer);
+            if ($verifier) {
+                $users->push($verifier);
             }
         }
 
         return $users;
     }
 
-    public function usersWithConfirmer()
+    /*
+    public function usersWithVerifier()
     {
-        return $this->users(is_confirmer_included: true);
+        return $this->users(is_verifier_included: true);
     }
 
-    public function usersWithoutConfirmer()
+    public function usersWithoutVerifier()
     {
-        return $this->users(is_confirmer_included: false);
+        return $this->users(is_verifier_included: false);
     }
+    */
 }

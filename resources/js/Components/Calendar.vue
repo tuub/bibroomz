@@ -38,7 +38,7 @@ import Spinner from "../Shared/Spinner.vue";
 import { useToast } from "vue-toastification";
 
 import {
-    useConfirmModal,
+    useVerifyModal,
     useCreateModal,
     useEditDeleteModal,
     useInfoModal,
@@ -207,7 +207,7 @@ const onSelect = (eventInfo) => {
             },
             start: eventInfo.startStr,
             end: eventInfo.endStr,
-            isNeedingConfirmer: eventInfo.resource.extendedProps.isNeedingConfirmer,
+            isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
         });
 
         emit('open-modal-component', useCreateModal(happeningData));
@@ -239,10 +239,10 @@ const onEventClick = (eventInfo) => {
             title: dataPath.getResources()[0]._resource.title,
         };
         happeningData.id = dataPath.id;
-        happeningData.user_02 = dataPath.extendedProps.status?.user?.confirmation;
+        happeningData.user_02 = dataPath.extendedProps.status?.user?.verification;
         happeningData.start = dayjs.utc(dataPath._instance.range.start);
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
-        happeningData.isNeedingConfirmer = dataPath.extendedProps.isNeedingConfirmer;
+        happeningData.isVerificationRequired = dataPath.extendedProps.is_verification_required;
     }
 
     if (!isBgEvent) {
@@ -250,8 +250,8 @@ const onEventClick = (eventInfo) => {
 
         if (can.edit && can.delete) {
             emit('open-modal-component', useEditDeleteModal(happeningData));
-        } else if (can.confirm) {
-            emit('open-modal-component', useConfirmModal(happeningData));
+        } else if (can.verify) {
+            emit('open-modal-component', useVerifyModal(happeningData));
         } else {
             emit('open-modal-component', useInfoModal(happeningData));
         }

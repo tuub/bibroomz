@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\HappeningConfirmed;
+use App\Events\HappeningVerified;
 use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
 use App\Events\HappeningsChanged;
@@ -70,7 +70,7 @@ class HappeningController extends Controller
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'classNames' => $status['type'],
                 'can' => $happening->getPermissions(auth()->user()),
-                'isNeedingConfirmer' => $happening->resource->is_needing_confirmer,
+                'isVerificationRequired' => $happening->resource->is_verification_required,
             ];
         }
 
@@ -148,19 +148,19 @@ class HappeningController extends Controller
         $this->isHappeningValid($resource, $start, $end);
 
         $is_admin = auth()->user()->is_admin;
-        $is_confirmed = !$resource->is_needing_confirmer || $is_admin;
+        $is_verified = !$resource->is_verification_required || $is_admin;
 
         // Compile happening payload
         $happeningData = [
             'user_id_01' => auth()->user()->id,
             // 'user_id_02' => $is_admin ? auth()->user()->id : null,
             'resource_id' => $resource->id,
-            'is_confirmed' => $is_confirmed,
-            'confirmer' => !$is_confirmed ? $validated['confirmer'] : null,
+            'is_verified' => $is_verified,
+            'verifier' => !$is_verified ? $validated['verifier'] : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
-            'confirmed_at' => $is_admin ? Carbon::now() : null,
+            'verified_at' => $is_admin ? Carbon::now() : null,
         ];
         $log['PAYLOAD'] = json_encode($happeningData);
 
@@ -205,7 +205,6 @@ class HappeningController extends Controller
         $happeningData = [
             'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
             'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
-            // 'confirmer' => $validated['confirmer'],
         ];
         $log['PAYLOAD'] = json_encode($happeningData);
 
@@ -224,15 +223,15 @@ class HappeningController extends Controller
         }
     }
 
-    public function confirmHappening($id)
+    public function verifyHappening($id): void
     {
         $happening = Happening::findOrFail($id);
 
         /** @var User */
         $user = auth()->user();
 
-        if ($user->cannot('confirm', $happening)) {
-            abort(401, 'You are not allowed to confirm.');
+        if ($user->cannot('verify', $happening)) {
+            abort(401, 'You are not allowed to verify.');
         }
 
         $start = new CarbonImmutable($happening->start);
@@ -243,18 +242,18 @@ class HappeningController extends Controller
         }
 
         $happening->user_id_02 = $user->getKey();
-        $happening->is_confirmed = true;
-        $happening->confirmer = null;
+        $happening->is_verified = true;
+        $happening->verifier = null;
 
         if ($happening->saveOrFail()) {
             $log['RESULT'] = json_encode($happening);
             Utility::sendToLog('happenings', $log);
 
-            $this->broadcast(HappeningConfirmed::class, $happening);
+            $this->broadcast(HappeningVerified::class, $happening);
         }
     }
 
-    public function deleteHappening($id)
+    public function deleteHappening($id): void
     {
         /** @var User */
         $user = auth()->user();
@@ -269,7 +268,7 @@ class HappeningController extends Controller
         }
     }
 
-    private function broadcast(String $broadcastEvent, Happening $happening)
+    private function broadcast(String $broadcastEvent, Happening $happening): void
     {
         foreach ($happening->users() as $user) {
             $broadcastEvent::dispatch($happening, $user);
@@ -281,6 +280,7 @@ class HappeningController extends Controller
     private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void
     {
         // check if resource is closed
+        // FIXME: [$closed] ?
         [$closed] = $resource->findClosed($start, $end);
         if ($closed) {
             abort(400, 'Resource is closed.');

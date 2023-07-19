@@ -45,15 +45,15 @@
                 </select>
             </div>
         </div>
-        <div v-if="happening.isNeedingConfirmer && !isAdmin" class="mb-6">
-            <label for="confirmer" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Confirmer
+        <div v-if="happening.isVerificationRequired && !isAdmin" class="mb-6">
+            <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                Verifier
             </label>
-            <input v-model="happening.confirmer"
+            <input v-model="happening.verifier"
                    @input="$emit('update:input', $event.target.value)"
                    type="text"
-                   id="confirmer"
-                   name="confirmer"
+                   id="verifier"
+                   name="verifier"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                    placeholder=""
                    :disabled="!!happening.id"

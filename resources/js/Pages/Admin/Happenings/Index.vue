@@ -31,7 +31,7 @@
                     User #2
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Confirmed
+                    Verified
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
                     Is over?
@@ -66,12 +66,12 @@
                         {{ happening.user2.name }}
                     </span>
                     <span v-else>
-                        ({{ happening.confirmer }})
+                        ({{ happening.verifier }})
                     </span>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <i class="ri-checkbox-circle-line text-green-500" v-if="happening.is_confirmed"></i>
-                    <i class="ri-close-circle-line text-red-500" v-if="!happening.is_confirmed"></i>
+                    <i class="ri-checkbox-circle-line text-green-500" v-if="happening.is_verified"></i>
+                    <i class="ri-close-circle-line text-red-500" v-if="!happening.is_verified"></i>
                 </td>
                 <td class="px-6 py-4 text-center">
                     FIXME

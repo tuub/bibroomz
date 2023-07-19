@@ -116,9 +116,9 @@ export const useAuthStore = defineStore({
                         this.addUserHappening(e.happening);
                         toast.success(`Happening created! ${e.happening.id}`);
                     })
-                    .listen("HappeningConfirmed", (e) => {
+                    .listen("HappeningVerified", (e) => {
                         this.updateUserHappening(e.happening);
-                        toast.success(`Happening confirmed! ${e.happening.id}`);
+                        toast.success(`Happening verified! ${e.happening.id}`);
                     })
                     .listen("HappeningUpdated", (e) => {
                         this.updateUserHappening(e.happening);
@@ -148,7 +148,7 @@ export const useAuthStore = defineStore({
                     return true;
                 }
 
-                if (happening.user_02 === this.user.name && happening.is_confirmed) {
+                if (happening.user_02 === this.user.name && happening.is_verified) {
                     return true;
                 }
 

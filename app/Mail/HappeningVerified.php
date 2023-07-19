@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class HappeningConfirmed extends Mailable implements ShouldQueue
+class HappeningVerified extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -33,7 +33,7 @@ class HappeningConfirmed extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            subject: 'Happening Confirmed',
+            subject: 'Happening Verified',
         );
     }
 
@@ -45,7 +45,7 @@ class HappeningConfirmed extends Mailable implements ShouldQueue
     public function content()
     {
         return new Content(
-            text: 'emails.happenings.confirmed',
+            text: 'emails.happenings.verified',
         );
     }
 

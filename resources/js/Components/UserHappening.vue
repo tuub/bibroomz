@@ -26,10 +26,10 @@
             <p class="text-sm font-medium pb-1">
                 <i class="ri-user-follow-fill"></i>
                 {{ happening.user_02 }}
-                <span v-if="!isPastHappening && happening.is_confirmed"
+                <span v-if="!isPastHappening && happening.is_verified"
                       class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-green-300 uppercase last:mr-0 mr-1">
                     <i class="ri-check-line"></i>
-                    Confirmed
+                    Verified
                 </span>
             </p>
         </div>
@@ -45,12 +45,12 @@
                 </a>
             </p>
             <p>
-                <a v-if="happening.can.confirm"
-                   @click="confirmUserHappening(happening)"
+                <a v-if="happening.can.verify"
+                   @click="verifyUserHappening(happening)"
                    href="#"
                    class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2">
                     <i class="ri-check-double-line mr-1"></i>
-                    Confirm
+                    Verify
                 </a>
             </p>
             <p>
@@ -70,9 +70,8 @@
 import {computed} from "vue";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
-import {useHappeningStore} from "../Stores/HappeningStore"
 import useModal from "../Stores/Modal";
-import { useConfirmModal, useDeleteModal, useEditModal } from "@/Composables/modalActions";
+import { useVerifyModal, useDeleteModal, useEditModal } from "@/Composables/modalActions";
 
 // ------------------------------------------------
 // Props
@@ -114,9 +113,9 @@ const editUserHappening = (happening) => {
     modal.open(editModal.view, editModal.content, editModal.payload, editModal.actions);
 }
 
-const confirmUserHappening = (happening) => {
-    let confirmModal = useConfirmModal(happening);
-    modal.open(confirmModal.view, confirmModal.content, confirmModal.payload, confirmModal.actions);
+const verifyUserHappening = (happening) => {
+    let verifyModal = useVerifyModal(happening);
+    modal.open(verifyModal.view, verifyModal.content, verifyModal.payload, verifyModal.actions);
 }
 
 const deleteUserHappening = (happening) => {

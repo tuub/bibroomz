@@ -12,7 +12,7 @@
     <form>
         <input v-model="happeningData.start" type="text" class="input w-full max-w-xs" name="start" id="start" />
         <input v-model="happeningData.end" type="text" class="input w-full max-w-xs" name="end" id="end" />
-        <input v-model="happeningData.confirmer" type="text" class="input w-full max-w-xs" name="confirmer" id="confirmer" />
+        <input v-model="happeningData.verifier" type="text" class="input w-full max-w-xs" name="verifier" id="verifier" />
     </form>
 
     {{ validationErrors }}
@@ -50,7 +50,7 @@ let happeningData = reactive({
     },
     start: dayjs.utc(props.payload.start),
     end: dayjs.utc(props.payload.end),
-    confirmer: props.payload.confirmer,
+    verifier: props.payload.verifier,
 })
 
 // ------------------------------------------------

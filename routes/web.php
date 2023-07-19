@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
     Route::post('/happening/add', [HappeningController::class, 'addHappening'])->name('happening.add');
-    Route::post('/happening/confirm/{id}', [HappeningController::class, 'confirmHappening'])->name('happening.confirm');
+    Route::post('/happening/verify/{id}', [HappeningController::class, 'verifyHappening'])->name('happening.verify');
     Route::post('/happening/update/{id}', [HappeningController::class, 'updateHappening'])->name('happening.add');
     Route::delete('/happening/delete/{id}', [HappeningController::class, 'deleteHappening'])->name('happening.delete');
 

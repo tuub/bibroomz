@@ -31,7 +31,7 @@
                     Active
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Must confirm
+                    Verification required
                 </th>
                 <th scope="col" class="px-6 py-3">
                     <span class="sr-only">Actions</span>
@@ -68,8 +68,8 @@
                     <i class="ri-close-circle-line text-red-500" v-if="!resource.is_active"></i>
                 </td>
                 <td class="px-6 py-4 align-top text-center">
-                    <i class="ri-checkbox-circle-line text-green-500" v-if="resource.is_needing_confirmer"></i>
-                    <i class="ri-close-circle-line text-red-500" v-if="!resource.is_needing_confirmer"></i>
+                    <i class="ri-checkbox-circle-line text-green-500" v-if="resource.is_verification_required"></i>
+                    <i class="ri-close-circle-line text-red-500" v-if="!resource.is_verification_required"></i>
                 </td>
                 <td class="px-6 py-4 align-top text-right">
                     <Link :href="route('admin.resource.edit', {
