@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class Resource extends Model
@@ -128,7 +129,13 @@ class Resource extends Model
             $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
 
             $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($start);
-            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($start);
+            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($end);
+
+            if (!($end->hour == 0 && $end->minute == 0)) {
+                if ($business_hour_end->hour == 0 && $business_hour_end->minute == 0) {
+                    $business_hour_end = $business_hour_end->addDay();
+                }
+            }
 
             if (in_array($start->dayOfWeek, $week_days)) {
                 if ($start >= $business_hour_start && $end <= $business_hour_end) {
@@ -209,7 +216,10 @@ class Resource extends Model
         $time_slot_length = $this->institution->settings->where('key', 'time_slot_length')->first()->value;
         $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
-        $period = CarbonPeriod::start($date->startOfDay())->end($date->endOfDay());
+        $start = $date->startOfDay();
+        $end = $start->addDay();
+
+        $period = CarbonPeriod::start($start)->end($end);
 
         if ($interval['hour'] > 0) {
             $period = $period->hours($interval['hour']);
@@ -447,7 +457,7 @@ class Resource extends Model
     private function enableBusinessHours(Collection $time_slots, bool $is_end = false): Collection
     {
         return $time_slots->map(function ($time_slot) use ($is_end) {
-            if ($this->isTimeSlotInBusinessHour($time_slot, $is_end)) {
+            if ($this->isTimeSlotInBusinessHour($time_slot['time'], $is_end)) {
                 $time_slot['is_disabled'] = false;
             }
 
@@ -463,20 +473,26 @@ class Resource extends Model
      * @throws InvalidTimeZoneException
      * @throws InvalidTypeException
      */
-    private function isTimeSlotInBusinessHour($time_slot, bool $is_end = false): bool
+    private function isTimeSlotInBusinessHour(CarbonImmutable $time_slot, bool $is_end = false): bool
     {
         foreach ($this->business_hours as $business_hour) {
             $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
 
-            $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($time_slot['time']);
-            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($time_slot['time']);
+            $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($time_slot);
+            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($time_slot);
 
-            if (in_array($time_slot['time']->dayOfWeek, $week_days)) {
+            if ($is_end && $time_slot->hour == 0 && $time_slot->minute == 0) {
+                $business_hour_start = $business_hour_start->subDay();
+            } elseif ($business_hour_end->hour == 0 && $business_hour_end->minute == 0) {
+                $business_hour_end = $business_hour_end->addDay();
+            }
+
+            if (in_array($time_slot->dayOfWeek, $week_days)) {
                 if ($is_end) {
-                    if ($time_slot['time'] > $business_hour_start && $time_slot['time'] <= $business_hour_end) {
+                    if ($time_slot > $business_hour_start && $time_slot <= $business_hour_end) {
                         return true;
                     }
-                } elseif ($time_slot['time'] >= $business_hour_start && $time_slot['time'] < $business_hour_end) {
+                } elseif ($time_slot >= $business_hour_start && $time_slot < $business_hour_end) {
                     return true;
                 }
             }
