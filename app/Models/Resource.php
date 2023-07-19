@@ -589,12 +589,10 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        $happenings = Happening::whereHas('resource', function (Builder $query) {
-            $query->where('institution_id', $this->institution->getKey());
-        })
+        $happenings = Happening::whereHas('resource', fn (Builder $query) => $query->where('institution_id', $this->institution->getKey()))
             ->whereNot('id', $happening?->id)
-            ->where('user_id_01', $user->getKey())
-            ->orWhere('user_id_02', $user->getKey())
+            ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
+                ->orWhere('user_id_02', $user->getKey()))
             ->get();
 
         foreach ($happenings as $_happening) {

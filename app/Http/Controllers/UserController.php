@@ -6,6 +6,7 @@ use App\Models\Happening;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -22,14 +23,16 @@ class UserController extends Controller
 
     public function getUserHappenings(Request $request)
     {
+        /** @var User */
+        $user = auth()->user();
+
         $institution_id = $request->institution_id;
-        $output = [];
-        $happenings = Happening::with('resource')->whereHas('resource', function ($query) use ($institution_id) {
-            $query->where('institution_id', $institution_id)->active();
-        })
-            ->where('user_id_01', auth()->user()->getKey())
-            ->orWhere('user_id_02', auth()->user()->getKey())
-            ->orWhere('confirmer', auth()->user()->name)
+
+        $happenings = Happening::with('resource')
+            ->whereHas('resource', fn (Builder $query) => $query->where('institution_id', $institution_id)->active())
+            ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
+                ->orWhere('user_id_02', $user->getKey())
+                ->orWhere('confirmer', $user->name))
             ->weekly()
             ->orderBy('start')
             ->get()
@@ -46,6 +49,7 @@ class UserController extends Controller
                 return ($open && !$closed) ? $happening : null;
             })->filter(fn ($h) => $h);
 
+        $output = [];
         foreach ($happenings as $happening) {
             $output[] = [
                 'id' => $happening->id,
@@ -59,6 +63,7 @@ class UserController extends Controller
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
                     'location' => $happening->resource->location,
+                    'institution_id' => $happening->resource->institution_id,
                 ],
                 'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'confirmed_at' => Carbon::parse($happening->confirmed_at)->format('Y-m-d H:i'),
