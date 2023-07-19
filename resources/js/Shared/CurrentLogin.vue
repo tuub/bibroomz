@@ -44,8 +44,10 @@
 </template>
 
 <script setup>
-import {useAuthStore} from "../Stores/AuthStore";
+import {useAuthStore} from "@/Stores/AuthStore";
 import {storeToRefs} from "pinia";
+import { initFlowbite } from "flowbite";
+import {onMounted} from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -67,5 +69,12 @@ let logoutUser = async () => {
         return console.log(error);
     }
 };
+
+// ------------------------------------------------
+// Mount
+// ------------------------------------------------
+onMounted(() => {
+    initFlowbite();
+});
 </script>
 
