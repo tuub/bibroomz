@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { router } from '@inertiajs/vue3'
