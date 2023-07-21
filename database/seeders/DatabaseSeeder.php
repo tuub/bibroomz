@@ -17,26 +17,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        Institution::factory(1)
-            ->has(Resource::factory()->count(5))
-            ->create();
-
-        // Init settings
-        $institutions = Institution::get();
-        $settings = Setting::getInitialValues();
-
-        foreach ($institutions as $institution) {
-            foreach ($settings as $key => $value) {
-                $setting = new Setting([
-                    'key' => $key,
-                    'value' => $value,
-                ]);
-                $institution->settings()->save($setting);
-            }
-        }
-
         $this->call([
             WeekDaySeeder::class,
+            InstitutionSeeder::class,
         ]);
     }
 }
