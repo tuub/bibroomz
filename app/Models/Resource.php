@@ -41,6 +41,10 @@ class Resource extends Model
         'is_verification_required',
     ];
     protected $with = ['closings'];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_verification_required' => 'boolean',
+    ];
 
     /*****************************************************************
      * RELATIONS

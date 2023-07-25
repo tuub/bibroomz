@@ -65,8 +65,11 @@
                     <span v-if="happening.user2">
                         {{ happening.user2.name }}
                     </span>
+                    <span v-else-if="happening.verifier">
+                        {{ happening.verifier }}
+                    </span>
                     <span v-else>
-                        ({{ happening.verifier }})
+                        Not required
                     </span>
                 </td>
                 <td class="px-6 py-4 text-center">

@@ -44,8 +44,11 @@
                     id="resource_id"
                     name="resource_id"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="">Choose</option>
-                <option v-for="resource in resources" :value="resource.id" :key="resource.id">
+                <option value="-1">Choose</option>
+                <option v-for="resource in resources"
+                        :value="resource.id"
+                        :key="resource.id"
+                        @click="toggleResourceVerificationField(resource)">
                     {{ resource.title }}
                 </option>
             </select>
@@ -75,7 +78,8 @@
                 <label for="user_id_02" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                     User 2
                 </label>
-                <select v-model="form.user_id_02"
+                <select v-if="isHappeningToVerify"
+                        v-model="form.user_id_02"
                         id="user_id_02"
                         name="user_id_02"
                         @change="updateVerifier($event)"
@@ -85,19 +89,26 @@
                         {{ user.name }}
                     </option>
                 </select>
+                <div v-else class="italic">
+                    Not required with this resource
+                </div>
                 <FormValidationError :message="form.errors.user_id_02"></FormValidationError>
             </div>
             <div>
                 <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                     Verifier
                 </label>
-                <input v-model="form.verifier"
+                <input v-if="isHappeningToVerify"
+                       v-model="form.verifier"
                        type="text"
                        id="verifier"
                        name="verifier"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                        placeholder=""
                 >
+                <span v-else class="italic">
+                    Not required with this resource
+                </span>
                 <FormValidationError :message="form.errors.verifier"></FormValidationError>
             </div>
         </div>
@@ -124,7 +135,7 @@
     </form>
 </template>
 <script setup>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, toRaw} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import FormValidationError from "../../../Shared/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
@@ -145,21 +156,31 @@ let resources = ref([]);
 let users = ref([]);
 let form = useForm({
     id: $page.props.id ?? '',
-    resource_id: $page.props.resource_id ?? '',
+    resource_id: $page.props.resource_id ?? '-1',
     start: $page.props.start ?? '',
     end: $page.props.end ?? '',
     user_id_01: $page.props.user_id_01 ?? '',
     user_id_02: $page.props.user_id_02 ?? '',
     verifier: $page.props.verifier ?? '',
     is_verified: $page.props.is_verified === 1,
+    resource: $page.props.resource ?? {},
 });
 
 // Save original verifier for later rollback
 const savedVerifier = form['verifier']
 
+let isHappeningToVerify = ref(true);
+
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
+const toggleResourceVerificationField = (resource) => {
+    if (resource && resource.is_verification_required !== undefined) {
+        isHappeningToVerify.value = resource.is_verification_required
+        form['is_verified'] = !resource.is_verification_required
+    }
+}
+
 const updateVerifier = (event) => {
     let index = users.value.findIndex(x => x.id === event.target.value)
     if (index === -1) {
@@ -199,5 +220,6 @@ let submitForm = () => {
 onMounted( () => {
     getResources();
     getUsers();
+    toggleResourceVerificationField(form.resource);
 });
 </script>

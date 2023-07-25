@@ -26,7 +26,7 @@ class ResourceController extends Controller
 
     public static function getFormResources()
     {
-        return Resource::get(['id', 'title']);
+        return Resource::where('is_active', true)->get(['id', 'title', 'is_verification_required']);
     }
 
     public function deleteResource(Request $request): RedirectResponse

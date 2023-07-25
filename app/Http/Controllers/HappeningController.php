@@ -184,11 +184,8 @@ class HappeningController extends Controller
             return redirect()->back()->with('error', 'No session available.');
         }
 
-        // Validate input
-        $validated = $request->validated();
-
         // Get happening object
-        $happening = auth()->user()->happenings()->findOrFail($validated['id']);
+        $happening = auth()->user()->happenings()->findOrFail($request->id);
         $log['HAPPENING'] = $happening;
 
         // Query policy
@@ -196,20 +193,20 @@ class HappeningController extends Controller
             abort(401, 'You are not allowed to update.');
         }
 
-        $start = new CarbonImmutable($validated['start']);
-        $end = new CarbonImmutable($validated['end']);
+        $start = new CarbonImmutable($request->start);
+        $end = new CarbonImmutable($request->end);
 
         $this->isHappeningValid($happening->resource, $start, $end, $happening);
 
         // Compile happening payload
-        $happeningData = [
-            'start' => Utility::carbonize($validated['start'])->format('Y-m-d H:i:s'),
-            'end' => Utility::carbonize($validated['end'])->format('Y-m-d H:i:s'),
+        $happening_data = [
+            'start' => Utility::carbonize($request->start)->format('Y-m-d H:i:s'),
+            'end' => Utility::carbonize($request->end)->format('Y-m-d H:i:s'),
         ];
-        $log['PAYLOAD'] = json_encode($happeningData);
+        $log['PAYLOAD'] = json_encode($happening_data);
 
         // Update happening & relation
-        $op = $happening->update($happeningData) && $happening->resource()->associate($validated['id']);
+        $op = $happening->update($happening_data) && $happening->resource()->associate($request->id);
 
         if ($op) {
             // Get just updated relation object for broadcasting back

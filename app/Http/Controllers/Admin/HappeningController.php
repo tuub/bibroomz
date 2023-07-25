@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
 use App\Models\Happening;
+use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,22 +25,11 @@ class HappeningController extends Controller
         return Inertia::render('Admin/Happenings/Form');
     }
 
-    public function storeHappening(Request $request)
+    public function storeHappening(StoreHappeningRequest $request)
     {
-        // FIXME: Request Class! See other reauest classes!
-        // Validate
-        $attributes = $request->validate([
-            'resource_id' => ['required'],
-            'start' => 'required',
-            'end' => 'required',
-            'user_id_01' => 'required',
-            'verifier' => 'required',
-        ]);
-
-        $attributes['reserved_at'] = Carbon::now();
-
         // Create
-        Happening::create($attributes);
+        $happening_data = array_merge($request->all(), ['reserved_at' => Carbon::now()]);
+        $happening = Happening::create($happening_data);
 
         // Redirect
         return redirect()->route('admin.happening.index');
@@ -46,17 +37,14 @@ class HappeningController extends Controller
 
     public function editHappening(Request $request)
     {
-        $happening = Happening::find($request->id);
+        $happening = Happening::with('resource')->findOrFail($request->id);
         return Inertia::render('Admin/Happenings/Form', $happening);
     }
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
-        // FIXME: See other reauest classes!
-        $validated = $request->validated();
-
-        $happening = Happening::find($request->id);
-        $happening->update($validated);
+        $happening = Happening::findOrFail($request->id);
+        $happening->update($request->all());
 
         return redirect()->route('admin.happening.index');
     }
