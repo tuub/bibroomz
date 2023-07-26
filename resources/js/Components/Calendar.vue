@@ -187,7 +187,7 @@ const isSelectAllow = (event) => {
 
     let isValid = tsStart.add(tsLen.hours, 'hours').add(tsLen.minutes, 'minutes').isAfter(now)
 
-    if (authStore.isExceedingQuotas(tsStart, tsEnd)) {
+    if (authStore.isAuthenticated && authStore.isExceedingQuotas(tsStart, tsEnd)) {
         return false;
     }
 
@@ -207,7 +207,7 @@ const onSelect = (eventInfo) => {
             },
             start: eventInfo.startStr,
             end: eventInfo.endStr,
-            isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
+            isVerificationRequired: eventInfo.resource.extendedProps.is_verification_required,
         });
 
         emit('open-modal-component', useCreateModal(happeningData));
