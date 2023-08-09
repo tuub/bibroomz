@@ -13,9 +13,11 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    public static function getSettings(Request $request): Response
+    public function getSettings(Request $request): Response
     {
         $institution = Institution::with('settings')->findOrFail($request->id);
+        Institution::abortIfUnauthorized($institution);
+
         return Inertia::render('Admin/Settings/Index', [
             'institution' => $institution,
         ]);
@@ -23,14 +25,18 @@ class SettingController extends Controller
 
     public function editSetting(Request $request): Response
     {
-        $setting = Setting::where('id', $request->id)->firstOrFail();
-        return Inertia::render('Admin/Settings/Form', $setting);
+        $setting = Setting::findOrFail($request->id);
+        Institution::abortIfUnauthorized($setting->institution);
+
+        return Inertia::render('Admin/Settings/Form', $setting->only(['id', 'key', 'value']));
     }
 
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse
     {
+        $setting = Setting::findOrFail($request->id);
+        Institution::abortIfUnauthorized($setting->institution);
+
         $validated = $request->validated();
-        $setting = Setting::find($request->id);
         $setting->update($validated);
 
         return redirect()->route('admin.setting.index', ['id' => $setting->institution_id]);

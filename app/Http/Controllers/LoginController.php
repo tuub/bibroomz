@@ -4,11 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
+    private function userStatus()
+    {
+        /** @var User */
+        $user = auth()->user();
+
+        return [
+            'isAdmin' => $user->isAdmin(),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'institutionAdmin' => $user->institutionAdmin(),
+        ];
+    }
     public function login(Request $request)
     {
         $request->validate([
@@ -23,47 +37,36 @@ class LoginController extends Controller
 
         $auth = Auth::attempt($credentials);
 
-        if ($auth) {
+        if (!$auth) {
             $response = [
-                // 'message' => __('auth.login.success'),
-                'admin' => auth()->user()->is_admin ?? false,
-                'user' => [
-                    'id' => auth()->user()->id,
-                    'name' => auth()->user()->name,
-                    'email' => auth()->user()->email,
-                ]
+                'message' => __('auth.errors.user_not_found'),
             ];
 
-            return response()->json($response, Response::HTTP_OK);
+            return response()->json($response, Response::HTTP_UNAUTHORIZED);
         }
 
-        $response = [
-            // 'message' => __('auth.login.error'),
-            'message' => __('auth.errors.user_not_found'),
-        ];
-
-        return response()->json($response, Response::HTTP_UNAUTHORIZED);
+        $response = $this->userStatus();
+        return response()->json($response, Response::HTTP_OK);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
         Auth::logout();
-        return response('', status: Response::HTTP_OK);
 
-        // return response()->json(['message' => __('auth.logout.success')]);
+        return response()->noContent();
     }
 
-    public function check(Request $request)
+    public function check()
     {
-        $response = [
-            'status' => auth()->check(),
-            'admin' => auth()->user()->is_admin ?? false,
-            'user' => [
-                'id' => auth()->user()->id ?? null,
-                'name' => auth()->user()->name ?? null,
-                'email' => auth()->user()->email ?? null,
-            ]
-        ];
-        return response()->json($response);
+        if (!auth()->check()) {
+            $response = [
+                'message' => __('auth.errors.no_auth'),
+            ];
+
+            return response()->json($response, Response::HTTP_UNAUTHORIZED);
+        }
+
+        $response = $this->userStatus();
+        return response()->json($response, Response::HTTP_OK);
     }
 }

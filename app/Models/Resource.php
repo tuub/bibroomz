@@ -573,7 +573,7 @@ class Resource extends Model
     {
         /** @var User */
         $user = auth()->user();
-        if ($user->can('admin')) {
+        if ($user->can('edit', $this->institution)) {
             return false;
         }
 

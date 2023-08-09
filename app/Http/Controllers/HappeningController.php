@@ -18,7 +18,6 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class HappeningController extends Controller
 {
@@ -125,29 +124,24 @@ class HappeningController extends Controller
 
     public function addHappening(AddHappeningRequest $request)
     {
-        // Check auth -> do we need this?
-        if (!auth()->user()) {
-            return redirect()->back()->with('error', 'No session available.');
-        }
+        /** @var User */
+        $user = auth()->user();
 
-        // Validate input
-        $validated = $request->validated();
-
-        // Query policy
-        if (auth()->user()->cannot('create', Happening::class)) {
+        // Authorize
+        if ($user->cannot('create', Happening::class)) {
             abort(401, 'You are not allowed to create.');
         }
 
-        // Get resource object
-        $resource = Resource::find($validated['resource']['id']);
+        /** @var Resource */
+        $resource = Resource::find($request['resource']['id']);
         $log['RESOURCE'] = $resource['title'];
 
-        $start = new CarbonImmutable($validated['start']);
-        $end = new CarbonImmutable($validated['end']);
+        $start = new CarbonImmutable($request['start']);
+        $end = new CarbonImmutable($request['end']);
 
         $this->isHappeningValid($resource, $start, $end);
 
-        $is_admin = auth()->user()->is_admin;
+        $is_admin = $user->isAdmin() || $user->isInstitutionAdmin($resource->institution);
         $is_verified = !$resource->is_verification_required || $is_admin;
 
         // Compile happening payload
@@ -157,7 +151,7 @@ class HappeningController extends Controller
             'resource_id' => $resource->id,
             'is_verification_required' => $resource->is_verification_required,
             'is_verified' => $is_verified,
-            'verifier' => !$is_verified ? $validated['verifier'] : null,
+            'verifier' => !$is_verified ? $request['verifier'] : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
@@ -180,17 +174,15 @@ class HappeningController extends Controller
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
-        // Check auth -> do we need this?
-        if (!auth()->user()) {
-            return redirect()->back()->with('error', 'No session available.');
-        }
+        /** @var User */
+        $user = auth()->user();
 
-        // Get happening object
-        $happening = auth()->user()->happenings()->findOrFail($request->id);
+        /** @var Happening */
+        $happening = $user->happenings()->findOrFail($request->id);
         $log['HAPPENING'] = $happening;
 
-        // Query policy
-        if (auth()->user()->cannot('update', $happening)) {
+        // Authorize
+        if ($user->cannot('update', $happening)) {
             abort(401, 'You are not allowed to update.');
         }
 

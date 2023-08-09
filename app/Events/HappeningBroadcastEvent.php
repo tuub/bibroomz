@@ -37,22 +37,27 @@ class HappeningBroadcastEvent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         $happening = $this->happening;
+        $resource = $happening->resource;
+        $institution = $resource->institution;
 
-        $owner = User::find($happening->user_id_01);
-        $is_verification_required = $happening->resource->is_verification_required && !$owner->is_admin;
+        /** @var User */
+        $user1 = User::find($happening->user_id_01);
+
+        $is_admin = $user1->isAdmin() || $user1->isInstitutionAdmin($institution);
+        $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [
             'happening' => [
                 'id' => $happening->id,
-                'user_01' => $owner->name,
+                'user_01' => $user1->name,
                 'user_02' => User::find($happening->user_id_02)->name ?? $happening->verifier,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'isVerified' => $happening->is_verified,
                 'resource' => [
-                    'id' => $happening->resource_id,
-                    'title' => $happening->resource->title,
-                    'location' => $happening->resource->location,
+                    'id' => $resource->id,
+                    'title' => $resource->title,
+                    'location' => $resource->location,
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),

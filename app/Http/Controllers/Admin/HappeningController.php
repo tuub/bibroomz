@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
 use App\Library\Utility;
 use App\Models\Happening;
+use App\Models\Institution;
+use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,8 +18,14 @@ class HappeningController extends Controller
 {
     public function getHappenings()
     {
+        /** @var User */
+        $user = auth()->user();
+
+        $happenings = Happening::with(['resource', 'user1'])->get()
+            ->filter(fn ($happening) => $user->can('edit', $happening->resource->institution));
+
         return Inertia::render('Admin/Happenings/Index', [
-            'happenings' => Happening::with(['resource', 'user1'])->get()
+            'happenings' => $happenings,
         ]);
     }
 
@@ -28,13 +36,12 @@ class HappeningController extends Controller
 
     public function storeHappening(StoreHappeningRequest $request)
     {
-        $validated = $request->validated();
-        $sanitized = self::sanitizeHappeningData(
-            [
-                ...$validated,
-                'reserved_at' => Carbon::now(),
-            ]
-        );
+        $resource = Resource::findOrFail($request->resource_id);
+        Institution::abortIfUnauthorized($resource->institution);
+
+        $validated = $request->safe()->merge(['reserved_at' => Carbon::now()]);
+        $sanitized = self::sanitizeHappeningData($validated);
+
         Happening::create($sanitized);
 
         return redirect()->route('admin.happening.index');
@@ -43,6 +50,7 @@ class HappeningController extends Controller
     public function editHappening(Request $request)
     {
         $happening = Happening::with('resource')->findOrFail($request->id);
+        Institution::abortIfUnauthorized($happening->resource->institution);
 
         $happening->start_date = Carbon::parse($happening->start)->format('d.m.Y');
         $happening->start_time = Carbon::parse($happening->start)->format('H:i');
@@ -54,7 +62,12 @@ class HappeningController extends Controller
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
+        // Check both old and new resource for authorization
         $happening = Happening::findOrFail($request->id);
+        Institution::abortIfUnauthorized($happening->resource->institution);
+
+        $resource = Resource::findOrFail($request->resource_id);
+        Institution::abortIfUnauthorized($resource->institution);
 
         $validated = $request->validated();
         $sanitized = self::sanitizeHappeningData($validated);
@@ -67,6 +80,8 @@ class HappeningController extends Controller
     public function deleteHappening(Request $request)
     {
         $happening = Happening::find($request->id);
+        Institution::abortIfUnauthorized($happening->resource->institution);
+
         $happening->delete();
 
         return redirect()->route('admin.happening.index');

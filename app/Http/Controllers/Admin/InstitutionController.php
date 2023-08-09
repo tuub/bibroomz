@@ -12,25 +12,41 @@ use Inertia\Inertia;
 
 class InstitutionController extends Controller
 {
-    public static function getInstitutions(Request $request)
+    public function getInstitutions()
     {
+        /** @var User */
+        $user = auth()->user();
+
+        $institutions = Institution::with(['resources', 'closings'])->get()
+            ->filter(fn ($institution) => $user->can('edit', $institution));
+
         return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => Institution::with(['resources', 'closings'])->get()
+            'institutions' => $institutions,
         ]);
     }
 
-    public static function getFormInstitutions()
+    public  function getFormInstitutions()
     {
-        return Institution::get(['id', 'title']);
+        /** @var User */
+        $user = auth()->user();
+
+        $institutions = Institution::get(['id', 'title'])
+            ->filter(fn ($institution) => $user->can('edit', $institution));
+
+        return $institutions;
     }
 
-    public function createInstitution(Request $request)
+    public function createInstitution()
     {
+        Institution::abortIfUnauthorized(verb: 'create');
+
         return Inertia::render('Admin/Institutions/Form');
     }
 
     public function storeInstitution(StoreInstitutionRequest $request)
     {
+        Institution::abortIfUnauthorized(verb: 'create');
+
         $validated = $request->validated();
         $institution = Institution::create($validated);
 
@@ -50,23 +66,28 @@ class InstitutionController extends Controller
     public function editInstitution(Request $request)
     {
         $institution = Institution::where('id', $request->id)->with('closings')->firstOrFail();
+        Institution::abortIfUnauthorized($institution);
+
         return Inertia::render('Admin/Institutions/Form', $institution);
     }
 
     public function updateInstitution(UpdateInstitutionRequest $request)
     {
-        $resource = Institution::findOrFail($request->id);
+        $institution = Institution::findOrFail($request->id);
+        Institution::abortIfUnauthorized($institution);
 
         $validated = $request->validated();
-        $resource->update($validated);
+        $institution->update($validated);
 
         return redirect()->route('admin.institution.index');
     }
 
     public function deleteInstitution(Request $request)
     {
-        $institutions = Institution::find($request->id);
-        $institutions->delete();
+        $institution = Institution::findOrFail($request->id);
+        Institution::abortIfUnauthorized($institution, verb: 'delete');
+
+        $institution->delete();
 
         return redirect()->route('admin.institution.index');
     }

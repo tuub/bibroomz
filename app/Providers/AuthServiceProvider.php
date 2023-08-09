@@ -29,7 +29,23 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('admin', function (User $user) {
-            return $user->is_admin === true;
+            if ($user->isAdmin()) {
+                return true;
+            }
+
+            if ($user->isInstitutionAdmin()) {
+                return true;
+            }
+
+            return false;
+        });
+
+        Gate::define('admin.global', function (User $user) {
+            if ($user->isAdmin()) {
+                return true;
+            }
+
+            return false;
         });
 
         // Just return true on builtin method

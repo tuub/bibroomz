@@ -8,7 +8,7 @@
                 <HappeningCount :count="happeningsCount"></HappeningCount>
             </span>
         </div>
-        <div v-if="!isAdmin" class="text-sm font-medium">
+        <div v-if="!isAdmin && !isInstitutionAdmin" class="text-sm font-medium">
             <HappeningQuotas></HappeningQuotas>
         </div>
         <div class="flow-root">
@@ -53,7 +53,7 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let { isAdmin } = storeToRefs(authStore)
+let { isAdmin, isInstitutionAdmin } = storeToRefs(authStore)
 
 const happeningsCount = computed(() => {
     return props.happenings.length

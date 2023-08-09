@@ -25,7 +25,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isBetween from 'dayjs/plugin/isBetween';
-import { inject, onMounted, onUnmounted, reactive, ref, watch, watchEffect, computed } from "vue";
+import { inject, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 
 import {useAppStore} from "../Stores/AppStore";
 import {useAuthStore} from "../Stores/AuthStore";
@@ -70,7 +70,7 @@ dayjs.extend(utc)
 const refCalendar = ref(null)
 let calendarApi = null
 let isLoading = ref(false);
-let { isAuthenticated, isAdmin } = storeToRefs(authStore)
+let { isAuthenticated } = storeToRefs(authStore)
 
 let institution = appStore.institution
 let institutionSettings = institution.settings

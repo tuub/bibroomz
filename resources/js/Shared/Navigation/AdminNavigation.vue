@@ -57,7 +57,7 @@
 
                         </NavLink>
                     </li>
-                    <li>
+                    <li v-if="isAdmin">
                         <NavLink icon="ri-user-fill"
                                  :href="route('admin.user.index')"
                                  :is_active="isPageUsers">
@@ -104,7 +104,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 let inertiaPage = usePage()
 let institutionSlug = appStore.institutionSlug;
-let { isAuthenticated, user } = storeToRefs(authStore);
+let { isAdmin, isAuthenticated, user } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Computed

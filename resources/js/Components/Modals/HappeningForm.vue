@@ -45,7 +45,7 @@
                 </select>
             </div>
         </div>
-        <div v-if="happening.isVerificationRequired && !isAdmin" class="mb-6">
+        <div v-if="happening.isVerificationRequired && !isAdmin && !isInstitutionAdmin" class="mb-6">
             <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
                 {{ trans('modal.form.verifier') }}
             </label>
@@ -83,7 +83,7 @@ let slug = appStore.institution.slug
 const emit = defineEmits(["update:input"]);
 
 const authStore = useAuthStore();
-let { isAdmin } = storeToRefs(authStore);
+let { isAdmin, isInstitutionAdmin } = storeToRefs(authStore);
 
 let isInitial = ref(true);
 let isLoading = ref(false);

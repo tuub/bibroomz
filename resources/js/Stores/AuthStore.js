@@ -2,8 +2,8 @@ import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { router } from '@inertiajs/vue3'
-import {useAppStore} from "@/Stores/AppStore";
-import {trans} from "laravel-vue-i18n";
+import { useAppStore } from "@/Stores/AppStore";
+import { trans } from "laravel-vue-i18n";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -12,75 +12,107 @@ const toast = useToast();
 export const useAuthStore = defineStore({
     id: 'auth',
     persist: true,
+
     state: () => ({
         user: null,
         isAuthenticated: false,
         isAdmin: false,
+        institutionAdmin: {},
         userHappenings: [],
-        errors: [],
         quotas: {},
     }),
+
+    getters: {
+        isInstitutionAdmin: (state) => {
+            const appStore = useAppStore();
+            let institution = appStore.institution;
+
+            return state.institutionAdmin[institution?.id];
+        },
+    },
+
     actions: {
+
         async csrf() {
             return await axios.get(`${baseUrl}/sanctum/csrf-cookie`)
         },
-        async check() {
-            await axios.post(`${baseUrl}/check`).then((response) => {
-                this.user = response.data.user
-                this.isAuthenticated = response.data.status
-                this.isAdmin = response.data.admin
-                this.fetchUserHappenings()
-                this.subscribe();
-            })
-        },
-        async login(username, password) {
-            await this.csrf()
 
-            axios.post(`${baseUrl}/login`, {
-                username,
-                password,
-            }).then(async (response) => {
+        async check() {
+            try {
+                const response = await axios.post(`${baseUrl}/check`)
+
                 this.user = response.data.user;
-                this.isAdmin = response.data.admin;
                 this.isAuthenticated = true;
-                await this.fetchUserHappenings();
+                this.isAdmin = response.data.isAdmin;
+                this.institutionAdmin = response.data.institutionAdmin;
+
+                this.fetchUserHappenings();
+                this.subscribe();
+            } catch (error) {
+                this.$reset();
+            }
+        },
+
+        async login(username, password) {
+            try {
+                await this.csrf();
+
+                const response = await axios.post(`${baseUrl}/login`, {
+                    username,
+                    password,
+                });
+
+                this.user = response.data.user;
+                this.isAuthenticated = true;
+                this.isAdmin = response.data.isAdmin;
+                this.institutionAdmin = response.data.institutionAdmin;
+
+                this.fetchUserHappenings();
                 this.subscribe();
 
                 toast.success(trans('toast.login.success'))
-            }).catch((error) => {
-                this.errors = error.response?.data?.message
-                toast.error(trans('toast.login.error', {message: this.errors}))
-            });
-        },
-        async logout() {
-            let response = await axios.post(`${baseUrl}/logout`)
+            } catch (error) {
+                const message = error.response?.data?.message;
 
-            if (response) {
+                toast.error(trans('toast.login.error', { message }));
+            }
+        },
+
+        async logout() {
+            try {
+                await axios.post(`${baseUrl}/logout`);
+
                 this.unsubscribe();
-                this.user = null;
-                this.isAuthenticated = false;
-                this.isAdmin = false;
-                this.userHappenings = [];
-                this.quotas = {};
+                this.$reset();
 
                 router.visit('/');
 
-                toast.success(trans('toast.logout.success'))
+                toast.success(trans('toast.logout.success'));
+            } catch (error) {
+                toast.error(trans('toast.logout.error'));
             }
         },
+
         async fetchUserHappenings() {
-            if (this.isAuthenticated) {
-                let institution = useAppStore().institution
-                await axios.get(`${baseUrl}/my/happenings`, {params: {institution_id: institution.id}}).then((response) => {
-                    this.userHappenings = response.data
-                }).catch((response) => {
-                    console.log('API Error:')
-                    console.log(response)
+            if (!this.isAuthenticated) {
+                return;
+            }
+
+            const institution = useAppStore().institution;
+
+            try {
+                const response = await axios.get(`${baseUrl}/my/happenings`, {
+                    params: {
+                        institution_id: institution.id,
+                    },
                 });
-            } else {
-                //console.log('Only fetch user happenings when authenticated!')
+
+                this.userHappenings = response.data;
+            } catch (error) {
+                console.log('Error fetching user happenings:', error);
             }
         },
+
         addUserHappening(happening) {
             let index = this._findUserHappeningIndex(happening.id)
             if (index === -1) {
@@ -91,6 +123,7 @@ export const useAuthStore = defineStore({
                 console.log('Attempt to add multiple identical entries. Skipping.')
             }
         },
+
         updateUserHappening(happening) {
             let index = this._findUserHappeningIndex(happening.id)
             this.userHappenings[index] = happening;
@@ -103,9 +136,11 @@ export const useAuthStore = defineStore({
                 this.userHappenings.splice(index, 1)
             }
         },
+
         _findUserHappeningIndex(id) {
             return this.userHappenings.findIndex(x => x.id === id)
         },
+
         subscribe() {
             if (this.isAuthenticated) {
                 let userChannel = `happenings.${this.user.id}`;
@@ -130,14 +165,16 @@ export const useAuthStore = defineStore({
                 //console.log('Could not subscribe to private channel, no auth')
             }
         },
+
         unsubscribe() {
-            if (this.isAuthenticated) {
-                let userChannel = `happenings.${this.user.id}`;
-                Echo.leave(userChannel);
-            } else {
-                //console.log('Could not unsubscribe from private channel, no auth')
+            if(!this.isAuthenticated) {
+                return;
             }
+
+            let userChannel = `happenings.${this.user.id}`;
+            Echo.leave(userChannel);
         },
+
         updateQuotas(currentDate) {
             currentDate = dayjs(currentDate);
 
@@ -165,6 +202,7 @@ export const useAuthStore = defineStore({
             this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_happenings = sameWeekHappenings.length;
         },
+
         isExceedingQuotas(start, end) {
             let institution = useAppStore().institution
 
@@ -173,7 +211,7 @@ export const useAuthStore = defineStore({
             const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
-            if (this.isAdmin) {
+            if (this.isAdmin || this.isInstitutionAdmin) {
                 return false;
             }
 
@@ -217,5 +255,7 @@ export const useAuthStore = defineStore({
 
             return false;
         }
+
     },
+
 });

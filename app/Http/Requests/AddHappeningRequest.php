@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Resource;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 
 class AddHappeningRequest extends FormRequest
 {
@@ -27,7 +27,10 @@ class AddHappeningRequest extends FormRequest
     {
         $resource = Resource::find($this->resource['id']);
 
-        $is_admin = auth()->user()->is_admin;
+        /** @var User */
+        $user = auth()->user();
+
+        $is_admin = $user->isAdmin() || $user->isInstitutionAdmin($resource->institution);
         $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [
@@ -35,7 +38,7 @@ class AddHappeningRequest extends FormRequest
             'start' => ['required'],
             'end' => ['required'],
             'verifier' => [
-                $is_verification_required ? 'required' : '', 'not_in:' . auth()->user()->name,
+                $is_verification_required ? 'required' : '', 'not_in:' . $user->name,
             ],
         ];
     }

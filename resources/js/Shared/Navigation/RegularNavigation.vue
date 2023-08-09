@@ -48,7 +48,7 @@
                             {{ $t('navigation.regular.profile') }}
                         </NavLink>
                     </li>
-                    <li v-if="isAuthenticated && isAdmin">
+                    <li v-if="isAdmin || isInstitutionAdmin">
                         <NavLink icon="ri-tools-fill"
                                  :href="route('admin.dashboard')">
                             {{ $t('navigation.regular.admin') }}
@@ -81,7 +81,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 let inertiaPage = usePage()
 let { institutionShortTitle, institutionSlug, isMultiTenancy } = storeToRefs(appStore);
-let { isAuthenticated, isAdmin, user } = storeToRefs(authStore);
+let { isAuthenticated, isAdmin, isInstitutionAdmin, user } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Computed

@@ -17,9 +17,6 @@ return [
     'password' => 'Das Passwort ist falsch.',
     'throttle' => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
 
-    'errors'   => [
-        'user_not_found' => 'Benutzer existiert nicht.',
-    ],
     'login'    => [
         'error'   => 'Loginversuch fehlgeschlagen.',
         'success' => 'Erfolgreich eingeloggt.',
@@ -27,5 +24,9 @@ return [
     'logout'   => [
         'error'   => 'Logoutversuch fehlgeschlagen.',
         'success' => 'Erfolgreich ausgeloggt.',
+    ],
+    'errors'   => [
+        'user_not_found' => 'Benutzer existiert nicht.',
+        'no_auth' => 'Nicht eingeloggt.',
     ],
 ];

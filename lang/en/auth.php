@@ -27,5 +27,6 @@ return [
     ],
     'errors' => [
         'user_not_found' => 'User not found',
+        'no_auth' => 'Not logged in.',
     ],
 ];

@@ -14,7 +14,8 @@
                        :description="$t('admin.resources.index.description')"
                        :link="route('admin.resource.index')"
                        icon="ri-map-pin-fill"></DashboardCard>
-        <DashboardCard :title="$t('admin.users.index.title')"
+        <DashboardCard v-if="isAdmin"
+                       :title="$t('admin.users.index.title')"
                        :description="$t('admin.users.index.description')"
                        :link="route('admin.user.index')"
                        icon="ri-user-fill"></DashboardCard>
@@ -28,4 +29,9 @@
 <script setup>
 import DashboardCard from "@/Components/Admin/DashboardCard.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import { useAuthStore } from "@/Stores/AuthStore";
+import { storeToRefs } from "pinia";
+
+const authStore = useAuthStore();
+let { isAdmin } = storeToRefs(authStore);
 </script>

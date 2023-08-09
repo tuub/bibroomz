@@ -9,6 +9,8 @@ use App\Library\Utility;
 use App\Mail\ClosingCreated;
 use App\Mail\ClosingUpdated;
 use App\Models\Closing;
+use App\Models\Institution;
+use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +21,21 @@ use Inertia\Response;
 
 class ClosingController extends Controller
 {
-    public static function getClosings(Request $request)
+    private function abortIfUnauthorized($closable)
+    {
+        if ($closable instanceof Institution) {
+            Institution::abortIfUnauthorized($closable);
+        }
+
+        if ($closable instanceof Resource) {
+            Institution::abortIfUnauthorized($closable->institution);
+        }
+    }
+
+    public function getClosings(Request $request)
     {
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $this->abortIfUnauthorized($closable);
 
         return Inertia::render('Admin/Closings/Index', [
             'closable' => $closable,
@@ -33,6 +47,7 @@ class ClosingController extends Controller
     public function createClosing(Request $request): Response
     {
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $this->abortIfUnauthorized($closable);
 
         return Inertia::render('Admin/Closings/Form', [
             'closing' => '',
@@ -44,6 +59,7 @@ class ClosingController extends Controller
     public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $this->abortIfUnauthorized($closable);
 
         $validated = $request->validated();
         $sanitized = self::sanitizeClosingData($validated);
@@ -69,6 +85,8 @@ class ClosingController extends Controller
     public function editClosing(Request $request): Response
     {
         $closing = Closing::find($request->id);
+        $this->abortIfUnauthorized($closing->closable);
+
         $closable_type = explode('\\', $closing->closable_type);
 
         $closing->start_date = Carbon::parse($closing->start)->format('d.m.Y');
@@ -86,6 +104,7 @@ class ClosingController extends Controller
     public function updateClosing(UpdateClosingRequest $request): RedirectResponse
     {
         $closing = Closing::find($request->id);
+        $this->abortIfUnauthorized($closing->closable);
 
         $validated = $request->validated();
         $sanitized = self::sanitizeClosingData($validated);
@@ -118,8 +137,11 @@ class ClosingController extends Controller
     public function deleteClosing(Request $request): RedirectResponse
     {
         $closing = Closing::find($request->id);
-        $closable_type = explode('\\', $closing->closable_type);
+        $this->abortIfUnauthorized($closing->closable);
+
         $closing->delete();
+
+        $closable_type = explode('\\', $closing->closable_type);
 
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,

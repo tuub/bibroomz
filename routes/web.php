@@ -36,6 +36,7 @@ Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth:sanctum')->group(function () {
+
     /* User actions */
     Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
@@ -44,7 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/happening/update/{id}', [HappeningController::class, 'updateHappening'])->name('happening.add');
     Route::delete('/happening/delete/{id}', [HappeningController::class, 'deleteHappening'])->name('happening.delete');
 
+    /* Admins */
     Route::middleware('can:admin')->group(function () {
+
         /* Dashboard */
         Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])->name('admin.dashboard');
 
@@ -85,19 +88,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/closing/update', [AdminClosingController::class, 'updateClosing'])->name('admin.closing.update');
         Route::post('/admin/closing/delete', [AdminClosingController::class, 'deleteClosing'])->name('admin.closing.delete');
 
-        /* Users */
-        Route::get('/admin/users', [AdminUserController::class, 'getUsers'])->name('admin.user.index');
-        Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'editUser'])->name('admin.user.edit');
-        Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
-        /* Special */
-        Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
-
         /* Settings */
         Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])->name('admin.setting.edit');
         Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])->name('admin.setting.update');
 
         /* Stats */
         Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])->name('admin.statistic.index');
+
+        /* Global Admins only */
+        Route::middleware('can:admin.global')->group(function () {
+
+            /* Users */
+            Route::get('/admin/users', [AdminUserController::class, 'getUsers'])->name('admin.user.index');
+            Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'editUser'])->name('admin.user.edit');
+            Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
+
+        });
+
+        /* Special */
+        Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])->name('admin.user.form');
+
     });
 });
 

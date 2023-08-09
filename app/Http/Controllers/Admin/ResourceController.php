@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Http\Requests\Admin\UpdateResourceRequest;
 use App\Models\BusinessHour;
+use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\WeekDay;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,20 +18,32 @@ class ResourceController extends Controller
 {
     public static function getResources(): Response
     {
-        return Inertia::render('Admin/Resources/Index', [
-            'resources' => Resource::with(['institution', 'business_hours', 'business_hours.week_days', 'closings'])
-                ->get()
-        ]);
+        /** @var User */
+        $user = auth()->user();
+
+        $resources = Resource::with(['institution', 'business_hours', 'business_hours.week_days', 'closings'])->get()
+            ->filter(fn ($resource) => $user->can('edit', $resource->institution));
+
+        return Inertia::render('Admin/Resources/Index', ['resources' => $resources]);
     }
 
     public static function getFormResources()
     {
-        return Resource::where('is_active', true)->get(['id', 'title', 'is_verification_required']);
+        /** @var User */
+        $user = auth()->user();
+
+        $resources = Resource::active()->get()
+            ->filter(fn ($resource) => $user->can('edit', $resource->institution))
+            ->map->only(['id', 'title', 'is_verification_required']);
+
+        return $resources;
     }
 
     public function deleteResource(Request $request): RedirectResponse
     {
         $resource = Resource::find($request->id);
+        Institution::abortIfUnauthorized($resource->institution);
+
         $resource->delete();
 
         return redirect()->route('admin.resource.index');
@@ -48,6 +60,9 @@ class ResourceController extends Controller
 
     public function storeResource(StoreResourceRequest $request): RedirectResponse
     {
+        $institution = Institution::findOrFail($request->institution_id);
+        Institution::abortIfUnauthorized($institution);
+
         $validated = $request->safe();
         $resource = Resource::create($validated->except('business_hours'));
 
@@ -64,6 +79,8 @@ class ResourceController extends Controller
             'business_hours.week_days:id'
         ])->firstOrFail();
 
+        Institution::abortIfUnauthorized($resource->institution);
+
         $week_days = WeekDay::get();
 
         return Inertia::render('Admin/Resources/Form', [
@@ -74,7 +91,12 @@ class ResourceController extends Controller
 
     public function updateResource(UpdateResourceRequest $request): RedirectResponse
     {
+        // Check both old and new institution for authorization
         $resource = Resource::find($request->id);
+        Institution::abortIfUnauthorized($resource->institution);
+
+        $institution = Institution::findOrFail($request->institution_id);
+        Institution::abortIfUnauthorized($institution);
 
         $validated = $request->safe();
         $resource->update($validated->except('business_hours'));

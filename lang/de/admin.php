@@ -280,7 +280,11 @@ return [
                 ],
                 'is_admin' => [
                     'label' => 'Admin?',
-                    'hint' => 'Über die Admin-Rolle',
+                    'hint' => 'Admins haben globale Admin-Rechte.',
+                ],
+                'institution_admin' => [
+                    'label' => 'Einrichtungs-Admin',
+                    'hint' => 'Einrichtungs-Admins haben lokale Admin-Rechte für die ausgewählten Einrichtungen.',
                 ],
             ],
             'actions' => [

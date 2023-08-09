@@ -282,6 +282,10 @@ return [
                     'label' => 'Is Admin?',
                     'hint' => 'About the admin role',
                 ],
+                'institution_admin' => [
+                    'label' => 'Institution Admin',
+                    'hint' => 'About institution admins',
+                ],
             ],
             'actions' => [
                 'submit' => 'Save',

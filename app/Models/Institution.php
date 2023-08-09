@@ -50,11 +50,42 @@ class Institution extends Model
         return $this->hasManyThrough(Happening::class, Resource::class);
     }
 
+    public function admins(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'institution_admins');
+    }
+
     /*****************************************************************
      * SCOPES
      ****************************************************************/
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /*****************************************************************
+     * METHODS
+     ****************************************************************/
+    public function isAdmin($user): bool
+    {
+        return $this->admins->contains($user);
+    }
+
+    public static function abortIfUnauthorized(Institution $institution = null, string $verb = 'edit'): void
+    {
+        /** @var User */
+        $user = auth()->user();
+
+        if ($institution) {
+            if (!$user->can($verb, $institution)) {
+                abort(403);
+            }
+
+            return;
+        }
+
+        if (!$user->can($verb, self::class)) {
+            abort(403);
+        }
     }
 }
