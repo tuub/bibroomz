@@ -130,8 +130,9 @@ export const useAuthStore = defineStore({
             // Order userHappenings array by start datetime
             this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
-        removeUserHappening(id) {
-            let index = this._findUserHappeningIndex(id)
+
+        removeUserHappening(happening) {
+            let index = this._findUserHappeningIndex(happening.id)
             if (index >= 0) {
                 this.userHappenings.splice(index, 1)
             }
@@ -142,28 +143,40 @@ export const useAuthStore = defineStore({
         },
 
         subscribe() {
-            if (this.isAuthenticated) {
-                let userChannel = `happenings.${this.user.id}`;
-                Echo.private(userChannel)
-                    .listen("HappeningCreated", (e) => {
-                        this.addUserHappening(e.happening);
-                        toast.success(trans('toast.happening.created', {message: e.happening.id}))
-                    })
-                    .listen("HappeningVerified", (e) => {
-                        this.updateUserHappening(e.happening);
-                        toast.success(trans('toast.happening.verified', {message: e.happening.id}))
-                    })
-                    .listen("HappeningUpdated", (e) => {
-                        this.updateUserHappening(e.happening);
-                        toast.success(trans('toast.happening.updated', {message: e.happening.id}))
-                    })
-                    .listen("HappeningDeleted", (e) => {
-                        this.removeUserHappening(e.id);
-                        toast.success(trans('toast.happening.deleted', {message: e.id}))
-                    });
-            } else {
-                //console.log('Could not subscribe to private channel, no auth')
+            if (!this.isAuthenticated) {
+                return;
             }
+
+            let userChannel = `happenings.${this.user.id}`;
+            Echo.private(userChannel)
+                .listen("HappeningCreated", (event) => {
+                    const happening = event.happening;
+                    this.addUserHappening(happening);
+
+                    const message = `${happening.start} - ${happening.end}`;
+                    toast.success(trans('toast.happening.created', { message }))
+                })
+                .listen("HappeningVerified", (event) => {
+                    const happening = event.happening;
+                    this.updateUserHappening(happening);
+
+                    const message = `${happening.start} - ${happening.end}`;
+                    toast.success(trans('toast.happening.verified', { message }))
+                })
+                .listen("HappeningUpdated", (event) => {
+                    const happening = event.happening;
+                    this.updateUserHappening(happening);
+
+                    const message = `${happening.start} - ${happening.end}`;
+                    toast.success(trans('toast.happening.updated', { message }))
+                })
+                .listen("HappeningDeleted", (event) => {
+                    const happening = event.happening;
+                    this.removeUserHappening(happening);
+
+                    const message = `${happening.start} - ${happening.end}`;
+                    toast.success(trans('toast.happening.deleted', { message }))
+                });
         },
 
         unsubscribe() {

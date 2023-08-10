@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\Happening;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -35,7 +36,13 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
-        return ['id' => $this->happening['id']];
+        return [
+            'happening' => [
+                'id' => $this->happening['id'],
+                'start' => Carbon::parse($this->happening['start'])->format('Y-m-d H:i'),
+                'end' => Carbon::parse($this->happening['end'])->format('Y-m-d H:i'),
+            ],
+        ];
     }
 
     /**
