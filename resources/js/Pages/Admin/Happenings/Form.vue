@@ -162,8 +162,8 @@ let form = useForm({
     user_id_01: $page.props.user_id_01 ?? '',
     user_id_02: $page.props.user_id_02 ?? '',
     verifier: $page.props.verifier ?? '',
-    is_verified: $page.props.is_verified === 1,
     resource: $page.props.resource ?? {},
+    is_verified: $page.props.is_verified ?? false,
 });
 
 // Save original verifier for later rollback

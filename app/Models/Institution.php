@@ -23,6 +23,9 @@ class Institution extends Model
     public $incrementing = false;
     protected $fillable = [ 'title', 'short_title', 'slug', 'location', 'home_uri', 'logo_uri', 'teaser_uri', 'is_active'];
     protected $morphClass = 'institution';
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     /*****************************************************************
      * RELATIONS

@@ -180,7 +180,7 @@ let form = useForm({
     home_uri: $page.props.home_uri ?? '',
     logo_uri: $page.props.logo_uri ?? '',
     teaser_uri: $page.props.teaser_uri ?? '',
-    is_active: $page.props.is_active === 1,
+    is_active: $page.props.is_active ?? false,
 });
 
 // ------------------------------------------------

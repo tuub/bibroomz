@@ -188,8 +188,8 @@ let form = useForm({
     location: resource?.location ?? '',
     description: resource?.description ?? '',
     capacity: resource?.capacity ?? '0',
-    is_active: resource?.is_active === 1,
-    is_verification_required: resource?.is_verification_required === true,
+    is_active: resource?.is_active ?? false,
+    is_verification_required: resource?.is_verification_required ?? true,
     business_hours: business_hours ?? [],
 });
 

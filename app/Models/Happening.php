@@ -27,6 +27,9 @@ class Happening extends Model
     public $incrementing = false;
     protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_verified', 'verifier', 'start', 'end', 'reserved_at', 'booked_at'];
     protected $dates = ['created_at', 'updated_at', 'start', 'end', 'reserved_at', 'booked_at'];
+    protected $casts = [
+        'is_verified' => 'boolean',
+    ];
 
     /*****************************************************************
      * RELATIONS
