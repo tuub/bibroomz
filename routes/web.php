@@ -62,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/institution/{id}/edit', [AdminInstitutionController::class, 'editInstitution'])->name('admin.institution.edit');
         Route::post('/admin/institution/store', [AdminInstitutionController::class, 'storeInstitution'])->name('admin.institution.store');
         Route::post('/admin/institution/update', [AdminInstitutionController::class, 'updateInstitution'])->name('admin.institution.update');
+        Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])->name('admin.institution.delete');
         /* Institution Special */
         Route::get('/admin/form/institutions', [AdminInstitutionController::class, 'getFormInstitutions'])->name('admin.institution.form');
         Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])->name('admin.setting.index');
