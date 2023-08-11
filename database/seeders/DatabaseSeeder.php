@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             WeekDaySeeder::class,
             InstitutionSeeder::class,
+            BusinessHourSeeder::class,
         ]);
     }
 }
