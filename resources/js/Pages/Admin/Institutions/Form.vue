@@ -1,21 +1,19 @@
 <template>
-    <PageHead title="Admin Institutions Form" page_type="admin" />
-
-    <h1 class="text-3xl">Institution Form</h1>
+    <PageHead :title="$t('admin.institutions.form.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.institutions.form.title')"
+              :description="$t('admin.institutions.form.description')" />
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
         <!-- Input: Title -->
         <div class="mb-6">
-            <label for="title" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Title
-            </label>
+            <FormLabel field="title" field-key="admin.institutions.form.fields.title"></FormLabel>
             <input v-model="form.title"
                    type="text"
                    id="title"
                    name="title"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                   placeholder=""
+                   :placeholder="$t('admin.institutions.form.fields.title.placeholder')"
                    required
             >
             <FormValidationError :message="form.errors.title"></FormValidationError>
@@ -23,9 +21,7 @@
 
         <!-- Input: Short title -->
         <div class="mb-6">
-            <label for="title" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Short Title
-            </label>
+            <FormLabel field="short_title" field-key="admin.institutions.form.fields.short_title"></FormLabel>
             <input v-model="form.short_title"
                    type="text"
                    id="short_title"
@@ -39,9 +35,7 @@
 
         <!-- Input: Slug -->
         <div class="mb-6">
-            <label for="title" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Slug
-            </label>
+            <FormLabel field="slug" field-key="admin.institutions.form.fields.slug"></FormLabel>
             <input v-model="form.slug"
                    type="text"
                    id="slug"
@@ -55,9 +49,7 @@
 
         <!-- Input: Location -->
         <div class="mb-6">
-            <label for="location" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Location
-            </label>
+            <FormLabel field="location" field-key="admin.institutions.form.fields.location"></FormLabel>
             <input v-model="form.location"
                    type="text"
                    name="location"
@@ -71,9 +63,7 @@
 
         <!-- Input: Home URI -->
         <div class="mb-6">
-            <label for="home_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Home URI
-            </label>
+            <FormLabel field="home_uri" field-key="admin.institutions.form.fields.home_uri"></FormLabel>
             <input v-model="form.home_uri"
                    type="text"
                    name="home_uri"
@@ -86,9 +76,7 @@
 
         <!-- Input: Logo URI -->
         <div class="mb-6">
-            <label for="logo_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Logo URI
-            </label>
+            <FormLabel field="logo_uri" field-key="admin.institutions.form.fields.logo_uri"></FormLabel>
             <input v-model="form.logo_uri"
                    type="text"
                    name="logo_uri"
@@ -101,9 +89,7 @@
 
         <!-- Input: Teaser URI -->
         <div class="mb-6">
-            <label for="teaser_uri" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Teaser URI
-            </label>
+            <FormLabel field="teaser_uri" field-key="admin.institutions.form.fields.teaser_uri"></FormLabel>
             <input v-model="form.teaser_uri"
                    type="text"
                    name="teaser_uri"
@@ -123,23 +109,14 @@
                 >
                 <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                 <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Is active
+                    {{ $t('admin.institutions.form.fields.is_active.label') }}
                 </span>
             </label>
         </div>
 
         <div class="mb-6">
-            <label for="title" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Closings
-            </label>
-            <div v-for="closing in closings">
-                {{ formatDateTime(closing.start) }} - {{ formatDateTime(closing.end) }}
-            </div>
-        </div>
-
-        <div class="mb-6">
             <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
-                Submit
+                {{ $t('admin.institutions.form.actions.submit') }}
             </button>
         </div>
 
@@ -148,10 +125,12 @@
 <script setup>
 import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
-import FormValidationError from "../../../Shared/FormValidationError.vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
+import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 
 // ------------------------------------------------
 // Props
@@ -186,10 +165,6 @@ let form = useForm({
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const formatDateTime = ((dateTime) => {
-    return dayjs.utc(dateTime).format('DD.MM.YYYY HH:mm');
-})
-
 let submitForm = () => {
     processing.value = true;
     if (form.id) {

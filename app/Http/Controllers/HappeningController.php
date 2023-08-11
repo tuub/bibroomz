@@ -155,6 +155,7 @@ class HappeningController extends Controller
             'user_id_01' => auth()->user()->id,
             // 'user_id_02' => $is_admin ? auth()->user()->id : null,
             'resource_id' => $resource->id,
+            'is_verification_required' => $resource->is_verification_required,
             'is_verified' => $is_verified,
             'verifier' => !$is_verified ? $validated['verifier'] : null,
             'start' => $start->format('Y-m-d H:i:s'),

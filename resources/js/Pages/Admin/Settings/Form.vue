@@ -48,7 +48,7 @@
 <script setup>
 import {ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
-import FormValidationError from "../../../Shared/FormValidationError.vue";
+import FormValidationError from "../../../Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 // ------------------------------------------------

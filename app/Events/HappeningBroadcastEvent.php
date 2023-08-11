@@ -48,16 +48,16 @@ class HappeningBroadcastEvent implements ShouldBroadcast
                 'user_02' => User::find($happening->user_id_02)->name ?? $happening->verifier,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
-                'is_verified' => $happening->is_verified,
+                'isVerified' => $happening->is_verified,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
                     'location' => $happening->resource->location,
                 ],
-                'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
-                'verified_at' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
+                'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
+                'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions($this->user),
-                'is_verification_required' => $is_verification_required,
+                'isVerificationRequired' => $is_verification_required,
             ],
         ];
     }

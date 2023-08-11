@@ -31,7 +31,8 @@ class InstitutionController extends Controller
 
     public function storeInstitution(StoreInstitutionRequest $request)
     {
-        $institution = Institution::create($request->all());
+        $validated = $request->validated();
+        $institution = Institution::create($validated);
 
         // Init settings
         $settings = Setting::getInitialValues();
@@ -43,7 +44,6 @@ class InstitutionController extends Controller
             $institution->settings()->save($setting);
         }
 
-        // Redirect
         return redirect()->route('admin.institution.index');
     }
 
@@ -57,10 +57,17 @@ class InstitutionController extends Controller
     {
         $resource = Institution::findOrFail($request->id);
 
-        // Update
-        $resource->update($request->all());
+        $validated = $request->validated();
+        $resource->update($validated);
 
-        // Redirect
+        return redirect()->route('admin.institution.index');
+    }
+
+    public function deleteInstitution(Request $request)
+    {
+        $institutions = Institution::find($request->id);
+        $institutions->delete();
+
         return redirect()->route('admin.institution.index');
     }
 }

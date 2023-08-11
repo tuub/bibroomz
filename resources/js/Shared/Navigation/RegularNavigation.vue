@@ -31,27 +31,27 @@
                         <NavLink icon="ri-dashboard-fill"
                                  :href="route('start')"
                                  :is_active="isPageStart">
-                            Institutions
+                            {{ $t('navigation.regular.institutions') }}
                         </NavLink>
                     </li>
                     <li v-if="institutionSlug">
                         <NavLink icon="ri-home-fill"
                                  :href="route('home', {slug: institutionSlug})"
                                  :is_active="isPageHome">
-                            Home {{ institutionShortTitle }}
+                            {{ $t('navigation.regular.home', {short_title: institutionShortTitle}) }}
                         </NavLink>
                     </li>
                     <li v-if="isAuthenticated">
                         <NavLink icon="ri-profile-fill"
                                  :href="route('user.profile.get')"
                                  :is_active="isPageProfile">
-                            Profile
+                            {{ $t('navigation.regular.profile') }}
                         </NavLink>
                     </li>
                     <li v-if="isAuthenticated && isAdmin">
                         <NavLink icon="ri-tools-fill"
                                  :href="route('admin.dashboard')">
-                            Admin
+                            {{ $t('navigation.regular.admin') }}
                         </NavLink>
                     </li>
                 </ul>

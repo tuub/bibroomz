@@ -17,3 +17,4 @@ yarn-error.log
 *.log
 /public/vendor
 resources/js/ziggy.js
+lang/php_*.json

@@ -1,11 +1,11 @@
 <template>
-    <PageHead title="Admin Happenings Index" page_type="admin" />
+    <PageHead :title="$t('admin.happenings.index.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.happenings.index.title')"
+              :description="$t('admin.happenings.index.description')">
+    </BodyHead>
 
-    <div class="flex justify-between mb-6">
-        <div class="flex items-center">
-            <h1 class="text-3xl">Happenings</h1>
-            <Link href="/admin/happening/create" class="text-blue-500 text-sm ml-3">Create Happening</Link>
-        </div>
+    <div>
+        <Link :href="route('admin.happening.create')">{{ $t('admin.happenings.index.table.actions.create') }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -13,31 +13,31 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Date
+                    {{ $t('admin.happenings.index.table.header.date') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Resource
+                    {{ $t('admin.happenings.index.table.header.resource') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Start
+                    {{ $t('admin.happenings.index.table.header.start_time') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    End
+                    {{ $t('admin.happenings.index.table.header.end_time') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    User #1
+                    {{ $t('admin.happenings.index.table.header.user_01') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    User #2
+                    {{ $t('admin.happenings.index.table.header.user_02') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Verified
+                    {{ $t('admin.happenings.index.table.header.is_verified') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Is over?
+                    {{ $t('admin.happenings.index.table.header.is_over') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">Actions</span>
+                    <span class="sr-only">{{ $t('admin.general.table.actions') }}</span>
                 </th>
             </tr>
             </thead>
@@ -69,7 +69,7 @@
                         {{ happening.verifier }}
                     </span>
                     <span v-else>
-                        Not required
+                        {{ $t('admin.general.table.not_required') }}
                     </span>
                 </td>
                 <td class="px-6 py-4 text-center">
@@ -83,15 +83,14 @@
                     <Link :href="route('admin.happening.edit', {
                         id: happening.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Edit
+                        {{ $t('admin.happenings.index.table.actions.edit') }}
                     </Link>
                     |
                     <Link method="post"
                           as="button"
-                          :href="route('admin.happening.delete', {
-                          id: happening.id,
-                    })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Delete
+                          :href="route('admin.happening.delete', {id: happening.id})"
+                          class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        {{ $t('admin.happenings.index.table.actions.delete') }}
                     </Link>
                 </td>
             </tr>
@@ -104,6 +103,7 @@
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 // ------------------------------------------------
 // Props

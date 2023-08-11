@@ -1,11 +1,11 @@
 <template>
-    <PageHead title="Admin Resources Form" page_type="admin" />
+    <PageHead :title="$t('admin.resources.index.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.resources.index.title')"
+              :description="$t('admin.resources.index.description')">
+    </BodyHead>
 
-    <div class="flex justify-between mb-6">
-        <div class="flex items-center">
-            <h1 class="text-3xl">Resources</h1>
-            <Link href="/admin/resource/create" class="text-blue-500 text-sm ml-3">Create Resource</Link>
-        </div>
+    <div>
+        <Link :href="route('admin.resource.create')">{{ $t('admin.resources.index.table.actions.create') }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -13,28 +13,28 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Resource Title
+                    {{ $t('admin.resources.index.table.header.title') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Location
+                    {{ $t('admin.resources.index.table.header.location') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Institution
+                    {{ $t('admin.resources.index.table.header.institution') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Business hours
+                    {{ $t('admin.resources.index.table.header.business_hours') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Capacity
+                    {{ $t('admin.resources.index.table.header.capacity') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Active
+                    {{ $t('admin.resources.index.table.header.is_active') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Verification required
+                    {{ $t('admin.resources.index.table.header.is_verification_required') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">Actions</span>
+                    <span class="sr-only">{{ $t('admin.general.table.actions') }}</span>
                 </th>
             </tr>
             </thead>
@@ -75,20 +75,20 @@
                     <Link :href="route('admin.resource.edit', {
                         id: resource.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Edit
+                        {{ $t('admin.resources.index.table.actions.edit') }}
                     </Link>
                     |
                     <Link :href="route('admin.closing.index', {
                         closable_type: 'resource',
                         closable_id: resource.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Closings
+                        {{ $t('admin.resources.index.table.actions.closings') }}
                     </Link>
                     |
                     <Link method="post" as="button" :href="route('admin.resource.delete', {
                         id: resource.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Delete
+                        {{ $t('admin.resources.index.table.actions.delete') }}
                     </Link>
                 </td>
             </tr>
@@ -101,6 +101,7 @@
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 // ------------------------------------------------
 // Props

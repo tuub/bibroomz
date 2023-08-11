@@ -13,9 +13,6 @@ const appStore = useAppStore()
 let quotas  = authStore.quotas
 let institution = appStore.institution
 
-console.log(institution)
-console.log(quotas)
-
 const getQuotaSetting = (type) => {
     return Number(institution.settings['quota_' + type])
 }

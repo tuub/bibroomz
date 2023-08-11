@@ -3,7 +3,7 @@
         <div class="grid md:grid-cols-2 md:gap-2">
             <div class="mb-6">
                 <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Start
+                    {{ trans('modal.form.start') }}
                 </label>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
@@ -25,7 +25,7 @@
 
             <div class="mb-6">
                 <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    End
+                    {{ trans('modal.form.end') }}
                 </label>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
@@ -47,7 +47,7 @@
         </div>
         <div v-if="happening.isVerificationRequired && !isAdmin" class="mb-6">
             <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Verifier
+                {{ trans('modal.form.verifier') }}
             </label>
             <input v-model="happening.verifier"
                    @input="$emit('update:input', $event.target.value)"
@@ -71,6 +71,7 @@ import { storeToRefs } from "pinia";
 import {ref, onBeforeMount} from "vue";
 import Spinner from "../../Shared/Spinner.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import {trans} from "laravel-vue-i18n";
 
 const props = defineProps({
     happening: Object,

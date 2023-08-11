@@ -1,6 +1,7 @@
 import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+import {trans} from "laravel-vue-i18n";
 
 export function useCreateModal(happening) {
     const happeningStore = useHappeningStore();
@@ -8,13 +9,13 @@ export function useCreateModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Create Reservation",
-            description: "Create your reservation here, you won't regret it.",
+            title: trans('modal.create.title'),
+            description: trans('modal.create.description'),
         },
         payload: { ...happening, editable: true },
         actions: [
             {
-                label: "Save reservation",
+                label: trans('modal.create.action.create'),
                 callback: (happening) => {
                     return happeningStore.addHappening(happening);
                 },
@@ -29,13 +30,13 @@ export function useInfoModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Show Reservation",
-            description: "Info about reservation here.",
+            title: trans('modal.info.title'),
+            description: trans('modal.info.description'),
         },
         payload: { ...happening, editable: false },
         actions: [
             {
-                label: "OK",
+                label: trans('modal.info.action.ok'),
                 callback: () => {
                     modal.close();
                 },
@@ -50,13 +51,13 @@ export function useVerifyModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Verify Happening",
-            description: "Are you sure you wanna verify this?",
+            title: trans('modal.verify.title'),
+            description: trans('modal.verify.description'),
         },
         payload: { ...happening, editable: false },
         actions: [
             {
-                label: "Yes, verify",
+                label: trans('modal.verify.action.verify'),
                 callback: (happening) => {
                     return happeningStore.verifyHappening(happening);
                 },
@@ -71,13 +72,13 @@ export function useEditModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Edit",
-            description: "Edit your reservation here",
+            title: trans('modal.edit.title'),
+            description: trans('modal.edit.description'),
         },
         payload: { ...happening, editable: true },
         actions: [
             {
-                label: "Update",
+                label: trans('modal.edit.action.update'),
                 callback: (happening) => {
                     return happeningStore.editHappening(happening);
                 },
@@ -92,13 +93,13 @@ export function useDeleteModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Confirm Delete",
-            description: "Are you sure you wanna delete your future?",
+            title: trans('modal.delete.title'),
+            description: trans('modal.delete.description'),
         },
         payload: { ...happening, editable: false },
         actions: [
             {
-                label: "Yes, delete",
+                label: trans('modal.delete.action.delete'),
                 callback: (happening) => {
                     return happeningStore.deleteHappening(happening.id);
                 },
@@ -113,19 +114,19 @@ export function useEditDeleteModal(happening) {
     return {
         view: HappeningModal,
         content: {
-            title: "Edit/Delete",
-            description: "Edit/Delete your reservation here",
+            title: trans('modal.edit_delete.title'),
+            description: trans('modal.edit_delete.description'),
         },
         payload: { ...happening, editable: true },
         actions: [
             {
-                label: "Update",
+                label: trans('modal.edit_delete.action.update'),
                 callback: (happening) => {
                     return happeningStore.editHappening(happening);
                 },
             },
             {
-                label: "Delete",
+                label: trans('modal.edit_delete.action.delete'),
                 callback: (happening) => {
                     return happeningStore.deleteHappening(happening.id);
                 },

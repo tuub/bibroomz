@@ -25,7 +25,7 @@ class LoginController extends Controller
 
         if ($auth) {
             $response = [
-                'message' => 'Successfully logged in!',
+                // 'message' => __('auth.login.success'),
                 'admin' => auth()->user()->is_admin ?? false,
                 'user' => [
                     'id' => auth()->user()->id,
@@ -38,8 +38,8 @@ class LoginController extends Controller
         }
 
         $response = [
-            'message' => 'Unauthorized',
-            'errors' => 'User not found!',
+            // 'message' => __('auth.login.error'),
+            'message' => __('auth.errors.user_not_found'),
         ];
 
         return response()->json($response, Response::HTTP_UNAUTHORIZED);
@@ -48,7 +48,9 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        return response()->json(['message' => 'Successfully logged out!']);
+        return response('', status: Response::HTTP_OK);
+
+        // return response()->json(['message' => __('auth.logout.success')]);
     }
 
     public function check(Request $request)

@@ -42,7 +42,7 @@ import {
     useCreateModal,
     useEditDeleteModal,
     useInfoModal,
-} from "@/Composables/modalActions";
+} from "@/Composables/ModalActions";
 
 // ------------------------------------------------
 // Debug information
@@ -207,7 +207,7 @@ const onSelect = (eventInfo) => {
             },
             start: eventInfo.startStr,
             end: eventInfo.endStr,
-            isVerificationRequired: eventInfo.resource.extendedProps.is_verification_required,
+            isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
         });
 
         emit('open-modal-component', useCreateModal(happeningData));
@@ -242,7 +242,7 @@ const onEventClick = (eventInfo) => {
         happeningData.user_02 = dataPath.extendedProps.status?.user?.verification;
         happeningData.start = dayjs.utc(dataPath._instance.range.start);
         happeningData.end = dayjs.utc(dataPath._instance.range.end);
-        happeningData.isVerificationRequired = dataPath.extendedProps.is_verification_required;
+        happeningData.isVerificationRequired = dataPath.extendedProps.isVerificationRequired;
     }
 
     if (!isBgEvent) {

@@ -1,33 +1,30 @@
 <template>
-    <PageHead title="Admin Users Index" page_type="admin" />
-
-    <div class="flex justify-between mb-6">
-        <div class="flex items-center">
-            <h1 class="text-3xl">Users</h1>
-        </div>
-    </div>
+    <PageHead :title="$t('admin.users.index.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.users.index.title')"
+              :description="$t('admin.users.index.description')">
+    </BodyHead>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Name
+                    {{ $t('admin.users.index.table.header.name') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    E-Mail
+                    {{ $t('admin.users.index.table.header.email') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Admin
+                    {{ $t('admin.users.index.table.header.is_admin') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Banned
+                    {{ $t('admin.users.index.table.header.is_banned') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Reservations
+                    {{ $t('admin.users.index.table.header.happenings') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">Actions</span>
+                    <span class="sr-only">{{ $t('admin.general.table.actions') }}</span>
                 </th>
             </tr>
             </thead>
@@ -56,7 +53,7 @@
                     <td class="px-6 py-4 text-right">
                         <Link :href="route('admin.user.edit', {id: user.id})"
                               class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                            Edit
+                            {{ $t('admin.users.index.table.actions.edit') }}
                         </Link>
                     </td>
                 </tr>
@@ -70,6 +67,7 @@
 // Props
 // ------------------------------------------------
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 let props = defineProps({
     users: Object,

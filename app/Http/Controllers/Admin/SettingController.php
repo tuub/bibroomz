@@ -15,9 +15,9 @@ class SettingController extends Controller
 {
     public static function getSettings(Request $request): Response
     {
-        $institution = Institution::findOrFail($request->id);
+        $institution = Institution::with('settings')->findOrFail($request->id);
         return Inertia::render('Admin/Settings/Index', [
-            'settings' => $institution->settings,
+            'institution' => $institution,
         ]);
     }
 

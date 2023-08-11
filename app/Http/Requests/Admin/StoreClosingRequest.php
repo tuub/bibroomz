@@ -26,8 +26,10 @@ class StoreClosingRequest extends FormRequest
         return [
             'closable_id' => ['required'],
             'closable_type' => ['required'],
-            'start' => ['required'],
-            'end' => ['required'],
+            'start_date' => ['required'],
+            'start_time' => ['required'],
+            'end_date' => ['required'],
+            'end_time' => ['required'],
             'description' => [''],
         ];
     }

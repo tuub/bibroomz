@@ -28,8 +28,10 @@ class StoreHappeningRequest extends FormRequest
 
         // FIXME: is_verified must be false if user_id_02 is not given and vice versa!
         return [
-            'start' => ['required'],
-            'end' => ['required'],
+            'start_date' => ['required'],
+            'start_time' => ['required'],
+            'end_date' => ['required'],
+            'end_time' => ['required'],
             'resource_id' => ['required', 'uuid'],
             'user_id_01' => ['required', 'uuid'],
             'user_id_02' => ['sometimes', 'nullable', 'uuid', 'required_with:is_verified|boolean'],

@@ -58,15 +58,15 @@ class UserController extends Controller
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions(auth()->user()),
-                'is_verified' => $happening->is_verified,
+                'isVerified' => $happening->is_verified,
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
                     'location' => $happening->resource->location,
-                    'institution_id' => $happening->resource->institution_id,
+                    'institutionId' => $happening->resource->institution_id,
                 ],
-                'reserved_at' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
-                'verified_at' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
+                'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
+                'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
                 'isVerificationRequired' => $happening->resource->is_verification_required,
             ];
         }

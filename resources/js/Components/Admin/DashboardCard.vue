@@ -18,7 +18,7 @@ import { Link } from "@inertiajs/vue3";
 const props = defineProps({
     title: String,
     icon: String,
-    content: String,
+    description: String,
     link: String,
 });
 </script>

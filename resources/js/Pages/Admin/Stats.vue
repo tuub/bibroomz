@@ -1,5 +1,7 @@
 <template>
-    <PageHead title="Admin Statistics" page_type="admin" />
+    <PageHead :title="$t('admin.stats.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.stats.title')" :description="$t('admin.stats.description')"></BodyHead>
+
     <DoughnutChart :chartData="testData" />
 </template>
 
@@ -8,12 +10,13 @@ import { defineComponent } from 'vue';
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 Chart.register(...registerables);
 
 export default defineComponent({
     name: 'Home',
-    components: {PageHead, DoughnutChart },
+    components: {PageHead, BodyHead, DoughnutChart },
     setup() {
         const testData = {
             labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],

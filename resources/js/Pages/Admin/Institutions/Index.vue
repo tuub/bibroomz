@@ -1,11 +1,11 @@
 <template>
-    <PageHead title="Admin Institutions Index" page_type="admin" />
+    <PageHead :title="$t('admin.institutions.index.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.institutions.index.title')"
+              :description="$t('admin.institutions.index.description')">
+    </BodyHead>
 
-    <div class="flex justify-between mb-6">
-        <div class="flex items-center">
-            <h1 class="text-3xl">Institutions</h1>
-            <Link href="/admin/institution/create" class="text-blue-500 text-sm ml-3">Create Institution</Link>
-        </div>
+    <div>
+        <Link :href="route('admin.institution.create')">{{ $t('admin.institutions.index.table.actions.create') }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -13,25 +13,25 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Institution Title
+                    {{ $t('admin.institutions.index.table.header.title') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Short Title
+                    {{ $t('admin.institutions.index.table.header.short_title') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Slug
+                    {{ $t('admin.institutions.index.table.header.slug') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Location
+                    {{ $t('admin.institutions.index.table.header.location') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Resources
+                    {{ $t('admin.institutions.index.table.header.resources') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Active
+                    {{ $t('admin.institutions.index.table.header.is_active') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">Actions</span>
+                    <span class="sr-only">{{ $t('admin.general.actions') }}</span>
                 </th>
             </tr>
             </thead>
@@ -63,20 +63,27 @@
                     <Link :href="route('admin.institution.edit', {
                         id: institution.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Edit
+                        {{ $t('admin.institutions.index.table.actions.edit') }}
                     </Link>
                     |
                     <Link :href="route('admin.closing.index', {
                         closable_type: 'institution',
                         closable_id: institution.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Closings
+                        {{ $t('admin.institutions.index.table.actions.closings') }}
                     </Link>
                     |
                     <Link :href="route('admin.setting.index', {
                         id: institution.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Settings
+                        {{ $t('admin.institutions.index.table.actions.settings') }}
+                    </Link>
+                    |
+                    <Link method="post"
+                          as="button"
+                          :href="route('admin.institution.delete', {id: institution.id})"
+                          class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        {{ $t('admin.institutions.index.table.actions.delete') }}
                     </Link>
                 </td>
             </tr>
@@ -89,6 +96,7 @@
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 // ------------------------------------------------
 // Props

@@ -12,6 +12,7 @@ import { ZiggyVue } from 'ziggy';
 import { Ziggy } from './ziggy';
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import { i18nVue } from 'laravel-vue-i18n';
 
 const emitter = mitt()
 
@@ -63,6 +64,21 @@ createInertiaApp({
             .component('Head', Head)
             .component('Link', Link)
             .use(plugin)
+            .use(i18nVue, {
+                lang: 'de',
+                fallback: 'en',
+                resolve: lang => import(`../../lang/php_${lang}.json`),
+            })
+            /*
+            .use(i18nVue, {
+                resolve: async lang => {
+                    const langs = import.meta.glob('../../lang/*.json');
+                    if (lang.includes("php_")) {
+                        return await langs[`../../lang/${lang}.json`]();
+                    }
+                }
+            })
+             */
             .use(ZiggyVue, Ziggy)
             .use(Toast, {
                 maxToasts: 10,

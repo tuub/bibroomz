@@ -48,9 +48,10 @@ class ResourceController extends Controller
 
     public function storeResource(StoreResourceRequest $request): RedirectResponse
     {
-        $resource = Resource::create($request->except('business_hours'));
+        $validated = $request->safe();
+        $resource = Resource::create($validated->except('business_hours'));
 
-        $this->updateOrCreateBusinessHours($request->business_hours, $resource);
+        $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
 
         return redirect()->route('admin.resource.index');
     }
@@ -74,13 +75,15 @@ class ResourceController extends Controller
     public function updateResource(UpdateResourceRequest $request): RedirectResponse
     {
         $resource = Resource::find($request->id);
-        $resource->update($request->except('business_hours'));
+
+        $validated = $request->safe();
+        $resource->update($validated->except('business_hours'));
 
         BusinessHour::where('resource_id', $resource->id)
-            ->whereNotIn('id', array_column($request->business_hours, 'id'))
+            ->whereNotIn('id', array_column($validated->business_hours, 'id'))
             ->delete();
 
-        $this->updateOrCreateBusinessHours($request->business_hours, $resource);
+        $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
 
         return redirect()->route('admin.resource.index');
     }

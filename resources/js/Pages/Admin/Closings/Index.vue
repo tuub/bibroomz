@@ -1,11 +1,14 @@
 <template>
-    <PageHead title="Admin Closings Index" page_type="admin" />
+    <PageHead :title="$t('admin.closings.index.title',{type: closable_type, title: closable.title})"
+              page_type="admin" />
+    <BodyHead :title="$t('admin.closings.index.title', {type: closable_type, title: closable.title})"
+              :description="$t('admin.closings.index.description')" />
 
-    <div class="flex justify-between mb-6">
-        <div class="flex items-center">
-            <h1 class="text-3xl">Closings for {{ closable_type }} "{{ closable.title }}"</h1>
-            <Link :href="route('admin.closing.create', {closable_type: closable_type, closable_id: closable.id})" class="text-blue-500 text-sm ml-3">Create Closing</Link>
-        </div>
+    <div>
+        <Link :href="route('admin.closing.create', {
+            closable_type: closable_type,
+            closable_id: closable.id
+        })">{{ $t('admin.closings.index.table.actions.create') }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -13,19 +16,19 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Start
+                    {{ $t('admin.closings.index.table.header.start') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    End
+                    {{ $t('admin.closings.index.table.header.end') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Description
+                    {{ $t('admin.closings.index.table.header.description') }}
                 </th>
                 <th scope="col" class="px-6 py-3 text-center">
-                    Is over?
+                    {{ $t('admin.closings.index.table.header.is_over') }}
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    <span class="sr-only">Actions</span>
+                    <span class="sr-only">{{ $t('admin.general.table.actions') }}</span>
                 </th>
             </tr>
             </thead>
@@ -50,7 +53,7 @@
                     <Link :href="route('admin.closing.edit', {
                         id: closing.id,
                     })" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Edit
+                        {{ $t('admin.closings.index.table.actions.edit') }}
                     </Link>
                     |
                     <Link method="post"
@@ -63,7 +66,7 @@
                           }"
                           preserve-scroll
                           class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Delete
+                        {{ $t('admin.closings.index.table.actions.delete') }}
                     </Link>
                 </td>
             </tr>
@@ -76,8 +79,8 @@
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
-import {usePage} from "@inertiajs/vue3";
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
 
 // ------------------------------------------------
 // Props
@@ -94,11 +97,6 @@ let props = defineProps({
 // ------------------------------------------------
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
-
-// ------------------------------------------------
-// Variables
-// ------------------------------------------------
-let $page = usePage()
 
 // ------------------------------------------------
 // Methods

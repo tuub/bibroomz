@@ -32,48 +32,49 @@
                         <NavLink icon="ri-tools-fill"
                                  :href="route('admin.dashboard')"
                                  :is_active="isPageDashboard">
-                            Dashboard
+                            {{ $t('navigation.admin.dashboard') }}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-calendar-event-fill"
                                  :href="route('admin.happening.index')"
                                  :is_active="isPageHappenings">
-                            Happenings
+                            {{ $t('navigation.admin.happenings') }}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-home-smile-fill"
                                  :href="route('admin.institution.index')"
                                  :is_active="isPageInstitutions">
-                            Institutions
+                            {{ $t('navigation.admin.institutions') }}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-map-pin-fill"
                                  :href="route('admin.resource.index')"
                                  :is_active="isPageResources">
-                            Resources
+                            {{ $t('navigation.admin.resources') }}
+
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-user-fill"
                                  :href="route('admin.user.index')"
                                  :is_active="isPageUsers">
-                            Users
+                            {{ $t('navigation.admin.users') }}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-bar-chart-fill"
                                  :href="route('admin.statistic.index')"
                                  :is_active="isPageStats">
-                            Stats
+                            {{ $t('navigation.admin.stats') }}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink icon="ri-shut-down-line"
                                  :href="getExitUri">
-                            Exit Admin
+                            {{ $t('navigation.admin.exit') }}
                         </NavLink>
                     </li>
                 </ul>

@@ -25,6 +25,11 @@ class Utility {
         return CarbonImmutable::now()->addHours($tz_offset);
     }
 
+    public static function createCarbonDateTime($date, $time): Carbon
+    {
+        return Carbon::createFromFormat('d.m.Y H:i',  $date . ' ' . $time);
+    }
+
     public static function sendToLog(string $channel, array $data, string $level='info'): void
     {
         /*

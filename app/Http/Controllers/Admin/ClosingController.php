@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\UpdateClosingRequest;
+use App\Library\Utility;
 use App\Mail\ClosingCreated;
 use App\Mail\ClosingUpdated;
 use App\Models\Closing;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,10 +43,12 @@ class ClosingController extends Controller
 
     public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
         $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
-        $closing = Closing::create($validated);
+
+        $validated = $request->validated();
+        $sanitized = self::sanitizeClosingData($validated);
+
+        $closing = Closing::create($sanitized);
 
         if ($closable->closings()->save($closing)) {
             $users = $closing->getUsersAffected();
@@ -67,6 +71,11 @@ class ClosingController extends Controller
         $closing = Closing::find($request->id);
         $closable_type = explode('\\', $closing->closable_type);
 
+        $closing->start_date = Carbon::parse($closing->start)->format('d.m.Y');
+        $closing->start_time = Carbon::parse($closing->start)->format('H:i');
+        $closing->end_date = Carbon::parse($closing->end)->format('d.m.Y');
+        $closing->end_time = Carbon::parse($closing->end)->format('H:i');
+
         return Inertia::render('Admin/Closings/Form', [
             'closing' => $closing,
             'closable' => $closing->closable,
@@ -76,9 +85,10 @@ class ClosingController extends Controller
 
     public function updateClosing(UpdateClosingRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
         $closing = Closing::find($request->id);
+
+        $validated = $request->validated();
+        $sanitized = self::sanitizeClosingData($validated);
 
         // get previously affected users/happenings
         $users = $closing->getUsersAffected();
@@ -88,7 +98,7 @@ class ClosingController extends Controller
             $previously[$user->id] = $happenings;
         }
 
-        if ($closing->update($validated)) {
+        if ($closing->update($sanitized)) {
             // send mails to affected users
             $users = $closing->getUsersAffected();
 
@@ -114,6 +124,25 @@ class ClosingController extends Controller
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,
             'closable_type' => strtolower(end($closable_type)),
+        ]);
+    }
+
+    public static function sanitizeClosingData($closing_data): array
+    {
+        $closing_data['start'] = Utility::createCarbonDateTime(
+            $closing_data['start_date'],
+            $closing_data['start_time']
+        )->toISOString();
+        $closing_data['end'] = Utility::createCarbonDateTime(
+            $closing_data['end_date'],
+            $closing_data['end_time']
+        )->toIsoString();
+
+        return Arr::except($closing_data, [
+            'start_date',
+            'start_time',
+            'end_date',
+            'end_time'
         ]);
     }
 }

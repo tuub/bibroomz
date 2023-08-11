@@ -1,12 +1,12 @@
 <template>
     <div id="status-legend">
-        <LegendItem v-if="isAuthenticated" css-class="user-reservation" label="Von Ihnen vorgemerkt"></LegendItem>
-        <LegendItem v-if="isAuthenticated" css-class="user-to-verify" label="Von Ihnen zu bestätigen"></LegendItem>
-        <LegendItem v-if="isAuthenticated" css-class="user-booking" label="Von Ihnen gebucht"></LegendItem>
-        <LegendItem v-if="isAuthenticated" css-class="user-verified" label="Von Ihnen bestätigt"></LegendItem>
-        <LegendItem css-class="reservation" label="Vorgemerkt"></LegendItem>
-        <LegendItem css-class="booking" label="Gebucht"></LegendItem>
-        <LegendItem css-class="closing" label="Geschlossen"></LegendItem>
+        <LegendItem v-if="isAuthenticated" css-class="user-reservation" :label="$t('legend.user-reservation')"></LegendItem>
+        <LegendItem v-if="isAuthenticated" css-class="user-to-verify" :label="$t('legend.user-to-verify')"></LegendItem>
+        <LegendItem v-if="isAuthenticated" css-class="user-booking" :label="$t('legend.user-booking')"></LegendItem>
+        <LegendItem v-if="isAuthenticated" css-class="user-verified" :label="$t('legend.user-verified')"></LegendItem>
+        <LegendItem css-class="reservation" :label="$t('legend.reservation')"></LegendItem>
+        <LegendItem css-class="booking" :label="$t('legend.booking')"></LegendItem>
+        <LegendItem css-class="closing" :label="$t('legend.closing')"></LegendItem>
     </div>
 </template>
 

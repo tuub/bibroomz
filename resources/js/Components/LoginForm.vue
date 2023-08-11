@@ -1,36 +1,40 @@
 <template>
-    <h1 class="text-xl font-bold">Login</h1>
+    <h1 class="text-xl font-bold">
+        {{ $t('login.header') }}
+    </h1>
 
     <div v-if="errors.length > 0">{{ errors }}</div>
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="username">
-                Username
+                {{ $t('login.form.username.label') }}
             </label>
             <input v-model="form.username"
                    class="border border-gray-400 p-2 w-full"
                    type="text"
                    name="username"
                    id="username"
+                   :placeholder="$t('login.form.username.placeholder')"
             >
-            <!--<FormValidationError :messages="form.errors.username"></FormValidationError>-->
+            <FormValidationError :messages="form.errors.username"></FormValidationError>
         </div>
         <div class="mb-6">
             <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="password">
-                Password
+                {{ $t('login.form.password.label') }}
             </label>
             <input v-model="form.password"
                    class="border border-gray-400 p-2 w-full"
-                   type="text"
+                   type="password"
                    name="password"
                    id="password"
+                   :placeholder="$t('login.form.password.placeholder')"
             >
-            <!--<FormValidationError :messages="form.errors.password"></FormValidationError>-->
+            <FormValidationError :messages="form.errors.password"></FormValidationError>
         </div>
         <div class="mb-6">
             <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
-                Submit
+                {{ $t('login.form.submit.label') }}
             </button>
         </div>
     </form>
@@ -38,10 +42,11 @@
 </template>
 
 <script setup>
-import FormValidationError from "../Shared/FormValidationError.vue";
+import FormValidationError from "../Shared/Form/FormValidationError.vue";
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../Stores/AuthStore';
 import {reactive, ref} from "vue";
+import {useForm} from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
@@ -60,7 +65,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const { user: authUser } = storeToRefs(authStore);
 const errors = ref([])
-const form = reactive({
+const form = useForm({
     username: '',
     password: '',
 })

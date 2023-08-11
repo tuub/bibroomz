@@ -25,8 +25,10 @@ class UpdateClosingRequest extends FormRequest
     {
         return [
             'id' => ['required'],
-            'start' => ['required'],
-            'end' => ['required'],
+            'start_date' => ['required'],
+            'start_time' => ['required'],
+            'end_date' => ['required'],
+            'end_time' => ['required'],
             'description' => [''],
         ];
     }

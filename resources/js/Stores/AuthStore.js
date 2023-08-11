@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { useToast } from 'vue-toastification';
 import { router } from '@inertiajs/vue3'
 import {useAppStore} from "@/Stores/AppStore";
+import {trans} from "laravel-vue-i18n";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -45,13 +46,10 @@ export const useAuthStore = defineStore({
                 await this.fetchUserHappenings();
                 this.subscribe();
 
-                toast.success(`${response.data.message}`);
+                toast.success(trans('toast.login.success'))
             }).catch((error) => {
-                if (error.response.data.errors) {
-                    this.errors.value = Object.values(error.response.data.errors).flat()
-                }
-
-                toast.error(`Login attempt failed: ${error.response.data.errors}`);
+                this.errors = error.response?.data?.message
+                toast.error(trans('toast.login.error', {message: this.errors}))
             });
         },
         async logout() {
@@ -67,7 +65,7 @@ export const useAuthStore = defineStore({
 
                 router.visit('/');
 
-                toast.success(`${response.data.message}`);
+                toast.success(trans('toast.logout.success'))
             }
         },
         async fetchUserHappenings() {
@@ -80,7 +78,7 @@ export const useAuthStore = defineStore({
                     console.log(response)
                 });
             } else {
-                console.log('Only fetch user happenings when authenticated!')
+                //console.log('Only fetch user happenings when authenticated!')
             }
         },
         addUserHappening(happening) {
@@ -114,22 +112,22 @@ export const useAuthStore = defineStore({
                 Echo.private(userChannel)
                     .listen("HappeningCreated", (e) => {
                         this.addUserHappening(e.happening);
-                        toast.success(`Happening created! ${e.happening.id}`);
+                        toast.success(trans('toast.happening.created', {message: e.happening.id}))
                     })
                     .listen("HappeningVerified", (e) => {
                         this.updateUserHappening(e.happening);
-                        toast.success(`Happening verified! ${e.happening.id}`);
+                        toast.success(trans('toast.happening.verified', {message: e.happening.id}))
                     })
                     .listen("HappeningUpdated", (e) => {
                         this.updateUserHappening(e.happening);
-                        toast.success(`Happening updated! ${e.happening.id}`);
+                        toast.success(trans('toast.happening.updated', {message: e.happening.id}))
                     })
                     .listen("HappeningDeleted", (e) => {
                         this.removeUserHappening(e.id);
-                        toast.success(`Happening deleted! ${e.id}`);
+                        toast.success(trans('toast.happening.deleted', {message: e.id}))
                     });
             } else {
-                console.log('Could not subscribe to private channel, no auth')
+                //console.log('Could not subscribe to private channel, no auth')
             }
         },
         unsubscribe() {
@@ -137,7 +135,7 @@ export const useAuthStore = defineStore({
                 let userChannel = `happenings.${this.user.id}`;
                 Echo.leave(userChannel);
             } else {
-                console.log('Could not unsubscribe from private channel, no auth')
+                //console.log('Could not unsubscribe from private channel, no auth')
             }
         },
         updateQuotas(currentDate) {
@@ -183,25 +181,37 @@ export const useAuthStore = defineStore({
 
             const happening_block_hours = selectLength;
             if (happening_block_hours > quota_happening_block_hours) {
-                toast.error(`Block hours quota limit exceeded: ${happening_block_hours}h of ${quota_happening_block_hours}h`);
+                toast.error(trans('toast.quota.happening_block_hours', {
+                    current: happening_block_hours,
+                    limit: quota_happening_block_hours,
+                }))
                 return true;
             }
 
             let weekly_happenings = this.quotas.weekly_happenings + 1
             if (weekly_happenings > quota_weekly_happenings) {
-                toast.error(`Weekly happenings quota limit exceeded: ${weekly_happenings} of ${quota_weekly_happenings}`);
+                toast.error(trans('toast.quota.weekly_happenings', {
+                    current: weekly_happenings,
+                    limit: quota_weekly_happenings,
+                }))
                 return true;
             }
 
             let weekly_hours = this.quotas.weekly_hours + selectLength
             if (weekly_hours > quota_weekly_hours) {
-                toast.error(`Weekly hours quota limit exceeded: ${weekly_hours}h of ${quota_weekly_hours}h`);
+                toast.error(trans('toast.quota.weekly_hours', {
+                    current: weekly_hours,
+                    limit: quota_weekly_hours,
+                }))
                 return true;
             }
 
             let daily_hours = this.quotas.daily_hours + selectLength
             if (daily_hours > quota_daily_hours) {
-                toast.error(`Daily hours quota limit exceeded: ${daily_hours}h of ${quota_daily_hours}h`);
+                toast.error(trans('toast.quota.daily_hours', {
+                    current: daily_hours,
+                    limit: quota_daily_hours,
+                }))
                 return true;
             }
 

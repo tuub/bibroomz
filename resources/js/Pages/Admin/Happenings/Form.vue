@@ -1,45 +1,63 @@
 <template>
-    <PageHead title="Admin Happenings Form" page_type="admin" />
-
-    <h1 class="text-3xl">Happening Form</h1>
+    <PageHead :title="$t('admin.happenings.form.title')" page_type="admin" />
+    <BodyHead :title="$t('admin.happenings.form.title')"
+              :description="$t('admin.happenings.form.description')" />
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
-        <!-- Input: Start / End -->
+        <!-- Input: Start Date & Start Time -->
         <div class="grid gap-6 mb-6 md:grid-cols-2">
             <div>
-                <label for="start" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Start
-                </label>
-                <input v-model="form.start"
+                <FormLabel field="start_date" field-key="admin.happenings.form.fields.start_date"></FormLabel>
+                <input v-model="form.start_date"
                        type="text"
-                       id="start"
-                       name="start"
+                       id="start_date"
+                       name="start_date"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                       placeholder=""
+                       :placeholder="$t('admin.happenings.form.fields.start_date.placeholder')"
                 >
-                <FormValidationError :message="form.errors.start"></FormValidationError>
+                <FormValidationError :message="form.errors.start_date"></FormValidationError>
             </div>
             <div>
-                <label for="end" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    End
-                </label>
-                <input v-model="form.end"
+                <FormLabel field="start_time" field-key="admin.happenings.form.fields.start_time"></FormLabel>
+                <input v-model="form.start_time"
                        type="text"
-                       id="end"
-                       name="end"
+                       id="start_time"
+                       name="start_time"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                       placeholder=""
+                       :placeholder="$t('admin.happenings.form.fields.start_time.placeholder')"
                 >
-                <FormValidationError :message="form.errors.end"></FormValidationError>
+                <FormValidationError :message="form.errors.start_time"></FormValidationError>
+            </div>
+        </div>
+
+        <!-- Input: End Date & End Time -->
+        <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <div>
+                <FormLabel field="end_date" field-key="admin.happenings.form.fields.end_date"></FormLabel>
+                <input v-model="form.end_date"
+                       type="text"
+                       id="end_date"
+                       name="end_date"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                       :placeholder="$t('admin.happenings.form.fields.end_date.placeholder')">
+                <FormValidationError :message="form.errors.end_date"></FormValidationError>
+            </div>
+            <div>
+                <FormLabel field="end_time" field-key="admin.happenings.form.fields.end_time"></FormLabel>
+                <input v-model="form.end_time"
+                       type="text"
+                       id="end_time"
+                       name="end_time"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                       :placeholder="$t('admin.happenings.form.fields.end_time.placeholder')">
+                <FormValidationError :message="form.errors.end_time"></FormValidationError>
             </div>
         </div>
 
         <!-- Select: Resource -->
         <div class="mb-6">
-            <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Resource
-            </label>
+            <FormLabel field="resource_id" field-key="admin.happenings.form.fields.resource"></FormLabel>
             <select v-model="form.resource_id"
                     id="resource_id"
                     name="resource_id"
@@ -57,9 +75,7 @@
 
         <!-- Select: User 1 -->
         <div class="mb-6">
-            <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                User 1
-            </label>
+            <FormLabel field="user_01" field-key="admin.happenings.form.fields.user_01"></FormLabel>
             <select v-model="form.user_id_01"
                     id="user_id_02"
                     name="user_id_02"
@@ -75,9 +91,7 @@
         <!-- Select: User 2 / Verifier -->
         <div class="grid gap-6 mb-6 md:grid-cols-2">
             <div>
-                <label for="user_id_02" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    User 2
-                </label>
+                <FormLabel field="user_02" field-key="admin.happenings.form.fields.user_02"></FormLabel>
                 <select v-if="isHappeningToVerify"
                         v-model="form.user_id_02"
                         id="user_id_02"
@@ -90,24 +104,21 @@
                     </option>
                 </select>
                 <div v-else class="italic">
-                    Not required with this resource
+                    {{ $t('admin.happenings.form.general.not_required') }}
                 </div>
                 <FormValidationError :message="form.errors.user_id_02"></FormValidationError>
             </div>
             <div>
-                <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Verifier
-                </label>
+                <FormLabel field="verifier" field-key="admin.happenings.form.fields.verifier"></FormLabel>
                 <input v-if="isHappeningToVerify"
                        v-model="form.verifier"
                        type="text"
                        id="verifier"
                        name="verifier"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                       placeholder=""
-                >
+                       :placeholder="$t('admin.happenings.form.fields.verifier.placeholder')">
                 <span v-else class="italic">
-                    Not required with this resource
+                    {{ $t('admin.happenings.form.general.not_required') }}
                 </span>
                 <FormValidationError :message="form.errors.verifier"></FormValidationError>
             </div>
@@ -122,23 +133,25 @@
                 >
                 <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                 <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    Is verified
+                    {{ $t('admin.happenings.form.fields.is_verified.label') }}
                 </span>
             </label>
         </div>
 
         <div class="mb-6">
             <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
-                Submit
+                {{ $t('admin.happenings.form.actions.submit') }}
             </button>
         </div>
     </form>
 </template>
 <script setup>
-import {onMounted, ref, toRaw} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
-import FormValidationError from "../../../Shared/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import BodyHead from "@/Shared/BodyHead.vue";
+import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 
 // ------------------------------------------------
 // Props
@@ -157,14 +170,18 @@ let users = ref([]);
 let form = useForm({
     id: $page.props.id ?? '',
     resource_id: $page.props.resource_id ?? '-1',
-    start: $page.props.start ?? '',
-    end: $page.props.end ?? '',
+    start_date: $page.props.start_date ?? '',
+    start_time: $page.props.start_time ?? '',
+    end_date: $page.props.end_date ?? '',
+    end_time: $page.props.end_time ?? '',
     user_id_01: $page.props.user_id_01 ?? '',
     user_id_02: $page.props.user_id_02 ?? '',
     verifier: $page.props.verifier ?? '',
-    resource: $page.props.resource ?? {},
     is_verified: $page.props.is_verified ?? false,
+    resource: $page.props.resource ?? {},
 });
+
+console.log($page.props.is_verified)
 
 // Save original verifier for later rollback
 const savedVerifier = form['verifier']
@@ -174,10 +191,13 @@ let isHappeningToVerify = ref(true);
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const toggleResourceVerificationField = (resource) => {
+const syncDateFields = (e) => {
+    console.log(e)
+}
+
+const toggleResourceVerificationField = (resource) => {{}
     if (resource && resource.is_verification_required !== undefined) {
         isHappeningToVerify.value = resource.is_verification_required
-        form['is_verified'] = !resource.is_verification_required
     }
 }
 
@@ -213,6 +233,13 @@ let submitForm = () => {
         form.post('/admin/happening/store');
     }
 }
+
+// ------------------------------------------------
+// Watchers
+// ------------------------------------------------
+watch(form, () => {
+    form.end_date = form.start_date
+})
 
 // ------------------------------------------------
 // Mount

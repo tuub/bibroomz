@@ -2,7 +2,7 @@
     <div class="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
         <div class="flex items-center justify-between mb-4">
             <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-                My reservations
+                {{ $t('user_happening.header') }}
             </h5>
             <span class="text-sm font-medium text-blue-600 dark:text-blue-500">
                 <HappeningCount :count="happeningsCount"></HappeningCount>
@@ -13,7 +13,7 @@
         </div>
         <div class="flow-root">
             <div v-if="happeningsCount === 0" class="text-sm mt-5">
-                You have no current reservations.
+                {{ $t('user_happening.no_happenings') }}
             </div>
             <TransitionGroup v-if="happenings"
                              name="list"
