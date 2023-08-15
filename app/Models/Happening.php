@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Library\Utility;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
@@ -25,8 +24,25 @@ class Happening extends Model
     protected $table = 'happenings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
-    protected $fillable = ['user_id_01', 'user_id_02', 'resource_id', 'is_verified', 'verifier', 'start', 'end', 'reserved_at', 'booked_at'];
-    protected $dates = ['created_at', 'updated_at', 'start', 'end', 'reserved_at', 'booked_at'];
+    protected $fillable = [
+        'user_id_01',
+        'user_id_02',
+        'resource_id',
+        'is_verified',
+        'verifier',
+        'start',
+        'end',
+        'reserved_at',
+        'booked_at',
+    ];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'start',
+        'end',
+        'reserved_at',
+        'booked_at',
+    ];
     protected $casts = [
         'is_verified' => 'boolean',
     ];
@@ -40,31 +56,15 @@ class Happening extends Model
         return $this->belongsTo(Resource::class);
     }
 
-    public function user1()
+    public function user1(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id_01', 'id');
     }
 
-    public function user2()
+    public function user2(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id_02', 'id');
     }
-
-    // public function getUser1()
-    // {
-    //     if (!$this->getAttribute('user_id_01')) {
-    //         return null;
-    //     }
-    //     return $this->getAttribute('user1');
-    // }
-
-    // public function getUser2()
-    // {
-    //     if (!$this->getAttribute('user_id_02')) {
-    //         return null;
-    //     }
-    //     return $this->getAttribute('user2');
-    // }
 
     /*****************************************************************
      * SCOPES
@@ -94,7 +94,7 @@ class Happening extends Model
         return $query->where('start', '>=', Carbon::now()->startOfWeek());
     }
 
-    public function getPermissions($user)
+    public function getPermissions(User $user): array
     {
         return [
             'verify' => $user ? $user->can('verify', $this) : false,
@@ -134,6 +134,11 @@ class Happening extends Model
     public function isPast(): bool
     {
         return $this->end < Utility::getCarbonNow();
+    }
+
+    public function isPresent(): bool
+    {
+        return $this->start < Utility::getCarbonNow() && $this->end > Utility::getCarbonNow();
     }
 
     public function getStatus(): array
@@ -204,16 +209,4 @@ class Happening extends Model
 
         return $users;
     }
-
-    /*
-    public function usersWithVerifier()
-    {
-        return $this->users(is_verifier_included: true);
-    }
-
-    public function usersWithoutVerifier()
-    {
-        return $this->users(is_verifier_included: false);
-    }
-    */
 }

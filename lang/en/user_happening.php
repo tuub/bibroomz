@@ -5,6 +5,7 @@ return [
     'description' => 'Blablabla',
     'no_happenings' => 'You have no current happenings.',
     'past_happening' => 'Past Event',
+    'present_happening' => 'Present Event',
     'verified' => 'Verified',
     'date_time' => 'Date/Time',
     'resource' => 'Resource',

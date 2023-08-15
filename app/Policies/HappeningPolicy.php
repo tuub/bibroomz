@@ -29,7 +29,19 @@ class HappeningPolicy
      */
     public function update(User $user, Happening $happening): bool
     {
-        return !$happening->isPast() && $user->getKey() === $happening->user1->getKey();
+        if ($happening->isPast()) {
+            return false;
+        }
+
+        if ($happening->isPresent() && $happening->isVerified()) {
+            return false;
+        }
+
+        if ($user->getKey() === $happening->user1->getKey()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -41,7 +53,7 @@ class HappeningPolicy
      */
     public function delete(User $user, Happening $happening): bool
     {
-        return !$happening->isPast() && $user->getKey() === $happening->user1->getKey();
+        return $this->update($user, $happening);
     }
 
     /**
@@ -53,7 +65,15 @@ class HappeningPolicy
      */
     public function verify(User $user, Happening $happening): bool
     {
-        return !$happening->isPast() && $user->name === $happening->verifier;
+        if ($happening->isPast()) {
+            return false;
+        }
+
+        if ($user->name === $happening->verifier) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -64,6 +84,10 @@ class HappeningPolicy
      */
     public function create(User $user): bool
     {
-        return !$user->banned_at?->isValid();
+        if ($user->banned_at?->isValid()) {
+            return false;
+        }
+
+        return true;
     }
 }
