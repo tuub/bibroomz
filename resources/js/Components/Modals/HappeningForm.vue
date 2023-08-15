@@ -2,9 +2,7 @@
     <div class="mt-4 space-y-3">
         <div class="grid md:grid-cols-2 md:gap-2">
             <div class="mb-6">
-                <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    {{ trans('modal.form.start') }}
-                </label>
+                <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
                         @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
@@ -24,9 +22,7 @@
             </div>
 
             <div class="mb-6">
-                <label for="user_id_01" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                    {{ trans('modal.form.end') }}
-                </label>
+                <FormLabel field="end" field-key="modal.form.fields.end"></FormLabel>
                 <spinner size="small" v-if="isLoading"></spinner>
                 <select v-else
                         @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
@@ -46,16 +42,14 @@
             </div>
         </div>
         <div v-if="happening.isVerificationRequired && !isAdmin && !isInstitutionAdmin" class="mb-6">
-            <label for="verifier" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                {{ trans('modal.form.verifier') }}
-            </label>
+            <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input v-model="happening.verifier"
                    @input="$emit('update:input', $event.target.value)"
                    type="text"
                    id="verifier"
                    name="verifier"
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                   placeholder=""
+                   :placeholder="$t('modal.form.fields.verifier.placeholder')"
                    :disabled="!!happening.id"
             >
         </div>
@@ -72,6 +66,8 @@ import {ref, onBeforeMount} from "vue";
 import Spinner from "../../Shared/Spinner.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import {trans} from "laravel-vue-i18n";
+import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 
 const props = defineProps({
     happening: Object,

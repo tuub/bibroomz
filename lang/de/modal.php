@@ -2,9 +2,23 @@
 
 return [
     'form' => [
-        'start' => 'Start',
-        'end' => 'Ende',
-        'verifier' => 'Bestätiger*in',
+        'fields' => [
+            'start' => [
+                'label' => 'Start',
+                'placeholder' => 'Your start',
+                'hint' => 'About your start',
+            ],
+            'end' => [
+                'label' => 'End',
+                'placeholder' => 'Your end',
+                'hint' => 'About your end',
+            ],
+            'verifier' => [
+                'label' => 'Verifier',
+                'placeholder' => 'Your verifier',
+                'hint' => 'About your verifier',
+            ],
+        ],
     ],
     'info' => [
         'title' => 'Event Info',
