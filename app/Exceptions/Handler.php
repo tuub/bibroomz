@@ -2,7 +2,10 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Broadcasting\BroadcastException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -43,8 +46,8 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (BroadcastException $exception, Request $request) {
+            return response()->json(['message' => 'The websocket server is unavailable.'], 500);
         });
     }
 }
