@@ -47,8 +47,15 @@ createInertiaApp({
         showSpinner: true,
     },
     setup({el, App, props, plugin}) {
-        const app = createApp({render: () => h(App, props)})
-            .provide('emitter', emitter)
+        const quotaToast = Math.floor(Math.random() * 1000000);
+
+        pinia.use(({ store }) => {
+            store.$quotaToast = quotaToast;
+        });
+
+        const app = createApp({render: () => h(App, props)});
+
+        app.provide('emitter', emitter)
             .use(pinia)
             .component('Head', Head)
             .component('Link', Link)
@@ -74,9 +81,8 @@ createInertiaApp({
                 icon: true,
                 rtl: false,
                 filterBeforeCreate: (toast, toasts) => {
-                    const isQuotaToast = (toast) => toast.content.match(/quota limit exceeded/);
-
-                    if (isQuotaToast(toast) && toasts.filter(isQuotaToast).length > 0) {
+                    const isQuotaToast = toast.id === quotaToast;
+                    if (isQuotaToast && toasts.filter((toast) => toast.id === quotaToast).length > 0) {
                         return false;
                     }
 

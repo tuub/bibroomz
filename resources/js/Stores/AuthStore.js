@@ -228,6 +228,10 @@ export const useAuthStore = defineStore({
                 return false;
             }
 
+            let toastOptions = {
+                id: this.$quotaToast,
+            };
+
             const selectLength = end.diff(start, 'hours', true);
 
             const happening_block_hours = selectLength;
@@ -235,7 +239,7 @@ export const useAuthStore = defineStore({
                 toast.error(trans('toast.quota.happening_block_hours', {
                     current: happening_block_hours,
                     limit: quota_happening_block_hours,
-                }))
+                }), toastOptions);
                 return true;
             }
 
@@ -244,7 +248,7 @@ export const useAuthStore = defineStore({
                 toast.error(trans('toast.quota.weekly_happenings', {
                     current: weekly_happenings,
                     limit: quota_weekly_happenings,
-                }))
+                }), toastOptions)
                 return true;
             }
 
@@ -253,7 +257,7 @@ export const useAuthStore = defineStore({
                 toast.error(trans('toast.quota.weekly_hours', {
                     current: weekly_hours,
                     limit: quota_weekly_hours,
-                }))
+                }), toastOptions);
                 return true;
             }
 
@@ -262,7 +266,7 @@ export const useAuthStore = defineStore({
                 toast.error(trans('toast.quota.daily_hours', {
                     current: daily_hours,
                     limit: quota_daily_hours,
-                }))
+                }), toastOptions);
                 return true;
             }
 
