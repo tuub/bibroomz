@@ -39,7 +39,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->
 Route::middleware('auth:sanctum')->group(function () {
 
     /* User actions */
-    Route::get('/my', [UserController::class, 'getUserProfile'])->name('user.profile.get');
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])->name('user.happenings.get');
     Route::post('/happening/add', [HappeningController::class, 'addHappening'])->name('happening.add');
     Route::post('/happening/verify/{id}', [HappeningController::class, 'verifyHappening'])->name('happening.verify');

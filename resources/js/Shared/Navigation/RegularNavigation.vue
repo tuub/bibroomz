@@ -41,13 +41,6 @@
                             {{ $t('navigation.regular.home', {short_title: institutionShortTitle}) }}
                         </NavLink>
                     </li>
-                    <li v-if="isAuthenticated">
-                        <NavLink icon="ri-profile-fill"
-                                 :href="route('user.profile.get')"
-                                 :is_active="isPageProfile">
-                            {{ $t('navigation.regular.profile') }}
-                        </NavLink>
-                    </li>
                     <li v-if="isAdmin || isInstitutionAdmin">
                         <NavLink icon="ri-tools-fill"
                                  :href="route('admin.dashboard')">
@@ -93,9 +86,5 @@ const isPageStart = computed(() => {
 
 const isPageHome = computed(() => {
     return inertiaPage.component === 'Home'
-})
-
-const isPageProfile = computed(() => {
-    return inertiaPage.component === 'Profile'
 })
 </script>

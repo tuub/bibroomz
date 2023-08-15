@@ -12,15 +12,6 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function getUserProfile()
-    {
-        return Inertia::render('Profile', [
-            'time' => now()->toTimeString(),
-            'user' => auth()->user(),
-            'user_happenings' => auth()->user()->happenings,
-        ]);
-    }
-
     public function getUserHappenings(Request $request)
     {
         /** @var User */
