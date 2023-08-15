@@ -65,6 +65,13 @@
                     <i class="ri-check-line"></i>
                     {{ $t("user_happening.verified") }}
                 </span>
+                <span
+                    v-if="!isPast && !happening.isVerified"
+                    class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-red-300 last:mr-0 mr-1"
+                >
+                    <i class="ri-close-line"></i>
+                    {{ $t("user_happening.unverified") }}
+                </span>
             </p>
         </div>
         <div class="text-base font-bold text-gray-900">

@@ -8,6 +8,7 @@ return [
     'past_happening' => 'Past Event',
     'present_happening' => 'Present Event',
     'verified' => 'Verified',
+    'unverified' => 'Unverified',
     'date_time' => 'Date/Time',
     'resource' => 'Resource',
     'location' => 'Location',
