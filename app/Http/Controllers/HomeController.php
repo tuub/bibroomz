@@ -48,9 +48,14 @@ class HomeController extends Controller
         ]);
     }
 
-    public function getPrivacyStatement(): Response|RedirectResponse
+    public function getPrivacyStatement(): Response
     {
         return Inertia::render('PrivacyStatement');
+    }
+
+    public function getSiteCredits(): Response
+    {
+        return Inertia::render('SiteCredits');
     }
 
     public function switchLanguage(Request $request)

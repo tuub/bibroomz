@@ -49,9 +49,16 @@
                     </li>
                     <li>
                         <NavLink icon="ri-government-fill"
-                                 :href="route('privacy-statement')"
+                                 :href="route('privacy_statement')"
                                  :is_active="isPrivacyStatement">
                             {{ $t('navigation.regular.privacy_statement') }}
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink icon="ri-copyright-fill"
+                                 :href="route('site_credits')"
+                                 :is_active="isSiteCredits">
+                            {{ $t('navigation.regular.site_credits') }}
                         </NavLink>
                     </li>
                 </ul>
@@ -97,5 +104,9 @@ const isPageHome = computed(() => {
 
 const isPrivacyStatement = computed(() => {
     return inertiaPage.component === 'PrivacyStatement'
+})
+
+const isSiteCredits = computed(() => {
+    return inertiaPage.component === 'SiteCredits'
 })
 </script>

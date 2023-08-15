@@ -7,6 +7,7 @@ return [
         'profile' => 'Profil',
         'admin' => 'Administration',
         'privacy_statement' => 'Datenschutzhinweis',
+        'site_credits' => 'Impressum',
     ],
     'admin' => [
         'dashboard' => 'Dashboard',
