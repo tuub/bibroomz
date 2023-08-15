@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
@@ -95,7 +96,12 @@ class Happening extends Model
         return $query->where('start', '>=', Carbon::now()->startOfWeek());
     }
 
-    public function getPermissions(User $user): array
+    /**
+     * @param User|null $user
+     * @return array
+     * @throws BindingResolutionException
+     */
+    public function getPermissions(User|null $user): array
     {
         return [
             'verify' => $user ? $user->can('verify', $this) : false,
