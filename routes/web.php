@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 */
 
 Route::get('/', [HomeController::class, 'getStart'])->name('start');
+Route::post('/switch-lang', [HomeController::class, 'switchLanguage'])->name('switch_lang');
 
 Route::post('/check', [LoginController::class, 'check'])->name('check');
 Route::post('/login', [LoginController::class, 'login'])->name('login');

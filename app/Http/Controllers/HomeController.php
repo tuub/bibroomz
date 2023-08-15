@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,5 +46,21 @@ class HomeController extends Controller
             'institution' => $output,
             'is_multi_tenancy' => Institution::active()->count() > 1,
         ]);
+    }
+
+    public function switchLanguage(Request $request)
+    {
+        app()->setLocale($request->language);
+        Cookie::queue('locale', $request->language, 600);
+    }
+
+    // FIXME
+    public function checkLocaleCookie()
+    {
+        if (Cookie::has('locale')) {
+            app()->setLocale(Cookie::get('locale'));
+        } else {
+            Cookie::queue('locale', env('APP_LOCALE'), 600);
+        }
     }
 }

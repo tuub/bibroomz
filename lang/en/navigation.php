@@ -2,7 +2,7 @@
 
 return [
     'regular' => [
-        'institutions' => 'Einrichtungen',
+        'institutions' => 'Institutions',
         'home' => 'Home :short_title',
         'profile' => 'Profile',
         'admin' => 'Administration',

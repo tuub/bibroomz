@@ -4,7 +4,7 @@ return [
     'regular' => [
         'institutions' => 'Einrichtungen',
         'home' => 'Home :short_title',
-        'profile' => 'Profile',
+        'profile' => 'Profil',
         'admin' => 'Administration',
     ],
     'admin' => [

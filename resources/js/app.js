@@ -1,37 +1,27 @@
 import './bootstrap';
 
-import { createApp, h } from 'vue'
+import {createApp, h} from 'vue'
 import {createInertiaApp, Head, Link} from "@inertiajs/vue3";
-import { createPinia } from 'pinia'
+import {createPinia} from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import mitt from 'mitt'
-import '../css/app.css'
 import MainLayout from "./Layouts/MainLayout.vue";
 import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
-import { ZiggyVue } from 'ziggy';
-import { Ziggy } from './ziggy';
+import {ZiggyVue} from 'ziggy';
+import {Ziggy} from './ziggy';
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import { i18nVue } from 'laravel-vue-i18n';
+import {i18nVue} from 'laravel-vue-i18n';
+import "flag-icons/css/flag-icons.min.css";
 
 const emitter = mitt()
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
+// FIXME: check cookie for current language
+
 createInertiaApp({
-    // Default style
-    resolve_default: name => {
-        const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
-        return pages[`./Pages/${name}.vue`]
-    },
-    // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/13?reply=21564
-    resolve_v1: async (name) => {
-        let page = await import(`./Pages/${name}.vue`);
-        // If not present in the Page, use MainLayout
-        page.default.layout ??= MainLayout;
-        return page.default;
-    },
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
         // Resolve the page component asynchronously
@@ -56,11 +46,10 @@ createInertiaApp({
         // Whether the NProgress spinner will be shown.
         showSpinner: true,
     },
-    setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+    setup({el, App, props, plugin}) {
+        const app = createApp({render: () => h(App, props)})
             .provide('emitter', emitter)
             .use(pinia)
-            // FIXME: Necessary?
             .component('Head', Head)
             .component('Link', Link)
             .use(plugin)
@@ -69,16 +58,6 @@ createInertiaApp({
                 fallback: 'en',
                 resolve: lang => import(`../../lang/php_${lang}.json`),
             })
-            /*
-            .use(i18nVue, {
-                resolve: async lang => {
-                    const langs = import.meta.glob('../../lang/*.json');
-                    if (lang.includes("php_")) {
-                        return await langs[`../../lang/${lang}.json`]();
-                    }
-                }
-            })
-             */
             .use(ZiggyVue, Ziggy)
             .use(Toast, {
                 maxToasts: 10,
@@ -103,7 +82,16 @@ createInertiaApp({
 
                     return toast;
                 },
-            })
-            .mount(el)
+            });
+
+        /*
+        app.config.globalProperties.$filters = {
+            currencyUSD(value) {
+                return '$' + value
+            }
+        }
+        */
+
+        app.mount(el)
     },
 })

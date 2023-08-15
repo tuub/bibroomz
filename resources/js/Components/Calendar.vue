@@ -88,6 +88,10 @@ watch(() => authStore.userHappenings, () => {
     authStore.updateQuotas(calendarApi.getDate());
 }, { deep: true} );
 
+watch(() => appStore.locale, () => {
+    calendarApi.setOption('locale', appStore.locale);
+});
+
 /*
 watchEffect(() => {
     console.log('isLoading: %s', isLoading)
@@ -275,10 +279,7 @@ const calendarOptions = {
         right: 'today,prev,next'
     },
     buttonText: {
-        today:    'Heute',
-        month:    'Monat',
-        week:     'Woche',
-        day:      'Tag',
+        today: dayjs().format('DD.MM.YYYY'),
     },
     titleFormat: {
         month: '2-digit',

@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia';
+import { getActiveLanguage } from 'laravel-vue-i18n';
+
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 export const useAppStore = defineStore({
     id: 'app',
@@ -8,12 +11,21 @@ export const useAppStore = defineStore({
             app_name: import.meta.env.VITE_APP_NAME,
             institution: null,
             is_multi_tenancy: false,
+            locale: getActiveLanguage(),
         }
     },
     actions: {
         setCurrentInstitution(institution, is_multi_tenancy) {
             this.institution = institution
             this.is_multi_tenancy = is_multi_tenancy
+        },
+        setCurrentLocale(locale) {
+            this.locale = locale
+            axios.post(`${baseUrl}/switch-lang`, {
+                params: {
+                    language: locale,
+                },
+            });
         },
     },
     getters: {
