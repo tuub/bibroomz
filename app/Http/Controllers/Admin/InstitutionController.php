@@ -33,7 +33,7 @@ class InstitutionController extends Controller
         $institutions = Institution::get(['id', 'title'])
             ->filter(fn ($institution) => $user->can('edit', $institution));
 
-        return $institutions;
+        return $institutions->values();
     }
 
     public function createInstitution()

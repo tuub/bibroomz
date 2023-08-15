@@ -62,7 +62,7 @@
                     {{ happening.user1.name }}
                 </td>
                 <td class="px-6 py-4">
-                    <span v-if="happening.user2">
+                    <span v-if="happening.is_verified && happening.user2">
                         {{ happening.user2.name }}
                     </span>
                     <span v-else-if="happening.verifier">

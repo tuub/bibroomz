@@ -34,9 +34,9 @@ class ResourceController extends Controller
 
         $resources = Resource::active()->get()
             ->filter(fn ($resource) => $user->can('edit', $resource->institution))
-            ->map->only(['id', 'title', 'is_verification_required']);
+            ->map->only(['id', 'title', 'institution_id', 'is_verification_required']);
 
-        return $resources;
+        return $resources->values();
     }
 
     public function deleteResource(Request $request): RedirectResponse

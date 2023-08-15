@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
-use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Arr;
 
 class HappeningController extends Controller
 {
@@ -21,7 +19,7 @@ class HappeningController extends Controller
         /** @var User */
         $user = auth()->user();
 
-        $happenings = Happening::with(['resource', 'user1'])->get()
+        $happenings = Happening::with(['resource', 'user1', 'user2'])->get()
             ->filter(fn ($happening) => $user->can('edit', $happening->resource->institution));
 
         return Inertia::render('Admin/Happenings/Index', [
@@ -39,10 +37,8 @@ class HappeningController extends Controller
         $resource = Resource::findOrFail($request->resource_id);
         Institution::abortIfUnauthorized($resource->institution);
 
-        $validated = $request->safe()->merge(['reserved_at' => Carbon::now()]);
-        $sanitized = self::sanitizeHappeningData($validated);
-
-        Happening::create($sanitized);
+        $sanitized = $request->sanitized()->merge(['reserved_at' => Carbon::now()]);
+        Happening::create($sanitized->toArray());
 
         return redirect()->route('admin.happening.index');
     }
@@ -69,10 +65,8 @@ class HappeningController extends Controller
         $resource = Resource::findOrFail($request->resource_id);
         Institution::abortIfUnauthorized($resource->institution);
 
-        $validated = $request->validated();
-        $sanitized = self::sanitizeHappeningData($validated);
-
-        $happening->update($sanitized);
+        $sanitized = $request->sanitized();
+        $happening->update($sanitized->toArray());
 
         return redirect()->route('admin.happening.index');
     }
@@ -85,24 +79,5 @@ class HappeningController extends Controller
         $happening->delete();
 
         return redirect()->route('admin.happening.index');
-    }
-
-    public static function sanitizeHappeningData($happening_data): array
-    {
-        $happening_data['start'] = Utility::createCarbonDateTime(
-            $happening_data['start_date'],
-            $happening_data['start_time']
-        )->toISOString();
-        $happening_data['end'] = Utility::createCarbonDateTime(
-            $happening_data['end_date'],
-            $happening_data['end_time']
-        )->toIsoString();
-
-        return Arr::except($happening_data, [
-            'start_date',
-            'start_time',
-            'end_date',
-            'end_time'
-        ]);
     }
 }

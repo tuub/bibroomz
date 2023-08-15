@@ -20,7 +20,7 @@ class UserController extends Controller
 
     public function getFormUsers()
     {
-        return User::get(['id', 'name']);
+        return User::get(['id', 'name', 'is_admin']);
     }
 
     public function editUser(Request $request)
