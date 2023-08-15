@@ -5,6 +5,7 @@
 
             <div class="flex items-center md:order-2">
                 <CurrentLogin v-show="isAuthenticated"></CurrentLogin>
+                <LangSwitch></LangSwitch>
             </div>
         </div>
     </nav>
@@ -15,6 +16,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import Brand from "@/Shared/Brand.vue";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
+import LangSwitch from "@/Shared/LangSwitch.vue";
 
 // ------------------------------------------------
 // Stores

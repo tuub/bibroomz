@@ -5,6 +5,7 @@
 
             <div class="flex items-center md:order-2">
                 <CurrentLogin v-show="isAuthenticated"></CurrentLogin>
+                <LangSwitch></LangSwitch>
 
                 <button data-collapse-toggle="mobile-menu-2"
                         type="button"
@@ -91,6 +92,7 @@ import { computed } from "vue";
 import NavLink from "../NavLink.vue";
 import Brand from "@/Shared/Brand.vue";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
+import LangSwitch from "@/Shared/LangSwitch.vue";
 import { usePage } from "@inertiajs/vue3";
 
 // ------------------------------------------------
