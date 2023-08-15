@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use App\Library\Traits\UUIDIsPrimaryKey;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -15,7 +16,7 @@ class User extends Authenticatable
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasApiTokens, HasFactory, Notifiable, HasUUID;
+    use HasApiTokens, HasFactory, Notifiable, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS

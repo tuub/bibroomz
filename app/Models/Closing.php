@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Library\Traits\UUIDIsPrimaryKey;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Closing extends Model
 {
-    use HasFactory, HasUUID;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS

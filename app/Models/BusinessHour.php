@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Library\Traits\UUIDIsPrimaryKey;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ class BusinessHour extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS

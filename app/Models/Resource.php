@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Library\Utility;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Carbon\CarbonImmutable;
@@ -22,7 +23,7 @@ use InvalidArgumentException;
 
 class Resource extends Model
 {
-    use HasFactory, HasUUID;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS

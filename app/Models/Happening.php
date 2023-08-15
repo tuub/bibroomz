@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use App\Library\Traits\UUIDIsPrimaryKey;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ class Happening extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS
