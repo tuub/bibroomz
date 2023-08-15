@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\HappeningsChanged;
 use App\Library\Utility;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,17 +71,17 @@ class Happening extends Model
      * SCOPES
      ****************************************************************/
 
-    /**
-     * Get only happenings that are not in the past.
-     *
-     * @param Builder $query
-     * @return Builder
-     * @throws InvalidArgumentException
-     */
-    public function scopeCurrent(Builder $query): Builder
-    {
-        return $query->where('end', '>=', Carbon::now());
-    }
+    // /**
+    //  * Get only happenings that are not in the past.
+    //  *
+    //  * @param Builder $query
+    //  * @return Builder
+    //  * @throws InvalidArgumentException
+    //  */
+    // public function scopeCurrent(Builder $query): Builder
+    // {
+    //     return $query->where('end', '>=', Carbon::now());
+    // }
 
     /**
      * Get only happenings that are within the current week.
@@ -208,5 +209,14 @@ class Happening extends Model
         }
 
         return $users;
+    }
+
+    public function broadcast(String $broadcastEvent): void
+    {
+        foreach ($this->users() as $user) {
+            $broadcastEvent::dispatch($this, $user);
+        }
+
+        HappeningsChanged::dispatch();
     }
 }

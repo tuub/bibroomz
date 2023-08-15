@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\HappeningVerified;
+use App\Events\HappeningCreated;
+use App\Events\HappeningDeleted;
+use App\Events\HappeningUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
@@ -38,7 +42,9 @@ class HappeningController extends Controller
         Institution::abortIfUnauthorized($resource->institution);
 
         $sanitized = $request->sanitized()->merge(['reserved_at' => Carbon::now()]);
-        Happening::create($sanitized->toArray());
+        $happening = Happening::create($sanitized->toArray());
+
+        $happening->broadcast(HappeningCreated::class);
 
         return redirect()->route('admin.happening.index');
     }
@@ -68,6 +74,8 @@ class HappeningController extends Controller
         $sanitized = $request->sanitized();
         $happening->update($sanitized->toArray());
 
+        $happening->broadcast(HappeningUpdated::class);
+
         return redirect()->route('admin.happening.index');
     }
 
@@ -77,6 +85,8 @@ class HappeningController extends Controller
         Institution::abortIfUnauthorized($happening->resource->institution);
 
         $happening->delete();
+
+        $happening->broadcast(HappeningDeleted::class);
 
         return redirect()->route('admin.happening.index');
     }

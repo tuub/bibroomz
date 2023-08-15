@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\HappeningVerified;
 use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
-use App\Events\HappeningsChanged;
 use App\Events\HappeningUpdated;
 use App\Http\Requests\AddHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
@@ -168,7 +167,7 @@ class HappeningController extends Controller
             // Write log record
             Utility::sendToLog('happenings', $log);
 
-            $this->broadcast(HappeningCreated::class, $happening);
+            $happening->broadcast(HappeningCreated::class);
         }
     }
 
@@ -209,7 +208,7 @@ class HappeningController extends Controller
             // Write log record
             Utility::sendToLog('happenings', $log);
 
-            $this->broadcast(HappeningUpdated::class, $happening);
+            $happening->broadcast(HappeningUpdated::class);
         }
     }
 
@@ -239,7 +238,7 @@ class HappeningController extends Controller
             $log['RESULT'] = json_encode($happening);
             Utility::sendToLog('happenings', $log);
 
-            $this->broadcast(HappeningVerified::class, $happening);
+            $happening->broadcast(HappeningVerified::class);
         }
     }
 
@@ -254,17 +253,8 @@ class HappeningController extends Controller
         }
 
         if ($happening->delete()) {
-            $this->broadcast(HappeningDeleted::class, $happening);
+            $happening->broadcast(HappeningDeleted::class);
         }
-    }
-
-    private function broadcast(String $broadcastEvent, Happening $happening): void
-    {
-        foreach ($happening->users() as $user) {
-            $broadcastEvent::dispatch($happening, $user);
-        }
-
-        HappeningsChanged::dispatch();
     }
 
     private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void
