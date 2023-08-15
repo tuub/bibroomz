@@ -1,9 +1,10 @@
 <?php
 
 return [
-    'header' => 'My Happenings',
+    'header' => 'My Events',
     'description' => 'Blablabla',
-    'no_happenings' => 'You have no current happenings.',
+    'no_happenings' => 'You have no current events.',
+    'hide_past_happenings' => 'Hide past events',
     'past_happening' => 'Past Event',
     'present_happening' => 'Present Event',
     'verified' => 'Verified',

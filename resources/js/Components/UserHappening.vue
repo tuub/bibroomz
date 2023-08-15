@@ -1,20 +1,20 @@
 <template>
     <div
         class="flex items-center space-x-4 p-1"
-        :class="[isPresentHappening ? 'border border-pink-300 rounded-xl' : '']"
+        :class="[isPresent ? 'border border-pink-300 rounded-xl' : '']"
     >
         <div
             class="flex-1 min-w-0"
-            :class="[isPastHappening ? 'text-gray-400' : 'text-gray-900']"
+            :class="[isPast ? 'text-gray-400' : 'text-gray-900']"
         >
             <span
-                v-if="isPastHappening"
+                v-if="isPast"
                 class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-gray-200 last:mr-0 mr-1"
             >
                 {{ $t("user_happening.past_happening") }}
             </span>
             <span
-                v-else-if="isPresentHappening"
+                v-else-if="isPresent"
                 class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-pink-300 last:mr-0 mr-1"
             >
                 {{ $t("user_happening.present_happening") }}
@@ -59,7 +59,7 @@
                 ></i>
                 {{ happening.user_02 }}
                 <span
-                    v-if="!isPastHappening && happening.isVerified"
+                    v-if="!isPast && happening.isVerified"
                     class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-green-300 last:mr-0 mr-1"
                 >
                     <i class="ri-check-line"></i>
@@ -124,6 +124,9 @@ let props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    isPast: {
+        type: Boolean,
+    },
 });
 
 // ------------------------------------------------
@@ -147,11 +150,7 @@ const happeningEnd = computed(() => {
     return dayjs.utc(props.happening.end).format("HH:mm");
 });
 
-const isPastHappening = computed(() => {
-    return dayjs(props.happening.end).isBefore(dayjs.utc());
-});
-
-const isPresentHappening = computed(() => {
+const isPresent = computed(() => {
     return (
         dayjs(props.happening.start).isBefore(dayjs.utc()) &&
         dayjs(props.happening.end).isAfter(dayjs.utc())

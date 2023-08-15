@@ -4,6 +4,7 @@ return [
     'header' => 'Meine Events',
     'description' => 'Blablabla',
     'no_happenings' => 'Sie haben keine aktuellen Events.',
+    'hide_past_happenings' => 'Vergangene Events ausblenden',
     'past_happening' => 'Vergangenes Event',
     'present_happening' => 'Aktuelles Event',
     'verified' => 'Bestätigt',
