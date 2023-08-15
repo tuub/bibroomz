@@ -6,6 +6,7 @@ return [
         'home' => 'Home :short_title',
         'profile' => 'Profile',
         'admin' => 'Administration',
+        'privacy_statement' => 'Privacy Statement',
     ],
     'admin' => [
         'dashboard' => 'Dashboard',

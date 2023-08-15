@@ -48,6 +48,11 @@ class HomeController extends Controller
         ]);
     }
 
+    public function getPrivacyStatement(): Response|RedirectResponse
+    {
+        return Inertia::render('PrivacyStatement');
+    }
+
     public function switchLanguage(Request $request)
     {
         app()->setLocale($request->language);

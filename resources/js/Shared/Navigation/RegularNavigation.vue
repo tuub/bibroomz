@@ -47,6 +47,13 @@
                             {{ $t('navigation.regular.admin') }}
                         </NavLink>
                     </li>
+                    <li>
+                        <NavLink icon="ri-government-fill"
+                                 :href="route('privacy-statement')"
+                                 :is_active="isPrivacyStatement">
+                            {{ $t('navigation.regular.privacy_statement') }}
+                        </NavLink>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -86,5 +93,9 @@ const isPageStart = computed(() => {
 
 const isPageHome = computed(() => {
     return inertiaPage.component === 'Home'
+})
+
+const isPrivacyStatement = computed(() => {
+    return inertiaPage.component === 'PrivacyStatement'
 })
 </script>

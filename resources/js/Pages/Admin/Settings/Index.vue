@@ -48,12 +48,12 @@
 </template>
 
 <script setup>
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 let props = defineProps({
     institution: Object,
 })
