@@ -1,16 +1,17 @@
-import dayjs from 'dayjs';
-import { defineStore } from 'pinia';
-import { useToast } from 'vue-toastification';
-import { router } from '@inertiajs/vue3'
+import dayjs from "dayjs";
+import { defineStore } from "pinia";
+import { useToast } from "vue-toastification";
+import { router } from "@inertiajs/vue3";
 import { useAppStore } from "@/Stores/AppStore";
 import { trans } from "laravel-vue-i18n";
+import HappeningToast from "@/Components/HappeningToast.vue";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 const toast = useToast();
 
 export const useAuthStore = defineStore({
-    id: 'auth',
+    id: "auth",
     persist: true,
 
     state: () => ({
@@ -32,14 +33,13 @@ export const useAuthStore = defineStore({
     },
 
     actions: {
-
         async csrf() {
-            return await axios.get(`${baseUrl}/sanctum/csrf-cookie`)
+            return await axios.get(`${baseUrl}/sanctum/csrf-cookie`);
         },
 
         async check() {
             try {
-                const response = await axios.post(`${baseUrl}/check`)
+                const response = await axios.post(`${baseUrl}/check`);
 
                 this.user = response.data.user;
                 this.isAuthenticated = true;
@@ -69,7 +69,7 @@ export const useAuthStore = defineStore({
             this.fetchUserHappenings();
             this.subscribe();
 
-            toast.success(trans('toast.login.success'))
+            toast.success(trans("toast.login.success"));
         },
 
         async logout() {
@@ -79,11 +79,11 @@ export const useAuthStore = defineStore({
                 this.unsubscribe();
                 this.$reset();
 
-                router.visit('/');
+                router.visit("/");
 
-                toast.success(trans('toast.logout.success'));
+                toast.success(trans("toast.logout.success"));
             } catch (error) {
-                toast.error(trans('toast.logout.error'));
+                toast.error(trans("toast.logout.error"));
             }
         },
 
@@ -103,37 +103,37 @@ export const useAuthStore = defineStore({
 
                 this.userHappenings = response.data;
             } catch (error) {
-                console.log('Error fetching user happenings:', error);
+                console.log("Error fetching user happenings:", error);
             }
         },
 
         addUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id)
+            let index = this._findUserHappeningIndex(happening.id);
             if (index === -1) {
-                this.userHappenings.push(happening)
+                this.userHappenings.push(happening);
                 // Order userHappenings array by start datetime
-                this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
-            } else {
-                console.log('Attempt to add multiple identical entries. Skipping.')
+                this.userHappenings.sort((a, b) =>
+                    a.start.localeCompare(b.start)
+                );
             }
         },
 
         updateUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id)
+            let index = this._findUserHappeningIndex(happening.id);
             this.userHappenings[index] = happening;
             // Order userHappenings array by start datetime
             this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
 
         removeUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id)
+            let index = this._findUserHappeningIndex(happening.id);
             if (index >= 0) {
-                this.userHappenings.splice(index, 1)
+                this.userHappenings.splice(index, 1);
             }
         },
 
         _findUserHappeningIndex(id) {
-            return this.userHappenings.findIndex(x => x.id === id)
+            return this.userHappenings.findIndex((x) => x.id === id);
         },
 
         subscribe() {
@@ -142,39 +142,43 @@ export const useAuthStore = defineStore({
             }
 
             let userChannel = `happenings.${this.user.id}`;
+
+            const showHappeningToast = (message, happening) => {
+                toast.success({
+                    component: HappeningToast,
+                    props: { message, happening },
+                });
+            };
+
             Echo.private(userChannel)
                 .listen("HappeningCreated", (event) => {
                     const happening = event.happening;
                     this.addUserHappening(happening);
-
-                    const message = `${happening.start} - ${happening.end}`;
-                    toast.success(trans('toast.happening.created', { message }))
+                    const message = trans("toast.happening.event.created");
+                    showHappeningToast(message, happening);
                 })
                 .listen("HappeningVerified", (event) => {
                     const happening = event.happening;
                     this.updateUserHappening(happening);
-
-                    const message = `${happening.start} - ${happening.end}`;
-                    toast.success(trans('toast.happening.verified', { message }))
+                    const message = trans("toast.happening.event.verified");
+                    showHappeningToast(message, happening);
                 })
                 .listen("HappeningUpdated", (event) => {
                     const happening = event.happening;
                     this.updateUserHappening(happening);
-
-                    const message = `${happening.start} - ${happening.end}`;
-                    toast.success(trans('toast.happening.updated', { message }))
+                    const message = trans("toast.happening.event.updated");
+                    showHappeningToast(message, happening);
                 })
                 .listen("HappeningDeleted", (event) => {
                     const happening = event.happening;
                     this.removeUserHappening(happening);
-
-                    const message = `${happening.start} - ${happening.end}`;
-                    toast.success(trans('toast.happening.deleted', { message }))
+                    const message = trans("toast.happening.event.deleted");
+                    showHappeningToast(message, happening);
                 });
         },
 
         unsubscribe() {
-            if(!this.isAuthenticated) {
+            if (!this.isAuthenticated) {
                 return;
             }
 
@@ -185,36 +189,53 @@ export const useAuthStore = defineStore({
         updateQuotas(currentDate) {
             currentDate = dayjs(currentDate);
 
-            const happenings = this.userHappenings.filter(happening => {
+            const happenings = this.userHappenings.filter((happening) => {
                 if (happening.user_01 === this.user.name) {
                     return true;
                 }
 
-                if (happening.user_02 === this.user.name && happening.isVerified) {
+                if (
+                    happening.user_02 === this.user.name &&
+                    happening.isVerified
+                ) {
                     return true;
                 }
 
                 return false;
             });
 
-            const isSameDay = (date) => currentDate.isSame(date, 'day');
-            const isSameWeek = (date) => currentDate.isSame(date, 'week');
+            const isSameDay = (date) => currentDate.isSame(date, "day");
+            const isSameWeek = (date) => currentDate.isSame(date, "week");
 
-            const happeningHoursSum = (hours, happening) => hours + dayjs(happening.end).diff(happening.start, 'hours', true);
+            const happeningHoursSum = (hours, happening) =>
+                hours +
+                dayjs(happening.end).diff(happening.start, "hours", true);
 
-            const sameDayHappenings = happenings.filter((happening) => isSameDay(happening.start));
-            const sameWeekHappenings = happenings.filter((happening) => isSameWeek(happening.start));
+            const sameDayHappenings = happenings.filter((happening) =>
+                isSameDay(happening.start)
+            );
+            const sameWeekHappenings = happenings.filter((happening) =>
+                isSameWeek(happening.start)
+            );
 
-            this.quotas.daily_hours = sameDayHappenings.reduce(happeningHoursSum, 0);
-            this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
+            this.quotas.daily_hours = sameDayHappenings.reduce(
+                happeningHoursSum,
+                0
+            );
+            this.quotas.weekly_hours = sameWeekHappenings.reduce(
+                happeningHoursSum,
+                0
+            );
             this.quotas.weekly_happenings = sameWeekHappenings.length;
         },
 
         isExceedingQuotas(start, end) {
-            let institution = useAppStore().institution
+            let institution = useAppStore().institution;
 
-            const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
-            const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
+            const quota_happening_block_hours =
+                institution.settings.quota_happening_block_hours;
+            const quota_weekly_happenings =
+                institution.settings.quota_weekly_happenings;
             const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
@@ -226,47 +247,57 @@ export const useAuthStore = defineStore({
                 id: this.$quotaToast,
             };
 
-            const selectLength = end.diff(start, 'hours', true);
+            const selectLength = end.diff(start, "hours", true);
 
             const happening_block_hours = selectLength;
             if (happening_block_hours > quota_happening_block_hours) {
-                toast.error(trans('toast.quota.happening_block_hours', {
-                    current: happening_block_hours,
-                    limit: quota_happening_block_hours,
-                }), toastOptions);
+                toast.error(
+                    trans("toast.quota.happening_block_hours", {
+                        current: happening_block_hours,
+                        limit: quota_happening_block_hours,
+                    }),
+                    toastOptions
+                );
                 return true;
             }
 
-            let weekly_happenings = this.quotas.weekly_happenings + 1
+            let weekly_happenings = this.quotas.weekly_happenings + 1;
             if (weekly_happenings > quota_weekly_happenings) {
-                toast.error(trans('toast.quota.weekly_happenings', {
-                    current: weekly_happenings,
-                    limit: quota_weekly_happenings,
-                }), toastOptions)
+                toast.error(
+                    trans("toast.quota.weekly_happenings", {
+                        current: weekly_happenings,
+                        limit: quota_weekly_happenings,
+                    }),
+                    toastOptions
+                );
                 return true;
             }
 
-            let weekly_hours = this.quotas.weekly_hours + selectLength
+            let weekly_hours = this.quotas.weekly_hours + selectLength;
             if (weekly_hours > quota_weekly_hours) {
-                toast.error(trans('toast.quota.weekly_hours', {
-                    current: weekly_hours,
-                    limit: quota_weekly_hours,
-                }), toastOptions);
+                toast.error(
+                    trans("toast.quota.weekly_hours", {
+                        current: weekly_hours,
+                        limit: quota_weekly_hours,
+                    }),
+                    toastOptions
+                );
                 return true;
             }
 
-            let daily_hours = this.quotas.daily_hours + selectLength
+            let daily_hours = this.quotas.daily_hours + selectLength;
             if (daily_hours > quota_daily_hours) {
-                toast.error(trans('toast.quota.daily_hours', {
-                    current: daily_hours,
-                    limit: quota_daily_hours,
-                }), toastOptions);
+                toast.error(
+                    trans("toast.quota.daily_hours", {
+                        current: daily_hours,
+                        limit: quota_daily_hours,
+                    }),
+                    toastOptions
+                );
                 return true;
             }
 
             return false;
-        }
-
+        },
     },
-
 });

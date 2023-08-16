@@ -10,10 +10,17 @@ return [
         'error' => 'Logout fehlgeschlagen',
     ],
     'happening' => [
-        'created' => 'Event erstellt! :message',
-        'updated' => 'Event geupdated! :message',
-        'verified' => 'Event bestätigt! :message',
-        'deleted' => 'Event gelöscht! :message',
+        'event' => [
+            'created' => 'Event erstellt!',
+            'updated' => 'Event geupdated!',
+            'verified' => 'Event bestätigt!',
+            'deleted' => 'Event gelöscht!',
+        ],
+        'info' => [
+            'date' => 'Datum',
+            'start' => 'Beginn',
+            'end' => 'Ende',
+        ],
     ],
     'quota' => [
         'happening_block_hours' => 'Events können höchstens :limit Stunden dauern!',

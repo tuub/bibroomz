@@ -10,10 +10,17 @@ return [
         'error' => 'Logout failed',
     ],
     'happening' => [
-        'created' => 'Event created! :message',
-        'updated' => 'Event updated! :message',
-        'verified' => 'Event verified! :message',
-        'deleted' => 'Event deleted! :message',
+        'event' => [
+            'created' => 'Event created!',
+            'updated' => 'Event updated!',
+            'verified' => 'Event verified!',
+            'deleted' => 'Event deleted!',
+        ],
+        'info' => [
+            'date' => 'Date',
+            'start' => 'Start',
+            'end' => 'End',
+        ],
     ],
     'quota' => [
         'happening_block_hours' => 'Block hours quota limit exceeded: :current of :limit',
