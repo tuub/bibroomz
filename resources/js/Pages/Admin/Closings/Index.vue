@@ -47,7 +47,8 @@
                     {{ closing.description }}
                 </td>
                 <td class="px-6 py-4 text-center">
-                    FIXME
+                    <i v-if="isPastClosing(closing)" class="ri-checkbox-circle-line text-green-500"></i>
+                    <i v-else class="ri-close-circle-line text-red-500"></i>
                 </td>
                 <td class="px-6 py-4 text-right">
                     <Link :href="route('admin.closing.edit', {
@@ -104,4 +105,8 @@ dayjs.extend(utc)
 const formatDateTime = ((dataTime) => {
     return dayjs.utc(dataTime).format('DD.MM.YYYY HH:mm');
 })
+
+const isPastClosing = (closing) => {
+    return dayjs(closing.end).isBefore(dayjs().utcOffset(0, true));
+}
 </script>
