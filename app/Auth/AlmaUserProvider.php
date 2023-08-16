@@ -116,6 +116,7 @@ class AlmaUserProvider implements UserProvider
                         'name' => $response['result']['primary_id'],
                         'email' => null,
                         'password' => Hash::make('Test123!'),
+                        'is_admin' => false,
                     ];
                 } else {
                     // FIXME: Message invalid creds and return
