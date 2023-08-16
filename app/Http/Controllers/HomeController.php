@@ -58,6 +58,23 @@ class HomeController extends Controller
         return Inertia::render('SiteCredits');
     }
 
+    public function getTerminalView(string $slug): Response
+    {
+        $institution = Institution::where('slug', $slug)->first();
+
+        $settings = [];
+        foreach ($institution->settings as $setting) {
+            $settings[$setting->key] = $setting->value;
+        }
+
+        $output = $institution->withoutRelations()->toArray();
+        $output['settings'] = $settings;
+
+        return Inertia::render('TerminalView', [
+            'institution' => $output,
+        ]);
+    }
+
     public function switchLanguage(Request $request)
     {
         app()->setLocale($request->language);

@@ -115,6 +115,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Institution Home
 Route::get('/{slug}', [HomeController::class, 'getInstitutionalHome'])->name('home');
+// Institution Terminal View
+Route::get('/{slug}/terminal-view', [HomeController::class, 'getTerminalView'])->name('terminal_view');
 // API calls
 Route::get('/{slug}/resources', [ResourceController::class, 'getResources'])->name('resources.get');
 Route::get('/{slug}/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');

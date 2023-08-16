@@ -22,6 +22,7 @@ class HappeningController extends Controller
 {
     public function getHappenings(Request $request): JsonResponse
     {
+        sleep(2);
         $output = [];
         $institution = Institution::where('slug', $request->slug)->first();
 
