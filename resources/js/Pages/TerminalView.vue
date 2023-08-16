@@ -65,18 +65,18 @@ onBeforeMount(() => {
 
 onMounted(() => {
     Echo.channel("happenings").listen("HappeningsChanged", () => {
-        refetchHappenings(refCalendar.value);
+        refetchHappenings(refCalendar);
     });
 });
+
 onUnmounted(() => {
     Echo.leave("happenings");
 });
 </script>
 
 <style lang="css">
-/* FIXME: Alias ~ in Vite! */
-@import "/node_modules/@fullcalendar/daygrid/main.css";
-@import "/node_modules/@fullcalendar/timegrid/main.css";
+@import "fullcalendar/daygrid/main.css";
+@import "fullcalendar/timegrid/main.css";
 
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {

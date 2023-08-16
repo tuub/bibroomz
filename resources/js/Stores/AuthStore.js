@@ -196,7 +196,7 @@ export const useAuthStore = defineStore({
                     return true;
                 }
 
-                if (happening.user_02 === this.user.name && happening.is_verified) {
+                if (happening.user_02 === this.user.name && happening.isVerified) {
                     return true;
                 }
 
