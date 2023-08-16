@@ -262,6 +262,7 @@ return [
                 ],
                 'actions' => [
                     'edit' => 'Edit',
+                    'delete' => 'Delete',
                 ],
             ],
         ],

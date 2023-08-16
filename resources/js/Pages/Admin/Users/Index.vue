@@ -55,6 +55,11 @@
                               class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                             {{ $t('admin.users.index.table.actions.edit') }}
                         </Link>
+                        |
+                        <Link :href="route('admin.user.delete', {id: user.id})"
+                              class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                            {{ $t('admin.users.index.table.actions.delete') }}
+                        </Link>
                     </td>
                 </tr>
             </tbody>

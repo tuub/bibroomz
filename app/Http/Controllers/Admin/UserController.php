@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Institution;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -35,7 +35,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateUser(Request $request)
+    public function updateUser(Request $request): RedirectResponse
     {
         $user = User::find($request->id);
 
@@ -47,6 +47,14 @@ class UserController extends Controller
 
         $institutions = collect($request->institution_admin)->filter(fn($is_admin) => $is_admin)->keys();
         $user->institutions()->sync($institutions);
+
+        return redirect()->route('admin.user.index');
+    }
+
+    public function deleteUser(Request $request): RedirectResponse
+    {
+        $user = User::find($request->id);
+        $user->delete();
 
         return redirect()->route('admin.user.index');
     }
