@@ -48,7 +48,7 @@
                         <i class="ri-close-circle-line text-red-500" v-if="user.banned_at !== ''"></i>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        FIXME
+                        {{ user.happenings.length }}
                     </td>
                     <td class="px-6 py-4 text-right">
                         <Link :href="route('admin.user.edit', {id: user.id})"
