@@ -1,12 +1,15 @@
 <template>
-    <div v-text="message" class="text-red-500 text-sm mt-1"></div>
+    <div class="text-red-500 text-sm mt-1" v-text="message"></div>
 </template>
 
 <script setup>
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
-    message: String,
-})
+defineProps({
+    message: {
+        type: String,
+        default: "",
+    },
+});
 </script>

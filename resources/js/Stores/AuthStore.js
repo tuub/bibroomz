@@ -54,28 +54,22 @@ export const useAuthStore = defineStore({
         },
 
         async login(username, password) {
-            try {
-                await this.csrf();
+            await this.csrf();
 
-                const response = await axios.post(`${baseUrl}/login`, {
-                    username,
-                    password,
-                });
+            const response = await axios.post(`${baseUrl}/login`, {
+                username,
+                password,
+            });
 
-                this.user = response.data.user;
-                this.isAuthenticated = true;
-                this.isAdmin = response.data.isAdmin;
-                this.institutionAdmin = response.data.institutionAdmin;
+            this.user = response.data.user;
+            this.isAuthenticated = true;
+            this.isAdmin = response.data.isAdmin;
+            this.institutionAdmin = response.data.institutionAdmin;
 
-                this.fetchUserHappenings();
-                this.subscribe();
+            this.fetchUserHappenings();
+            this.subscribe();
 
-                toast.success(trans('toast.login.success'))
-            } catch (error) {
-                const message = error.response?.data?.message;
-
-                toast.error(trans('toast.login.error', { message }));
-            }
+            toast.success(trans('toast.login.success'))
         },
 
         async logout() {

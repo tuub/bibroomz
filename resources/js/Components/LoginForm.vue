@@ -1,59 +1,84 @@
 <template>
-    <h1 class="text-xl font-bold">
-        {{ $t('login.header') }}
+    <h1 class="text-xl font-bold mt-4">
+        {{ $t("login.header") }}
     </h1>
 
-    <div v-if="errors.length > 0">{{ errors }}</div>
+    <form class="max-w-md mx-auto mt-4" @submit.prevent="submitForm">
+        <div class="mb-6">
+            <label
+                class="block mb-2 uppercase font-bold text-xs text-gray-700"
+                for="username"
+            >
+                {{ $t("login.form.username.label") }}
+            </label>
 
-    <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
-        <div class="mb-6">
-            <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="username">
-                {{ $t('login.form.username.label') }}
-            </label>
-            <input v-model="form.username"
-                   class="border border-gray-400 p-2 w-full"
-                   type="text"
-                   name="username"
-                   id="username"
-                   :placeholder="$t('login.form.username.placeholder')"
-            >
-            <FormValidationError :messages="form.errors.username"></FormValidationError>
+            <input
+                id="username"
+                v-model="form.username"
+                class="border border-gray-400 p-2 w-full"
+                type="text"
+                name="username"
+                :placeholder="$t('login.form.username.placeholder')"
+            />
+
+            <FormValidationError
+                v-for="(message, index) in errors?.errors?.username"
+                :key="index"
+                :message="message"
+            ></FormValidationError>
         </div>
         <div class="mb-6">
-            <label class="block mb-2 uppercase font-bold text-xs text-gray-700" for="password">
-                {{ $t('login.form.password.label') }}
-            </label>
-            <input v-model="form.password"
-                   class="border border-gray-400 p-2 w-full"
-                   type="password"
-                   name="password"
-                   id="password"
-                   :placeholder="$t('login.form.password.placeholder')"
+            <label
+                class="block mb-2 uppercase font-bold text-xs text-gray-700"
+                for="password"
             >
-            <FormValidationError :messages="form.errors.password"></FormValidationError>
+                {{ $t("login.form.password.label") }}
+            </label>
+
+            <input
+                id="password"
+                v-model="form.password"
+                class="border border-gray-400 p-2 w-full"
+                type="password"
+                name="password"
+                :placeholder="$t('login.form.password.placeholder')"
+            />
+
+            <FormValidationError
+                v-for="(message, index) in errors?.errors?.password"
+                :key="index"
+                :message="message"
+            ></FormValidationError>
+
+            <FormValidationError
+                v-if="!errors.errors"
+                :message="errors?.message"
+            ></FormValidationError>
         </div>
         <div class="mb-6">
-            <button type="submit" class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500" :disabled="form.processing">
-                {{ $t('login.form.submit.label') }}
+            <button
+                type="submit"
+                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
+                :disabled="form.processing"
+            >
+                {{ $t("login.form.submit.label") }}
             </button>
         </div>
     </form>
-
 </template>
 
 <script setup>
 import FormValidationError from "../Shared/Form/FormValidationError.vue";
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '../Stores/AuthStore';
-import {reactive, ref} from "vue";
-import {useForm} from "@inertiajs/vue3";
+import { useAuthStore } from "../Stores/AuthStore";
+import { ref } from "vue";
+import { useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
+import { trans } from "laravel-vue-i18n";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    errors: Object
-})
+defineProps({});
 
 // ------------------------------------------------
 // Stores
@@ -63,25 +88,25 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { user: authUser } = storeToRefs(authStore);
-const errors = ref([])
+const toast = useToast();
+
+const errors = ref([]);
+
 const form = useForm({
-    username: '',
-    password: '',
-})
+    username: "",
+    password: "",
+});
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-let submitForm = () => {
-    // FIXME: not catching! err = undefined
-    return authStore.login(form.username, form.password)
-    /*
-    .catch((err) => {
-        console.log(err)
-        console.log(err.response.data.errors)
-        errors.value = Object.values(err.response.data.errors).flat()
-    });
-    */
-}
+let submitForm = async () => {
+    try {
+        return await authStore.login(form.username, form.password);
+    } catch (error) {
+        toast.error(trans("toast.login.error"));
+
+        errors.value = error.response.data;
+    }
+};
 </script>

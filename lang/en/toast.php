@@ -2,12 +2,12 @@
 
 return [
     'login' => [
-        'success' => 'Login successfull: :message',
-        'error' => 'Login attempt failed: :message',
+        'success' => 'Login successfull',
+        'error' => 'Login attempt failed',
     ],
     'logout' => [
-        'success' => 'Logout successfull: :message',
-        'error' => 'Logout failed: :message',
+        'success' => 'Logout successfull',
+        'error' => 'Logout failed',
     ],
     'happening' => [
         'created' => 'Event created! :message',

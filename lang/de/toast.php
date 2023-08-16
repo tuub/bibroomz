@@ -3,11 +3,11 @@
 return [
     'login' => [
         'success' => 'Login erfolgreich',
-        'error' => 'Loginversuch fehlgeschlagen: :message',
+        'error' => 'Loginversuch fehlgeschlagen',
     ],
     'logout' => [
         'success' => 'Logout erfolgreich',
-        'error' => 'Logout fehlgeschlagen: :message',
+        'error' => 'Logout fehlgeschlagen',
     ],
     'happening' => [
         'created' => 'Event erstellt! :message',
