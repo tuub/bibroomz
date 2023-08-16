@@ -114,7 +114,7 @@ class AlmaUserProvider implements UserProvider
                 if ($response['result']['code'] == 0) {
                     $userData = [
                         'name' => $response['result']['primary_id'],
-                        'email' => null,
+                        'email' => $response['result']['email_address'],
                         'password' => Hash::make('Test123!'),
                         'is_admin' => false,
                     ];
