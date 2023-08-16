@@ -73,11 +73,12 @@
                     </span>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <i class="ri-checkbox-circle-line text-green-500" v-if="happening.is_verified"></i>
-                    <i class="ri-close-circle-line text-red-500" v-if="!happening.is_verified"></i>
+                    <i v-if="happening.is_verified" class="ri-checkbox-circle-line text-green-500"></i>
+                    <i v-else class="ri-close-circle-line text-red-500"></i>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    FIXME
+                    <i v-if="isPastHappening(happening)" class="ri-checkbox-circle-line text-green-500"></i>
+                    <i v-else class="ri-close-circle-line text-red-500"></i>
                 </td>
                 <td class="px-6 py-4 text-right">
                     <Link :href="route('admin.happening.edit', {
@@ -127,4 +128,8 @@ const formatDate = ((dataTime) => {
 const formatTime = ((time) => {
     return dayjs.utc(time).format('HH:mm');
 })
+
+const isPastHappening = (happening) => {
+    return dayjs(happening.end).isBefore(dayjs().utcOffset(0, true));
+};
 </script>
