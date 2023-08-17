@@ -1,7 +1,7 @@
 <template>
     <PageHead title="Start" page_type="splash" />
 
-    <div class="flex items-center justify-center">
+    <div class="flex flex-wrap items-center justify-center">
         <InstitutionCard v-for="institution in institutions"
                          :title="institution.title"
                          :location="institution.location"
