@@ -57,10 +57,19 @@ return [
         ],
     ],
     'verify' => [
-        'title' => 'Event bestätitgen',
+        'title' => 'Event bestätigen',
         'description' => 'Bestätigen Sie Ihr Event:',
         'action' => [
             'verify' => 'Bestätigen',
+        ],
+    ],
+    'resource_info' => [
+        'title' => 'Information zu Ressource :resource_title',
+        'description' => 'Hier finden Sie Informationen zu dieser Ressource.',
+        'resource_capacity' => 'Kapazität',
+        'resource_description' => 'Beschreibung',
+        'action' => [
+            'ok' => 'OK',
         ],
     ],
 ];

@@ -1,4 +1,5 @@
 import HappeningModal from "@/Components/Modals/HappeningModal.vue";
+import ResourceInfoModal from "@/Components/Modals/ResourceInfoModal.vue";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 import {trans} from "laravel-vue-i18n";
@@ -129,6 +130,27 @@ export function useEditDeleteModal(happening) {
                 label: trans('modal.edit_delete.action.delete'),
                 callback: (happening) => {
                     return happeningStore.deleteHappening(happening.id);
+                },
+            },
+        ],
+    };
+}
+
+export function useResourceInfoModal(resourceInfo) {
+    const modal = useModal();
+
+    return {
+        view: ResourceInfoModal,
+        content: {
+            title: trans('modal.resource_info.title', {resource_title: resourceInfo.resource.title}),
+            description: trans('modal.resource_info.description'),
+        },
+        payload: { ...resourceInfo },
+        actions: [
+            {
+                label: trans('modal.resource_info.action.ok'),
+                callback: () => {
+                    modal.close();
                 },
             },
         ],

@@ -63,4 +63,13 @@ return [
             'verify' => 'Yes, verify!',
         ],
     ],
+    'resource_info' => [
+        'title' => 'Information for resource :resource_title',
+        'description' => 'Here you find informations for this resource.',
+        'resource_capacity' => 'Resource Capacity',
+        'resource_description' => 'Resource Description',
+        'action' => [
+            'ok' => 'OK',
+        ],
+    ],
 ];

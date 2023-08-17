@@ -11,7 +11,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { reactive, unref } from "vue";
-import { useCreateModal, useInfoModal, useVerifyModal } from "./ModalActions";
+import {useCreateModal, useInfoModal, useResourceInfoModal, useVerifyModal} from "./ModalActions";
 import { useEditDeleteModal } from "./ModalActions";
 
 dayjs.extend(isSameOrAfter);
@@ -172,6 +172,24 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         authStore.updateQuotas(dateInfo.start);
     }
 
+    function getResourceInfo(resourceInfo) {
+        let link = document.createElement('a');
+        link.href = '#';
+        link.innerHTML = '<i class="ri-information-line"></i>';
+        link.onclick = function () {
+            emit("open-modal-component", useResourceInfoModal(resourceInfo));
+        };
+
+        let title = document.createElement('div');
+        title.innerHTML = resourceInfo.resource.title;
+
+
+
+        let arrayOfDomNodes = [ title, link ]
+        return { domNodes: arrayOfDomNodes }
+        //info.el.querySelector('.fc-cell-text').appendChild(z);
+    }
+
     const defaultCalendarOptions = {
         schedulerLicenseKey: "GPL-My-Project-Is-Open-Source",
         plugins: [interactionPlugin, resourceTimeGridPlugin],
@@ -217,6 +235,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         select: onSelect,
         eventClick: onEventClick,
         datesSet: onDatesSet,
+        resourceLabelContent: getResourceInfo,
     };
 
     return {

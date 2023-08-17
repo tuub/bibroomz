@@ -39,6 +39,8 @@ class ResourceController extends Controller
                 'title' => $resource->title,
                 'businessHours' => $business_hours,
                 'isVerificationRequired' => $resource->is_verification_required,
+                'capacity' => $resource->capacity,
+                'description' => $resource->description,
             ];
         }
 

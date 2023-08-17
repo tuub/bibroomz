@@ -1,7 +1,6 @@
 <template>
     <PageHead :title="institutionTitle" />
 
-    <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
     <x-modal />
 
     <div class="flex flex-row gap-5">
