@@ -18,3 +18,4 @@ yarn-error.log
 /public/vendor
 resources/js/ziggy.js
 lang/php_*.json
+lang/*.csv
