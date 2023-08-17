@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('business_hours', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('resource_id');
-            $table->foreign('resource_id')->references('id')->on('resources');
+            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('cascade');
             $table->time('start');
             $table->time('end');
             $table->timestamps();

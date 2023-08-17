@@ -1,6 +1,8 @@
 <template>
     <PageHead :title="$t('admin.users.index.title')" page_type="admin" />
-    <BodyHead :title="$t('admin.users.index.title')" :description="$t('admin.users.index.description')"> </BodyHead>
+    <BodyHead :title="$t('admin.users.index.title')" :description="$t('admin.users.index.description')" />
+
+    <PopupModal />
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -68,12 +70,13 @@
                             {{ $t("admin.users.index.table.actions.edit") }}
                         </Link>
                         |
-                        <Link
+                        <a
                             :href="route('admin.user.delete', { id: user.id })"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            @click.prevent="modal.open({}, { message: $t('popup.content.delete.user') }, user, actions)"
                         >
                             {{ $t("admin.users.index.table.actions.delete") }}
-                        </Link>
+                        </a>
                     </td>
                 </tr>
             </tbody>
@@ -87,11 +90,50 @@
 // ------------------------------------------------
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
+import PopupModal from "@/Shared/PopupModal.vue";
+import useModal from "@/Stores/Modal";
+import { computed, inject, onMounted } from "vue";
+import { Modal as FlowbiteModal } from "flowbite";
+import { router } from "@inertiajs/vue3";
+import { trans } from "laravel-vue-i18n";
 
 defineProps({
     users: {
         type: Object,
         default: () => ({}),
     },
+});
+
+const modal = useModal();
+const route = inject("route");
+
+const actions = [];
+
+const deleteUserLabel = computed(() => trans("popup.actions.delete"));
+
+const deleteUserAction = {
+    label: deleteUserLabel,
+    callback: (user) => {
+        router.visit(route("admin.user.delete", { id: user.id }), {
+            method: "post",
+            preserveScroll: true,
+        });
+    },
+};
+
+actions.push(deleteUserAction);
+
+onMounted(() => {
+    modal.init(
+        new FlowbiteModal(document.getElementById("popup-modal"), {
+            closable: true,
+            placement: "center",
+            backdrop: "dynamic",
+            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
+            onHide: () => {
+                modal.cleanup();
+            },
+        })
+    );
 });
 </script>

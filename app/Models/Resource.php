@@ -624,11 +624,4 @@ class Resource extends Model
 
         return false;
     }
-
-    protected static function booted()
-    {
-        static::deleting(function (Resource $resource) {
-            $resource->business_hours()->delete();
-        });
-    }
 }

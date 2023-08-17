@@ -1,69 +1,68 @@
-import './bootstrap';
+import "./bootstrap";
 
-import {createApp, h} from 'vue'
-import {createInertiaApp, Head, Link} from "@inertiajs/vue3";
-import {createPinia} from 'pinia'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import mitt from 'mitt'
+import { createApp, h } from "vue";
+import { createInertiaApp, Head, Link } from "@inertiajs/vue3";
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import mitt from "mitt";
 import MainLayout from "./Layouts/MainLayout.vue";
-import {resolvePageComponent} from "laravel-vite-plugin/inertia-helpers";
-import {ZiggyVue} from 'ziggy';
-import {Ziggy} from './ziggy';
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { ZiggyVue } from "ziggy";
+import { Ziggy } from "./ziggy";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import {i18nVue} from 'laravel-vue-i18n';
+import { i18nVue } from "laravel-vue-i18n";
 import "flag-icons/css/flag-icons.min.css";
 
-const emitter = mitt()
+// FIXME
+import route from "../../vendor/tightenco/ziggy/src/js";
 
-const pinia = createPinia()
-pinia.use(piniaPluginPersistedstate)
+const emitter = mitt();
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
 // FIXME: check cookie for current language
 
 createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
-        // Resolve the page component asynchronously
-        const page = await resolvePageComponent(
-            `./Pages/${name}.vue`,
-            import.meta.glob('./Pages/**/*.vue')
-        );
-        // Add the layout to the page component if there is no default layout set
+        const page = await resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob("./Pages/**/*.vue"));
+
         if (page.layout === undefined) {
             page.default.layout = MainLayout;
         }
-        // Return the page component
+
         return page;
     },
     progress: {
         // The delay after which the progress bar will appear during navigation, in milliseconds.
         delay: 250,
         // The color of the progress bar.
-        color: '#c40d1e',
+        color: "#c40d1e",
         // Whether to include the default NProgress styles.
         includeCSS: true,
         // Whether the NProgress spinner will be shown.
         showSpinner: true,
     },
-    setup({el, App, props, plugin}) {
+    setup({ el, App, props, plugin }) {
         const quotaToast = Math.floor(Math.random() * 1000000);
 
         pinia.use(({ store }) => {
             store.$quotaToast = quotaToast;
         });
 
-        const app = createApp({render: () => h(App, props)});
+        const app = createApp({ render: () => h(App, props) });
 
-        app.provide('emitter', emitter)
+        app.provide("emitter", emitter)
             .use(pinia)
-            .component('Head', Head)
-            .component('Link', Link)
+            .component("Head", Head)
+            .component("Link", Link)
             .use(plugin)
             .use(i18nVue, {
-                lang: 'de',
-                fallback: 'en',
-                resolve: lang => import(`../../lang/php_${lang}.json`),
+                lang: "de",
+                fallback: "en",
+                resolve: (lang) => import(`../../lang/php_${lang}.json`),
             })
             .use(ZiggyVue, Ziggy)
             .use(Toast, {
@@ -90,14 +89,10 @@ createInertiaApp({
                 },
             });
 
-        /*
-        app.config.globalProperties.$filters = {
-            currencyUSD(value) {
-                return '$' + value
-            }
-        }
-        */
+        app.provide("route", (name, params, absolute, config = Ziggy) => {
+            return route(name, params, absolute, config);
+        });
 
-        app.mount(el)
+        app.mount(el);
     },
-})
+});

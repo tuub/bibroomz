@@ -44,7 +44,7 @@ class HomeController extends Controller
 
         return Inertia::render('Home', [
             'institution' => $output,
-            'is_multi_tenancy' => Institution::active()->count() > 1,
+            'isMultiTenancy' => Institution::active()->count() > 1,
         ]);
     }
 

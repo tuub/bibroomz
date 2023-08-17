@@ -18,7 +18,7 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
             $table->uuid('institution_id');
-            $table->foreign('institution_id')->references('id')->on('institutions');
+            $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
             $table->string('title');
             $table->text('location')->nullable();
             $table->text('description')->nullable();

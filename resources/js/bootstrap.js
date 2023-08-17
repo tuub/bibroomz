@@ -1,5 +1,5 @@
-import _ from 'lodash';
-window._ = _;
+// import _ from 'lodash';
+// window._ = _;
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -33,5 +33,5 @@ window.Echo = new Echo({
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
-    cluster:import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
 });

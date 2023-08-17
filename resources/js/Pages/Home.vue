@@ -1,23 +1,19 @@
 <template>
     <PageHead :title="institutionTitle" />
 
-    <x-modal />
+    <XModal />
 
     <div class="flex flex-row gap-5">
         <div id="sidebar" class="basis-1/5 md:basis-1/5">
-
             <div v-if="isAuthenticated">
-                <UserHappenings :happenings="userHappenings"></UserHappenings>
+                <UserHappenings :happenings="userHappenings" />
             </div>
             <div v-else>
-                <LoginForm></LoginForm>
+                <LoginForm />
             </div>
         </div>
         <div id="calendar" class="basis-4/5 md:basis-4/5">
-            <Calendar
-                @show-status="showStatus"
-                @open-modal-component="getModal">
-            </Calendar>
+            <Calendar @show-status="showStatus" @open-modal-component="getModal" />
         </div>
     </div>
 </template>
@@ -42,9 +38,15 @@ import PageHead from "@/Shared/PageHead.vue";
 // Props
 // ------------------------------------------------
 let props = defineProps({
-    institution: Object,
-    is_multi_tenancy: Boolean,
-})
+    institution: {
+        type: Object,
+        default: () => ({}),
+    },
+    isMultiTenancy: {
+        type: Boolean,
+        default: false,
+    },
+});
 
 // ------------------------------------------------
 // Stores
@@ -56,51 +58,47 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const modal = useModal();
-let statusMessage = ref('')
-let { institutionTitle } = storeToRefs(appStore)
-let { isAuthenticated, userHappenings } = storeToRefs(authStore)
+let statusMessage = ref("");
+let { institutionTitle } = storeToRefs(appStore);
+let { isAuthenticated, userHappenings } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const showStatus = (status) => {
-    statusMessage.value = status
-}
+    statusMessage.value = status;
+};
 
 const getModal = (data) => {
     modal.open(data.view, data.content, data.payload, data.actions);
-}
+};
 
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
-onBeforeMount(()  => {
-    appStore.setCurrentInstitution(props.institution, props.is_multi_tenancy)
-})
+onBeforeMount(() => {
+    appStore.setCurrentInstitution(props.institution, props.isMultiTenancy);
+});
 
 onMounted(() => {
     modal.init(
-        new FlowbiteModal(
-            document.getElementById("modal"),
-            {
-                closable: true,
-                placement: "center",
-                backdrop: "dynamic",
-                backdropClasses:
-                    "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-                onHide: () => {
-                    modal.cleanup();
-                },
-            }
-        )
+        new FlowbiteModal(document.getElementById("modal"), {
+            closable: true,
+            placement: "center",
+            backdrop: "dynamic",
+            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
+            onHide: () => {
+                modal.cleanup();
+            },
+        })
     );
     // check auth session in backend
-    authStore.check()
+    authStore.check();
 });
 
 onUnmounted(() => {
     authStore.unsubscribe();
-})
+});
 </script>
 
 <style scoped>

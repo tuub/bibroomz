@@ -10,14 +10,14 @@ export const useAppStore = defineStore({
         return {
             app_name: import.meta.env.VITE_APP_NAME,
             institution: null,
-            is_multi_tenancy: false,
+            isMultiTenancy: false,
             locale: getActiveLanguage(),
         };
     },
     actions: {
-        setCurrentInstitution(institution, is_multi_tenancy) {
+        setCurrentInstitution(institution, isMultiTenancy) {
             this.institution = institution;
-            this.is_multi_tenancy = is_multi_tenancy;
+            this.isMultiTenancy = isMultiTenancy;
         },
         setCurrentLocale(locale) {
             this.locale = locale;
@@ -28,7 +28,6 @@ export const useAppStore = defineStore({
     },
     getters: {
         appName: (state) => state.app_name,
-        currentInstitution: (state) => state.institution,
         institutionTitle: (state) => state.institution?.title,
         institutionShortTitle: (state) => state.institution?.short_title,
         institutionSlug: (state) => state.institution?.slug,
@@ -36,6 +35,5 @@ export const useAppStore = defineStore({
         institutionLogoUri: (state) => state.institution?.logo_uri,
         institutionTeaserUri: (state) => state.institution?.teaser_uri,
         institutionSettings: (state) => state.institution?.settings,
-        isMultiTenancy: (state) => state.is_multi_tenancy,
     },
 });

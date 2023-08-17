@@ -6,7 +6,6 @@ use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 use App\Http\Controllers\Admin\AdminController;
 
@@ -103,7 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
             /* Users */
             Route::get('/admin/users', [AdminUserController::class, 'getUsers'])->name('admin.user.index');
             Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'editUser'])->name('admin.user.edit');
-            Route::get('/admin/user/delete/{id}', [AdminUserController::class, 'deleteUser'])->name('admin.user.delete');
+            Route::post('/admin/user/delete/{id}', [AdminUserController::class, 'deleteUser'])->name('admin.user.delete');
             Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])->name('admin.user.update');
 
         });
