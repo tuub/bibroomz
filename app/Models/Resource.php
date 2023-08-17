@@ -614,11 +614,11 @@ class Resource extends Model
             }
         }
 
-        if ($weekly_happenings > $quota_weekly_happenings) {
+        if ($quota_weekly_happenings > 0 && $weekly_happenings > $quota_weekly_happenings) {
             return true;
-        } elseif ($weekly_hours > $quota_weekly_hours) {
+        } elseif ($quota_weekly_hours > 0 && $weekly_hours > $quota_weekly_hours) {
             return true;
-        } elseif ($daily_hours > $quota_daily_hours) {
+        } elseif ($quota_daily_hours > 0 && $daily_hours > $quota_daily_hours) {
             return true;
         }
 

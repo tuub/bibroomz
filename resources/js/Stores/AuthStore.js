@@ -112,9 +112,7 @@ export const useAuthStore = defineStore({
             if (index === -1) {
                 this.userHappenings.push(happening);
                 // Order userHappenings array by start datetime
-                this.userHappenings.sort((a, b) =>
-                    a.start.localeCompare(b.start)
-                );
+                this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
             }
         },
 
@@ -194,10 +192,7 @@ export const useAuthStore = defineStore({
                     return true;
                 }
 
-                if (
-                    happening.user_02 === this.user.name &&
-                    happening.isVerified
-                ) {
+                if (happening.user_02 === this.user.name && happening.isVerified) {
                     return true;
                 }
 
@@ -208,34 +203,21 @@ export const useAuthStore = defineStore({
             const isSameWeek = (date) => currentDate.isSame(date, "week");
 
             const happeningHoursSum = (hours, happening) =>
-                hours +
-                dayjs(happening.end).diff(happening.start, "hours", true);
+                hours + dayjs(happening.end).diff(happening.start, "hours", true);
 
-            const sameDayHappenings = happenings.filter((happening) =>
-                isSameDay(happening.start)
-            );
-            const sameWeekHappenings = happenings.filter((happening) =>
-                isSameWeek(happening.start)
-            );
+            const sameDayHappenings = happenings.filter((happening) => isSameDay(happening.start));
+            const sameWeekHappenings = happenings.filter((happening) => isSameWeek(happening.start));
 
-            this.quotas.daily_hours = sameDayHappenings.reduce(
-                happeningHoursSum,
-                0
-            );
-            this.quotas.weekly_hours = sameWeekHappenings.reduce(
-                happeningHoursSum,
-                0
-            );
+            this.quotas.daily_hours = sameDayHappenings.reduce(happeningHoursSum, 0);
+            this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_happenings = sameWeekHappenings.length;
         },
 
         isExceedingQuotas(start, end) {
             let institution = useAppStore().institution;
 
-            const quota_happening_block_hours =
-                institution.settings.quota_happening_block_hours;
-            const quota_weekly_happenings =
-                institution.settings.quota_weekly_happenings;
+            const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
+            const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
             const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
@@ -250,7 +232,7 @@ export const useAuthStore = defineStore({
             const selectLength = end.diff(start, "hours", true);
 
             const happening_block_hours = selectLength;
-            if (happening_block_hours > quota_happening_block_hours) {
+            if (quota_happening_block_hours > 0 && happening_block_hours > quota_happening_block_hours) {
                 toast.error(
                     trans("toast.quota.happening_block_hours", {
                         current: happening_block_hours,
@@ -262,7 +244,7 @@ export const useAuthStore = defineStore({
             }
 
             let weekly_happenings = this.quotas.weekly_happenings + 1;
-            if (weekly_happenings > quota_weekly_happenings) {
+            if (quota_weekly_happenings > 0 && weekly_happenings > quota_weekly_happenings) {
                 toast.error(
                     trans("toast.quota.weekly_happenings", {
                         current: weekly_happenings,
@@ -274,7 +256,7 @@ export const useAuthStore = defineStore({
             }
 
             let weekly_hours = this.quotas.weekly_hours + selectLength;
-            if (weekly_hours > quota_weekly_hours) {
+            if (quota_weekly_hours > 0 && weekly_hours > quota_weekly_hours) {
                 toast.error(
                     trans("toast.quota.weekly_hours", {
                         current: weekly_hours,
@@ -286,7 +268,7 @@ export const useAuthStore = defineStore({
             }
 
             let daily_hours = this.quotas.daily_hours + selectLength;
-            if (daily_hours > quota_daily_hours) {
+            if (quota_daily_hours > 0 && daily_hours > quota_daily_hours) {
                 toast.error(
                     trans("toast.quota.daily_hours", {
                         current: daily_hours,
