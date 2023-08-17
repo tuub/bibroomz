@@ -6,6 +6,10 @@ return [
         'home' => 'Home :short_title',
         'profile' => 'Profil',
         'admin' => 'Administration',
+        'help' => [
+            'text' => 'Hilfe',
+            'uri' => 'https://www.tu.berlin/go6288/',
+        ],
         'privacy_statement' => 'Datenschutzhinweis',
         'site_credits' => 'Impressum',
     ],

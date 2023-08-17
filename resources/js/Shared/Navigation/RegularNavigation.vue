@@ -48,6 +48,11 @@
                         </NavLink>
                     </li>
                     <li>
+                        <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
+                            {{ $t('navigation.regular.help.text') }}
+                        </ExternalLink>
+                    </li>
+                    <li>
                         <NavLink icon="ri-government-fill"
                                  :href="route('privacy_statement')"
                                  :is_active="isPrivacyStatement">
@@ -77,6 +82,7 @@ import Brand from "@/Shared/Brand.vue";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
 import LangSwitch from "@/Shared/LangSwitch.vue";
 import { usePage } from "@inertiajs/vue3";
+import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 
 // ------------------------------------------------
 // Stores
