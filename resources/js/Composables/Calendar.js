@@ -13,6 +13,7 @@ import { useToast } from "vue-toastification";
 import { reactive, unref } from "vue";
 import {useCreateModal, useInfoModal, useResourceInfoModal, useVerifyModal} from "./ModalActions";
 import { useEditDeleteModal } from "./ModalActions";
+import {trans} from "laravel-vue-i18n";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -176,6 +177,11 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         let link = document.createElement('a');
         link.href = '#';
         link.classList.add('ml-1');
+        if (appStore.locale === 'de') {
+            link.title = trans('calendar.resource_info.de');
+        } else {
+            link.title = trans('calendar.resource_info.en');
+        }
         link.innerHTML = '<i class="ri-information-line"></i>';
         link.onclick = function () {
             emit("open-modal-component", useResourceInfoModal(resourceInfo));
@@ -184,11 +190,8 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         let title = document.createElement('span');
         title.innerHTML = resourceInfo.resource.title;
 
-
-
         let arrayOfDomNodes = [ title, link ]
         return { domNodes: arrayOfDomNodes }
-        //info.el.querySelector('.fc-cell-text').appendChild(z);
     }
 
     const defaultCalendarOptions = {
@@ -209,7 +212,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
             day: "2-digit",
             weekday: "long",
         },
-        locale: "de",
+        locale: appStore.locale,
         timeZone: "utc",
         validRange: getValidRange(),
         resources: fetchResources(),

@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'label' => [
-        'today' => 'Heute',
+    'resource_info' => [
+        'de' => 'Informationen zu dieser Ressource',
+        'en' => 'About this resource',
     ],
 ];
