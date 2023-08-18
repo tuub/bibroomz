@@ -85,6 +85,9 @@ onMounted(() => {
     Echo.channel("happenings").listen("HappeningsChanged", () => {
         refetchHappenings(refCalendar);
     });
+
+    let slotAxis = document.querySelector('.fc-timegrid-axis-frame')
+    slotAxis.innerHTML = '<i class="ri-time-line"></i>'
 });
 
 onUnmounted(() => {
@@ -114,5 +117,10 @@ a.fc-event:hover {
 
 div.fc-timegrid-slots tr {
     background-color: #fff;
+}
+
+.fc .fc-timegrid-axis-frame {
+    justify-content: center;
+    margin-top: 2px;
 }
 </style>

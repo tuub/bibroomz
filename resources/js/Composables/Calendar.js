@@ -173,7 +173,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         authStore.updateQuotas(dateInfo.start);
     }
 
-    function getResourceInfo(resourceInfo) {
+    function getResourceInfoLabel(resourceInfo) {
         let link = document.createElement('a');
         link.href = '#';
         link.classList.add('ml-1');
@@ -192,6 +192,14 @@ export function useCalendar({ emit, calendarOptions = {} }) {
 
         let arrayOfDomNodes = [ title, link ]
         return { domNodes: arrayOfDomNodes }
+    }
+
+    function getSlotLabel(slotInfo) {
+        if (appStore.locale === 'de') {
+            return dayjs(slotInfo.date).utc().format('HH:mm')
+        } else {
+            return dayjs(slotInfo.date).utc().format('hh:mm a')
+        }
     }
 
     const defaultCalendarOptions = {
@@ -239,7 +247,8 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         select: onSelect,
         eventClick: onEventClick,
         datesSet: onDatesSet,
-        resourceLabelContent: getResourceInfo,
+        resourceLabelContent: getResourceInfoLabel,
+        slotLabelContent: getSlotLabel,
     };
 
     return {
