@@ -175,12 +175,13 @@ export function useCalendar({ emit, calendarOptions = {} }) {
     function getResourceInfo(resourceInfo) {
         let link = document.createElement('a');
         link.href = '#';
+        link.classList.add('ml-1');
         link.innerHTML = '<i class="ri-information-line"></i>';
         link.onclick = function () {
             emit("open-modal-component", useResourceInfoModal(resourceInfo));
         };
 
-        let title = document.createElement('div');
+        let title = document.createElement('span');
         title.innerHTML = resourceInfo.resource.title;
 
 
