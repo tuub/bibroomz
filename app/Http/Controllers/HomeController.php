@@ -77,17 +77,12 @@ class HomeController extends Controller
 
     public function switchLanguage(Request $request)
     {
-        app()->setLocale($request->language);
-        Cookie::queue('locale', $request->language, 600);
-    }
+        $validated = $request->validate([
+            'locale' => 'required|in:en,de',
+        ]);
 
-    // FIXME
-    public function checkLocaleCookie()
-    {
-        if (Cookie::has('locale')) {
-            app()->setLocale(Cookie::get('locale'));
-        } else {
-            Cookie::queue('locale', env('APP_LOCALE'), 600);
-        }
+        $locale = $validated['locale'];
+
+        Cookie::queue('locale', $locale, 600);
     }
 }
