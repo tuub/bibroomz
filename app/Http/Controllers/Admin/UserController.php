@@ -31,7 +31,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Form', [
             'user' => $user,
             'institutions' => $institutions,
-            'institutionAdmin' => $user->institutionAdmin(),
+            'institutionAdmin' => $user->getUserAdministeredInstitutions(),
         ]);
     }
 

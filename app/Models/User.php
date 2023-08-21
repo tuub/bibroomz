@@ -96,7 +96,7 @@ class User extends Authenticatable
     }
 
     /** @return Collection<array-key, bool>  */
-    public function institutionAdmin()
+    public function getUserAdministeredInstitutions()
     {
         return Institution::all()->mapWithKeys(fn ($institution) => [$institution->id => $this->isInstitutionAdmin($institution)]);
     }

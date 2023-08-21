@@ -20,7 +20,7 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
             ],
-            'institutionAdmin' => $user->institutionAdmin(),
+            'institutionAdmin' => $user->getUserAdministeredInstitutions(),
         ];
     }
     public function login(Request $request)
