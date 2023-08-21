@@ -259,6 +259,7 @@ return [
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Gesperrt?',
                     'happenings' => '# Events',
+                    'institutions' => 'Administrierte Einrichtungen',
                 ],
                 'actions' => [
                     'edit' => 'Bearbeiten',

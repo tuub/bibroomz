@@ -14,7 +14,7 @@ class UserController extends Controller
     public static function getUsers()
     {
         return Inertia::render('Admin/Users/Index', [
-            'users' => User::with(['happenings'])->get()
+            'users' => User::with(['happenings', 'institutions'])->get()
         ]);
     }
 
@@ -45,7 +45,7 @@ class UserController extends Controller
 
         $user->update($attributes);
 
-        $institutions = collect($request->institution_admin)->filter(fn($is_admin) => $is_admin)->keys();
+        $institutions = collect($request->institution_admin)->filter(fn ($is_admin) => $is_admin)->keys();
         $user->institutions()->sync($institutions);
 
         return redirect()->route('admin.user.index');
