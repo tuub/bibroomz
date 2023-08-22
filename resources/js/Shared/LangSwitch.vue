@@ -1,9 +1,9 @@
 <template>
-    <button v-for="(name, code, i) in locales"
+    <button v-for="(name, code, index) in locales"
             @click="switchLocale(code)"
-            class="mr-2"
             :title="name">
-        <span class="fi fis" :class="[activeLocale === code ? 'outline-2 outline-black' : '', getFlagIcon(code)]" />
+        <span v-if="index > 0" class="px-2">/</span>
+        <span :class="activeLocale === code ? 'font-bold' : ''">{{ name }}</span>
     </button>
 
 </template>
@@ -16,8 +16,8 @@ import {ref} from "vue";
 const appStore = useAppStore()
 
 let locales = {
-    'de': 'DEUTSCH',
-    'en': 'ENGLISH',
+    'de': 'DE',
+    'en': 'EN',
 }
 let currentLocale = ref(getActiveLanguage());
 let activeLocale = ref(currentLocale);
@@ -27,21 +27,4 @@ const switchLocale = (code) => {
     appStore.setCurrentLocale(code)
     activeLocale.value = code
 }
-
-const getFlagIcon = (code) => {
-    let flagCode = '';
-    switch(code) {
-        case 'de':
-            flagCode = 'de'
-            break;
-        case 'en':
-            flagCode = 'gb'
-            break;
-        default:
-            flagCode = 'de'
-    }
-
-    return 'fi-' + flagCode
-}
-
 </script>

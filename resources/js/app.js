@@ -12,7 +12,6 @@ import { Ziggy } from "./ziggy";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import { i18nVue } from "laravel-vue-i18n";
-import "flag-icons/css/flag-icons.min.css";
 
 // FIXME
 import route from "../../vendor/tightenco/ziggy/src/js";

@@ -38,7 +38,6 @@
         "@vitejs/plugin-vue": "^3.0.3",
         "chart.js": "^3.9.1",
         "dayjs": "^1.11.7",
-        "flag-icons": "^6.9.5",
         "flowbite": "^1.6.5",
         "flowbite-datepicker": "^1.2.2",
         "laravel-echo": "^1.15.1",
