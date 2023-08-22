@@ -8,9 +8,9 @@
         </div>
         <div class="w-full px-3 mb-6 md:mb-0">
             <FormLabel field="week_days" field-key="admin.resources.form.fields.business_hours.subfields.week_days"></FormLabel>
-            <span v-for="day_of_week in days_of_week" class="block">
+            <span v-for="day_of_week in days_of_week" class="mr-2">
                 <input type="checkbox" :value="day_of_week.id" name="week_days[]" v-model="checkedWeekDays" @change="updateWeekDays"/>
-                {{ day_of_week.name }}
+                {{ $t('admin.general.week_days.' + day_of_week.key + '.short_label') }}
             </span>
         </div>
         <div class="w-full md:w-2/4 px-3 my-3">

@@ -66,9 +66,9 @@
         <!-- Checkbox: Week Days -->
         <div class="mb-6">
             <FormLabel field="week_days" field-key="admin.institutions.form.fields.week_days"></FormLabel>
-            <span v-for="day_of_week in days_of_week" class="block">
+            <span v-for="day_of_week in days_of_week" class="mr-2">
                 <input type="checkbox" :value="day_of_week.id" name="week_days[]" v-model="form.week_days" />
-                {{ day_of_week.name }}
+                {{ $t('admin.general.week_days.' + day_of_week.key + '.short_label') }}
             </span>
             <FormValidationError :message="form.errors.week_days"></FormValidationError>
         </div>

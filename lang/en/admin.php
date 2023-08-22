@@ -6,6 +6,36 @@ return [
             'actions' => 'Actions',
             'not_required' => 'Not required',
         ],
+        'week_days' => [
+            'monday' => [
+                'label' => 'Monday',
+                'short_label' => 'Mo',
+            ],
+            'tuesday' => [
+                'label' => 'Tuesday',
+                'short_label' => 'Tue',
+            ],
+            'wednesday' => [
+                'label' => 'Wednesday',
+                'short_label' => 'Wed',
+            ],
+            'thursday' => [
+                'label' => 'Thurday',
+                'short_label' => 'Thu',
+            ],
+            'friday' => [
+                'label' => 'Friday',
+                'short_label' => 'Fr',
+            ],
+            'saturday' => [
+                'label' => 'Saturday',
+                'short_label' => 'Sat',
+            ],
+            'sunday' => [
+                'label' => 'Sunday',
+                'short_label' => 'Sun'
+            ],
+        ]
     ],
     'dashboard' => [
         'title' => 'Dashboard',

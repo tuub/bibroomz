@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('week_days', function (Blueprint $table) {
             $table->id('id')->index();
             $table->smallInteger('day_of_week');
-            $table->string('name');
+            $table->string('key');
         });
     }
 

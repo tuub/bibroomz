@@ -60,7 +60,7 @@
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
                             {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }}
                             (
-                            {{ business_hour.week_days.map((entry) => entry.name).join(", ") }}
+                            {{ business_hour.week_days.map((week_day) => trans('admin.general.week_days.' + week_day.key + '.short_label')).join(", ") }}
                             )
                         </p>
                     </td>

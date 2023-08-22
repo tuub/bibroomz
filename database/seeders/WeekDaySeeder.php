@@ -15,12 +15,12 @@ class WeekDaySeeder extends Seeder
      */
     public function run()
     {
-        DB::table('week_days')->insert(['day_of_week' => 1, 'name' => 'MONDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 2, 'name' => 'TUESDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 3, 'name' => 'WEDNESDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 4, 'name' => 'THURSDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 5, 'name' => 'FRIDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 6, 'name' => 'SATURDAY']);
-        DB::table('week_days')->insert(['day_of_week' => 0, 'name' => 'SUNDAY']);
+        DB::table('week_days')->insert(['day_of_week' => 1, 'key' => 'monday']);
+        DB::table('week_days')->insert(['day_of_week' => 2, 'key' => 'tuesday']);
+        DB::table('week_days')->insert(['day_of_week' => 3, 'key' => 'wednesday']);
+        DB::table('week_days')->insert(['day_of_week' => 4, 'key' => 'thursday']);
+        DB::table('week_days')->insert(['day_of_week' => 5, 'key' => 'friday']);
+        DB::table('week_days')->insert(['day_of_week' => 6, 'key' => 'saturday']);
+        DB::table('week_days')->insert(['day_of_week' => 0, 'key' => 'sunday']);
     }
 }
