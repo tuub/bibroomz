@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             WeekDaySeeder::class,
             InstitutionSeeder::class,
             BusinessHourSeeder::class,
+            ActiveDaySeeder::class,
         ]);
     }
 }

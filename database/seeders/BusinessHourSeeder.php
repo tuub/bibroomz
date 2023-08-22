@@ -22,7 +22,6 @@ class BusinessHourSeeder extends Seeder
         $week_days = WeekDay::get();
         foreach ($institutions as $institution) {
             $resources = $institution->resources;
-            $settings = $institution->settings;
 
             foreach ($resources as $resource) {
                 $bh = BusinessHour::create([
