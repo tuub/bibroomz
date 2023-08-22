@@ -3,6 +3,8 @@
     <BodyHead :title="$t('admin.institutions.form.title')"
               :description="$t('admin.institutions.form.description')" />
 
+    {{ checkedWeekdays }}
+
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
         <!-- Input: Title -->
@@ -59,6 +61,16 @@
                    required
             >
             <FormValidationError :message="form.errors.location"></FormValidationError>
+        </div>
+
+        <!-- Checkbox: Week Days -->
+        <div class="mb-6">
+            <FormLabel field="week_days" field-key="admin.institutions.form.fields.week_days"></FormLabel>
+            <span v-for="day_of_week in days_of_week" class="block">
+                <input type="checkbox" :value="day_of_week.id" name="week_days[]" v-model="form.week_days" />
+                {{ day_of_week.name }}
+            </span>
+            <FormValidationError :message="form.errors.week_days"></FormValidationError>
         </div>
 
         <!-- Input: Home URI -->
@@ -123,7 +135,7 @@
     </form>
 </template>
 <script setup>
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -149,17 +161,21 @@ dayjs.extend(utc)
 // ------------------------------------------------
 let processing = ref(false);
 let $page = usePage()
+let institution = $page.props.institution
+let days_of_week = $page.props.days_of_week
 let closings = $page.props.closings
+
 let form = useForm({
-    id: $page.props.id ?? '',
-    title: $page.props.title ?? '',
-    short_title: $page.props.short_title ?? '',
-    slug: $page.props.slug ?? '',
-    location: $page.props.location ?? '',
-    home_uri: $page.props.home_uri ?? '',
-    logo_uri: $page.props.logo_uri ?? '',
-    teaser_uri: $page.props.teaser_uri ?? '',
-    is_active: $page.props.is_active ?? false,
+    id: institution?.id ?? '',
+    title: institution?.title ?? '',
+    short_title: institution?.short_title ?? '',
+    slug: institution?.slug ?? '',
+    location: institution?.location ?? '',
+    week_days: [],
+    home_uri: institution?.home_uri ?? '',
+    logo_uri: institution?.logo_uri ?? '',
+    teaser_uri: institution?.teaser_uri ?? '',
+    is_active: institution?.is_active ?? false,
 });
 
 // ------------------------------------------------
@@ -173,4 +189,13 @@ let submitForm = () => {
         form.post('/admin/institution/store');
     }
 }
+
+// ------------------------------------------------
+// Mount
+// ------------------------------------------------
+onMounted(() => {
+    institution?.week_days.forEach((week_day) => {
+        form.week_days.push(week_day.id)
+    })
+})
 </script>

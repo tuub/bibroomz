@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Carbon\Traits\Week;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -39,6 +40,11 @@ class Institution extends Model
     public function settings(): hasMany
     {
         return $this->hasMany(Setting::class);
+    }
+
+    public function week_days(): BelongsToMany
+    {
+        return $this->belongsToMany(WeekDay::class);
     }
 
     public function closings(): MorphMany
@@ -89,4 +95,14 @@ class Institution extends Model
             abort(403);
         }
     }
+
+    public function getHiddenDays()
+    {
+        return WeekDay::get()
+            ->diff($this->week_days)
+            ->map(function ($week_day) {
+                return $week_day->day_of_week;
+            });
+    }
+
 }

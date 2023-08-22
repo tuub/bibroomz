@@ -202,6 +202,10 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         }
     }
 
+    function getHiddenDays() {
+        return appStore.institution.hiddenDays;
+    }
+
     const defaultCalendarOptions = {
         schedulerLicenseKey: "GPL-My-Project-Is-Open-Source",
         plugins: [interactionPlugin, resourceTimeGridPlugin],
@@ -232,6 +236,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         contentHeight: "auto",
         stickyHeaderDates: true,
         weekends: true,
+        hiddenDays: getHiddenDays(),
         editable: false,
         nowIndicator: true,
         allDaySlot: false,

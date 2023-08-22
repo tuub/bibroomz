@@ -28,6 +28,7 @@ class StoreInstitutionRequest extends FormRequest
             'short_title' => ['required'],
             'slug' => ['required'],
             'location' => [],
+            'week_days' => ['required'],
             'home_uri' => ['url'],
             'logo_uri' => ['url'],
             'teaser_uri' => ['url'],

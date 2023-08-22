@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreInstitutionRequest;
 use App\Http\Requests\Admin\UpdateInstitutionRequest;
 use App\Models\Institution;
 use App\Models\Setting;
+use App\Models\WeekDay;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -40,15 +41,21 @@ class InstitutionController extends Controller
     {
         Institution::abortIfUnauthorized(verb: 'create');
 
-        return Inertia::render('Admin/Institutions/Form');
+        $days_of_week = WeekDay::get();
+
+        return Inertia::render('Admin/Institutions/Form', [
+            'days_of_week' => $days_of_week,
+        ]);
     }
 
     public function storeInstitution(StoreInstitutionRequest $request)
     {
         Institution::abortIfUnauthorized(verb: 'create');
 
-        $validated = $request->validated();
-        $institution = Institution::create($validated);
+        $validated = $request->safe();
+        $institution = Institution::create($validated->except('week_days'));
+
+        $institution->week_days()->sync($validated->week_days);
 
         // Init settings
         $settings = Setting::getInitialValues();
@@ -65,10 +72,16 @@ class InstitutionController extends Controller
 
     public function editInstitution(Request $request)
     {
-        $institution = Institution::where('id', $request->id)->with('closings')->firstOrFail();
+        //$institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
+        $institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
         Institution::abortIfUnauthorized($institution);
 
-        return Inertia::render('Admin/Institutions/Form', $institution);
+        $days_of_week = WeekDay::get();
+
+        return Inertia::render('Admin/Institutions/Form', [
+            'institution' => $institution,
+            'days_of_week' => $days_of_week,
+        ]);
     }
 
     public function updateInstitution(UpdateInstitutionRequest $request)
@@ -76,8 +89,11 @@ class InstitutionController extends Controller
         $institution = Institution::findOrFail($request->id);
         Institution::abortIfUnauthorized($institution);
 
-        $validated = $request->validated();
-        $institution->update($validated);
+        $validated = $request->safe();
+        $institution->update($validated->except('week_days'));
+
+        // Set active week days
+        $institution->week_days()->sync($validated->week_days);
 
         return redirect()->route('admin.institution.index');
     }

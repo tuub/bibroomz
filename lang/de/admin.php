@@ -138,6 +138,10 @@ return [
                     'placeholder' => 'Adresse',
                     'hint' => 'Über den Standort',
                 ],
+                'week_days' => [
+                    'label' => 'Aktive Wochentage',
+                    'hint' => 'An welchen Wochentagen ist geöffnet?',
+                ],
                 'home_uri' => [
                     'label' => 'URI Startseite',
                     'placeholder' => 'Website',

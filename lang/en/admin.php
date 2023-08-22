@@ -138,6 +138,10 @@ return [
                     'placeholder' => 'Address',
                     'hint' => 'About the location',
                 ],
+                'week_days' => [
+                    'label' => 'Active week days',
+                    'hint' => 'On which days the institution is open?',
+                ],
                 'home_uri' => [
                     'label' => 'Home URI',
                     'placeholder' => 'Website',
