@@ -3,14 +3,14 @@
 return [
     'daily_hours' => [
         'label' => 'Tägliches Stunden-Kontingent',
-        'value' => ':current von :limit',
+        'value' => ':remaining Stunden verbleibend',
     ],
     'weekly_hours' => [
         'label' => 'Wöchentliches Stunden-Kontingent',
-        'value' => ':current von :limit',
+        'value' => ':remaining Stunden verbleibend',
     ],
     'weekly_happenings' => [
         'label' => 'Wöchentliches Event-Kontingent',
-        'value' => ':current von :limit',
+        'value' => ':remaining verbleibend',
     ],
 ];

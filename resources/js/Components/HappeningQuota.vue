@@ -2,13 +2,17 @@
     <div>
         <span class="font-bold"> {{ $t("quota." + type + ".label") }} </span>:
         <span class="font-normal">{{
-            $t("quota." + type + ".value", { current: value.toString(), limit: setting.toString() })
+            $t("quota." + type + ".value", {
+                remaining,
+            })
         }}</span>
     </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
     type: {
         type: String,
         default: "",
@@ -21,5 +25,9 @@ defineProps({
         type: Number,
         default: 0,
     },
+});
+
+const remaining = computed(() => {
+    return props.setting - props.value;
 });
 </script>

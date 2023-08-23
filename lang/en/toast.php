@@ -24,9 +24,9 @@ return [
         ],
     ],
     'quota' => [
-        'happening_block_hours' => 'Block hours quota limit exceeded: :current of :limit',
-        'weekly_happenings' => 'Weekly events quota limit exceeded: :current of :limit',
-        'weekly_hours' => 'Weekly hours quota limit exceeded: :current of :limit',
-        'daily_hours' => 'Daily hours quota limit exceeded: :current of :limit',
+        'happening_block_hours' => 'Events can only be booked for :limit hours!',
+        'weekly_happenings' => 'Weekly events quota limit exceeded: :remaining remaining',
+        'weekly_hours' => 'Weekly hours quota limit exceeded: :remaining hours remaining',
+        'daily_hours' => 'Daily hours quota limit exceeded: :remaining hours remaining',
     ]
 ];

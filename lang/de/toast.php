@@ -25,8 +25,8 @@ return [
     ],
     'quota' => [
         'happening_block_hours' => 'Events können höchstens :limit Stunden dauern!',
-        'weekly_happenings' => 'Wöchentliches Eventkontingent überschritten: :current von :limit',
-        'weekly_hours' => 'Wöchentliches Stundenkontingent überschritten: :current von :limit',
-        'daily_hours' => 'Tägliches Stundenkontingent überschritten: :current von :limit',
+        'weekly_happenings' => 'Wöchentliches Eventkontingent überschritten: :remaining verbleibend',
+        'weekly_hours' => 'Wöchentliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
+        'daily_hours' => 'Tägliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
     ]
 ];

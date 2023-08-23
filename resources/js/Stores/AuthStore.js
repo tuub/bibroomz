@@ -214,7 +214,7 @@ export const useAuthStore = defineStore({
         },
 
         isExceedingQuotas(start, end) {
-            let institution = useAppStore().institution;
+            const institution = useAppStore().institution;
 
             const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
             const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
@@ -225,7 +225,7 @@ export const useAuthStore = defineStore({
                 return false;
             }
 
-            let toastOptions = {
+            const toastOptions = {
                 id: this.$quotaToast,
             };
 
@@ -235,47 +235,56 @@ export const useAuthStore = defineStore({
             if (quota_happening_block_hours > 0 && happening_block_hours > quota_happening_block_hours) {
                 toast.error(
                     trans("toast.quota.happening_block_hours", {
-                        current: happening_block_hours,
                         limit: quota_happening_block_hours,
                     }),
                     toastOptions
                 );
+
                 return true;
             }
 
-            let weekly_happenings = this.quotas.weekly_happenings + 1;
+            const weekly_happenings = this.quotas.weekly_happenings + 1;
             if (quota_weekly_happenings > 0 && weekly_happenings > quota_weekly_happenings) {
+                const remaining = quota_weekly_happenings - this.quotas.weekly_happenings;
+
                 toast.error(
                     trans("toast.quota.weekly_happenings", {
-                        current: weekly_happenings,
+                        remaining,
                         limit: quota_weekly_happenings,
                     }),
                     toastOptions
                 );
+
                 return true;
             }
 
-            let weekly_hours = this.quotas.weekly_hours + selectLength;
+            const weekly_hours = this.quotas.weekly_hours + selectLength;
             if (quota_weekly_hours > 0 && weekly_hours > quota_weekly_hours) {
+                const remaining = quota_weekly_hours - this.quotas.weekly_hours;
+
                 toast.error(
                     trans("toast.quota.weekly_hours", {
-                        current: weekly_hours,
+                        remaining,
                         limit: quota_weekly_hours,
                     }),
                     toastOptions
                 );
+
                 return true;
             }
 
-            let daily_hours = this.quotas.daily_hours + selectLength;
+            const daily_hours = this.quotas.daily_hours + selectLength;
             if (quota_daily_hours > 0 && daily_hours > quota_daily_hours) {
+                const remaining = quota_daily_hours - this.quotas.daily_hours;
+
                 toast.error(
                     trans("toast.quota.daily_hours", {
-                        current: daily_hours,
+                        remaining,
                         limit: quota_daily_hours,
                     }),
                     toastOptions
                 );
+
                 return true;
             }
 
