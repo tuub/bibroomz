@@ -14,9 +14,28 @@
 10. Create routes file via `php artisan ziggy:generate`
 11. Add webserver config (see below)
 12. Setup websockets (see below)
+13. Compile app:
+    - Development: `npm run dev`
+    - Production: `npm run prod`
 
 # Deployment
 We assume the app is deployed under `/srv/git/roomz/`.
+
+# User accounts
+Three test accounts exist which you can configure in the `.env` file.
+Initially these accounts are:
+
+- Regular user 1:
+  - Username: test1
+  - Password: test1
+- Regular user 2:
+  - Username: test2
+  - Password: test2
+- Admin user:
+  - Username: admin
+  - Password: admin
+
+**IMPORTANT**: You **must** change these passwords in production.
 
 ## Websockets
 We use Soketi for the websockets connection.
