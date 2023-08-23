@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'no_auth' => 'You need to login in order to create bookings',
     'login' => [
         'success' => 'Login successfull',
         'error' => 'Login attempt failed',

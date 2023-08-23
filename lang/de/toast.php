@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'no_auth' => 'Sie müssen sich anmelden, um Reservierungen vornehmen zu können',
     'login' => [
         'success' => 'Login erfolgreich',
         'error' => 'Loginversuch fehlgeschlagen',

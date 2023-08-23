@@ -109,7 +109,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
 
     function onSelect(eventInfo) {
         if (!isAuthenticated.value) {
-            useToast().error("Must be authenticated!");
+            useToast().error(trans("toast.no_auth"));
         } else {
             const happeningData = reactive({
                 isSelected: true,
