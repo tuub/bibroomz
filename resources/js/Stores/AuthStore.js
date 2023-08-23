@@ -190,10 +190,8 @@ export const useAuthStore = defineStore({
             Echo.leave(userChannel);
         },
 
-        updateQuotas(currentDate) {
-            currentDate = dayjs(currentDate);
-
-            const happenings = this.userHappenings.filter((happening) => {
+        _filteredUserHappenings() {
+            return this.userHappenings.filter((happening) => {
                 if (happening.user_01 === this.user.name) {
                     return true;
                 }
@@ -204,6 +202,12 @@ export const useAuthStore = defineStore({
 
                 return false;
             });
+        },
+
+        updateQuotas(currentDate) {
+            currentDate = dayjs(currentDate);
+
+            const happenings = this._filteredUserHappenings();
 
             const isSameDay = (date) => currentDate.isSame(date, "day");
             const isSameWeek = (date) => currentDate.isSame(date, "week");
@@ -217,6 +221,23 @@ export const useAuthStore = defineStore({
             this.quotas.daily_hours = sameDayHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_happenings = sameWeekHappenings.length;
+        },
+
+        isOverlappingUserHappening(start, end) {
+            return this._filteredUserHappenings().some((happening) => {
+                const happeningStart = dayjs(happening.start);
+                const happeningEnd = dayjs(happening.end);
+
+                if (happeningStart >= start && happeningStart < end) {
+                    return true;
+                }
+
+                if (happeningStart < start && happeningEnd > start) {
+                    return true;
+                }
+
+                return false;
+            });
         },
 
         isExceedingQuotas(start, end) {
@@ -234,6 +255,11 @@ export const useAuthStore = defineStore({
             const toastOptions = {
                 id: this.$quotaToast,
             };
+
+            if (this.isOverlappingUserHappening(start, end)) {
+                toast.error(trans("toast.concurrent_happening"), toastOptions);
+                return true;
+            }
 
             const selectLength = end.diff(start, "hours", true);
 

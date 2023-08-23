@@ -137,7 +137,7 @@ class HappeningController extends Controller
         $start = new CarbonImmutable($request['start']);
         $end = new CarbonImmutable($request['end']);
 
-        $this->isHappeningValid($resource, $start, $end);
+        $this->isHappeningValid($user, $resource, $start, $end);
 
         $is_admin = $user->isAdmin() || $user->isInstitutionAdmin($resource->institution);
         $is_verified = !$resource->isVerificationRequired() || $is_admin;
@@ -172,6 +172,9 @@ class HappeningController extends Controller
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
+        /** @var User */
+        $user = auth()->user();
+
         /** @var Happening */
         $happening = Happening::findOrFail($request->id);
 
@@ -179,6 +182,7 @@ class HappeningController extends Controller
         $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
 
         $this->isHappeningValid(
+            $user,
             $happening->resource,
             new CarbonImmutable($request->start),
             new CarbonImmutable($request->end),
@@ -222,6 +226,7 @@ class HappeningController extends Controller
         $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
 
         $this->isHappeningValid(
+            $user,
             $happening->resource,
             new CarbonImmutable($request->start),
             new CarbonImmutable($request->end),
@@ -267,8 +272,13 @@ class HappeningController extends Controller
         $happening->broadcast(HappeningDeleted::class);
     }
 
-    private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void
-    {
+    private function isHappeningValid(
+        User $user,
+        Resource $resource,
+        CarbonImmutable $start,
+        CarbonImmutable $end,
+        Happening $happening = null,
+    ): void {
         // check if resource is closed
         [$closed] = $resource->findClosed($start, $end);
         if ($closed) {
@@ -289,6 +299,14 @@ class HappeningController extends Controller
         // check if user is exceeding quotas
         if ($resource->isExceedingQuotas($start, $end, $happening)) {
             abort(400, 'Exceeding quotas.');
+        }
+
+        // check if user has concurrent happening
+        if (
+            !$user->can('edit', $resource->institution)
+            && $user->isHavingConcurrentHappening($start, $end, $happening)
+        ) {
+            abort(400, 'You can only have one happening at the same time!');
         }
     }
 }

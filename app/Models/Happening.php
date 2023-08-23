@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -216,5 +217,10 @@ class Happening extends Model
         }
 
         HappeningsChanged::dispatch();
+    }
+
+    public function isConcurrent(CarbonImmutable $start, CarbonImmutable $end): bool
+    {
+        return ($this->start >= $start && $this->start < $end) || ($this->start < $start && $this->end > $start);
     }
 }

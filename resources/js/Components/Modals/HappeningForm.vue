@@ -77,7 +77,6 @@ import Spinner from "../../Shared/Spinner.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import useModal from "@/Stores/Modal";
-import { router } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props

@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class UserController extends Controller
 {

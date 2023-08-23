@@ -197,18 +197,8 @@ class Resource extends Model
      */
     public function isHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
     {
-        // Log::debug('Happening: ' . $happening?->id. ', ' . $start . ', ' . $end);
-
-        foreach ($this->happenings->whereNotIn('id', [$happening?->id]) as $_happening) {
-            // Log::debug('Also: ' . $_happening->id . ', ' . $_happening->start . ', ' . $_happening->end);
-
-            if ($start >= $_happening->start && $start < $_happening->end) {
-                // happening start < start < happening end
-                return true;
-            } elseif ($start < $_happening->start && $end > $_happening->start) {
-                // start < happening start < end
-                return true;
-            }
+        foreach ($this->happenings->whereNotIn('id', [$happening?->id]) as $h) {
+            return $h->isConcurrent($start, $end);
         }
 
         return false;
@@ -289,6 +279,7 @@ class Resource extends Model
         $time_slots = $this->enableBusinessHours($time_slots);
         $time_slots = $this->disableClosedTimeSlots($time_slots);
         $time_slots = $this->disableHappeningTimeSlots($time_slots, $happening);
+        $time_slots = $this->disableConcurrentUserHappeningTimeSlots($time_slots, $happening);
         $time_slots = $this->adjustSelectedTimeSlots($time_slots);
 
         return $time_slots;
@@ -320,6 +311,7 @@ class Resource extends Model
         $time_slots = $this->disableQuotas($time_slots, $start, $happening);
 
         $time_slots = $this->disableHappeningTimeSlots($time_slots, $happening, is_end: true);
+        $time_slots = $this->disableConcurrentUserHappeningTimeSlots($time_slots, $happening, is_end: true);
         $time_slots = $this->disableNonSeqentialTimeSlots($time_slots, $start);
         $time_slots = $this->adjustSelectedTimeSlots($time_slots);
 
@@ -529,8 +521,11 @@ class Resource extends Model
      * @param bool $is_end
      * @return Collection
      */
-    private function disableHappeningTimeSlots(Collection $time_slots, Happening $happening = null, bool $is_end = false): Collection
-    {
+    private function disableHappeningTimeSlots(
+        Collection $time_slots,
+        Happening $happening = null,
+        bool $is_end = false,
+    ): Collection {
         return $time_slots->map(function ($time_slot) use ($happening, $is_end) {
             if ($this->isTimeSlotReserved($time_slot, $happening, $is_end)) {
                 $time_slot['is_disabled'] = true;
@@ -567,8 +562,11 @@ class Resource extends Model
      * @param Happening|null $happening
      * @return Collection
      */
-    private function disableQuotas(Collection $time_slots, CarbonImmutable $start, Happening $happening = null): Collection
-    {
+    private function disableQuotas(
+        Collection $time_slots,
+        CarbonImmutable $start,
+        Happening $happening = null,
+    ): Collection {
         return $time_slots->map(function ($time_slot) use ($start, $happening) {
             $end = $time_slot['time'];
 
@@ -637,6 +635,46 @@ class Resource extends Model
             return true;
         } elseif ($quota_daily_hours > 0 && $daily_hours > $quota_daily_hours) {
             return true;
+        }
+
+        return false;
+    }
+
+    private function disableConcurrentUserHappeningTimeSlots(
+        Collection $time_slots,
+        Happening $happening = null,
+        bool $is_end = false,
+    ): Collection {
+        return $time_slots->map(function ($time_slot) use ($happening, $is_end) {
+            if ($this->isConcurrentUserHappeningTimeSlot($time_slot, $happening, $is_end)) {
+                $time_slot['is_disabled'] = true;
+            }
+
+            return $time_slot;
+        });
+    }
+
+    private function isConcurrentUserHappeningTimeSlot(
+        $time_slot,
+        Happening $happening = null,
+        bool $is_end = false,
+    ): bool {
+        /** @var User */
+        $user = auth()->user();
+        if ($user->can('edit', $this->institution)) {
+            return false;
+        }
+
+        $happenings = $user->getHappenings()->whereNotIn('id', $happening?->id);
+
+        foreach ($happenings as $_happening) {
+            if ($is_end) {
+                if ($time_slot['time'] > ($_happening->start) && $time_slot['time'] <= ($_happening->end)) {
+                    return true;
+                }
+            } elseif ($time_slot['time'] >= ($_happening->start) && $time_slot['time'] < ($_happening->end)) {
+                return true;
+            }
         }
 
         return false;

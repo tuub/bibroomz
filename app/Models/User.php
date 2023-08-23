@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -99,5 +101,20 @@ class User extends Authenticatable
     public function getUserAdministeredInstitutions()
     {
         return Institution::all()->mapWithKeys(fn ($institution) => [$institution->id => $this->isInstitutionAdmin($institution)]);
+    }
+
+    public function getHappenings()
+    {
+        return Happening::where('user_id_01', $this->getKey())
+            ->orWhere('user_id_02', $this->getKey())
+            ->get();
+    }
+
+    public function isHavingConcurrentHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
+    {
+        return $this->getHappenings()
+            ->whereNotIn('id', [$happening?->id])
+            ->filter->isConcurrent($start, $end)
+            ->isNotEmpty();
     }
 }
