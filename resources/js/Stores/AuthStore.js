@@ -172,6 +172,12 @@ export const useAuthStore = defineStore({
                     this.removeUserHappening(happening);
                     const message = trans("toast.happening.event.deleted");
                     showHappeningToast(message, happening);
+                })
+                .listen("UnverifiedHappeningRemovedByScheduler", (event) => {
+                    const happening = event.happening;
+                    this.removeUserHappening(happening);
+                    const message = trans("toast.happening.event.scheduler");
+                    showHappeningToast(message, happening);
                 });
         },
 

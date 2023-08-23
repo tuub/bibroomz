@@ -12,10 +12,11 @@ return [
     ],
     'happening' => [
         'event' => [
-            'created' => 'Event erstellt!',
-            'updated' => 'Event geupdated!',
-            'verified' => 'Event bestätigt!',
-            'deleted' => 'Event gelöscht!',
+            'created' => 'Event erstellt:',
+            'updated' => 'Event geupdated:',
+            'verified' => 'Event bestätigt:',
+            'deleted' => 'Event gelöscht:',
+            'scheduler' => 'Unbestätigtes Event nach 1 Stunde gelöscht:',
         ],
         'info' => [
             'date' => 'Datum',
