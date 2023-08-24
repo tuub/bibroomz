@@ -81,5 +81,10 @@ div#status-legend {
     }
 }
 
+.fc-timegrid-slots tr:nth-child(odd) {
+    background-color: #fff;
+}
 
-
+.fc-timegrid-slots tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
