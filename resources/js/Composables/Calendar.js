@@ -227,10 +227,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         headerToolbar: {
             left: "title",
             center: "",
-            right: "today,prev,next",
-        },
-        buttonText: {
-            today: dayjs().format("DD.MM.YYYY"),
+            right: "prev,next",
         },
         titleFormat: {
             month: "2-digit",
