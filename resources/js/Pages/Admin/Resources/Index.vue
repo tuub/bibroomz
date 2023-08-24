@@ -92,6 +92,29 @@
                             {{ $t("admin.resources.index.table.actions.edit") }}
                         </Link>
                         |
+                        <Link method="post" as="button"
+                            :href="
+                                route('admin.resource.clone', {
+                                    id: resource.id,
+                                })
+                            "
+                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                        >
+                            {{ $t("admin.resources.index.table.actions.clone") }}
+                        </Link>
+                        |
+                        <Link
+                            :href="
+                                route('admin.resource.clone', {
+                                    id: resource.id,
+                                })
+                            "
+                            method="post" as="button"
+                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                        >
+                            {{ $t("admin.resources.index.table.actions.clone") }}
+                        </Link>
+                        |
                         <Link
                             :href="
                                 route('admin.closing.index', {

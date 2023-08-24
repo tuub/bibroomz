@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateResourceRequest;
 use App\Models\BusinessHour;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\User;
 use App\Models\WeekDay;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class ResourceController extends Controller
 {
     public static function getResources(): Response
     {
-        /** @var User */
+        /** @var User $user */
         $user = auth()->user();
 
         $resources = Resource::with(['institution', 'business_hours', 'business_hours.week_days', 'closings'])->get()
@@ -29,7 +30,7 @@ class ResourceController extends Controller
 
     public static function getFormResources()
     {
-        /** @var User */
+        /** @var User $user */
         $user = auth()->user();
 
         $resources = Resource::active()->get()
@@ -121,5 +122,33 @@ class ResourceController extends Controller
 
             $result?->week_days()->sync($business_hour['week_days']);
         }
+    }
+
+    public function cloneResource(Request $request)
+    {
+        $resource_original = Resource::with('institution', 'closings', 'business_hours', 'business_hours.week_days')
+            ->findOrFail($request->id);
+        Institution::abortIfUnauthorized($resource_original->institution);
+
+        $resource_copy = $resource_original->replicate();
+
+        $resource_copy->title = $resource_original->title . ' ' . trans('admin.general.label.clone');
+        $resource_copy->is_active = false;
+
+        $resource_copy->save();
+
+        $resource_copy->closings()->createMany($resource_original->closings->toArray());
+
+        $resource_original->business_hours->each(function ($business_hour_original) use ($resource_copy) {
+            $business_hour_copy = $resource_copy->business_hours()->create($business_hour_original->toArray());
+            $business_hour_copy->week_days()->sync($business_hour_original->week_days->pluck('id'));
+        });
+
+        $week_days = WeekDay::get();
+
+        return Inertia::render('Admin/Resources/Form', [
+            'resource' => $resource_copy,
+            'week_days' => $week_days,
+        ]);
     }
 }

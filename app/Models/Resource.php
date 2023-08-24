@@ -18,12 +18,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use \Bkwld\Cloner\Cloneable;
 
 class Resource extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable;
 
     /*****************************************************************
      * OPTIONS
@@ -46,6 +46,11 @@ class Resource extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_verification_required' => 'boolean',
+    ];
+    protected $cloneable_relations = [
+        'institution',
+        'business_hours',
+        'closings',
     ];
 
     /*****************************************************************
@@ -82,6 +87,12 @@ class Resource extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
+
+    public function onCloning($source, $child = null) {
+        $this->title = $source->title . ' (' . trans('admin.general.table.clone') . ')';
+        if ($child) echo 'This was cloned as a relation!';
+        echo 'The original key is: '.$source->getKey();
+    }
 
     /**
      * @param CarbonImmutable $start

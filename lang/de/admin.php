@@ -2,6 +2,9 @@
 
 return [
     'general' => [
+        'label' => [
+            'clone' => '(KOPIE)'
+        ],
         'form' => [
             'choose' => 'Bitte auswählen',
         ],
