@@ -62,11 +62,18 @@ export const useModal = defineStore("modal", {
 
         async do(action: ModalAction) {
             this.error = null;
+
             try {
                 await action.callback(this.payload);
                 this.close();
             } catch (error) {
                 this.error = error.response?.data?.message ?? error;
+            }
+        },
+
+        submit() {
+            if (this.actions.length === 1) {
+                this.do(this.actions[0]);
             }
         },
     },

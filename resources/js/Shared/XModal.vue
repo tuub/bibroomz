@@ -22,7 +22,12 @@
                 <!-- Close button -->
                 <ModalCloseButton @close="modal.close"></ModalCloseButton>
 
-                <component :is="view" v-model:payload="payload" :content="content"></component>
+                <component
+                    :is="view"
+                    v-model:payload="payload"
+                    :content="content"
+                    @submit="modal.submit()"
+                ></component>
 
                 <!-- Footer -->
                 <div class="pt-2 mt-2">
