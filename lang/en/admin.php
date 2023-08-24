@@ -8,7 +8,6 @@ return [
         'table' => [
             'actions' => 'Actions',
             'not_required' => 'Not required',
-            'clone' => 'COPY',
         ],
         'week_days' => [
             'monday' => [
@@ -223,7 +222,6 @@ return [
                 'actions' => [
                     'create' => 'Create resource',
                     'edit' => 'Edit',
-                    'clone' => 'Clone',
                     'closings' => 'Closings',
                     'delete' => 'Delete',
                 ],

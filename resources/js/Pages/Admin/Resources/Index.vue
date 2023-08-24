@@ -94,18 +94,6 @@
                         |
                         <Link
                             :href="
-                                route('admin.resource.clone', {
-                                    id: resource.id,
-                                })
-                            "
-                            method="post" as="button"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.resources.index.table.actions.clone") }}
-                        </Link>
-                        |
-                        <Link
-                            :href="
                                 route('admin.closing.index', {
                                     closable_type: 'resource',
                                     closable_id: resource.id,

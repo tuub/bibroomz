@@ -185,7 +185,6 @@ return [
         /*
          * Package Service Providers...
          */
-        Bkwld\Cloner\ServiceProvider::class,
 
         /*
          * Application Service Providers...

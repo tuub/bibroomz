@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
-use Bkwld\Cloner\Cloneable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +13,7 @@ class BusinessHour extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey;
 
     /*****************************************************************
      * OPTIONS
@@ -25,7 +24,6 @@ class BusinessHour extends Model
     public $timestamps = true;
     protected $fillable = ['resource_id', 'start', 'end'];
     protected $dates = ['created_at', 'updated_at'];
-    protected $cloneable_relations = ['week_days'];
 
     /*****************************************************************
      * RELATIONS
