@@ -122,4 +122,14 @@ class ResourceController extends Controller
             $result?->week_days()->sync($business_hour['week_days']);
         }
     }
+
+    public function cloneResource(Request $request): RedirectResponse
+    {
+        $resource = Resource::find($request->id);
+        Institution::abortIfUnauthorized($resource->institution);
+
+        $resource->duplicate();
+
+        return redirect()->route('admin.resource.index');
+    }
 }

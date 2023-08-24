@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/resource/store', [AdminResourceController::class, 'storeResource'])->name('admin.resource.store');
         Route::post('/admin/resource/update', [AdminResourceController::class, 'updateResource'])->name('admin.resource.update');
         Route::post('/admin/resource/delete', [AdminResourceController::class, 'deleteResource'])->name('admin.resource.delete');
+        Route::post('/admin/resource/clone', [AdminResourceController::class, 'cloneResource'])->name('admin.resource.clone');
+
         /* Resource Special */
         Route::get('/admin/form/resources', [AdminResourceController::class, 'getFormResources'])->name('admin.resource.form');
 
