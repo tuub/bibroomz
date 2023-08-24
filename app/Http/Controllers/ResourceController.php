@@ -41,6 +41,8 @@ class ResourceController extends Controller
                 'isVerificationRequired' => $resource->is_verification_required,
                 'capacity' => $resource->capacity,
                 'description' => $resource->description,
+                'location' => $resource->location,
+                'location_uri' => $resource->location_uri,
             ];
         }
 

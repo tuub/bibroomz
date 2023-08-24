@@ -68,6 +68,9 @@ return [
         'description' => 'Here you find informations for this resource.',
         'resource_capacity' => 'Resource Capacity',
         'resource_description' => 'Resource Description',
+        'resource_location' => 'Resource Location',
+        'show' => 'Display location info',
+        'hide' => 'Hide location info',
         'action' => [
             'ok' => 'OK',
         ],

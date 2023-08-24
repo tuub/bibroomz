@@ -116,6 +116,11 @@ export function useCalendar({ emit, calendarOptions = {} }) {
                 resource: {
                     id: eventInfo.resource.id,
                     title: eventInfo.resource.title,
+                    location: eventInfo.resource.extendedProps.location,
+                    location_uri: eventInfo.resource.extendedProps.location_uri,
+                    capacity: eventInfo.resource.extendedProps.capacity,
+                    description: eventInfo.resource.extendedProps.description,
+
                 },
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
@@ -138,6 +143,11 @@ export function useCalendar({ emit, calendarOptions = {} }) {
             happeningData.resource = {
                 id: dataPath.resource._resource.id,
                 title: dataPath.resource._resource.title,
+                location: dataPath.resource._resource.extendedProps.location,
+                location_uri: dataPath.resource._resource.extendedProps.location_uri,
+                capacity: dataPath.resource._resource.extendedProps.capacity,
+                description: dataPath.resource._resource.extendedProps.description,
+
             };
         } else {
             /* This is an event */
@@ -146,6 +156,10 @@ export function useCalendar({ emit, calendarOptions = {} }) {
             happeningData.resource = {
                 id: dataPath.getResources()[0]._resource.id,
                 title: dataPath.getResources()[0]._resource.title,
+                location: dataPath.getResources()[0]._resource.extendedProps.location,
+                location_uri: dataPath.getResources()[0]._resource.extendedProps.location_uri,
+                capacity: dataPath.getResources()[0]._resource.extendedProps.capacity,
+                description: dataPath.getResources()[0]._resource.extendedProps.description,
             };
             happeningData.id = dataPath.id;
             happeningData.user_02 =

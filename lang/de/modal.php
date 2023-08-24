@@ -68,6 +68,9 @@ return [
         'description' => 'Hier finden Sie Informationen zu dieser Ressource.',
         'resource_capacity' => 'Kapazität',
         'resource_description' => 'Beschreibung',
+        'resource_location' => 'Standort',
+        'show' => 'Standortinfo anzeigen',
+        'hide' => 'Standortinfo verbergen',
         'action' => [
             'ok' => 'OK',
         ],

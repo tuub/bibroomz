@@ -2,6 +2,9 @@
 
 return [
     'general' => [
+        'form' => [
+            'choose' => 'Bitte auswählen',
+        ],
         'table' => [
             'actions' => 'Aktionen',
             'not_required' => 'Nicht erforderlich',
@@ -237,6 +240,11 @@ return [
                     'label' => 'Standort',
                     'placeholder' => 'Der Standort',
                     'hint' => 'Über den Standort',
+                ],
+                'location_uri' => [
+                    'label' => 'Standort URI',
+                    'placeholder' => 'Der Standort Link',
+                    'hint' => 'Ein Link zu weiteren Informationen zum Standort',
                 ],
                 'description' => [
                     'label' => 'Beschreibung',

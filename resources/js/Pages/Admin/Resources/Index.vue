@@ -52,6 +52,11 @@
                     </th>
                     <td class="px-6 py-4 align-top">
                         {{ resource.location }}
+                        <template v-if="resource.location_uri">
+                            <a :href="resource.location_uri" target="_blank">
+                                <i class="inline ri-external-link-line"></i>
+                            </a>
+                        </template>
                     </td>
                     <td class="px-6 py-4 align-top">
                         {{ resource.institution.title }}

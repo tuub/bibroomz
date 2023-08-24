@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
             $table->string('title');
             $table->text('location')->nullable();
+            $table->text('location_uri')->nullable();
             $table->text('description')->nullable();
             $table->string('capacity')->nullable();
             $table->boolean('is_active')->default(true);

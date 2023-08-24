@@ -1,10 +1,10 @@
 <template>
-    <!-- <h1 class="text-xl">Info</h1> -->
     <Label :text="happeningResource" bg-color-class="bg-gray-200" text-color-class="text-gray-700" icon-class="ri-map-pin-fill"></Label>
     <Label :text="happeningDate" bg-color-class="bg-gray-200" text-color-class="text-gray-700" icon-class="ri-calendar-2-line"></Label>
     <Label :text="happeningStartDisplay" bg-color-class="bg-gray-200" text-color-class="text-gray-700" icon-class="ri-time-line"></Label>
     <Label :text="happeningEndDisplay" bg-color-class="bg-gray-200" text-color-class="text-gray-700" icon-class="ri-time-fill"></Label>
     <Label :text="happeningLength" bg-color-class="bg-gray-200" text-color-class="text-gray-700" icon-class="ri-hourglass-2-fill"></Label>
+    <ResourceInfo class="mt-4 text-sm" :resource="happening.resource" :is-expandable="true" :is-initially-visible="false" />
 </template>
 
 <script setup>
@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import {computed} from "vue";
 import utc from "dayjs/plugin/utc";
 import duration from "dayjs/plugin/duration"
+import ResourceInfo from "@/Components/ResourceInfo.vue"
 
 // ------------------------------------------------
 // Props

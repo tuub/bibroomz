@@ -2,6 +2,9 @@
 
 return [
     'general' => [
+        'form' => [
+            'choose' => 'Please choose',
+        ],
         'table' => [
             'actions' => 'Actions',
             'not_required' => 'Not required',
@@ -167,6 +170,11 @@ return [
                     'label' => 'Location',
                     'placeholder' => 'Address',
                     'hint' => 'About the location',
+                ],
+                'location_uri' => [
+                    'label' => 'Location URI',
+                    'placeholder' => 'The location link',
+                    'hint' => 'A link to more information on this resource',
                 ],
                 'week_days' => [
                     'label' => 'Active week days',

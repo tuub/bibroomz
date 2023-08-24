@@ -5,8 +5,6 @@
 
     <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
 
-        {{ form.errors }}
-
         <!-- Select: Institution -->
         <div class="mb-6">
             <FormLabel field="institution_id" field-key="admin.resources.form.fields.institution"></FormLabel>
@@ -14,7 +12,9 @@
                     id="institution_id"
                     name="institution_id"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="">Choose</option>
+                <option value="">
+                    {{ $t('admin.general.form.choose') }}
+                </option>
 
                 <option v-for="institution in institutions" :value="institution.id" :key="institution.id">
                     {{ institution.title }}
@@ -45,6 +45,18 @@
                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                    :placeholder="$t('admin.resources.form.fields.location.placeholder')">
             <FormValidationError v-if="form.errors.location" :message="form.errors.location"></FormValidationError>
+        </div>
+
+        <!-- Input: Location URI -->
+        <div class="mb-6">
+            <FormLabel field="location_uri" field-key="admin.resources.form.fields.location_uri"></FormLabel>
+            <input v-model="form.location_uri"
+                   type="text"
+                   name="location_uri"
+                   id="location_uri"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                   :placeholder="$t('admin.resources.form.fields.location_uri.placeholder')">
+            <FormValidationError v-if="form.errors.location_uri" :message="form.errors.location_uri"></FormValidationError>
         </div>
 
         <!-- Textarea: Description -->
@@ -176,6 +188,7 @@ let form = useForm({
     institution_id: resource?.institution_id ?? '',
     title: resource?.title ?? '',
     location: resource?.location ?? '',
+    location_uri: resource?.location_uri ?? '',
     description: resource?.description ?? '',
     capacity: resource?.capacity ?? '0',
     is_active: resource?.is_active ?? false,

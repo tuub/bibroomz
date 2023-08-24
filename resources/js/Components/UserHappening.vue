@@ -37,10 +37,17 @@
             </p>
             <p class="text-sm font-medium truncate pb-1">
                 <i
-                    class="ri-map-pin-fill"
+                    class="ri-map-pin-fill mr-1"
                     :title="$t('user_happening.location')"
                 ></i>
-                {{ happening.resource.location }}
+                <template v-if="happening.resource.locationUri">
+                    <a class="underline" :href="happening.resource.locationUri" target="_blank">
+                        {{ happening.resource.location }}
+                    </a>
+                </template>
+                <template v-else>
+                    {{ happening.resource.location }}
+                </template>
             </p>
             <p class="text-sm font-medium pb-1">
                 <i
@@ -116,7 +123,7 @@
 import { computed } from "vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import useModal from "../Stores/Modal";
+import useModal from "@/Stores/Modal";
 import {
     useVerifyModal,
     useDeleteModal,

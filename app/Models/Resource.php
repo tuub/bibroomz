@@ -36,6 +36,7 @@ class Resource extends Model
         'institution_id',
         'title',
         'location',
+        'location_uri',
         'description',
         'capacity',
         'is_active',
