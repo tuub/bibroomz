@@ -11,24 +11,40 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { reactive, unref } from "vue";
-import {useCreateModal, useInfoModal, useResourceInfoModal, useVerifyModal} from "./ModalActions";
+import { useCreateModal, useInfoModal, useResourceInfoModal, useVerifyModal } from "./ModalActions";
 import { useEditDeleteModal } from "./ModalActions";
-import {trans} from "laravel-vue-i18n";
+import { trans } from "laravel-vue-i18n";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isBetween);
 dayjs.extend(utc);
 
-export function useCalendar({ emit, calendarOptions = {} }) {
+export function useCalendar({ emit, pagination, calendarOptions = {} }) {
     const appStore = useAppStore();
     const institution = appStore.institution;
 
     const authStore = useAuthStore();
     const { isAuthenticated } = storeToRefs(authStore);
 
-    function fetchResources() {
-        return "/" + institution.slug + "/resources";
+    function fetchResources(fetchInfo, successCallback, failureCallback) {
+        if (!pagination.currentPage) {
+            return;
+        }
+
+        axios({
+            method: "GET",
+            url: pagination.currentPage,
+        })
+            .then((response) => {
+                pagination.previousPage = response.data.pagination.previousPage;
+                pagination.nextPage = response.data.pagination.nextPage;
+
+                successCallback(response.data.resources);
+            })
+            .catch((error) => {
+                failureCallback(error);
+            });
     }
 
     function fetchHappenings(fetchInfo, successCallback, failureCallback) {
@@ -40,8 +56,6 @@ export function useCalendar({ emit, calendarOptions = {} }) {
             end: fetchInfo.end,
         };
 
-        // isLoading = true;
-
         axios({
             method: "GET",
             url: "/" + institution.slug + "/happenings",
@@ -49,11 +63,9 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         })
             .then((response) => {
                 successCallback(response.data);
-                // isLoading.value = false;
             })
             .catch((error) => {
                 failureCallback(error);
-                // isLoading.value = false;
             });
     }
 
@@ -92,15 +104,9 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         const isNotPast = tsStart.isSameOrAfter(now);
         const isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
-        const isValid = tsStart
-            .add(tsLen.hours, "hours")
-            .add(tsLen.minutes, "minutes")
-            .isAfter(now);
+        const isValid = tsStart.add(tsLen.hours, "hours").add(tsLen.minutes, "minutes").isAfter(now);
 
-        if (
-            authStore.isAuthenticated &&
-            authStore.isExceedingQuotas(tsStart, tsEnd)
-        ) {
+        if (authStore.isAuthenticated && authStore.isExceedingQuotas(tsStart, tsEnd)) {
             return false;
         }
 
@@ -124,8 +130,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
                 },
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
-                isVerificationRequired:
-                    eventInfo.resource.extendedProps.isVerificationRequired,
+                isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
             });
 
             emit("open-modal-component", useCreateModal(happeningData));
@@ -162,12 +167,10 @@ export function useCalendar({ emit, calendarOptions = {} }) {
                 description: dataPath.getResources()[0]._resource.extendedProps.description,
             };
             happeningData.id = dataPath.id;
-            happeningData.user_02 =
-                dataPath.extendedProps.status?.user?.verification;
+            happeningData.user_02 = dataPath.extendedProps.status?.user?.verification;
             happeningData.start = dayjs.utc(dataPath._instance.range.start);
             happeningData.end = dayjs.utc(dataPath._instance.range.end);
-            happeningData.isVerificationRequired =
-                dataPath.extendedProps.isVerificationRequired;
+            happeningData.isVerificationRequired = dataPath.extendedProps.isVerificationRequired;
         }
 
         if (!isBgEvent) {
@@ -188,31 +191,32 @@ export function useCalendar({ emit, calendarOptions = {} }) {
     }
 
     function getResourceInfoLabel(resourceInfo) {
-        let link = document.createElement('a');
-        link.href = '#';
-        link.classList.add('ml-1');
-        if (appStore.locale === 'de') {
-            link.title = trans('calendar.resource_info.de');
+        const link = document.createElement("a");
+        link.href = "#";
+        link.classList.add("ml-1");
+
+        if (appStore.locale === "de") {
+            link.title = trans("calendar.resource_info.de");
         } else {
-            link.title = trans('calendar.resource_info.en');
+            link.title = trans("calendar.resource_info.en");
         }
+
         link.innerHTML = '<i class="ri-information-line"></i>';
         link.onclick = function () {
             emit("open-modal-component", useResourceInfoModal(resourceInfo));
         };
 
-        let title = document.createElement('span');
+        const title = document.createElement("span");
         title.innerHTML = resourceInfo.resource.title;
 
-        let arrayOfDomNodes = [ title, link ]
-        return { domNodes: arrayOfDomNodes }
+        return { domNodes: [title, link] };
     }
 
     function getSlotLabel(slotInfo) {
-        if (appStore.locale === 'de') {
-            return dayjs(slotInfo.date).utc().format('HH:mm')
+        if (appStore.locale === "de") {
+            return dayjs(slotInfo.date).utc().format("HH:mm");
         } else {
-            return dayjs(slotInfo.date).utc().format('hh:mm a')
+            return dayjs(slotInfo.date).utc().format("hh:mm a");
         }
     }
 
@@ -238,7 +242,7 @@ export function useCalendar({ emit, calendarOptions = {} }) {
         locale: appStore.locale,
         timeZone: "utc",
         validRange: getValidRange(),
-        resources: fetchResources(),
+        resources: fetchResources,
         events: fetchHappenings,
         slotMinTime: institution.settings["start_time_slot"],
         slotMaxTime: institution.settings["end_time_slot"],

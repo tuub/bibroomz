@@ -21,7 +21,10 @@ class ResourceController extends Controller
             abort(404);
         }
 
-        $resources = Resource::active()->where('institution_id', $institution->id)->get();
+        $resources = Resource::active()
+            ->where('institution_id', $institution->id)
+            ->paginate($request->count)
+            ->withPath('/' . $request->path() . '?count=' . $request->count);
 
         foreach ($resources as $resource) {
             $business_hours = [];
@@ -34,7 +37,7 @@ class ResourceController extends Controller
                 ];
             }
 
-            $output[] = [
+            $output['resources'][] = [
                 'id' => $resource->id,
                 'title' => $resource->title,
                 'businessHours' => $business_hours,
@@ -46,7 +49,14 @@ class ResourceController extends Controller
             ];
         }
 
-        return response()->json($output);
+        $output['pagination'] = [
+            'previousPage' => $resources->previousPageUrl(),
+            'nextPage' => $resources->nextPageUrl(),
+        ];
+
+        return response()->json(
+            $output
+        );
     }
 
     public function getFormBusinessHours(Request $request)

@@ -1,17 +1,24 @@
 <template>
     <div class="calendar">
         <Legend class="mb-5"></Legend>
-        <FullCalendar
-            ref="refCalendar"
-            class="calendar"
-            :options="calendarOptions"
-        >
+
+        <div v-if="pagination.previousPage || pagination.nextPage">
+            <button
+                :disabled="!pagination.previousPage"
+                :class="{ 'opacity-25': !pagination.previousPage }"
+                @click="previousStuff"
+            >
+                <i class="ri-arrow-left-s-line ri-xl"></i>
+            </button>
+            <button :disabled="!pagination.nextPage" :class="{ 'opacity-25': !pagination.nextPage }" @click="nextStuff">
+                <i class="ri-arrow-right-s-line ri-xl"></i>
+            </button>
+        </div>
+
+        <FullCalendar ref="refCalendar" class="calendar" :options="calendarOptions">
             <template #eventContent="arg">
                 <div class="text-center">
-                    <div
-                        v-if="arg.event.display == 'background'"
-                        class="border-b-2 pt-5 text-xl"
-                    >
+                    <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
                         {{ arg.event.extendedProps.description }}
                     </div>
                     <b>{{ arg.timeText }}</b>
@@ -25,7 +32,7 @@
 <script setup>
 import "@fullcalendar/core/vdom";
 import FullCalendar from "@fullcalendar/vue3";
-import { onMounted, onUnmounted, ref, unref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
 
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
@@ -33,26 +40,38 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import Legend from "./Legend.vue";
 import { useCalendar } from "@/Composables/Calendar";
-// import Spinner from "../Shared/Spinner.vue";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-let appStore = useAppStore();
-let authStore = useAuthStore();
+const appStore = useAppStore();
+const authStore = useAuthStore();
 
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
 const emit = defineEmits(["show-status", "open-modal-component"]);
 
+const windowWidth = ref(window.innerWidth);
+const resourceCount = ref(0);
+
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { calendarOptions, refetchHappenings } = useCalendar({ emit });
+const institution = appStore.institution;
 
+const initialPage = computed(() => `/${institution.slug}/resources?count=${resourceCount.value}&page=1`);
+
+const pagination = reactive({
+    currentPage: unref(initialPage),
+    nextPage: null,
+    previousPage: null,
+});
+
+const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination });
+
+const { isAuthenticated } = storeToRefs(authStore);
 const refCalendar = ref(null);
-let { isAuthenticated } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Watchers
@@ -64,8 +83,8 @@ watch(isAuthenticated, () => {
 watch(
     () => authStore.userHappenings,
     () => {
-        const api = unref(refCalendar).getApi();
-        authStore.updateQuotas(api.getDate());
+        const api = unref(refCalendar)?.getApi();
+        authStore.updateQuotas(api?.getDate());
     },
     { deep: true }
 );
@@ -73,25 +92,72 @@ watch(
 watch(
     () => appStore.locale,
     () => {
-        const api = unref(refCalendar).getApi();
-        api.setOption("locale", appStore.locale);
+        const api = unref(refCalendar)?.getApi();
+        api?.setOption("locale", appStore.locale);
     }
 );
+
+watch(resourceCount, () => {
+    pagination.currentPage = unref(initialPage);
+
+    const api = unref(refCalendar)?.getApi();
+    api?.refetchResources();
+});
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+
+const previousStuff = () => {
+    pagination.currentPage = pagination.previousPage;
+
+    const api = unref(refCalendar)?.getApi();
+    api?.refetchResources();
+};
+
+const nextStuff = () => {
+    pagination.currentPage = pagination.nextPage;
+
+    const api = unref(refCalendar)?.getApi();
+    api?.refetchResources();
+};
+
+const setResourceCountFromScreen = () => {
+    if (windowWidth.value >= 1600) {
+        resourceCount.value = Math.floor(windowWidth.value / 300);
+    } else {
+        resourceCount.value = Math.floor(windowWidth.value / 600);
+    }
+};
+
+const handleScreenResize = () => {
+    windowWidth.value = window.innerWidth;
+
+    setResourceCountFromScreen();
+};
 
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
+onBeforeMount(() => {
+    setResourceCountFromScreen();
+});
+
 onMounted(() => {
     Echo.channel("happenings").listen("HappeningsChanged", () => {
         refetchHappenings(refCalendar);
     });
 
-    let slotAxis = document.querySelector('.fc-timegrid-axis-frame')
-    slotAxis.innerHTML = '<i class="ri-time-line"></i>'
+    const slotAxis = document.querySelector(".fc-timegrid-axis-frame");
+    slotAxis.innerHTML = '<i class="ri-time-line"></i>';
+
+    window.addEventListener("resize", handleScreenResize);
 });
 
 onUnmounted(() => {
     Echo.leave("happenings");
+
+    window.removeEventListener("resize", handleScreenResize);
 });
 </script>
 
