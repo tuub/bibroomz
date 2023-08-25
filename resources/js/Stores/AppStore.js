@@ -20,10 +20,13 @@ export const useAppStore = defineStore({
             this.isMultiTenancy = isMultiTenancy;
         },
         setCurrentLocale(locale) {
-            this.locale = locale;
-            axios.post(`${baseUrl}/switch-lang`, {
-                locale,
-            });
+            axios
+                .post(`${baseUrl}/switch-lang`, {
+                    locale,
+                })
+                .then(() => {
+                    this.locale = locale;
+                });
         },
     },
     getters: {
