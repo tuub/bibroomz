@@ -41,6 +41,14 @@ class HappeningPolicy
             return true;
         }
 
+        if ($user->getKey() === $happening->user2?->getKey()) {
+            return true;
+        }
+
+        if ($user->name === $happening->verifier) {
+            return true;
+        }
+
         return false;
     }
 
@@ -66,6 +74,10 @@ class HappeningPolicy
     public function verify(User $user, Happening $happening): bool
     {
         if ($happening->isPast()) {
+            return false;
+        }
+
+        if ($happening->isVerified()) {
             return false;
         }
 

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Happening;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateHappeningRequest extends FormRequest
+class VerifyHappeningRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,7 +20,7 @@ class UpdateHappeningRequest extends FormRequest
         /** @var Happening */
         $happening = Happening::findOrFail($this->id);
 
-        return $user->can('update', $happening);
+        return $user->can('verify', $happening);
     }
 
     /**

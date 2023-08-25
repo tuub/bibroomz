@@ -1,12 +1,6 @@
 <template>
-    <div
-        class="flex items-center space-x-4 p-1"
-        :class="[isPresent ? 'border border-pink-300 rounded-xl' : '']"
-    >
-        <div
-            class="flex-1 min-w-0"
-            :class="[isPast ? 'text-gray-400' : 'text-gray-900']"
-        >
+    <div class="flex items-center space-x-4 p-1" :class="[isPresent ? 'border border-pink-300 rounded-xl' : '']">
+        <div class="flex-1 min-w-0" :class="[isPast ? 'text-gray-400' : 'text-gray-900']">
             <span
                 v-if="isPast"
                 class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-gray-200 last:mr-0 mr-1"
@@ -20,26 +14,17 @@
                 {{ $t("user_happening.present_happening") }}
             </span>
             <p class="font-bold truncate dark:text-white pb-1">
-                <i
-                    class="ri-calendar-event-line"
-                    :title="$t('user_happening.date_time')"
-                ></i>
+                <i class="ri-calendar-event-line" :title="$t('user_happening.date_time')"></i>
                 {{ happeningDate }}
                 <i class="ri-arrow-right-line"></i>
                 {{ happeningStart }} - {{ happeningEnd }}
             </p>
             <p class="text-sm font-medium pb-1">
-                <i
-                    class="ri-home-line"
-                    :title="$t('user_happening.resource')"
-                ></i>
+                <i class="ri-home-line" :title="$t('user_happening.resource')"></i>
                 {{ happening.resource.title }}
             </p>
             <p class="text-sm font-medium truncate pb-1">
-                <i
-                    class="ri-map-pin-fill mr-1"
-                    :title="$t('user_happening.location')"
-                ></i>
+                <i class="ri-map-pin-fill mr-1" :title="$t('user_happening.location')"></i>
                 <template v-if="happening.resource.locationUri">
                     <a class="underline" :href="happening.resource.locationUri" target="_blank">
                         {{ happening.resource.location }}
@@ -50,20 +35,11 @@
                 </template>
             </p>
             <p class="text-sm font-medium pb-1">
-                <i
-                    class="ri-user-fill"
-                    :title="$t('user_happening.user_01')"
-                ></i>
+                <i class="ri-user-fill" :title="$t('user_happening.user_01')"></i>
                 {{ happening.user_01 }}
             </p>
-            <p
-                v-if="happening.isVerificationRequired"
-                class="text-sm font-medium pb-1"
-            >
-                <i
-                    class="ri-user-follow-fill"
-                    :title="$t('user_happening.user_02')"
-                ></i>
+            <p v-if="happening.isVerificationRequired" class="text-sm font-medium pb-1">
+                <i class="ri-user-follow-fill" :title="$t('user_happening.user_02')"></i>
                 {{ happening.user_02 }}
                 <span
                     v-if="!isPast && happening.isVerified"
@@ -124,11 +100,7 @@ import { computed } from "vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useModal from "@/Stores/Modal";
-import {
-    useVerifyModal,
-    useDeleteModal,
-    useEditModal,
-} from "@/Composables/ModalActions";
+import { useDeleteModal, useEditModal, useVerifyModalFromPermissions } from "@/Composables/ModalActions";
 
 // ------------------------------------------------
 // Props
@@ -165,42 +137,24 @@ const happeningEnd = computed(() => {
 });
 
 const isPresent = computed(() => {
-    return (
-        dayjs(props.happening.start).isBefore(dayjs.utc()) &&
-        dayjs(props.happening.end).isAfter(dayjs.utc())
-    );
+    return dayjs(props.happening.start).isBefore(dayjs.utc()) && dayjs(props.happening.end).isAfter(dayjs.utc());
 });
 
 // ------------------------------------------------
 // Modal Actions
 // ------------------------------------------------
 const editUserHappening = (happening) => {
-    let editModal = useEditModal(happening);
-    modal.open(
-        editModal.view,
-        editModal.content,
-        editModal.payload,
-        editModal.actions
-    );
+    const editModal = useEditModal(happening);
+    modal.open(editModal.view, editModal.content, editModal.payload, editModal.actions);
 };
 
 const verifyUserHappening = (happening) => {
-    let verifyModal = useVerifyModal(happening);
-    modal.open(
-        verifyModal.view,
-        verifyModal.content,
-        verifyModal.payload,
-        verifyModal.actions
-    );
+    const verifyModal = useVerifyModalFromPermissions(happening);
+    modal.open(verifyModal.view, verifyModal.content, verifyModal.payload, verifyModal.actions);
 };
 
 const deleteUserHappening = (happening) => {
-    let deleteModal = useDeleteModal(happening);
-    modal.open(
-        deleteModal.view,
-        deleteModal.content,
-        deleteModal.payload,
-        deleteModal.actions
-    );
+    const deleteModal = useDeleteModal(happening);
+    modal.open(deleteModal.view, deleteModal.content, deleteModal.payload, deleteModal.actions);
 };
 </script>

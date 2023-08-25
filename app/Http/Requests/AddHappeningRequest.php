@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,7 +16,10 @@ class AddHappeningRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        /** @var User */
+        $user = auth()->user();
+
+        return $user->can('create', Happening::class);
     }
 
     /**

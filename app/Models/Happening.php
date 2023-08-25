@@ -36,7 +36,7 @@ class Happening extends Model
         'start',
         'end',
         'reserved_at',
-        'booked_at',
+        'verified_at',
     ];
     protected $dates = [
         'created_at',
@@ -44,7 +44,7 @@ class Happening extends Model
         'start',
         'end',
         'reserved_at',
-        'booked_at',
+        'verified_at',
     ];
     protected $casts = [
         'is_verified' => 'boolean',
@@ -116,17 +116,12 @@ class Happening extends Model
      ****************************************************************/
     private function isMine(): bool
     {
-        return auth()->user()->id === $this->user_id_01;
+        return auth()->user()->id === $this->user_id_01 || auth()->user()->id === $this->user_id_02;
     }
 
     private function isMyToVerify(): bool
     {
         return auth()->user()->name === $this->verifier;
-    }
-
-    private function isMyVerified(): bool
-    {
-        return auth()->user()->id === $this->user_id_02;
     }
 
     public function isVerified(): bool
@@ -159,10 +154,6 @@ class Happening extends Model
             if ($this->isVerified()) {
                 if ($this->isMine()) {
                     $status['type'] = 'user-booking';
-                    $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['verification'] = $this->user2?->name;
-                } elseif ($this->isMyVerified()) {
-                    $status['type'] = 'user-verified';
                     $status['user']['reservation'] = $this->user1->name;
                     $status['user']['verification'] = $this->user2?->name;
                 } else {

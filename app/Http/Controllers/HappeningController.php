@@ -7,7 +7,9 @@ use App\Events\HappeningCreated;
 use App\Events\HappeningDeleted;
 use App\Events\HappeningUpdated;
 use App\Http\Requests\AddHappeningRequest;
+use App\Http\Requests\DeleteHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
+use App\Http\Requests\VerifyHappeningRequest;
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
@@ -23,16 +25,13 @@ class HappeningController extends Controller
     public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
-        $institution = Institution::where('slug', $request->slug)->first();
-
-        if (!$institution) {
-            abort(404);
-        }
+        $institution = Institution::where('slug', $request->slug)->firstOrFail();
 
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
 
-        $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to]);
+        // LOG
+        $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to], JSON_PRETTY_PRINT);
 
         $institution_resources = $institution->resources()->pluck('id')->all();
 
@@ -54,6 +53,7 @@ class HappeningController extends Controller
                 return ($open && !$closed) ? $happening : null;
             })->filter(fn ($h) => $h);
 
+        // LOG
         $log['RESULT COUNT'] = $happenings->count();
 
         foreach ($happenings as $happening) {
@@ -114,8 +114,10 @@ class HappeningController extends Controller
             }
         }
 
-        $log['OUTPUT'] = $output;
+        // LOG
+        $log['OUTPUT'] = json_encode($output, JSON_PRETTY_PRINT);
 
+        // LOG
         Utility::sendToLog('happenings', $log);
 
         return response()->json($output);
@@ -126,14 +128,11 @@ class HappeningController extends Controller
         /** @var User */
         $user = auth()->user();
 
-        // Authorize
-        if ($user->cannot('create', Happening::class)) {
-            abort(401, 'You are not allowed to create.');
-        }
-
         /** @var Resource */
         $resource = Resource::find($request['resource']['id']);
-        $log['RESOURCE'] = $resource['title'];
+
+        // LOG
+        $log['RESOURCE'] = json_encode($resource->only(['id', 'title']), JSON_PRETTY_PRINT);
 
         $start = new CarbonImmutable($request['start']);
         $end = new CarbonImmutable($request['end']);
@@ -141,14 +140,13 @@ class HappeningController extends Controller
         $this->isHappeningValid($resource, $start, $end);
 
         $is_admin = $user->isAdmin() || $user->isInstitutionAdmin($resource->institution);
-        $is_verified = !$resource->is_verification_required || $is_admin;
+        $is_verified = !$resource->isVerificationRequired() || $is_admin;
 
         // Compile happening payload
-        $happeningData = [
+        $happening_data = [
             'user_id_01' => auth()->user()->id,
-            // 'user_id_02' => $is_admin ? auth()->user()->id : null,
             'resource_id' => $resource->id,
-            'is_verification_required' => $resource->is_verification_required,
+            'is_verification_required' => $resource->isVerificationRequired(),
             'is_verified' => $is_verified,
             'verifier' => !$is_verified ? $request['verifier'] : null,
             'start' => $start->format('Y-m-d H:i:s'),
@@ -156,111 +154,122 @@ class HappeningController extends Controller
             'reserved_at' => Carbon::now(),
             'verified_at' => $is_admin ? Carbon::now() : null,
         ];
-        $log['PAYLOAD'] = json_encode($happeningData);
 
-        // Create happening & relation
-        $happening = new Happening($happeningData);
-        $op = $happening->save() && $happening->resource()->associate($resource);
-        $log['RESULT'] = json_encode($happening);
+        // LOG
+        $log['PAYLOAD'] = json_encode($happening_data, JSON_PRETTY_PRINT);
 
-        if ($op) {
-            // Write log record
-            Utility::sendToLog('happenings', $log);
+        // Create
+        $happening = Happening::create($happening_data);
 
-            $happening->broadcast(HappeningCreated::class);
-        }
+        // LOG
+        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
+
+        // LOG
+        Utility::sendToLog('happenings', $log);
+
+        $happening->broadcast(HappeningCreated::class);
     }
 
     public function updateHappening(UpdateHappeningRequest $request)
     {
-        /** @var User */
-        $user = auth()->user();
-
         /** @var Happening */
-        $happening = $user->happenings()->findOrFail($request->id);
-        $log['HAPPENING'] = $happening;
+        $happening = Happening::findOrFail($request->id);
 
-        // Authorize
-        if ($user->cannot('update', $happening)) {
-            abort(401, 'You are not allowed to update.');
-        }
+        // LOG
+        $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
 
-        $start = new CarbonImmutable($request->start);
-        $end = new CarbonImmutable($request->end);
-
-        $this->isHappeningValid($happening->resource, $start, $end, $happening);
+        $this->isHappeningValid(
+            $happening->resource,
+            new CarbonImmutable($request->start),
+            new CarbonImmutable($request->end),
+            $happening,
+        );
 
         // Compile happening payload
         $happening_data = [
             'start' => Utility::carbonize($request->start)->format('Y-m-d H:i:s'),
             'end' => Utility::carbonize($request->end)->format('Y-m-d H:i:s'),
         ];
-        $log['PAYLOAD'] = json_encode($happening_data);
 
-        // Update happening & relation
-        $op = $happening->update($happening_data) && $happening->resource()->associate($request->id);
+        // LOG
+        $log['PAYLOAD'] = json_encode($happening_data, JSON_PRETTY_PRINT);
 
-        if ($op) {
-            // Get just updated relation object for broadcasting back
-            $happening = Happening::with('resource')->find($happening->id);
-            $log['RESULT'] = json_encode($happening);
+        // Update
+        $happening->update($happening_data);
 
-            // Write log record
-            Utility::sendToLog('happenings', $log);
+        // Refresh
+        $happening = $happening->withoutRelations()->refresh();
 
-            $happening->broadcast(HappeningUpdated::class);
-        }
+        // LOG
+        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
+
+        // LOG
+        Utility::sendToLog('happenings', $log);
+
+        // Broadcast
+        $happening->broadcast(HappeningUpdated::class);
     }
 
-    public function verifyHappening($id): void
-    {
-        $happening = Happening::findOrFail($id);
-
-        /** @var User */
-        $user = auth()->user();
-
-        if ($user->cannot('verify', $happening)) {
-            abort(401, 'You are not allowed to verify.');
-        }
-
-        $start = new CarbonImmutable($happening->start);
-        $end = new CarbonImmutable($happening->end);
-
-        if ($happening->resource->isExceedingQuotas($start, $end, $happening)) {
-            abort(400, 'Exceeding quotas.');
-        }
-
-        $happening->user_id_02 = $user->getKey();
-        $happening->is_verified = true;
-        $happening->verifier = null;
-
-        if ($happening->saveOrFail()) {
-            $log['RESULT'] = json_encode($happening);
-            Utility::sendToLog('happenings', $log);
-
-            $happening->broadcast(HappeningVerified::class);
-        }
-    }
-
-    public function deleteHappening($id): void
+    public function verifyHappening(VerifyHappeningRequest $request)
     {
         /** @var User */
         $user = auth()->user();
-        $happening = $user->happenings()->findOrFail($id);
 
-        if ($user->cannot('delete', $happening)) {
-            abort(401, 'You are not allowed to delete.');
+        /** @var Happening */
+        $happening = Happening::findOrFail($request->id);
+
+        // LOG
+        $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
+
+        $this->isHappeningValid(
+            $happening->resource,
+            new CarbonImmutable($request->start),
+            new CarbonImmutable($request->end),
+            $happening,
+        );
+
+        // Update
+        $happening->update([
+            'start' => Utility::carbonize($request->start)->format('Y-m-d H:i:s'),
+            'end' => Utility::carbonize($request->end)->format('Y-m-d H:i:s'),
+        ]);
+
+        // Verify
+        $happening->update([
+            'verified_at' => Carbon::now(),
+            'is_verified' => true,
+            'verifier' => null,
+            'user_id_02' => $user->getKey(),
+        ]);
+
+        // Refresh
+        $happening = $happening->withoutRelations()->refresh();
+
+        // LOG
+        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
+
+        // LOG
+        Utility::sendToLog('happenings', $log);
+
+        // Broadcast
+        $happening->broadcast(HappeningVerified::class);
+    }
+
+    public function deleteHappening(DeleteHappeningRequest $request): void
+    {
+        /** @var Happening */
+        $happening = Happening::findOrFail($request->id);
+
+        if (!$happening->delete()) {
+            return;
         }
 
-        if ($happening->delete()) {
-            $happening->broadcast(HappeningDeleted::class);
-        }
+        $happening->broadcast(HappeningDeleted::class);
     }
 
     private function isHappeningValid(Resource $resource, CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): void
     {
         // check if resource is closed
-        // FIXME: [$closed] ?
         [$closed] = $resource->findClosed($start, $end);
         if ($closed) {
             abort(400, 'Resource is closed.');

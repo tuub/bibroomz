@@ -11,8 +11,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { reactive, unref } from "vue";
-import { useCreateModal, useInfoModal, useResourceInfoModal, useVerifyModal } from "./ModalActions";
-import { useEditDeleteModal } from "./ModalActions";
+import { useCreateModal, useEditModalFromPermissions, useInfoModal, useResourceInfoModal, useVerifyModalFromPermissions } from "./ModalActions";
 import { trans } from "laravel-vue-i18n";
 
 dayjs.extend(isSameOrAfter);
@@ -126,7 +125,6 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
                     location_uri: eventInfo.resource.extendedProps.location_uri,
                     capacity: eventInfo.resource.extendedProps.capacity,
                     description: eventInfo.resource.extendedProps.description,
-
                 },
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
@@ -152,7 +150,6 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
                 location_uri: dataPath.resource._resource.extendedProps.location_uri,
                 capacity: dataPath.resource._resource.extendedProps.capacity,
                 description: dataPath.resource._resource.extendedProps.description,
-
             };
         } else {
             /* This is an event */
@@ -176,10 +173,10 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
         if (!isBgEvent) {
             const can = eventInfo.event.extendedProps.can;
 
-            if (can.edit && can.delete) {
-                emit("open-modal-component", useEditDeleteModal(happeningData));
-            } else if (can.verify) {
-                emit("open-modal-component", useVerifyModal(happeningData));
+            if (can.verify) {
+                emit("open-modal-component", useVerifyModalFromPermissions(happeningData, can));
+            } else if (can.edit) {
+                emit("open-modal-component", useEditModalFromPermissions(happeningData, can));
             } else {
                 emit("open-modal-component", useInfoModal(happeningData));
             }

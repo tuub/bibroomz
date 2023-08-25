@@ -87,11 +87,16 @@ class Resource extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
+    public function isVerificationRequired(): bool
+    {
+        return $this->is_verification_required;
+    }
 
-    public function onCloning($source, $child = null) {
+    public function onCloning($source, $child = null)
+    {
         $this->title = $source->title . ' (' . trans('admin.general.table.clone') . ')';
         if ($child) echo 'This was cloned as a relation!';
-        echo 'The original key is: '.$source->getKey();
+        echo 'The original key is: ' . $source->getKey();
     }
 
     /**

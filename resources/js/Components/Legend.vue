@@ -3,7 +3,6 @@
         <LegendItem v-if="isAuthenticated" css-class="user-reservation" :label="$t('legend.user-reservation')"></LegendItem>
         <LegendItem v-if="isAuthenticated" css-class="user-to-verify" :label="$t('legend.user-to-verify')"></LegendItem>
         <LegendItem v-if="isAuthenticated" css-class="user-booking" :label="$t('legend.user-booking')"></LegendItem>
-        <LegendItem v-if="isAuthenticated" css-class="user-verified" :label="$t('legend.user-verified')"></LegendItem>
         <LegendItem css-class="reservation" :label="$t('legend.reservation')"></LegendItem>
         <LegendItem css-class="booking" :label="$t('legend.booking')"></LegendItem>
         <LegendItem css-class="closing" :label="$t('legend.closing')"></LegendItem>
