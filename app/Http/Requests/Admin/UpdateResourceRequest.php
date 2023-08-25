@@ -27,7 +27,7 @@ class UpdateResourceRequest extends FormRequest
             'institution_id' => ['required'],
             'title' => ['required'],
             'location' => ['required'],
-            'location_uri' => ['url'],
+            'location_uri' => ['url', 'nullable'],
             'description' => ['required'],
             'capacity' => ['numeric', 'gt:0'],
             'is_active' => ['required'],
