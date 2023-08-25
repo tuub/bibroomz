@@ -225,6 +225,7 @@ return [
                 'actions' => [
                     'create' => 'Create resource',
                     'edit' => 'Edit',
+                    'clone' => 'Copy',
                     'closings' => 'Closings',
                     'delete' => 'Delete',
                 ],

@@ -220,6 +220,7 @@ return [
                 'actions' => [
                     'create' => 'Ressource erstellen',
                     'edit' => 'Bearbeiten',
+                    'clone' => 'Kopieren',
                     'closings' => 'Schließungen',
                     'delete' => 'Löschen',
                 ],
