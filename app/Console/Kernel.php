@@ -19,7 +19,6 @@ class Kernel extends ConsoleKernel
         $schedule->command(
             RemoveUnverifiedHappenings::class,
             [
-                '--minutes=60',
                 '--force',
                 '--isolated',
             ],

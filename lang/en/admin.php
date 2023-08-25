@@ -443,6 +443,10 @@ return [
                 'label' => 'Time format',
                 'description' => '',
             ],
+            'cleanup_interval' => [
+                'label' => 'Cleanup interval',
+                'description' => '',
+            ],
         ],
         'index' => [
             'title' => 'Settings for institution ":title"',

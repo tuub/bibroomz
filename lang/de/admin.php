@@ -443,6 +443,10 @@ return [
                 'label' => 'Zeitformat',
                 'description' => '',
             ],
+            'cleanup_interval' => [
+                'label' => 'Löschintervall',
+                'description' => '',
+            ],
         ],
         'index' => [
             'title' => 'Einstellungen für Einrichtung ":title"',

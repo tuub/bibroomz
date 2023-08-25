@@ -45,6 +45,7 @@ class Setting extends Model
             'quota_happening_block_hours' => env('DEFAULT_QUOTA_HAPPENING_BLOCK_HOURS'),
             'date_format' => env('DEFAULT_DATE_FORMAT'),
             'time_format' => env('DEFAULT_TIME_FORMAT'),
+            'cleanup_interval' => env('DEFAULT_CLEANUP_INTERVAL'),
         ];
     }
 }
