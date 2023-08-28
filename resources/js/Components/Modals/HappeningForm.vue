@@ -76,6 +76,8 @@ import { ref, onBeforeMount, reactive } from "vue";
 import Spinner from "../../Shared/Spinner.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import useModal from "@/Stores/Modal";
+import { router } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
@@ -98,6 +100,7 @@ defineEmits(["update:happening", "submit"]);
 const appStore = useAppStore();
 const authStore = useAuthStore();
 const happeningStore = useHappeningStore();
+const modal = useModal();
 
 // ------------------------------------------------
 // Variables
@@ -127,24 +130,30 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
 
     isLoading.value = true;
 
-    const response = await axios.post(`/${slug}/resource/${resource_id}/time_slots`, {
-        happening_id: happening?.id,
-        resource_id: resource_id,
-        start: start,
-        end: end,
-        event: event,
-    });
+    try {
+        const response = await axios.post(`/${slug}/resource/${resource_id}/time_slots`, {
+            happening_id: happening?.id,
+            resource_id: resource_id,
+            start: start,
+            end: end,
+            event: event,
+        });
 
-    start_time_slots.value = response.data["start"];
-    start_time_slot_selected.value =
-        start_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ?? start_time_slot_selected.value;
+        start_time_slots.value = response.data["start"];
+        start_time_slot_selected.value =
+            start_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ??
+            start_time_slot_selected.value;
 
-    end_time_slots.value = response.data["end"];
-    end_time_slot_selected.value =
-        end_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ?? end_time_slot_selected.value;
+        end_time_slots.value = response.data["end"];
+        end_time_slot_selected.value =
+            end_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ?? end_time_slot_selected.value;
 
-    isLoading.value = false;
-    isInitial.value = false;
+        isLoading.value = false;
+        isInitial.value = false;
+    } catch (error) {
+        modal.close();
+        authStore.check();
+    }
 };
 
 const initTimeSlots = () => {

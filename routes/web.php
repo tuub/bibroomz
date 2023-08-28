@@ -46,6 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/happening/update/{id}', [HappeningController::class, 'updateHappening'])->name('happening.add');
     Route::delete('/happening/delete/{id}', [HappeningController::class, 'deleteHappening'])->name('happening.delete');
 
+    // API calls
+    Route::post('/{slug}/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])->name('resource.business_hours.form');
+
     /* Admins */
     Route::middleware('can:admin')->group(function () {
 
@@ -123,4 +126,3 @@ Route::get('/{slug}/terminal-view', [HomeController::class, 'getTerminalView'])-
 // API calls
 Route::get('/{slug}/resources', [ResourceController::class, 'getResources'])->name('resources.get');
 Route::get('/{slug}/happenings', [HappeningController::class, 'getHappenings'])->name('happenings.get');
-Route::post('/{slug}/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])->name('resource.business_hours.form');
