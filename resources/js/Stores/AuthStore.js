@@ -54,7 +54,7 @@ export const useAuthStore = defineStore({
         },
 
         async login(username, password) {
-            await this.csrf();
+            // await this.csrf();
 
             const response = await axios.post(`${baseUrl}/login`, {
                 username,

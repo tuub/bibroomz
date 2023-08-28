@@ -75,7 +75,7 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
     }
 
     function refetchHappenings(calendar) {
-        const api = unref(calendar).getApi();
+        const api = unref(calendar)?.getApi();
         api.refetchEvents();
     }
 

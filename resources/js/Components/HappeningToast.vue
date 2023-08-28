@@ -26,6 +26,6 @@ const props = defineProps({
 });
 
 const date = dayjs(props.happening.start).format("DD.MM.YYYY");
-const start = dayjs(props.happening.start).format("H:m");
-const end = dayjs(props.happening.end).format("H:m");
+const start = dayjs(props.happening.start).format("H:mm");
+const end = dayjs(props.happening.end).format("H:mm");
 </script>
