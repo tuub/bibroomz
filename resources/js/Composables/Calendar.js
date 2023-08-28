@@ -11,7 +11,13 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { reactive, unref } from "vue";
-import { useCreateModal, useEditModalFromPermissions, useInfoModal, useResourceInfoModal, useVerifyModalFromPermissions } from "./ModalActions";
+import {
+    useResourceInfoModal,
+    useHappeningInfoModal,
+    useHappeningCreateModal,
+    useHappeningVerifyModal,
+    useHappeningEditModal,
+} from "./ModalActions";
 import { trans } from "laravel-vue-i18n";
 
 dayjs.extend(isSameOrAfter);
@@ -116,7 +122,7 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
         if (!isAuthenticated.value) {
             useToast().error(trans("toast.no_auth"));
         } else {
-            const happeningData = reactive({
+            const happening = reactive({
                 isSelected: true,
                 resource: {
                     id: eventInfo.resource.id,
@@ -131,19 +137,19 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
                 isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
             });
 
-            emit("open-modal-component", useCreateModal(happeningData));
+            emit("open-modal-component", useHappeningCreateModal(happening));
         }
     }
 
     function onEventClick(eventInfo) {
-        const happeningData = {};
+        const happening = {};
         const isBgEvent = eventInfo.el.classList.contains("fc-bg-event");
 
         if (eventInfo.resource) {
             /* This is a new selection */
             const dataPath = eventInfo;
 
-            happeningData.resource = {
+            happening.resource = {
                 id: dataPath.resource._resource.id,
                 title: dataPath.resource._resource.title,
                 location: dataPath.resource._resource.extendedProps.location,
@@ -155,7 +161,7 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
             /* This is an event */
             const dataPath = eventInfo.event;
 
-            happeningData.resource = {
+            happening.resource = {
                 id: dataPath.getResources()[0]._resource.id,
                 title: dataPath.getResources()[0]._resource.title,
                 location: dataPath.getResources()[0]._resource.extendedProps.location,
@@ -163,22 +169,21 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
                 capacity: dataPath.getResources()[0]._resource.extendedProps.capacity,
                 description: dataPath.getResources()[0]._resource.extendedProps.description,
             };
-            happeningData.id = dataPath.id;
-            happeningData.user_02 = dataPath.extendedProps.status?.user?.verification;
-            happeningData.start = dayjs.utc(dataPath._instance.range.start);
-            happeningData.end = dayjs.utc(dataPath._instance.range.end);
-            happeningData.isVerificationRequired = dataPath.extendedProps.isVerificationRequired;
+            happening.id = dataPath.id;
+            happening.user_02 = dataPath.extendedProps.status?.user?.verification;
+            happening.start = dayjs.utc(dataPath._instance.range.start);
+            happening.end = dayjs.utc(dataPath._instance.range.end);
+            happening.isVerificationRequired = dataPath.extendedProps.isVerificationRequired;
+            happening.can = dataPath.extendedProps.can;
         }
 
         if (!isBgEvent) {
-            const can = eventInfo.event.extendedProps.can;
-
-            if (can.verify) {
-                emit("open-modal-component", useVerifyModalFromPermissions(happeningData, can));
-            } else if (can.edit) {
-                emit("open-modal-component", useEditModalFromPermissions(happeningData, can));
+            if (happening.can?.verify) {
+                emit("open-modal-component", useHappeningVerifyModal(happening));
+            } else if (happening.can?.edit) {
+                emit("open-modal-component", useHappeningEditModal(happening));
             } else {
-                emit("open-modal-component", useInfoModal(happeningData));
+                emit("open-modal-component", useHappeningInfoModal(happening));
             }
         }
     }

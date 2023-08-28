@@ -4,150 +4,53 @@ import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 import { trans } from "laravel-vue-i18n";
 
-export function useCreateModal(happening) {
-    const happeningStore = useHappeningStore();
-
-    return {
-        view: HappeningModal,
-        content: {
-            title: trans("modal.create.title"),
-            description: trans("modal.create.description"),
-        },
-        payload: { ...happening, editable: true },
-        actions: [
-            {
-                label: trans("modal.create.action.create"),
-                callback: (happening) => {
-                    return happeningStore.addHappening(happening);
-                },
-            },
-        ],
-    };
-}
-
-export function useInfoModal(happening) {
+export function useHappeningModal({ happening, can = happening.can, title, description, editable = false }) {
     const modal = useModal();
-
-    return {
-        view: HappeningModal,
-        content: {
-            title: trans("modal.info.title"),
-            description: trans("modal.info.description"),
-        },
-        payload: { ...happening, editable: false },
-        actions: [
-            {
-                label: trans("modal.info.action.ok"),
-                callback: () => {
-                    modal.close();
-                },
-            },
-        ],
-    };
-}
-
-export function useVerifyModalFromPermissions(happening, can = happening.can) {
     const happeningStore = useHappeningStore();
 
     const actions = [];
-    if (can.verify) {
-        actions.push({
-            label: trans("modal.verify.action.verify"),
-            callback: (happening) => {
-                return happeningStore.verifyHappening(happening);
-            },
-        });
-    }
 
-    if (can.edit) {
-        actions.push({
-            label: trans("modal.edit.action.update"),
-            callback: (happening) => {
-                return happeningStore.editHappening(happening);
-            },
-        });
-    }
+    if (can) {
+        if (can.verify && editable) {
+            actions.push({
+                label: trans("modal.verify.action.verify"),
+                callback: (happening) => {
+                    return happeningStore.verifyHappening(happening);
+                },
+            });
+        }
 
-    if (can.delete) {
-        actions.push({
-            label: trans("modal.delete.action.delete"),
-            callback: (happening) => {
-                return happeningStore.deleteHappening(happening.id);
-            },
-        });
-    }
-
-    return {
-        view: HappeningModal,
-        content: {
-            title: trans("modal.verify.title"),
-            description: trans("modal.verify.description"),
-        },
-        payload: { ...happening, editable: can.edit },
-        actions,
-    };
-}
-
-export function useEditModal(happening) {
-    const happeningStore = useHappeningStore();
-
-    return {
-        view: HappeningModal,
-        content: {
-            title: trans("modal.edit.title"),
-            description: trans("modal.edit.description"),
-        },
-        payload: { ...happening, editable: true },
-        actions: [
-            {
+        if (can.edit && editable) {
+            actions.push({
                 label: trans("modal.edit.action.update"),
                 callback: (happening) => {
                     return happeningStore.editHappening(happening);
                 },
-            },
-        ],
-    };
-}
+            });
+        }
 
-export function useDeleteModal(happening) {
-    const happeningStore = useHappeningStore();
-
-    return {
-        view: HappeningModal,
-        content: {
-            title: trans("modal.delete.title"),
-            description: trans("modal.delete.description"),
-        },
-        payload: { ...happening, editable: false },
-        actions: [
-            {
+        if (can.delete) {
+            actions.push({
                 label: trans("modal.delete.action.delete"),
                 callback: (happening) => {
                     return happeningStore.deleteHappening(happening.id);
                 },
-            },
-        ],
-    };
-}
-
-export function useEditModalFromPermissions(happening, can = happening.can) {
-    const happeningStore = useHappeningStore();
-
-    const actions = [];
-    if (can.edit) {
+            });
+        }
+    } else if (editable) {
         actions.push({
-            label: trans("modal.edit.action.update"),
+            label: trans("modal.create.action.create"),
             callback: (happening) => {
-                return happeningStore.editHappening(happening);
+                return happeningStore.addHappening(happening);
             },
         });
     }
 
-    if (can.delete) {
+    if (actions.length < 1) {
         actions.push({
-            label: trans("modal.delete.action.delete"),
-            callback: (happening) => {
-                return happeningStore.deleteHappening(happening.id);
+            label: trans("modal.info.action.ok"),
+            callback: () => {
+                modal.close();
             },
         });
     }
@@ -155,12 +58,57 @@ export function useEditModalFromPermissions(happening, can = happening.can) {
     return {
         view: HappeningModal,
         content: {
-            title: trans("modal.edit_delete.title"),
-            description: trans("modal.edit_delete.description"),
+            title,
+            description,
         },
-        payload: { ...happening, editable: can.edit },
+        payload: { ...happening, editable },
         actions,
     };
+}
+
+export function useHappeningCreateModal(happening) {
+    return useHappeningModal({
+        happening,
+        title: trans("modal.create.title"),
+        description: trans("modal.create.description"),
+        editable: true,
+    });
+}
+
+export function useHappeningVerifyModal(happening) {
+    return useHappeningModal({
+        happening,
+        title: trans("modal.verify.title"),
+        description: trans("modal.verify.description"),
+        editable: true,
+    });
+}
+
+export function useHappeningEditModal(happening) {
+    return useHappeningModal({
+        happening,
+        title: trans("modal.edit.title"),
+        description: trans("modal.edit.description"),
+        editable: true,
+    });
+}
+
+export function useHappeningDeleteModal(happening) {
+    return useHappeningModal({
+        happening,
+        title: trans("modal.delete.title"),
+        description: trans("modal.delete.description"),
+        editable: false,
+    });
+}
+
+export function useHappeningInfoModal(happening) {
+    return useHappeningModal({
+        happening,
+        title: trans("modal.info.title"),
+        description: trans("modal.info.description"),
+        editable: false,
+    });
 }
 
 export function useResourceInfoModal(resourceInfo) {

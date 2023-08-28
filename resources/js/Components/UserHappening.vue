@@ -100,7 +100,7 @@ import { computed } from "vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useModal from "@/Stores/Modal";
-import { useDeleteModal, useEditModal, useVerifyModalFromPermissions } from "@/Composables/ModalActions";
+import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
 
 // ------------------------------------------------
 // Props
@@ -144,17 +144,17 @@ const isPresent = computed(() => {
 // Modal Actions
 // ------------------------------------------------
 const editUserHappening = (happening) => {
-    const editModal = useEditModal(happening);
+    const editModal = useHappeningEditModal(happening);
     modal.open(editModal.view, editModal.content, editModal.payload, editModal.actions);
 };
 
 const verifyUserHappening = (happening) => {
-    const verifyModal = useVerifyModalFromPermissions(happening);
+    const verifyModal = useHappeningVerifyModal(happening);
     modal.open(verifyModal.view, verifyModal.content, verifyModal.payload, verifyModal.actions);
 };
 
 const deleteUserHappening = (happening) => {
-    const deleteModal = useDeleteModal(happening);
+    const deleteModal = useHappeningDeleteModal(happening);
     modal.open(deleteModal.view, deleteModal.content, deleteModal.payload, deleteModal.actions);
 };
 </script>
