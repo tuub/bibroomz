@@ -85,6 +85,8 @@ As learned in https://stackoverflow.com/a/43592531
 
 Module `rewrite` must be enabled.
 
+We assume that there is a symlink set from `/srv/git/roomz/public` to `/srv/www/roomz`.
+
 ````
 <IfModule mod_ssl.c>
     <VirtualHost _default_:443>
