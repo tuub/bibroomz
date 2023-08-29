@@ -14,13 +14,10 @@ class UpdateHappeningRequest extends FormRequest
      */
     public function authorize()
     {
-        /** @var User */
-        $user = auth()->user();
-
         /** @var Happening */
         $happening = Happening::findOrFail($this->id);
 
-        return $user->can('update', $happening);
+        return $this->user()->can('update', $happening);
     }
 
     /**

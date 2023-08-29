@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Institution;
+use App\Models\Resource;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreResourceRequest extends FormRequest
@@ -13,7 +15,9 @@ class StoreResourceRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $institution = Institution::findOrFail($this->institution_id);
+
+        return $this->user()->can('create', [Resource::class, $institution]);
     }
 
     /**

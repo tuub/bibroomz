@@ -49,7 +49,7 @@
                 </select>
             </div>
         </div>
-        <div v-if="happening.isVerificationRequired && !isAdmin && !isInstitutionAdmin" class="mb-6">
+        <div v-if="happening.isVerificationRequired && !can('no verifier')" class="mb-6">
             <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input
                 id="verifier"
@@ -106,7 +106,6 @@ const modal = useModal();
 // ------------------------------------------------
 const happening = reactive(props.happening);
 
-const { isAdmin, isInstitutionAdmin } = storeToRefs(authStore);
 const { validationErrors } = storeToRefs(happeningStore);
 
 const slug = appStore.institution.slug;
@@ -167,6 +166,8 @@ const syncTimeSlotValues = ($event, start_selected, end_selected) => {
     happening.start = start_time_slot_selected;
     happening.end = end_time_slot_selected;
 };
+
+const can = authStore.can;
 
 // ------------------------------------------------
 // Lifecycle

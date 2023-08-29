@@ -20,8 +20,17 @@ class Closing extends Model
     protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
-    protected $fillable = ['closable_id', 'closable_type', 'start', 'end', 'description'];
-    protected $dates = ['start', 'end'];
+    protected $fillable = [
+        'closable_id',
+        'closable_type',
+        'start',
+        'end',
+        'description',
+    ];
+    protected $dates = [
+        'start',
+        'end',
+    ];
 
     /*****************************************************************
      * RELATIONS

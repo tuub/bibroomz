@@ -12,6 +12,7 @@
 
     <div>
         <Link
+            v-if="hasPermission('create closings', institutionId)"
             :href="
                 route('admin.closing.create', {
                     closable_type: closable_type,
@@ -63,26 +64,30 @@
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="
-                                route('admin.closing.edit', {
-                                    id: closing.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.closings.index.table.actions.edit") }}
-                        </Link>
-                        |
-                        <a
-                            :href="route('admin.closing.delete', { id: closing.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            @click.prevent="
-                                modal.open({}, { message: $t('popup.content.delete.closing') }, closing, actions)
-                            "
-                        >
-                            {{ $t("admin.closings.index.table.actions.delete") }}
-                        </a>
+                        <span v-if="hasPermission('edit closings', institutionId)">
+                            <Link
+                                :href="
+                                    route('admin.closing.edit', {
+                                        id: closing.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.closings.index.table.actions.edit") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('delete closings', institutionId)">
+                            |
+                            <a
+                                :href="route('admin.closing.delete', { id: closing.id })"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                @click.prevent="
+                                    modal.open({}, { message: $t('popup.content.delete.closing') }, closing, actions)
+                                "
+                            >
+                                {{ $t("admin.closings.index.table.actions.delete") }}
+                            </a>
+                        </span>
                     </td>
                 </tr>
             </tbody>
@@ -98,19 +103,16 @@ import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 import { trans } from "laravel-vue-i18n";
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    closings: {
-        type: Object,
-        default: () => ({}),
-    },
+const props = defineProps({
     closable: {
         type: Object,
         default: () => ({}),
@@ -120,7 +122,7 @@ defineProps({
         type: String,
         default: "",
     },
-    filters: {
+    closings: {
         type: Object,
         default: () => ({}),
     },
@@ -131,6 +133,31 @@ defineProps({
 // ------------------------------------------------
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore();
+const modal = useModal();
+
+const { hasPermission } = authStore;
+
+const route = inject("route");
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const actions = [];
+
+const institutionId = computed(() => {
+    if (props.closable_type === "institution") {
+        return props.closable.id;
+    }
+
+    return props.closable.institution_id;
+});
+
+const deleteClosingLabel = computed(() => trans("popup.actions.delete"));
 
 // ------------------------------------------------
 // Methods
@@ -144,37 +171,29 @@ const isPastClosing = (closing) => {
 };
 
 // ------------------------------------------------
-// Variables
-// ------------------------------------------------
-const modal = useModal();
-const route = inject("route");
-
-const actions = [];
-
-const deleteClosingLabel = computed(() => trans("popup.actions.delete"));
-
-const deleteClosingAction = {
-    label: deleteClosingLabel,
-    callback: (closing) => {
-        router.visit(
-            route("admin.closing.delete", {
-                id: closing.id,
-                closable_id: closing.closable_id,
-                closable_type: closing.closable_type,
-            }),
-            {
-                method: "post",
-                preserveScroll: true,
-            }
-        );
-    },
-};
-
-actions.push(deleteClosingAction);
-
-// ------------------------------------------------
 // Lifecycle
 // ------------------------------------------------
+onBeforeMount(() => {
+    const deleteClosingAction = {
+        label: deleteClosingLabel,
+        callback: (closing) => {
+            router.visit(
+                route("admin.closing.delete", {
+                    id: closing.id,
+                    closable_id: closing.closable_id,
+                    closable_type: closing.closable_type,
+                }),
+                {
+                    method: "post",
+                    preserveScroll: true,
+                },
+            );
+        },
+    };
+
+    actions.push(deleteClosingAction);
+});
+
 onMounted(() => {
     modal.init(
         new FlowbiteModal(document.getElementById("popup-modal"), {
@@ -185,7 +204,7 @@ onMounted(() => {
             onHide: () => {
                 modal.cleanup();
             },
-        })
+        }),
     );
 });
 </script>

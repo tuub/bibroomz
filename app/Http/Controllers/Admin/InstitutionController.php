@@ -15,31 +15,22 @@ class InstitutionController extends Controller
 {
     public function getInstitutions()
     {
-        /** @var User */
-        $user = auth()->user();
-
-        $institutions = Institution::with(['resources', 'closings'])->get()
-            ->filter(fn ($institution) => $user->can('edit', $institution));
-
         return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => $institutions,
+            'institutions' => Institution::with(['resources', 'closings'])->get()
+                ->filter->isViewableByUser(auth()->user()),
         ]);
     }
 
     public  function getFormInstitutions()
     {
-        /** @var User */
-        $user = auth()->user();
-
-        $institutions = Institution::get(['id', 'title'])
-            ->filter(fn ($institution) => $user->can('edit', $institution));
-
-        return $institutions->values();
+        return Institution::get(['id', 'title'])
+            ->filter->isEditableByUser(auth()->user())
+            ->values();
     }
 
     public function createInstitution()
     {
-        Institution::abortIfUnauthorized(verb: 'create');
+        $this->authorize('create', Institution::class);
 
         $days_of_week = WeekDay::get();
 
@@ -50,8 +41,6 @@ class InstitutionController extends Controller
 
     public function storeInstitution(StoreInstitutionRequest $request)
     {
-        Institution::abortIfUnauthorized(verb: 'create');
-
         $validated = $request->safe();
         $institution = Institution::create($validated->except('week_days'));
 
@@ -72,27 +61,23 @@ class InstitutionController extends Controller
 
     public function editInstitution(Request $request)
     {
-        //$institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
         $institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
-        Institution::abortIfUnauthorized($institution);
 
-        $days_of_week = WeekDay::get();
+        $this->authorize('edit', $institution);
 
         return Inertia::render('Admin/Institutions/Form', [
             'institution' => $institution,
-            'days_of_week' => $days_of_week,
+            'days_of_week' => WeekDay::get(),
         ]);
     }
 
     public function updateInstitution(UpdateInstitutionRequest $request)
     {
         $institution = Institution::findOrFail($request->id);
-        Institution::abortIfUnauthorized($institution);
 
         $validated = $request->safe();
-        $institution->update($validated->except('week_days'));
 
-        // Set active week days
+        $institution->update($validated->except('week_days'));
         $institution->week_days()->sync($validated->week_days);
 
         return redirect()->route('admin.institution.index');
@@ -101,8 +86,7 @@ class InstitutionController extends Controller
     public function deleteInstitution(Request $request)
     {
         $institution = Institution::findOrFail($request->id);
-        Institution::abortIfUnauthorized($institution, verb: 'delete');
-
+        $this->authorize('delete', $institution);
         $institution->delete();
 
         return redirect()->route('admin.institution.index');

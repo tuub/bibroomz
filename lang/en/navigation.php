@@ -20,6 +20,7 @@ return [
         'resources' => 'Ressourcen',
         'users' => 'Benutzer*innen',
         'stats' => 'Statistiken',
+        'roles' => 'Roles',
         'exit' => 'Administration verlassen',
     ],
     'current_login' => [

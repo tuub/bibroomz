@@ -16,7 +16,8 @@ class SettingController extends Controller
     public function getSettings(Request $request): Response
     {
         $institution = Institution::with('settings')->findOrFail($request->id);
-        Institution::abortIfUnauthorized($institution);
+
+        $this->authorize('view', $institution);
 
         return Inertia::render('Admin/Settings/Index', [
             'institution' => $institution,
@@ -26,7 +27,8 @@ class SettingController extends Controller
     public function editSetting(Request $request): Response
     {
         $setting = Setting::findOrFail($request->id);
-        Institution::abortIfUnauthorized($setting->institution);
+
+        $this->authorize('edit', $setting->institution);
 
         return Inertia::render('Admin/Settings/Form', $setting->only(['id', 'key', 'value']));
     }
@@ -34,7 +36,8 @@ class SettingController extends Controller
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse
     {
         $setting = Setting::findOrFail($request->id);
-        Institution::abortIfUnauthorized($setting->institution);
+
+        $this->authorize('edit', $setting->institution);
 
         $validated = $request->validated();
         $setting->update($validated);

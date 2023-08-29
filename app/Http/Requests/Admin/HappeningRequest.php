@@ -22,7 +22,7 @@ abstract class HappeningRequest extends FormRequest
         /** @var Resource */
         $resource = Resource::find($this->resource_id);
 
-        $is_admin = $user1?->isAdmin() || $user1?->isInstitutionAdmin($resource?->institution);
+        $is_admin = $user1?->hasPermission('no verifier', $resource?->institution);
         $is_verification_required = !$is_admin && $resource?->is_verification_required;
 
         return [
@@ -30,14 +30,15 @@ abstract class HappeningRequest extends FormRequest
             'start_time' => ['required', 'date_format:H:i'],
             'end_date' => ['required', 'date_format:d.m.Y'],
             'end_time' => ['required', 'date_format:H:i'],
-            'resource_id' => ['required', 'uuid'],
-            'user_id_01' => ['required', 'uuid'],
+            'resource_id' => ['required', 'uuid', 'exists:resources,id'],
+            'user_id_01' => ['required', 'uuid', 'exists:users,id'],
             'user_id_02' => [
                 'sometimes',
                 'nullable',
                 'uuid',
                 $is_verification_required ? 'required_if:is_verified,true' : '',
                 'exclude_if:is_verified,false',
+                'exists:users,id',
             ],
             'verifier' => [
                 $is_verification_required ? 'required_if:is_verified,false' : '',

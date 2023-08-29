@@ -10,44 +10,48 @@ class InstitutionPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Create a new policy instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function view(User $user, Institution $institution)
     {
-        //
+        if ($user->can('view institutions')) {
+            return true;
+        }
+
+        if ($user->can('view institution', $institution)) {
+            return true;
+        }
     }
 
-    public function create(User $user): bool
+    public function create(User $user)
     {
-        if ($user->isAdmin()) {
+        if ($user->can('create institutions')) {
             return true;
         }
-
-        return false;
     }
 
-    public function delete(User $user): bool
+    public function update(User $user, Institution $institution)
     {
-        if ($user->isAdmin()) {
+        if ($user->can('edit institutions')) {
             return true;
         }
 
-        return false;
+        if ($user->can('edit institution', $institution)) {
+            return true;
+        }
     }
 
-    public function edit(User $user, Institution $institution): bool
+    public function edit(User $user, Institution $institution)
     {
-        if ($user->isAdmin()) {
+        return $this->update($user, $institution);
+    }
+
+    public function delete(User $user, Institution $institution)
+    {
+        if ($user->can('delete institutions')) {
             return true;
         }
 
-        if ($institution->isAdmin($user)) {
+        if ($user->can('delete institution', $institution)) {
             return true;
         }
-
-        return false;
     }
 }

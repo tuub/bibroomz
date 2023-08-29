@@ -38,12 +38,11 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcast
     {
         $happening = $this->happening;
         $resource = $happening->resource;
-        $institution = $resource->institution;
 
         /** @var User */
         $user1 = User::find($happening->user_id_01);
 
-        $is_admin = $user1->isAdmin() || $user1->isInstitutionAdmin($institution);
+        $is_admin = $user1->hasPermission('no verifier', $resource->institution);
         $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [

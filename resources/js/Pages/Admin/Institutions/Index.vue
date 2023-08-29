@@ -5,7 +5,9 @@
     <PopupModal />
 
     <div>
-        <Link :href="route('admin.institution.create')">{{ $t("admin.institutions.index.table.actions.create") }}</Link>
+        <Link v-if="hasPermission('create institutions')" :href="route('admin.institution.create')">{{
+            $t("admin.institutions.index.table.actions.create")
+        }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -61,54 +63,62 @@
                         <i v-if="!institution.is_active" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="
-                                route('admin.institution.edit', {
-                                    id: institution.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.institutions.index.table.actions.edit") }}
-                        </Link>
-                        |
-                        <Link
-                            :href="
-                                route('admin.closing.index', {
-                                    closable_type: 'institution',
-                                    closable_id: institution.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.institutions.index.table.actions.closings") }}
-                        </Link>
-                        |
-                        <Link
-                            :href="
-                                route('admin.setting.index', {
-                                    id: institution.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.institutions.index.table.actions.settings") }}
-                        </Link>
-                        |
-                        <a
-                            :href="route('admin.institution.delete', { id: institution.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            @click.prevent="
-                                modal.open(
-                                    {},
-                                    { message: $t('popup.content.delete.institution') },
-                                    institution,
-                                    actions
-                                )
-                            "
-                        >
-                            {{ $t("admin.institutions.index.table.actions.delete") }}
-                        </a>
+                        <span v-if="hasPermission('edit institution', institution.id)">
+                            <Link
+                                :href="
+                                    route('admin.institution.edit', {
+                                        id: institution.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.institutions.index.table.actions.edit") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('view closings', institution.id)">
+                            |
+                            <Link
+                                :href="
+                                    route('admin.closing.index', {
+                                        closable_type: 'institution',
+                                        closable_id: institution.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.institutions.index.table.actions.closings") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('edit institution', institution.id)">
+                            |
+                            <Link
+                                :href="
+                                    route('admin.setting.index', {
+                                        id: institution.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.institutions.index.table.actions.settings") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('delete institution', institution.id)">
+                            |
+                            <a
+                                :href="route('admin.institution.delete', { id: institution.id })"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                @click.prevent="
+                                    modal.open(
+                                        {},
+                                        { message: $t('popup.content.delete.institution') },
+                                        institution,
+                                        actions
+                                    )
+                                "
+                            >
+                                {{ $t("admin.institutions.index.table.actions.delete") }}
+                            </a>
+                        </span>
                     </td>
                 </tr>
             </tbody>
@@ -123,20 +133,17 @@ import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 import { trans } from "laravel-vue-i18n";
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 defineProps({
     institutions: {
-        type: Object,
-        default: () => ({}),
-    },
-    filters: {
         type: Object,
         default: () => ({}),
     },
@@ -148,30 +155,38 @@ defineProps({
 dayjs.extend(customParseFormat);
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore();
+const modal = useModal();
+
+const { hasPermission } = authStore;
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const modal = useModal();
 const route = inject("route");
 
 const actions = [];
 
-const deleteInstitutionLabel = computed(() => trans("popup.actions.delete"));
-
-const deleteInsitutionAction = {
-    label: deleteInstitutionLabel,
-    callback: (institution) => {
-        router.visit(route("admin.institution.delete", { id: institution.id }), {
-            method: "post",
-            preserveScroll: true,
-        });
-    },
-};
-
-actions.push(deleteInsitutionAction);
-
 // ------------------------------------------------
 // Lifecycle
 // ------------------------------------------------
+onBeforeMount(() => {
+    const deleteInstitutionLabel = computed(() => trans("popup.actions.delete"));
+
+    const deleteInsitutionAction = {
+        label: deleteInstitutionLabel,
+        callback: (institution) => {
+            router.visit(route("admin.institution.delete", { id: institution.id }), {
+                method: "post",
+                preserveScroll: true,
+            });
+        },
+    };
+
+    actions.push(deleteInsitutionAction);
+});
 onMounted(() => {
     modal.init(
         new FlowbiteModal(document.getElementById("popup-modal"), {

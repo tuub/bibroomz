@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Auth\AlmaUserProvider;
+use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,19 +30,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('admin', function (User $user) {
-            if ($user->isAdmin()) {
-                return true;
-            }
-
-            if ($user->isInstitutionAdmin()) {
-                return true;
-            }
-
-            return false;
-        });
-
-        Gate::define('admin.global', function (User $user) {
+        Gate::after(function (User $user) {
             if ($user->isAdmin()) {
                 return true;
             }
@@ -48,13 +38,29 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
 
-        // Just return true on builtin method
+        Gate::before(function (User $user, String $ability, array $args) {
+            $institution = collect($args)->first();
+
+            if (!$institution instanceof Institution) {
+                // check global permissions
+                if ($user->roles->contains->hasPermission($ability)) {
+                    return true;
+                }
+
+                return;
+            }
+
+            // check institution scoped permissions
+            if ($user->roles->contains->hasPermission($ability, $institution)) {
+                return true;
+            }
+        });
+
         if (env('AUTH_METHOD') == 'eloquent') {
             return;
         }
 
-        Auth::provider('alma', function ($app, array $config) {
-            // Return an instance of Illuminate\Contracts\Auth\UserProvider...
+        Auth::provider('alma', function () {
             return new AlmaUserProvider(new User());
         });
     }

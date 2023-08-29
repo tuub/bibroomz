@@ -15,12 +15,8 @@ class LoginController extends Controller
 
         return [
             'isAdmin' => $user->isAdmin(),
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
-            'institutionAdmin' => $user->getUserAdministeredInstitutions(),
+            'user' => $user->only(['id', 'name', 'email']),
+            'permissions' => $user->getPermissions(),
         ];
     }
     public function login(Request $request)

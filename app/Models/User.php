@@ -9,7 +9,6 @@ use Laravel\Sanctum\HasApiTokens;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -64,7 +63,6 @@ class User extends Authenticatable
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-
     public function happenings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Happening::class, 'user_id_01', 'id');
@@ -72,35 +70,24 @@ class User extends Authenticatable
 
     public function institutions(): BelongsToMany
     {
-        return $this->belongsToMany(Institution::class, 'institution_admins');
+        return $this->belongsToMany(Institution::class, 'institution_user_role')
+            ->withPivot('role_id')
+            ->using(InstitutionUserRole::class);
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'institution_user_role')
+            ->withPivot('institution_id')
+            ->using(InstitutionUserRole::class);
     }
 
     /*****************************************************************
      * METHODS
      ****************************************************************/
-
     public function isAdmin(): bool
     {
         return $this->is_admin;
-    }
-
-    /**
-     * @param Institution|null $institution
-     * @return bool
-     */
-    public function isInstitutionAdmin(Institution $institution = null): bool
-    {
-        if ($institution) {
-            return $this->institutions->contains($institution);
-        }
-
-        return $this->institutions->isNotEmpty();
-    }
-
-    /** @return Collection<array-key, bool>  */
-    public function getUserAdministeredInstitutions()
-    {
-        return Institution::all()->mapWithKeys(fn ($institution) => [$institution->id => $this->isInstitutionAdmin($institution)]);
     }
 
     public function getHappenings()
@@ -116,5 +103,29 @@ class User extends Authenticatable
             ->whereNotIn('id', [$happening?->id])
             ->filter->isConcurrent($start, $end)
             ->isNotEmpty();
+    }
+
+    public function getPermissions(array $filter = null): Collection
+    {
+        if ($this->isAdmin()) {
+            return Institution::all()->pluck('id')->flatMap(fn ($id): array => [
+                $id => Permission::all()->pluck('name')->intersect($filter)->values(),
+            ]);
+        }
+
+        return $this->roles
+            ->map(fn (Role $role): array => [
+                "institution" => $role->pivot->institution->id,
+                "permissions" => $role->getPermissionNames($filter),
+            ])
+            ->reduce(fn (Collection $result, array $value): Collection => $result->mergeRecursive([
+                $value['institution'] => $value['permissions'],
+            ]), collect([]))
+            ->map(fn (array $permissions): Collection => collect($permissions)->unique()->values());
+    }
+
+    public function hasPermission(string $permission, Institution $institution = null): bool
+    {
+        return $this->isAdmin() || $this->roles->contains->hasPermission($permission, $institution);
     }
 }

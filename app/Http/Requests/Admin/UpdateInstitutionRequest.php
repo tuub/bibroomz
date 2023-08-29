@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Institution;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateInstitutionRequest extends FormRequest
@@ -13,7 +14,9 @@ class UpdateInstitutionRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $institution = Institution::findOrFail($this->id);
+
+        return $this->user()->can('update', $institution);
     }
 
     /**

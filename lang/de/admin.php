@@ -305,7 +305,7 @@ return [
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Gesperrt?',
                     'happenings' => '# Events',
-                    'institutions' => 'Administrierte Einrichtungen',
+                    'is_prvileged' => 'Privilegiert?',
                 ],
                 'actions' => [
                     'edit' => 'Bearbeiten',
@@ -319,20 +319,20 @@ return [
             'fields' => [
                 'name' => [
                     'label' => 'Name',
-                    'hint' => 'Über den Namen (nur lesbar)',
+                    'hint' => '(nur lesbar)',
                 ],
                 'email' => [
                     'label' => 'E-Mail',
-                    'placeholder' => 'Die E-Mail-Adresse',
-                    'hint' => 'Über die E-Mail-Adresse (nur lesbar)',
+                    'placeholder' => 'E-Mail-Adresse',
+                    'hint' => '(nur lesbar)',
                 ],
                 'is_admin' => [
                     'label' => 'Admin?',
-                    'hint' => 'Admins haben globale Admin-Rechte.',
+                    'hint' => 'Admins haben vollen Zugriff.',
                 ],
-                'institution_admin' => [
-                    'label' => 'Einrichtungs-Admin',
-                    'hint' => 'Einrichtungs-Admins haben lokale Admin-Rechte für die ausgewählten Einrichtungen.',
+                'roles' => [
+                    'label' => 'Rollen',
+                    'hint' => ' ',
                 ],
             ],
             'actions' => [
@@ -460,6 +460,79 @@ return [
                 'actions' => [
                     'edit' => 'Bearbeiten',
                 ],
+            ],
+        ],
+    ],
+    'roles' => [
+        'index' => [
+            'title' => 'Rollen',
+            'description' => 'Rollen erstellen, bearbeiten, löschen',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Beschreibung',
+                    'permissions' => 'Berechtigungen',
+                ],
+                'actions' => [
+                    'create' => 'Rolle erstellen',
+                    'edit' => 'Bearbeiten',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Rollen',
+            'description' => 'Rolle erstellen / bearbeiten',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Beschreibung',
+                    'hint' => ' ',
+                ],
+                'permissions' => [
+                    'label' => 'Berechtigungen',
+                    'hint' => ' ',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Speichern',
+            ],
+        ],
+    ],
+    'permissions' => [
+        'index' => [
+            'title' => 'Berechtigungen',
+            'description' => 'Berechtigungen erstellen, bearbeiten, löschen',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Beschreibung',
+                ],
+                'actions' => [
+                    'create' => 'Berechtigung erstellen',
+                    'edit' => 'Bearbeiten',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Berechtigungen',
+            'description' => 'Berechtigung erstellen / bearbeiten',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Beschreibung',
+                    'hint' => ' ',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Speichern',
             ],
         ],
     ],

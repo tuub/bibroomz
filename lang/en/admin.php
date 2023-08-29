@@ -305,7 +305,7 @@ return [
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Banned?',
                     'happenings' => '# Happenings',
-                    'institutions' => 'Administered Institutions',
+                    'is_privileged' => 'Privileged?',
                 ],
                 'actions' => [
                     'edit' => 'Edit',
@@ -319,20 +319,20 @@ return [
             'fields' => [
                 'name' => [
                     'label' => 'Name',
-                    'hint' => 'About the name (read-only)',
+                    'hint' => '(read-only)',
                 ],
                 'email' => [
                     'label' => 'E-Mail',
-                    'placeholder' => 'The email address',
-                    'hint' => 'About the email address (read-only)',
+                    'placeholder' => 'email address',
+                    'hint' => '(read-only)',
                 ],
                 'is_admin' => [
                     'label' => 'Is Admin?',
-                    'hint' => 'About the admin role',
+                    'hint' => 'Admins have full access.',
                 ],
-                'institution_admin' => [
-                    'label' => 'Institution Admin',
-                    'hint' => 'About institution admins',
+                'roles' => [
+                    'label' => 'Roles',
+                    'hint' => ' ',
                 ],
             ],
             'actions' => [
@@ -460,6 +460,79 @@ return [
                 'actions' => [
                     'edit' => 'Edit',
                 ],
+            ],
+        ],
+    ],
+    'roles' => [
+        'index' => [
+            'title' => 'Roles',
+            'description' => 'Create, edit, delete roles',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Description',
+                    'permissions' => 'Permissions',
+                ],
+                'actions' => [
+                    'create' => 'Create role',
+                    'edit' => 'Edit',
+                    'delete' => 'Delete',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Role Form',
+            'description' => 'Edit a role',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Description',
+                    'hint' => ' ',
+                ],
+                'permissions' => [
+                    'label' => 'Permissions',
+                    'hint' => ' ',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Save',
+            ],
+        ],
+    ],
+    'permissions' => [
+        'index' => [
+            'title' => 'Permissions',
+            'description' => 'Create, edit, delete permissions',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Description',
+                ],
+                'actions' => [
+                    'create' => 'Create permission',
+                    'edit' => 'Edit',
+                    'delete' => 'Delete',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Permission Form',
+            'description' => 'Create / edit a permission',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Description',
+                    'hint' => ' ',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Save',
             ],
         ],
     ],

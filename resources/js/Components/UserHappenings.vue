@@ -12,7 +12,7 @@
                 <HappeningCount :count="happeningsCount"></HappeningCount>
             </span>
         </div>
-        <div v-if="!isAdmin && !isInstitutionAdmin" class="text-sm font-medium">
+        <div v-if="!can('unlimited quotas')" class="text-sm font-medium">
             <HappeningQuotas></HappeningQuotas>
         </div>
         <div class="mt-4">
@@ -63,7 +63,6 @@ import UserHappening from "./UserHappening.vue";
 import { computed, ref } from "vue";
 import HappeningCount from "./HappeningCount.vue";
 import HappeningQuotas from "./HappeningQuotas.vue";
-import { storeToRefs } from "pinia";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -90,9 +89,7 @@ dayjs.extend(utc);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let { isAdmin, isInstitutionAdmin } = storeToRefs(authStore);
-
-let hidePast = ref(false);
+const hidePast = ref(false);
 
 const happenings = computed(() => {
     if (hidePast.value) {
@@ -111,6 +108,11 @@ const happeningsCount = computed(() => {
 const isPastHappening = (happening) => {
     return dayjs(happening.end).isBefore(dayjs.utc());
 };
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+const can = authStore.can;
 </script>
 
 <style>

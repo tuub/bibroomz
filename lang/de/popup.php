@@ -9,6 +9,7 @@ return [
             'resource' => 'Sind Sie sicher, dass Sie diese Ressource löschen wollen?',
             'happening' => 'Sind Sie sicher, dass Sie dieses Event löschen wollen?',
             'closing' => 'Sind Sie sicher, dass Sie diese Schließung löschen wollen?',
+            'permission' => 'Sind Sie sicher, dass Sie diese Berechtigung löschen wollen?',
         ],
     ],
 

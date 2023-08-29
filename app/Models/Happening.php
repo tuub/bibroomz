@@ -223,4 +223,14 @@ class Happening extends Model
     {
         return ($this->start >= $start && $this->start < $end) || ($this->start < $start && $this->end > $start);
     }
+
+    public function isEditableByUser(User $user): bool
+    {
+        return $user->can('adminUpdate', $this);
+    }
+
+    public function isViewableByUser(User $user): bool
+    {
+        return $user->can('adminView', $this);
+    }
 }

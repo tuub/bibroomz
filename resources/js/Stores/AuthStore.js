@@ -18,17 +18,14 @@ export const useAuthStore = defineStore({
         user: null,
         isAuthenticated: false,
         isAdmin: false,
-        institutionAdmin: {},
+        permissions: {},
         userHappenings: [],
         quotas: {},
     }),
 
     getters: {
-        isInstitutionAdmin: (state) => {
-            const appStore = useAppStore();
-            let institution = appStore.institution;
-
-            return state.institutionAdmin[institution?.id];
+        isPrivileged: (state) => {
+            return state.isAdmin || Object.values(state.permissions)?.flat().length > 0;
         },
     },
 
@@ -44,7 +41,7 @@ export const useAuthStore = defineStore({
                 this.user = response.data.user;
                 this.isAuthenticated = true;
                 this.isAdmin = response.data.isAdmin;
-                this.institutionAdmin = response.data.institutionAdmin;
+                this.permissions = response.data.permissions;
 
                 this.fetchUserHappenings();
                 this.subscribe();
@@ -64,7 +61,7 @@ export const useAuthStore = defineStore({
             this.user = response.data.user;
             this.isAuthenticated = true;
             this.isAdmin = response.data.isAdmin;
-            this.institutionAdmin = response.data.institutionAdmin;
+            this.permissions = response.data.permissions;
 
             this.fetchUserHappenings();
             this.subscribe();
@@ -248,7 +245,7 @@ export const useAuthStore = defineStore({
             const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
-            if (this.isAdmin || this.isInstitutionAdmin) {
+            if (this.can("unlimited quotas")) {
                 return false;
             }
 
@@ -317,6 +314,45 @@ export const useAuthStore = defineStore({
                     toastOptions
                 );
 
+                return true;
+            }
+
+            return false;
+        },
+
+        can(ability) {
+            const appStore = useAppStore();
+            const institution = appStore.institution;
+
+            return this.hasPermission(ability, institution.id);
+        },
+
+        hasPermission(name, institution) {
+            if (this.isAdmin) {
+                return true;
+            }
+
+            if (!institution) {
+                for (const permission of Object.values(this.permissions).flat()) {
+                    if (permission === name) {
+                        return true;
+                    }
+                }
+            }
+
+            if (this.permissions[institution]?.includes(name)) {
+                return true;
+            }
+
+            return false;
+        },
+
+        canViewInstitutions() {
+            if (this.hasPermission("view institutions")) {
+                return true;
+            }
+
+            if (this.hasPermission("view institution")) {
                 return true;
             }
 

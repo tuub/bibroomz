@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
-use Carbon\Traits\Week;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,7 +22,16 @@ class Institution extends Model
     protected $uuidFieldName = 'id';
     public $timestamps = false;
     public $incrementing = false;
-    protected $fillable = [ 'title', 'short_title', 'slug', 'location', 'home_uri', 'logo_uri', 'teaser_uri', 'is_active'];
+    protected $fillable = [
+        'title',
+        'short_title',
+        'slug',
+        'location',
+        'home_uri',
+        'logo_uri',
+        'teaser_uri',
+        'is_active',
+    ];
     protected $morphClass = 'institution';
     protected $casts = [
         'is_active' => 'boolean',
@@ -37,7 +45,7 @@ class Institution extends Model
         return $this->hasMany(Resource::class);
     }
 
-    public function settings(): hasMany
+    public function settings(): HasMany
     {
         return $this->hasMany(Setting::class);
     }
@@ -57,9 +65,11 @@ class Institution extends Model
         return $this->hasManyThrough(Happening::class, Resource::class);
     }
 
-    public function admins(): BelongsToMany
+    public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'institution_admins');
+        return $this->belongsToMany(User::class, 'institution_user_role')
+            ->withPivot('role_id')
+            ->using(InstitutionUserRole::class);
     }
 
     /*****************************************************************
@@ -73,27 +83,19 @@ class Institution extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    public function isAdmin($user): bool
+    public function isEditableByUser(User $user): bool
     {
-        return $this->admins->contains($user);
+        return $user->can('edit', $this);
     }
 
-    public static function abortIfUnauthorized(Institution $institution = null, string $verb = 'edit'): void
+    public function isViewableByUser(User $user): bool
     {
-        /** @var User */
-        $user = auth()->user();
+        return $user->can('view', $this);
+    }
 
-        if ($institution) {
-            if (!$user->can($verb, $institution)) {
-                abort(403);
-            }
-
-            return;
-        }
-
-        if (!$user->can($verb, self::class)) {
-            abort(403);
-        }
+    public function isUserAbleToCreateResource(User $user): bool
+    {
+        return $user->can('create', [Resource::class, $this]);
     }
 
     public function getHiddenDays()
@@ -104,5 +106,4 @@ class Institution extends Model
                 return $week_day->day_of_week;
             });
     }
-
 }

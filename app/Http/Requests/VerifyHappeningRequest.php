@@ -14,13 +14,10 @@ class VerifyHappeningRequest extends FormRequest
      */
     public function authorize()
     {
-        /** @var User */
-        $user = auth()->user();
-
         /** @var Happening */
         $happening = Happening::findOrFail($this->id);
 
-        return $user->can('verify', $happening);
+        return $this->user()->can('verify', $happening);
     }
 
     /**

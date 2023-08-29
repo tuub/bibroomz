@@ -5,7 +5,9 @@
     <PopupModal />
 
     <div>
-        <Link :href="route('admin.resource.create')">{{ $t("admin.resources.index.table.actions.create") }}</Link>
+        <Link v-if="hasPermission('create resources')" :href="route('admin.resource.create')">{{
+            $t("admin.resources.index.table.actions.create")
+        }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -63,10 +65,13 @@
                     </td>
                     <td class="px-6 py-4 align-top">
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
-                            {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }}
-                            (
-                            {{ business_hour.week_days.map((week_day) => trans('admin.general.week_days.' + week_day.key + '.short_label')).join(", ") }}
-                            )
+                            {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }} ({{
+                                business_hour.week_days
+                                    .map((week_day) =>
+                                        trans("admin.general.week_days." + week_day.key + ".short_label"),
+                                    )
+                                    .join(", ")
+                            }})
                         </p>
                     </td>
                     <td class="px-6 py-4 align-top text-center">
@@ -81,50 +86,59 @@
                         <i v-if="!resource.is_verification_required" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <Link
-                            :href="
-                                route('admin.resource.edit', {
-                                    id: resource.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.resources.index.table.actions.edit") }}
-                        </Link>
-                        |
-                        <Link
-                            :href="
-                                route('admin.resource.clone', {
-                                    id: resource.id,
-                                })
-                            "
-                            method="post" as="button"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.resources.index.table.actions.clone") }}
-                        </Link>
-                        |
-                        <Link
-                            :href="
-                                route('admin.closing.index', {
-                                    closable_type: 'resource',
-                                    closable_id: resource.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.resources.index.table.actions.closings") }}
-                        </Link>
-                        |
-                        <a
-                            :href="route('admin.resource.delete', { id: resource.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            @click.prevent="
-                                modal.open({}, { message: $t('popup.content.delete.resource') }, resource, actions)
-                            "
-                        >
-                            {{ $t("admin.resources.index.table.actions.delete") }}
-                        </a>
+                        <span v-if="hasPermission('edit resources', resource.institution_id)">
+                            <Link
+                                :href="
+                                    route('admin.resource.edit', {
+                                        id: resource.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.resources.index.table.actions.edit") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('create resources', resource.institution_id)">
+                            |
+                            <Link
+                                :href="
+                                    route('admin.resource.clone', {
+                                        id: resource.id,
+                                    })
+                                "
+                                method="post"
+                                as="button"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.resources.index.table.actions.clone") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('view closings', resource.institution_id)">
+                            |
+                            <Link
+                                :href="
+                                    route('admin.closing.index', {
+                                        closable_type: 'resource',
+                                        closable_id: resource.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.resources.index.table.actions.closings") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('delete resources', resource.institution_id)">
+                            |
+                            <a
+                                :href="route('admin.resource.delete', { id: resource.id })"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                @click.prevent="
+                                    modal.open({}, { message: $t('popup.content.delete.resource') }, resource, actions)
+                                "
+                            >
+                                {{ $t("admin.resources.index.table.actions.delete") }}
+                            </a>
+                        </span>
                     </td>
                 </tr>
             </tbody>
@@ -139,20 +153,17 @@ import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 import { trans } from "laravel-vue-i18n";
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 defineProps({
     resources: {
-        type: Object,
-        default: () => ({}),
-    },
-    filters: {
         type: Object,
         default: () => ({}),
     },
@@ -164,6 +175,16 @@ defineProps({
 dayjs.extend(customParseFormat);
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore();
+const modal = useModal();
+
+const { hasPermission } = authStore;
+
+const route = inject("route");
+
+// ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const formatTime = (time) => {
@@ -173,28 +194,27 @@ const formatTime = (time) => {
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const modal = useModal();
-const route = inject("route");
-
 const actions = [];
-
-const deleteResourceLabel = computed(() => trans("popup.actions.delete"));
-
-const deleteResourceAction = {
-    label: deleteResourceLabel,
-    callback: (resource) => {
-        router.visit(route("admin.resource.delete", { id: resource.id }), {
-            method: "post",
-            preserveScroll: true,
-        });
-    },
-};
-
-actions.push(deleteResourceAction);
 
 // ------------------------------------------------
 // Lifecycle
 // ------------------------------------------------
+onBeforeMount(() => {
+    const deleteResourceLabel = computed(() => trans("popup.actions.delete"));
+
+    const deleteResourceAction = {
+        label: deleteResourceLabel,
+        callback: (resource) => {
+            router.visit(route("admin.resource.delete", { id: resource.id }), {
+                method: "post",
+                preserveScroll: true,
+            });
+        },
+    };
+
+    actions.push(deleteResourceAction);
+});
+
 onMounted(() => {
     modal.init(
         new FlowbiteModal(document.getElementById("popup-modal"), {
@@ -205,7 +225,7 @@ onMounted(() => {
             onHide: () => {
                 modal.cleanup();
             },
-        })
+        }),
     );
 });
 </script>

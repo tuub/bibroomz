@@ -5,7 +5,9 @@
     <PopupModal />
 
     <div>
-        <Link :href="route('admin.happening.create')">{{ $t("admin.happenings.index.table.actions.create") }}</Link>
+        <Link v-if="hasPermission('create happenings')" :href="route('admin.happening.create')">{{
+            $t("admin.happenings.index.table.actions.create")
+        }}</Link>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -82,26 +84,35 @@
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="
-                                route('admin.happening.edit', {
-                                    id: happening.id,
-                                })
-                            "
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            {{ $t("admin.happenings.index.table.actions.edit") }}
-                        </Link>
-                        |
-                        <a
-                            :href="route('admin.happening.delete', { id: happening.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            @click.prevent="
-                                modal.open({}, { message: $t('popup.content.delete.happening') }, happening, actions)
-                            "
-                        >
-                            {{ $t("admin.happenings.index.table.actions.delete") }}
-                        </a>
+                        <span v-if="hasPermission('edit happenings', happening.resource.institution_id)">
+                            <Link
+                                :href="
+                                    route('admin.happening.edit', {
+                                        id: happening.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.happenings.index.table.actions.edit") }}
+                            </Link>
+                        </span>
+                        <span v-if="hasPermission('delete happenings', happening.resource.institution_id)">
+                            |
+                            <a
+                                :href="route('admin.happening.delete', { id: happening.id })"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                @click.prevent="
+                                    modal.open(
+                                        {},
+                                        { message: $t('popup.content.delete.happening') },
+                                        happening,
+                                        actions
+                                    )
+                                "
+                            >
+                                {{ $t("admin.happenings.index.table.actions.delete") }}
+                            </a>
+                        </span>
                     </td>
                 </tr>
             </tbody>
@@ -116,10 +127,11 @@ import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 import { trans } from "laravel-vue-i18n";
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
@@ -135,6 +147,16 @@ defineProps({
 // DayJS
 // ------------------------------------------------
 dayjs.extend(utc);
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const modal = useModal();
+const authStore = useAuthStore();
+
+const { hasPermission } = authStore;
+
+const route = inject("route");
 
 // ------------------------------------------------
 // Methods
@@ -154,28 +176,27 @@ const isPastHappening = (happening) => {
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const modal = useModal();
-const route = inject("route");
-
 const actions = [];
-
-const deleteHappeningLabel = computed(() => trans("popup.actions.delete"));
-
-const deleteHappeningAction = {
-    label: deleteHappeningLabel,
-    callback: (happening) => {
-        router.visit(route("admin.happening.delete", { id: happening.id }), {
-            method: "post",
-            preserveScroll: true,
-        });
-    },
-};
-
-actions.push(deleteHappeningAction);
 
 // ------------------------------------------------
 // Lifecycle
 // ------------------------------------------------
+onBeforeMount(() => {
+    const deleteHappeningLabel = computed(() => trans("popup.actions.delete"));
+
+    const deleteHappeningAction = {
+        label: deleteHappeningLabel,
+        callback: (happening) => {
+            router.visit(route("admin.happening.delete", { id: happening.id }), {
+                method: "post",
+                preserveScroll: true,
+            });
+        },
+    };
+
+    actions.push(deleteHappeningAction);
+});
+
 onMounted(() => {
     modal.init(
         new FlowbiteModal(document.getElementById("popup-modal"), {

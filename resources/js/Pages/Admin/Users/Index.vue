@@ -18,7 +18,7 @@
                         {{ $t("admin.users.index.table.header.is_admin") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.users.index.table.header.institutions") }}
+                        {{ $t("admin.users.index.table.header.is_privileged") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
                         {{ $t("admin.users.index.table.header.is_banned") }}
@@ -45,15 +45,10 @@
                     </td>
                     <td class="px-6 py-4 text-center">
                         <i v-if="user.is_admin" class="ri-checkbox-circle-line text-green-500"></i>
-                        <span v-else-if="user.institutions.length > 0">
-                            (<i class="ri-checkbox-circle-line text-green-500"></i>)
-                        </span>
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <p v-for="institution in user.institutions" :key="institution.id">
-                            {{ institution.title }}
-                        </p>
+                        <i v-if="user.roles?.length > 0" class="ri-checkbox-circle-line text-green-500"></i>
                     </td>
                     <td class="px-6 py-4 text-center">
                         <i v-if="user.banned_at === ''" class="ri-checkbox-circle-line text-green-500"></i>
@@ -85,18 +80,17 @@
 </template>
 
 <script setup>
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
+// IMPORTS
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 import { Modal as FlowbiteModal } from "flowbite";
 import { router } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
 
+// PROPS
 defineProps({
     users: {
         type: Object,
@@ -104,24 +98,31 @@ defineProps({
     },
 });
 
+// STORES
 const modal = useModal();
+
+// INJECT
 const route = inject("route");
 
+// STATE
 const actions = [];
 
-const deleteUserLabel = computed(() => trans("popup.actions.delete"));
+// LIFE CYCLE
+onBeforeMount(() => {
+    const deleteUserLabel = computed(() => trans("popup.actions.delete"));
 
-const deleteUserAction = {
-    label: deleteUserLabel,
-    callback: (user) => {
-        router.visit(route("admin.user.delete", { id: user.id }), {
-            method: "post",
-            preserveScroll: true,
-        });
-    },
-};
+    const deleteUserAction = {
+        label: deleteUserLabel,
+        callback: (user) => {
+            router.visit(route("admin.user.delete", { id: user.id }), {
+                method: "post",
+                preserveScroll: true,
+            });
+        },
+    };
 
-actions.push(deleteUserAction);
+    actions.push(deleteUserAction);
+});
 
 onMounted(() => {
     modal.init(

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Happening;
+use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -11,13 +12,18 @@ class HappeningPolicy
     use HandlesAuthorization;
 
     /**
-     * Create a new policy instance.
+     * Determine if a happening can be created by the user.
      *
-     * @return void
+     * @param User $user
+     * @return bool
      */
-    public function __construct()
+    public function create(User $user): bool
     {
-        //
+        if ($user->banned_at?->isValid()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -88,18 +94,31 @@ class HappeningPolicy
         return false;
     }
 
-    /**
-     * Determine if a happening can be created by the user.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function create(User $user): bool
+    public function adminView(User $user, Happening $happening)
     {
-        if ($user->banned_at?->isValid()) {
-            return false;
+        if ($user->can('view happenings', $happening->resource->institution)) {
+            return true;
         }
+    }
 
-        return true;
+    public function adminCreate(User $user, Institution $institution)
+    {
+        if ($user->can('create happenings', $institution)) {
+            return true;
+        }
+    }
+
+    public function adminUpdate(User $user, Happening $happening)
+    {
+        if ($user->can('edit happenings', $happening->resource->institution)) {
+            return true;
+        }
+    }
+
+    public function adminDelete(User $user, Happening $happening)
+    {
+        if ($user->can('delete happenings', $happening->resource->institution)) {
+            return true;
+        }
     }
 }

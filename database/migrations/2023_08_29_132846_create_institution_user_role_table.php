@@ -13,14 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('institution_admins');
+        Schema::create('institution_user_role', function (Blueprint $table) {
+            $table->uuid('institution_id');
+            $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
 
-        Schema::create('institution_admins', function (Blueprint $table) {
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->uuid('institution_id');
-            $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
+            $table->uuid('role_id');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+
+            $table->primary(['institution_id', 'user_id', 'role_id']);
         });
     }
 
@@ -31,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('institution_admins');
+        Schema::dropIfExists('institution_user_role');
     }
 };

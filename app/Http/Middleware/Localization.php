@@ -19,12 +19,8 @@ class Localization
     public function handle(Request $request, Closure $next)
     {
         if (Cookie::has('locale')) {
-            Log::debug('Get Locale from Cookie: ' . Cookie::get('locale'));
-
             app()->setLocale(Cookie::get('locale'));
         } else {
-            Log::debug('Set Locale Cookie: ' . app()->getLocale());
-
             Cookie::queue('locale', app()->getLocale(), 600);
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Institution;
+use App\Models\Resource;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateResourceRequest extends FormRequest
@@ -13,7 +15,15 @@ class UpdateResourceRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $resource = Resource::findOrFail($this->id);
+
+        if ($resource->institution_id === $this->institution_id) {
+            return $this->user()->can('edit', $resource);
+        }
+
+        $institution = Institution::findOrFail($this->institution_id);
+
+        return $this->user()->can('create', [Resource::class, $institution]);
     }
 
     /**

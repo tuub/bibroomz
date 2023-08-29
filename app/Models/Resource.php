@@ -679,4 +679,19 @@ class Resource extends Model
 
         return false;
     }
+
+    public function isEditableByUser(User $user): bool
+    {
+        return $user->can('edit', $this);
+    }
+
+    public function isViewableByUser(User $user): bool
+    {
+        return $user->can('view', $this);
+    }
+
+    public function isUserAbleToCreateHappening(User $user): bool
+    {
+        return $user->can('adminCreate', [Happening::class, $this->institution]);
+    }
 }

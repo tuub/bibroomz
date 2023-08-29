@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Happening;
+use App\Models\Resource;
+
 class UpdateHappeningRequest extends HappeningRequest
 {
     /**
@@ -11,6 +14,13 @@ class UpdateHappeningRequest extends HappeningRequest
      */
     public function authorize()
     {
-        return true;
+        $happening = Happening::findOrFail($this->id);
+        $resource = Resource::findOrFail($this->resource_id);
+
+        if ($happening->resource->institution_id === $resource->institution_id) {
+            return $this->user()->can('adminUpdate', $happening);
+        }
+
+        return $this->user()->can('adminCreate', [Happening::class, $resource->institution]);
     }
 }

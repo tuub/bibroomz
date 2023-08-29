@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             InstitutionSeeder::class,
             BusinessHourSeeder::class,
             ActiveDaySeeder::class,
+            PermissionSeeder::class,
         ]);
     }
 }

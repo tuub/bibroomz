@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Models\Happening;
 use App\Models\Resource;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddHappeningRequest extends FormRequest
@@ -16,10 +15,7 @@ class AddHappeningRequest extends FormRequest
      */
     public function authorize()
     {
-        /** @var User */
-        $user = auth()->user();
-
-        return $user->can('create', Happening::class);
+        return $this->user()->can('create', Happening::class);
     }
 
     /**
@@ -30,12 +26,11 @@ class AddHappeningRequest extends FormRequest
     public function rules()
     {
         $resource = Resource::find($this->resource['id']);
+        $institution = $resource->institution;
 
-        /** @var User */
-        $user = auth()->user();
+        $user = $this->user();
 
-        $is_admin = $user->isAdmin() || $user->isInstitutionAdmin($resource->institution);
-        $is_verification_required = $resource->is_verification_required && !$is_admin;
+        $is_verification_required = $resource->isVerificationRequired() && !$user->hasPermission('no verifier', $institution);
 
         return [
             'resource' => ['required'],
