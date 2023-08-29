@@ -2,10 +2,7 @@
     <FullCalendar ref="refCalendar" class="calendar" :options="calendarOptions">
         <template #eventContent="arg">
             <div class="text-center">
-                <div
-                    v-if="arg.event.display == 'background'"
-                    class="border-b-2 pt-5 text-xl"
-                >
+                <div v-if="arg.event.display == 'background'" class="border-b-2 pt-5 text-xl">
                     {{ arg.event.extendedProps.description }}
                 </div>
                 <b>{{ arg.timeText }}</b>
@@ -25,7 +22,7 @@ import { useCalendar } from "@/Composables/Calendar";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
+const props = defineProps({
     institution: {
         type: Object,
         default: () => ({}),
@@ -40,6 +37,14 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const slug = appStore.institution.slug;
+
+const pagination = {
+    currentPage: `/${slug}/resources`,
+    nextPage: null,
+    previousPage: null,
+};
+
 const { calendarOptions, refetchHappenings } = useCalendar({
     calendarOptions: {
         headerToolbar: {
@@ -52,6 +57,7 @@ const { calendarOptions, refetchHappenings } = useCalendar({
         selectAllow: false,
         eventClick: false,
     },
+    pagination,
 });
 
 const refCalendar = ref(null);
