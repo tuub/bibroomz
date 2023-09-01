@@ -43,12 +43,9 @@
     </div-->
         <span class="current-User">
             {{ currentUser?.name }}
-        </span>
-        <span class="current-User">
-            {{ currentUser?.email }}
-        </span>
-        <ul class="py-2" aria-labelledby="user-menu-button">
-            <li>
+        </span> 
+        <ul class="py-2 logoutUser" aria-labelledby="user-menu-button">
+            <li class="logoutUser">
                 <a href="#"
                     class=""
                     @click="logoutUser">
@@ -97,6 +94,9 @@ onMounted(() => {
 
 .current-User{
     padding-right: 30px;
+    float: left;
 }
-
+.logoutUser{
+    display: contents;
+}
 </style>

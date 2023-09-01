@@ -107,5 +107,6 @@ onUnmounted(() => {
 <style scoped>
 #sidebar {
     background-color: #ffffff;
+    margin: 30px;
 }
 </style>

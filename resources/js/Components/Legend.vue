@@ -27,16 +27,17 @@ let { isAuthenticated } = storeToRefs(authStore)
 <style>
 #status-legend{
     position: fixed;
-    top: 640px;
+    top: 225px;
     z-index: 40;
-    background-color: aqua;
+    background: rgba(0,0,0,0);
     right: 0px;
     height: 168px;
-    width: 235px;
+    width: 195px;
 }
 #status-legend > span{
     float: left;
     display: block;
     width: 100%;
+    padding: 7px;
 }
 </style>
