@@ -1,8 +1,11 @@
 <template>
-    <button v-for="(name, code, index) in locales" :key="code" :title="name" @click="switchLocale(code)">
-        <span v-if="index > 0" class="px-2">/</span>
-        <span class="">{{ name }}</span>
-    </button>
+    <div class="language-button-wrapper">
+        <button class="language-switch" v-for="(name, code, index) in locales" :key="code" :title="name" @click="switchLocale(code)">
+            <span class="">{{ name }}</span>
+            <span v-if="index > 0" class="px-2">/</span>
+            
+        </button>
+    </div>
 </template>
 
 <script setup>
@@ -14,8 +17,8 @@ import { onBeforeMount } from "vue";
 const appStore = useAppStore();
 
 const locales = {
-    de: "DE",
     en: "EN",
+    de: "DE",
 };
 
 const { locale: activeLocale } = storeToRefs(appStore);
@@ -30,3 +33,11 @@ onBeforeMount(() => {
     switchLocale(activeLocale.value);
 });
 </script>
+<style>
+.language-switch{
+    float: right;
+}
+.language-button-wrapper{
+    display: contents;
+}
+</style>
