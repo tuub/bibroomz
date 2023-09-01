@@ -56,11 +56,11 @@ body {
 
 a.fc-event {
     &.past-event { background-color: #ccc; opacity: 0.4; }
-    &.reservation { background-color: $status-reservation;  }
-    &.booking { background-color: $status-booking; }
-    &.user-reservation { background-color: $status-user-reservation; color: #000; }
-    &.user-to-verify { background-color: $status-user-to-verify; color: #000; }
-    &.user-booking { background-color: $status-user-booking; }
+    &.reservation { background-color: $status-reservation; color: #fff; }
+    &.booking { background-color: $status-booking; color: #fff; }
+    &.user-reservation { background-color: $status-user-reservation; color: #fff; }
+    &.user-to-verify { background-color: $status-user-to-verify; color: #fff; }
+    &.user-booking { background-color: $status-user-booking; color: #fff; }
     &.block { background-color: $status-block; color: #fff; pointer-events: none; }
 }
 
@@ -71,11 +71,11 @@ div#status-legend {
         flex-wrap: wrap;
         display: inline-block;
         &.reservation { background-color: $status-reservation; color: #fff;  }
-        &.booking { background-color: $status-booking; }
-        &.user-reservation { background-color: $status-user-reservation;}
+        &.booking { background-color: $status-booking; color: #fff;}
+        &.user-reservation { background-color: $status-user-reservation; color: #fff;}
         &.user-to-verify { background-color: $status-user-to-verify; color: #fff; }
         &.user-booking { background-color: $status-user-booking; color: #fff; }
-        &.closing { background-color: $status-closing; }
+        &.closing { background-color: $status-closing; color: #fff;}
         &.block { background-color: $status-block; }
     }
 }
@@ -87,7 +87,9 @@ div#status-legend {
 .fc-timegrid-slots tr:nth-child(even) {
     background-color: #f6f6f6;
 }
-
+.fc .fc-toolbar-title {
+    font-size: 1rem;
+}
 #calendar_sidebar_wrapper{
     display: block;
     width: 100%;
@@ -102,6 +104,11 @@ div#status-legend {
 
 nav{
     z-index: 9999;
+    box-shadow: 0px 3px 3px rgb(204, 203, 203);
+    font-size: 17px;
 }
 
+body{
+    background-color: #f8f8f8;
+}
 
