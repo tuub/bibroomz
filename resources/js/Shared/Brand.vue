@@ -1,5 +1,5 @@
 <template>
-    <div class="block w-full h-8">
+    <div class="brand-wrapper block w-full h-8 ">
         <a  :href="route('start')"
             class="float-left"
             target="_blank">
@@ -23,3 +23,8 @@ const appStore = useAppStore();
 let { appName, institutionHomeUri, institutionLogoUri, institutionTitle } =
     storeToRefs(appStore);
 </script>Update Header
+<style>
+.brand-wrapper{
+    font-size: x-large;
+}
+</style>
