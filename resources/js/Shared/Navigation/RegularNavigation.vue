@@ -6,7 +6,7 @@
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
 
                    
-                    <div class="LangSwitch-CurrentLogin-wapper w-40p">
+                    <div class="LangSwitch-CurrentLogin-wapper w-20p">
                         <CurrentLogin class="" v-show="isAuthenticated"></CurrentLogin>
                         <LangSwitch class=""></LangSwitch>
                         
@@ -31,7 +31,7 @@
                     </button>
                 
                     <div id="mobile-menu-2"
-                        class="w-60p mt-3px float-right">
+                        class="w-80p mt-3px float-right">
                         <ul class="">
                             <li v-if="isMultiTenancy">
                                 <NavLink icon="ri-dashboard-fill"
@@ -149,11 +149,12 @@ const isSiteCredits = computed(() => {
     display: none;
 }
 .LangSwitch-CurrentLogin-wapper{
-    width: 20%;
-    display: contents;
+    display: inline-block;
+    height: 2em;
 }
 nav{
-    background-color: aqua;
+    background-color: #C40D20;
+    color: white;
     padding: 30px;
     height: 7em;
 }

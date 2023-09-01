@@ -189,12 +189,21 @@ a.fc-event:hover {
 div.fc-timegrid-slots tr {
     background-color: #fff;
 }
-
 .fc .fc-timegrid-axis-frame {
     justify-content: center;
     margin-top: 2px;
 }
-#Legend-FullCalendar-wrapper{
-    padding: 30px;
+.fc .fc-toolbar-title {
+    font-size: 1rem;
 }
+.fc .fc-toolbar.fc-header-toolbar{
+    float: left;
+    width: 20%;
+}
+
+#Legend-FullCalendar-wrapper{
+    margin: 30px;
+    margin-top: 100px;
+}
+
 </style>

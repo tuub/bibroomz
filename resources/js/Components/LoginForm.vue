@@ -3,7 +3,7 @@
         {{ $t("login.header") }}
     </h1>
 
-    <form class="max-w-md mx-auto mt-4" @submit.prevent="submitForm">
+    <form class="max-w-md mx-auto mt-4 login-wapper" @submit.prevent="submitForm">
         <div class="mb-6">
             <label
                 class="block mb-2 uppercase font-bold text-xs text-gray-700"
@@ -110,3 +110,9 @@ let submitForm = async () => {
     }
 };
 </script>
+<style>
+.login-wapper{
+    float: left;
+    width: 100%;
+}
+</style>
