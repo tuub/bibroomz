@@ -5,4 +5,5 @@ return [
         'de' => 'Informationen zu dieser Ressource',
         'en' => 'About this resource',
     ],
+    'resource_change' => 'Change rooms',
 ];
