@@ -46,7 +46,7 @@ const isAdminPage = computed(() => {
 </script>
 <style>
 #header{
-    z-index: 100;
+    z-index: 10;
     margin-top: -15px;
     position: fixed;
     top: 0px;

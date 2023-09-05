@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center max-w-sm p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+    <div class="institution-card-wapper text-center max-w-sm p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <img :src="logo_uri" class="h-14 mx-auto" />
         <Link :href="link">
             <h1 class="mt-2 mb-2 text-medium font-normal tracking-tight text-gray-900 dark:text-white uppercase">
@@ -34,3 +34,10 @@ const props = defineProps({
     link: String,
 });
 </script>
+<style>
+    .institution-card-wapper{
+        margin: auto;
+        margin-bottom: 30px;
+        width: 100%;
+    }
+</style>
