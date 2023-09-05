@@ -1,4 +1,5 @@
 <template>
+    
     <nav class="">
         <div class="">
             <Brand></Brand>
@@ -7,7 +8,7 @@
             <CurrentLogin class="CurrentLogin" v-show="isAuthenticated"></CurrentLogin>
             <LangSwitch></LangSwitch>
         </div>
-        <div id="mobile-menu-2" class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
+        <div id="mobile-menu-2" class="items-center justify-between hidden float-right w-full md:flex md:w-auto md:order-1">
 
             <button data-collapse-toggle="mobile-menu-2"
                     type="button"
@@ -151,4 +152,5 @@ const getExitUri = computed(() => {
 .CurrentLogin{
 
 }
+
 </style>

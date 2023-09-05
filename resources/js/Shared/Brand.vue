@@ -26,5 +26,6 @@ let { appName, institutionHomeUri, institutionLogoUri, institutionTitle } =
 <style>
 .brand-wrapper{
     font-size: x-large;
+    font-weight: 800;
 }
 </style>

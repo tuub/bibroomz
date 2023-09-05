@@ -2,7 +2,7 @@
     <Head :title="title ? `${title} - ${appName}` : `${appName}`">
         <slot />
     </Head>
-    <section id="header" class="fixed w-full">
+    <section id="header" class=" w-full">
         <SplashNavigation v-if="isSplashPage"></SplashNavigation>
         <RegularNavigation v-if="isRegularPage"></RegularNavigation>
         <AdminNavigation v-if="isAdminPage"></AdminNavigation>
@@ -47,6 +47,9 @@ const isAdminPage = computed(() => {
 <style>
 #header{
     z-index: 100;
-
+    margin-top: -15px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
 }
 </style>

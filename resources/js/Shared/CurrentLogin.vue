@@ -93,7 +93,7 @@ onMounted(() => {
 <style>
 
 .current-User{
-    padding-right: 30px;
+    padding-right: 12px;
     float: left;
 }
 .logoutUser{

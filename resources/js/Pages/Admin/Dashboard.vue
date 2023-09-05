@@ -1,7 +1,7 @@
 <template>
     <PageHead title="Admin" page_type="admin" />
 
-    <div class="flex items-center justify-center">
+    <div class="dashboard-card-wrapper">
         <DashboardCard :title="$t('admin.happenings.index.title')"
                        :description="$t('admin.happenings.index.description')"
                        :link="route('admin.happening.index')"
@@ -35,3 +35,13 @@ import { storeToRefs } from "pinia";
 const authStore = useAuthStore();
 let { isAdmin } = storeToRefs(authStore);
 </script>
+<style>
+.dashboard-card-wrapper{
+    margin-top: 10em;
+}
+.dashboard-card-wrapper > div{
+    margin:auto;
+
+}
+
+</style>

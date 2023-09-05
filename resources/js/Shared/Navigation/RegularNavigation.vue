@@ -31,7 +31,7 @@
                     </button>
                 
                     <div id="mobile-menu-2"
-                        class="w-80p mt-3px float-right">
+                        class="w-70p mt-3px float-right">
                         <ul class="">
                             <li v-if="isMultiTenancy">
                                 <NavLink icon="ri-dashboard-fill"
@@ -134,6 +134,9 @@ const isSiteCredits = computed(() => {
 .w-60p{
     width: 60%;
 }
+.w-70p{
+    width: 60%;
+}
 .w-80p{
     width: 80%;
 }
@@ -148,15 +151,40 @@ const isSiteCredits = computed(() => {
     float: right;
     display: none;
 }
+nav{
+    background-color: white;
+    color: #C40D20;
+    padding: 30px;
+    height: 7em;
+}
 .LangSwitch-CurrentLogin-wapper{
     display: inline-block;
     height: 2em;
 }
-nav{
-    background-color: #C40D20;
-    color: white;
-    padding: 30px;
-    height: 7em;
+
+@media only screen and (max-width: 600px) {
+
+    .LangSwitch-CurrentLogin-wapper{
+        width: 50%;
+    }
 }
+@media only screen and (max-width: 1000px) {
+    #nav-footer-wrapper > button{
+        display: block;
+    }
+    nav{
+        background-color: white;
+        color: #C40D20;
+        padding: 30px;
+        height: 7em;
+    }
+    #mobile-menu-2{
+        display: none;
+    }
+    .LangSwitch-CurrentLogin-wapper{
+        width: 40%;
+    }
+}
+
 
 </style>

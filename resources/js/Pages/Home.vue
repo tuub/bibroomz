@@ -4,7 +4,7 @@
     <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
     <x-modal />
 
-    <div id="calendar_sidebar_wrapper" class="pt-4">
+    <div id="calendar_sidebar_wrapper" class="">
         <div id="calendar" class="basis-4/5 md:basis-4/5">
             <Calendar
                 @show-status="showStatus"

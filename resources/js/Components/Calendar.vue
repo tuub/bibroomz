@@ -2,10 +2,11 @@
     <div class="calendar" id="Legend-FullCalendar-wrapper">
         <Legend class="mb-5"></Legend>
 
-        <div v-if="pagination.previousPage || pagination.nextPage">
+        <div class="page-change-wrapper" v-if="pagination.previousPage || pagination.nextPage">
+            <label>{{ $t('calendar.resource_change') }}</label>
             <button
                 :disabled="!pagination.previousPage"
-                :class="{ 'opacity-25': !pagination.previousPage }"
+                :class="{'opacity-25': !pagination.previousPage }"
                 @click="previousStuff"
             >
                 <i class="ri-arrow-left-s-line ri-xl"></i>
@@ -195,15 +196,40 @@ div.fc-timegrid-slots tr {
 }
 .fc .fc-toolbar-title {
     font-size: 1rem;
+    margin-right: 1em;
 }
 .fc .fc-toolbar.fc-header-toolbar{
     float: left;
     width: 20%;
+    margin-bottom: 0.5em;
+    margin-top: 1em;
+    margin-right: 1em;
+    padding-right: 1em;
 }
+
+@media only screen and (max-width: 1000px) {
+    .fc .fc-toolbar.fc-header-toolbar{
+        width: 30%;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .fc .fc-toolbar.fc-header-toolbar{
+        width: 40%;
+    }
+}
+@media only screen and (max-width: 500px) {
+    .fc .fc-toolbar.fc-header-toolbar{
+        width: 60%;
+    }
+}
+
 
 #Legend-FullCalendar-wrapper{
-    margin: 30px;
-    margin-top: 100px;
+    margin-top: -50px;
 }
-
+.page-change-wrapper{
+    position: fixed;
+    top: 150px;
+    right: 30px;
+}
 </style>
