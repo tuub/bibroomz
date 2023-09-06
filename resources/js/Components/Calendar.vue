@@ -124,10 +124,14 @@ const nextStuff = () => {
 };
 
 const setResourceCountFromScreen = () => {
-    if (windowWidth.value >= 1600) {
-        resourceCount.value = Math.floor(windowWidth.value / 300);
+    if (windowWidth.value < 600) {
+        resourceCount.value = 2;
+    } else if(windowWidth.value < 800) {
+        resourceCount.value = 3;
+    } else if(windowWidth.value < 1000) {
+        resourceCount.value = 4;
     } else {
-        resourceCount.value = Math.floor(windowWidth.value / 600);
+        resourceCount.value = 8;
     }
 };
 
