@@ -1,94 +1,50 @@
 <template>
-    <nav class="w-full">
-        <div class="">
-            <Brand></Brand>
-        </div>
-        <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
-            <div class="LangSwitch-CurrentLogin-wapper w-20p">
-                <CurrentLogin v-show="isAuthenticated" class=""></CurrentLogin>
-                <LangSwitch class=""></LangSwitch>
-            </div>
-
-            <button
-                data-collapse-toggle="mobile-menu-2"
-                type="button"
-                class=""
-                aria-controls="mobile-menu-2"
-                aria-expanded="false"
-            >
-                <span class="sr-only">Open main menu</span>
-                <svg
-                    class="w-6 h-6"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                        clip-rule="evenodd"
-                    ></path>
-                </svg>
-            </button>
-
-            <div id="mobile-menu-2" class="w-70p mt-3px float-right">
-                <ul class="">
-                    <li v-if="isMultiTenancy">
-                        <NavLink icon="ri-dashboard-fill" :href="route('start')" :is_active="isPageStart">
-                            {{ $t("navigation.regular.institutions") }}
-                        </NavLink>
-                    </li>
-                    <li v-if="institutionSlug">
-                        <NavLink
-                            icon="ri-home-fill"
-                            :href="route('home', { slug: institutionSlug })"
-                            :is_active="isPageHome"
-                        >
-                            {{ $t("navigation.regular.home", { short_title: institutionShortTitle }) }}
-                        </NavLink>
-                    </li>
-                    <li v-if="isPrivileged">
-                        <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
-                            {{ $t("navigation.regular.admin") }}
-                        </NavLink>
-                    </li>
-                    <li>
-                        <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
-                            {{ $t("navigation.regular.help.text") }}
-                        </ExternalLink>
-                    </li>
-                    <li>
-                        <NavLink
-                            icon="ri-government-fill"
-                            :href="route('privacy_statement')"
-                            :is_active="isPrivacyStatement"
-                        >
-                            {{ $t("navigation.regular.privacy_statement") }}
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is_active="isSiteCredits">
-                            {{ $t("navigation.regular.site_credits") }}
-                        </NavLink>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <NavigationMenu>
+        <ul>
+            <li v-if="isMultiTenancy">
+                <NavLink icon="ri-dashboard-fill" :href="route('start')" :is_active="isPageStart">
+                    {{ $t("navigation.regular.institutions") }}
+                </NavLink>
+            </li>
+            <li v-if="institutionSlug">
+                <NavLink icon="ri-home-fill" :href="route('home', { slug: institutionSlug })" :is_active="isPageHome">
+                    {{ $t("navigation.regular.home", { short_title: institutionShortTitle }) }}
+                </NavLink>
+            </li>
+            <li v-if="isPrivileged">
+                <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
+                    {{ $t("navigation.regular.admin") }}
+                </NavLink>
+            </li>
+            <li>
+                <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
+                    {{ $t("navigation.regular.help.text") }}
+                </ExternalLink>
+            </li>
+            <li>
+                <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is_active="isPrivacyStatement">
+                    {{ $t("navigation.regular.privacy_statement") }}
+                </NavLink>
+            </li>
+            <li>
+                <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is_active="isSiteCredits">
+                    {{ $t("navigation.regular.site_credits") }}
+                </NavLink>
+            </li>
+        </ul>
+    </NavigationMenu>
 </template>
 
 <script setup>
+import NavLink from "@/Shared/NavLink.vue";
+import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
+import NavigationMenu from "@/Shared/Navigation/NavigationMenu.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import NavLink from "../NavLink.vue";
+
+import { usePage } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import Brand from "@/Shared/Brand.vue";
-import CurrentLogin from "@/Shared/CurrentLogin.vue";
-import LangSwitch from "@/Shared/LangSwitch.vue";
-import { usePage } from "@inertiajs/vue3";
-import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 
 // ------------------------------------------------
 // Stores
@@ -101,7 +57,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const inertiaPage = usePage();
 const { institutionShortTitle, institutionSlug, isMultiTenancy } = storeToRefs(appStore);
-const { isAuthenticated, isPrivileged } = storeToRefs(authStore);
+const { isPrivileged } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Computed
@@ -122,66 +78,3 @@ const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
 </script>
-
-<style>
-.w-20p {
-    width: 20%;
-}
-.w-40p {
-    width: 40%;
-}
-
-.w-60p {
-    width: 60%;
-}
-.w-70p {
-    width: 60%;
-}
-.w-80p {
-    width: 80%;
-}
-.mt-3px {
-    margin-top: -3px;
-}
-#mobile-menu-2 > ul > li {
-    float: right;
-    margin-left: 20px;
-}
-#nav-footer-wrapper > button {
-    float: right;
-    display: none;
-}
-nav {
-    background-color: white;
-    color: #c40d20;
-    padding: 30px;
-    height: 7em;
-}
-.LangSwitch-CurrentLogin-wapper {
-    display: inline-block;
-    height: 2em;
-}
-
-@media only screen and (max-width: 600px) {
-    .LangSwitch-CurrentLogin-wapper {
-        width: 50%;
-    }
-}
-@media only screen and (max-width: 1000px) {
-    #nav-footer-wrapper > button {
-        display: block;
-    }
-    nav {
-        background-color: white;
-        color: #c40d20;
-        padding: 30px;
-        height: 7em;
-    }
-    #mobile-menu-2 {
-        display: none;
-    }
-    .LangSwitch-CurrentLogin-wapper {
-        width: 40%;
-    }
-}
-</style>

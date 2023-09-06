@@ -1,7 +1,7 @@
 <template>
     <PageHead
         :title="$t('admin.closings.index.title', { type: closable_type, title: closable.title })"
-        page_type="admin"
+        page-type="admin"
     />
     <BodyHead
         :title="$t('admin.closings.index.title', { type: closable_type, title: closable.title })"

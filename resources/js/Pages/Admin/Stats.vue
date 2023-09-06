@@ -1,5 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.stats.title')" page_type="admin" />
+    <PageHead :title="$t('admin.stats.title')" page-type="admin" />
     <BodyHead :title="$t('admin.stats.title')" :description="$t('admin.stats.description')"></BodyHead>
 
     <DoughnutChart :chartData="testData" />

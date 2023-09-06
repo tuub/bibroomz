@@ -1,5 +1,5 @@
 <template>
-    <PageHead title="Admin" page_type="admin" />
+    <PageHead title="Admin" page-type="admin" />
 
     <div class="dashboard-card-wrapper">
         <DashboardCard

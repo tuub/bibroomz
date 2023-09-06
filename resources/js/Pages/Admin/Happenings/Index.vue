@@ -1,5 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.happenings.index.title')" page_type="admin" />
+    <PageHead :title="$t('admin.happenings.index.title')" page-type="admin" />
     <BodyHead :title="$t('admin.happenings.index.title')" :description="$t('admin.happenings.index.description')" />
 
     <PopupModal />

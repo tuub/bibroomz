@@ -1,5 +1,5 @@
 <template>
-    <PageHead title="Start" page_type="splash" />
+    <PageHead title="Start" page-type="splash" />
 
     <div class="">
         <InstitutionCard v-for="institution in institutions"

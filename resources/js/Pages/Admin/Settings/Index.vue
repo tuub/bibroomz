@@ -1,5 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.settings.index.title', { title: institution.title })" page_type="admin" />
+    <PageHead :title="$t('admin.settings.index.title', { title: institution.title })" page-type="admin" />
     <BodyHead
         :title="$t('admin.settings.index.title', { title: institution.title })"
         :description="$t('admin.settings.index.description')"

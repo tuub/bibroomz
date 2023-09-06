@@ -1,12 +1,8 @@
 <template>
-    <PageHead :title="$t('admin.institutions.form.title')" page_type="admin" />
-    <BodyHead :title="$t('admin.institutions.form.title')"
-              :description="$t('admin.institutions.form.description')" />
+    <PageHead :title="$t('admin.institutions.form.title')" page-type="admin" />
+    <BodyHead :title="$t('admin.institutions.form.title')" :description="$t('admin.institutions.form.description')" />
 
-    {{ checkedWeekdays }}
-
-    <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
-
+    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Title -->
         <div class="mb-6">
             <FormLabel field="title" field-key="admin.institutions.form.fields.title"></FormLabel>

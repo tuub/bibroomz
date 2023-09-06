@@ -1,24 +1,22 @@
 <template>
-    <PageHead title="Admin Settings Form" page_type="admin" />
+    <PageHead title="Admin Settings Form" page-type="admin" />
 
     <h1 class="text-3xl">Setting Form</h1>
 
     {{ form.id }}
 
-    <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-8">
-
+    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Key -->
         <div class="mb-6">
-            <label for="name" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Key
-            </label>
-            <input v-model="form.key"
-                   type="text"
-                   name="key"
-                   id="key"
-                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                   placeholder=""
-            >
+            <label for="name" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase"> Key </label>
+            <input
+                id="key"
+                v-model="form.key"
+                type="text"
+                name="key"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder=""
+            />
             <FormValidationError :message="form.errors.key"></FormValidationError>
         </div>
 

@@ -1,5 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.resources.form.title')" page_type="admin" />
+    <PageHead :title="$t('admin.resources.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')" />
 
     <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
