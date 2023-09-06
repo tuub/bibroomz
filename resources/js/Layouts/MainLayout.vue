@@ -5,7 +5,7 @@
               :content="appName"
               head-key="description">
     </Head>
-    <section id="content" class="p-6">
+    <section id="content" class="">
         <slot />
     </section>
 </template>

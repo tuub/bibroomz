@@ -1,17 +1,18 @@
 <template>
-    <a
-        :href="institutionHomeUri"
-        class="flex gap-4 items-center"
-        target="_blank"
-    >
-        <img :src="institutionLogoUri" class="h-8" :alt="institutionTitle" />
-        <span
-            class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-        >
+    <div class="block w-full h-8">
+        <a  :href="route('start')"
+            class="float-left"
+            target="_blank">
+            
             {{ appName }}
-        </span>
-        <span>{{ institutionTitle }}</span>
-    </a>
+
+        </a>    
+        <a  :href="institutionHomeUri"
+            class="float-right"
+            target="_blank">
+            <img :src="institutionLogoUri" class="float-right h-8" :alt="institutionTitle" />
+        </a>
+    </div>
 </template>
 
 <script setup>
@@ -21,4 +22,4 @@ import { storeToRefs } from "pinia";
 const appStore = useAppStore();
 let { appName, institutionHomeUri, institutionLogoUri, institutionTitle } =
     storeToRefs(appStore);
-</script>
+</script>Update Header

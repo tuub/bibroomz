@@ -24,3 +24,19 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 let { isAuthenticated } = storeToRefs(authStore)
 </script>
+<style>
+#status-legend{
+    position: fixed;
+    top: 640px;
+    z-index: 40;
+    background-color: aqua;
+    right: 0px;
+    height: 168px;
+    width: 235px;
+}
+#status-legend > span{
+    float: left;
+    display: block;
+    width: 100%;
+}
+</style>

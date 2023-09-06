@@ -2,7 +2,7 @@
     <Head :title="title ? `${title} - ${appName}` : `${appName}`">
         <slot />
     </Head>
-    <section id="header" class="p-6 bg-gray-200">
+    <section id="header" class="fixed w-full">
         <SplashNavigation v-if="isSplashPage"></SplashNavigation>
         <RegularNavigation v-if="isRegularPage"></RegularNavigation>
         <AdminNavigation v-if="isAdminPage"></AdminNavigation>
@@ -44,3 +44,9 @@ const isAdminPage = computed(() => {
     return props.page_type === 'admin'
 })
 </script>
+<style>
+#header{
+    z-index: 100;
+
+}
+</style>

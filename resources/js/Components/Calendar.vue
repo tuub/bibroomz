@@ -1,5 +1,5 @@
 <template>
-    <div class="calendar">
+    <div class="calendar" id="Legend-FullCalendar-wrapper">
         <Legend class="mb-5"></Legend>
 
         <div v-if="pagination.previousPage || pagination.nextPage">
@@ -175,6 +175,11 @@ a.fc-event:hover {
     cursor: pointer;
 }
 
+.fc-event {
+  z-index: 20;
+  padding-top: 900px;
+}
+
 /*
 .fc-non-business {
     background-color: #BEBEBE !important;
@@ -188,5 +193,8 @@ div.fc-timegrid-slots tr {
 .fc .fc-timegrid-axis-frame {
     justify-content: center;
     margin-top: 2px;
+}
+#Legend-FullCalendar-wrapper{
+    padding: 30px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <button v-for="(name, code, index) in locales" :key="code" :title="name" @click="switchLocale(code)">
         <span v-if="index > 0" class="px-2">/</span>
-        <span :class="activeLocale === code ? 'font-bold' : ''">{{ name }}</span>
+        <span class="">{{ name }}</span>
     </button>
 </template>
 
