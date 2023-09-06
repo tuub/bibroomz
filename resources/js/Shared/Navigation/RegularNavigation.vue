@@ -2,12 +2,12 @@
     <NavigationMenu>
         <ul>
             <li v-if="isMultiTenancy">
-                <NavLink icon="ri-dashboard-fill" :href="route('start')" :is_active="isPageStart">
+                <NavLink icon="ri-dashboard-fill" :href="route('start')" :is-active="isPageStart">
                     {{ $t("navigation.regular.institutions") }}
                 </NavLink>
             </li>
             <li v-if="institutionSlug">
-                <NavLink icon="ri-home-fill" :href="route('home', { slug: institutionSlug })" :is_active="isPageHome">
+                <NavLink icon="ri-home-fill" :href="route('home', { slug: institutionSlug })" :is-active="isPageHome">
                     {{ $t("navigation.regular.home", { short_title: institutionShortTitle }) }}
                 </NavLink>
             </li>
@@ -22,12 +22,12 @@
                 </ExternalLink>
             </li>
             <li>
-                <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is_active="isPrivacyStatement">
+                <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is-active="isPrivacyStatement">
                     {{ $t("navigation.regular.privacy_statement") }}
                 </NavLink>
             </li>
             <li>
-                <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is_active="isSiteCredits">
+                <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is-active="isSiteCredits">
                     {{ $t("navigation.regular.site_credits") }}
                 </NavLink>
             </li>
