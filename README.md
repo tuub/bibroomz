@@ -114,3 +114,11 @@ We assume that there is a symlink set from `/srv/git/roomz/public` to `/srv/www/
 
 #### nginx
 TODO
+
+# Development
+
+## Stylelint
+```
+npx stylelint "resources/sass/*.scss"
+npx stylelint --fix "resources/sass/*.scss"
+```
