@@ -12,7 +12,8 @@ export const useHappeningStore = defineStore({
                 start: '',
                 end: '',
             },
-        }
+            error: "",
+        };
     },
     actions: {
         addHappening(happening) {

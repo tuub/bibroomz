@@ -1,15 +1,16 @@
 <template>
     <div>
-        <span class="current-User">
+        <span class="current-user">
             {{ currentUser?.name }}
         </span>
-        <ul class="py-2 logoutUser" aria-labelledby="user-menu-button">
-            <li class="logoutUser">
-                <a href="#" class="" @click="logoutUser">
-                    {{ $t("navigation.current_login.logout") }}
-                </a>
-            </li>
-        </ul>
+        <div>
+            <button v-if="!isAuthenticated" class="login-logout-button" @click="loginUser">
+                {{ $t("navigation.current_login.login") }}
+            </button>
+            <button v-else class="login-logout-button" @click="logoutUser">
+                {{ $t("navigation.current_login.logout") }}
+            </button>
+        </div>
     </div>
 </template>
 
@@ -18,20 +19,28 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { storeToRefs } from "pinia";
 import { initFlowbite } from "flowbite";
 import { onMounted } from "vue";
+import { useLoginModal } from "@/Composables/ModalActions";
+import useModal from "@/Stores/Modal";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
+const modal = useModal();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { user: currentUser } = storeToRefs(authStore);
+const { isAuthenticated, user: currentUser } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
+const loginUser = async () => {
+    const editModal = useLoginModal();
+    modal.open(editModal.view, editModal.content, editModal.payload, editModal.actions);
+};
+
 const logoutUser = async () => {
     try {
         return await authStore.logout();
@@ -49,11 +58,8 @@ onMounted(() => {
 </script>
 
 <style>
-.current-User {
+.current-user {
     padding-right: 12px;
     float: left;
-}
-.logoutUser {
-    display: contents;
 }
 </style>

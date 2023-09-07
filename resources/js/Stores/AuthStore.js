@@ -21,6 +21,7 @@ export const useAuthStore = defineStore({
         permissions: {},
         userHappenings: [],
         quotas: {},
+        error: null,
     }),
 
     getters: {
@@ -89,7 +90,12 @@ export const useAuthStore = defineStore({
                 return;
             }
 
-            const institution = useAppStore().institution;
+            const appStore = useAppStore();
+            const institution = appStore.institution;
+
+            if (!institution) {
+                return;
+            }
 
             try {
                 const response = await axios.get(`${baseUrl}/my/happenings`, {
@@ -266,7 +272,7 @@ export const useAuthStore = defineStore({
                     trans("toast.quota.happening_block_hours", {
                         limit: quota_happening_block_hours,
                     }),
-                    toastOptions
+                    toastOptions,
                 );
 
                 return true;
@@ -281,7 +287,7 @@ export const useAuthStore = defineStore({
                         remaining,
                         limit: quota_weekly_happenings,
                     }),
-                    toastOptions
+                    toastOptions,
                 );
 
                 return true;
@@ -296,7 +302,7 @@ export const useAuthStore = defineStore({
                         remaining,
                         limit: quota_weekly_hours,
                     }),
-                    toastOptions
+                    toastOptions,
                 );
 
                 return true;
@@ -311,7 +317,7 @@ export const useAuthStore = defineStore({
                         remaining,
                         limit: quota_daily_hours,
                     }),
-                    toastOptions
+                    toastOptions,
                 );
 
                 return true;

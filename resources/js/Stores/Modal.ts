@@ -8,7 +8,6 @@ export type Modal = {
     content: object;
     payload: object;
     actions?: ModalAction[];
-    error?: object;
     isOpen: boolean;
 };
 
@@ -24,16 +23,15 @@ export const useModal = defineStore("modal", {
         content: null,
         payload: null,
         actions: null,
-        error: null,
         isOpen: false,
     }),
 
     actions: {
-        init(modal: ModalInterface) {
+        init(modal: ModalInterface): void {
             this.modal = modal;
         },
 
-        open(view: object, content: object, payload: object, actions?: ModalAction[]) {
+        open(view: object, content: object, payload: object, actions?: ModalAction[]): void {
             // using markRaw to avoid over performance as reactive is not required
             this.view = markRaw(view);
 
@@ -46,35 +44,25 @@ export const useModal = defineStore("modal", {
             this.modal.show();
         },
 
-        cleanup() {
+        cleanup(): void {
             this.isOpen = false;
 
             this.view = null;
             this.content = null;
             this.payload = null;
             this.actions = null;
-            this.error = null;
         },
 
-        close() {
+        close(): void {
             this.modal.hide();
         },
 
-        async do(action: ModalAction) {
-            this.error = null;
-
-            try {
-                await action.callback(this.payload);
-                this.close();
-            } catch (error) {
-                this.error = error.response?.data?.message ?? error;
+        submit(): void {
+            if (this.actions.length != 1) {
+                return;
             }
-        },
 
-        submit() {
-            if (this.actions.length === 1) {
-                this.do(this.actions[0]);
-            }
+            this.actions[0].callback(this.payload);
         },
     },
 });

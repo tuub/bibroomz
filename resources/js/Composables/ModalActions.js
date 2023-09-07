@@ -1,8 +1,47 @@
 import HappeningModal from "@/Components/Modals/HappeningModal.vue";
+import LoginModal from "@/Components/Modals/LoginModal.vue";
 import ResourceInfoModal from "@/Components/Modals/ResourceInfoModal.vue";
+import { useAuthStore } from "@/Stores/AuthStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+
 import { trans } from "laravel-vue-i18n";
+
+function happeningCallback(callback) {
+    const modal = useModal();
+    const happeningStore = useHappeningStore();
+
+    happeningStore.error = null;
+
+    return async (happening) => {
+        happeningStore.error = null;
+
+        try {
+            await callback(happening);
+            modal.close();
+        } catch (error) {
+            happeningStore.error = error.response;
+        }
+    };
+}
+
+function loginCallback(callback) {
+    const modal = useModal();
+    const authStore = useAuthStore();
+
+    authStore.error = null;
+
+    return async ({ username, password }) => {
+        authStore.error = null;
+
+        try {
+            await callback({ username, password });
+            modal.close();
+        } catch (error) {
+            authStore.error = error.response;
+        }
+    };
+}
 
 export function useHappeningModal({ happening, can = happening.can, title, description, editable = false }) {
     const modal = useModal();
@@ -14,35 +53,35 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
         if (can.verify && editable) {
             actions.push({
                 label: trans("modal.verify.action.verify"),
-                callback: (happening) => {
+                callback: happeningCallback((happening) => {
                     return happeningStore.verifyHappening(happening);
-                },
+                }),
             });
         }
 
         if (can.edit && editable) {
             actions.push({
                 label: trans("modal.edit.action.update"),
-                callback: (happening) => {
+                callback: happeningCallback((happening) => {
                     return happeningStore.editHappening(happening);
-                },
+                }),
             });
         }
 
         if (can.delete) {
             actions.push({
                 label: trans("modal.delete.action.delete"),
-                callback: (happening) => {
+                callback: happeningCallback((happening) => {
                     return happeningStore.deleteHappening(happening.id);
-                },
+                }),
             });
         }
     } else if (editable) {
         actions.push({
             label: trans("modal.create.action.create"),
-            callback: (happening) => {
+            callback: happeningCallback((happening) => {
                 return happeningStore.addHappening(happening);
-            },
+            }),
         });
     }
 
@@ -127,6 +166,30 @@ export function useResourceInfoModal(resourceInfo) {
                 callback: () => {
                     modal.close();
                 },
+            },
+        ],
+    };
+}
+
+export function useLoginModal() {
+    const authStore = useAuthStore();
+
+    return {
+        view: LoginModal,
+        content: {
+            title: trans("login.header"),
+            description: trans("login.description"),
+        },
+        payload: {
+            username: "",
+            password: "",
+        },
+        actions: [
+            {
+                label: trans("login.form.submit.label"),
+                callback: loginCallback(({ username, password }) => {
+                    return authStore.login(username, password);
+                }),
             },
         ],
     };

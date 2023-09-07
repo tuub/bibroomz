@@ -6,8 +6,8 @@
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
             <div class="LangSwitch-CurrentLogin-wapper w-20p">
-                <CurrentLogin v-show="isAuthenticated" class=""></CurrentLogin>
-                <LangSwitch class=""></LangSwitch>
+                <CurrentLogin></CurrentLogin>
+                <LangSwitch></LangSwitch>
             </div>
 
             <slot></slot>

@@ -2,17 +2,17 @@
 
 return [
     'header' => 'Login',
-    'description' => 'Blablabla',
+    'description' => ' ',
     'form' => [
         'username' => [
             'label' => 'Benutzername',
             'placeholder' => 'Ihr Benutzername',
-            'hint' => 'Über Ihren Benutzernamen',
+            'hint' => ' ',
         ],
         'password' => [
             'label' => 'Passwort',
             'placeholder' => 'Ihr Passwort',
-            'hint' => 'Über Ihr Passwort',
+            'hint' => ' ',
         ],
         'submit' => [
             'label' => 'Login',

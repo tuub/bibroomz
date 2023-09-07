@@ -22,18 +22,10 @@
                 <!-- Close button -->
                 <ModalCloseButton @close="modal.close"></ModalCloseButton>
 
-                <component
-                    :is="view"
-                    v-model:payload="payload"
-                    :content="content"
-                    @submit="modal.submit()"
-                ></component>
+                <component :is="view" v-model:payload="payload" :content="content" @submit="modal.submit()"></component>
 
                 <!-- Footer -->
                 <div class="pt-2 mt-2">
-                    <!-- Error alert -->
-                    <ModalAlert v-if="modal.error" :error="modal.error" @close="modal.error = null" />
-
                     <!-- Action buttons -->
                     <div class="flex items-end space-x-2">
                         <button
@@ -41,7 +33,7 @@
                             :key="action.label"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                             type="button"
-                            @click="modal.do(action)"
+                            @click="action.callback(payload)"
                         >
                             {{ action.label }}
                         </button>
@@ -53,7 +45,6 @@
 </template>
 
 <script lang="ts" setup>
-import ModalAlert from "@/Components/Modals/ModalAlert.vue";
 import ModalCloseButton from "@/Components/Modals/ModalCloseButton.vue";
 import { useModal } from "@/Stores/Modal";
 

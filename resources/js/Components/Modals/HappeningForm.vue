@@ -63,20 +63,22 @@
                 @keypress.enter.prevent="$emit('submit')"
             />
         </div>
-    </div>
 
-    <div v-if="validationErrors">{{ validationErrors }}</div>
+        <ModalAlert v-if="errorMessage" :error="errorMessage" @close="error = null" />
+    </div>
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
-import { useHappeningStore } from "@/Stores/HappeningStore";
-import { storeToRefs } from "pinia";
-import { ref, onBeforeMount, reactive } from "vue";
-import Spinner from "../../Shared/Spinner.vue";
-import { useAuthStore } from "@/Stores/AuthStore";
+import ModalAlert from "@/Components/Modals/ModalAlert.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import Spinner from "@/Shared/Spinner.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+
+import { storeToRefs } from "pinia";
+import { computed, onBeforeMount, reactive, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -106,7 +108,8 @@ const modal = useModal();
 // ------------------------------------------------
 const happening = reactive(props.happening);
 
-const { validationErrors } = storeToRefs(happeningStore);
+const error = storeToRefs(happeningStore).error;
+const errorMessage = computed(() => error.value?.data?.message);
 
 const slug = appStore.institution.slug;
 

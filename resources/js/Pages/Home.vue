@@ -3,7 +3,7 @@
         <PageHead :title="institutionTitle" />
 
         <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
-        <x-modal />
+        <XModal />
 
         <div id="calendar_sidebar_wrapper" class="">
             <div id="calendar" class="basis-4/5 md:basis-4/5">
@@ -12,9 +12,6 @@
             <div id="sidebar" class="basis-1/5 md:basis-1/5">
                 <div v-if="isAuthenticated">
                     <UserHappenings :happenings="userHappenings"></UserHappenings>
-                </div>
-                <div v-else>
-                    <LoginForm></LoginForm>
                 </div>
             </div>
         </div>
