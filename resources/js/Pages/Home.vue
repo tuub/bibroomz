@@ -20,19 +20,16 @@
 
 <script setup>
 import Calendar from "@/Components/Calendar.vue";
-import LoginForm from "@/Components/LoginForm.vue";
 import UserHappenings from "@/Components/UserHappenings.vue";
-
+import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
-import useModal from "@/Stores/Modal";
-
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-import { storeToRefs } from "pinia";
+import useModal from "@/Stores/Modal";
 
 import { Modal as FlowbiteModal } from "flowbite";
-import PageHead from "@/Shared/PageHead.vue";
+import { storeToRefs } from "pinia";
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -92,7 +89,7 @@ onMounted(() => {
             onHide: () => {
                 modal.cleanup();
             },
-        })
+        }),
     );
 });
 

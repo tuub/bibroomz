@@ -1,9 +1,8 @@
-// vite.config.js
-import { defineConfig } from "vite";
-import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "url";
+import laravel from "laravel-vite-plugin";
 import i18n from "laravel-vue-i18n/vite";
+import { URL, fileURLToPath } from "url";
+import { defineConfig } from "vite";
 
 export default defineConfig({
     plugins: [
@@ -17,7 +16,6 @@ export default defineConfig({
         }),
         laravel({
             input: [
-                "resources/css/app.css",
                 "resources/js/app.js",
                 "resources/sass/main.scss",
             ],
@@ -28,7 +26,6 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./resources/js/", import.meta.url)),
-            fullcalendar: "node_modules/@fullcalendar",
             ziggy: "vendor/tightenco/ziggy/dist/vue.es.js",
         },
     },

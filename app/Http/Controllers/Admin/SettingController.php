@@ -30,7 +30,9 @@ class SettingController extends Controller
 
         $this->authorize('edit', $setting->institution);
 
-        return Inertia::render('Admin/Settings/Form', $setting->only(['id', 'key', 'value']));
+        return Inertia::render('Admin/Settings/Form', [
+            'setting' => $setting->only(['id', 'key', 'value'])
+        ]);
     }
 
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse

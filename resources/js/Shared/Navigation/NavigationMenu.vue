@@ -1,6 +1,12 @@
 <template>
     <div class="navigation-menu-wrapper">
-        <button data-collapse-toggle="mobile-menu-2" type="button" aria-controls="mobile-menu-2" aria-expanded="false">
+        <button
+            data-collapse-toggle="mobile-menu-2"
+            class="mobile-menu-button"
+            type="button"
+            aria-controls="mobile-menu-2"
+            aria-expanded="false"
+        >
             <span class="sr-only">Open main menu</span>
             <svg
                 class="w-6 h-6"
@@ -24,11 +30,21 @@
 </template>
 <style>
 .w-70p {
-    width: 60%;
+    width: 70%;
 }
+
 .mt-3px {
     margin-top: -3px;
 }
+
+/* .navigation-menu-wrapper { */
+
+/* } */
+
+.mobile-menu-button {
+    display: block;
+}
+
 #mobile-menu-2 > ul > li {
     float: right;
     margin-left: 20px;
@@ -37,9 +53,6 @@
 @media only screen and (max-width: 1000px) {
     #mobile-menu-2 {
         display: none;
-    }
-    #nav-footer-wrapper > button {
-        display: block;
     }
 }
 </style>

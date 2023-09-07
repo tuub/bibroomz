@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="inline-flex">
         <span class="current-user">
             {{ currentUser?.name }}
         </span>
@@ -15,12 +15,13 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-import { storeToRefs } from "pinia";
-import { initFlowbite } from "flowbite";
-import { onMounted } from "vue";
 import { useLoginModal } from "@/Composables/ModalActions";
+import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
+
+import { initFlowbite } from "flowbite";
+import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 
 // ------------------------------------------------
 // Stores

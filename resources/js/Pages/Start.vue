@@ -19,10 +19,14 @@
 </template>
 
 <script setup>
-import InstitutionCard from '../Components/InstitutionCard.vue';
-import {onMounted} from "vue";
-import {useAppStore} from "../Stores/AppStore";
+import InstitutionCard from "@/Components/InstitutionCard.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import XModal from "@/Shared/XModal.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import useModal from "@/Stores/Modal";
+
+import { Modal as FlowbiteModal } from "flowbite";
+import { onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props

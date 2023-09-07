@@ -28,7 +28,9 @@
 
 <script setup>
 import { useAuthStore } from "../Stores/AuthStore.js";
+
 import LegendItem from "./LegendItem.vue";
+
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
 
@@ -56,20 +58,23 @@ const toggle = () => {
     position: fixed;
     top: 225px;
     z-index: 40;
-    background: rgba(0, 0, 0, 0);
-    right: 0px;
+    background: rgba(0 0 0 / 0%);
+    right: 0;
     height: 168px;
     width: 195px;
 }
+
 #status-legend > span {
     float: left;
     display: block;
     width: 100%;
     padding: 7px;
 }
+
 .legend-item-toggle-button-wrapper {
     position: absolute;
 }
+
 .legend-item-toggle-button {
     position: fixed;
     right: -19px;
@@ -78,7 +83,6 @@ const toggle = () => {
     height: 33px;
     width: 89px;
     z-index: 10;
-
     background: white;
     border: 0.0625rem solid #c40d1e;
     color: #c40d1e;

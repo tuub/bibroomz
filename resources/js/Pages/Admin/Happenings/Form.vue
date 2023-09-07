@@ -165,12 +165,13 @@
     </form>
 </template>
 <script setup>
-import { computed, ref, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import PageHead from "@/Shared/PageHead.vue";
+
+import { useForm } from "@inertiajs/vue3";
+import { computed, ref, watch } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -257,7 +258,7 @@ const currentResource = computed(() => {
 const isHappeningToVerify = computed(() => {
     const currentInstitutionId = currentResource.value?.institution_id;
 
-    if(!currentUser.value || !currentResource.value) {
+    if (!currentUser.value || !currentResource.value) {
         return true;
     }
 

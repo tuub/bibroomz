@@ -1,24 +1,26 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import isBetween from "dayjs/plugin/isBetween";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import interactionPlugin from "@fullcalendar/interaction";
 import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
 
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import { storeToRefs } from "pinia";
-import { useToast } from "vue-toastification";
-import { reactive, unref } from "vue";
+
 import {
-    useResourceInfoModal,
-    useHappeningInfoModal,
     useHappeningCreateModal,
-    useHappeningVerifyModal,
     useHappeningEditModal,
+    useHappeningInfoModal,
+    useHappeningVerifyModal,
+    useResourceInfoModal,
 } from "./ModalActions";
+
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import utc from "dayjs/plugin/utc";
 import { trans } from "laravel-vue-i18n";
+import { storeToRefs } from "pinia";
+import { reactive, unref } from "vue";
+import { useToast } from "vue-toastification";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

@@ -15,9 +15,11 @@
 <script setup>
 import "@fullcalendar/core/vdom";
 import FullCalendar from "@fullcalendar/vue3";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-import { useAppStore } from "@/Stores/AppStore";
+
 import { useCalendar } from "@/Composables/Calendar";
+import { useAppStore } from "@/Stores/AppStore";
+
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -81,8 +83,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="css">
-@import "fullcalendar/daygrid/main.css";
-@import "fullcalendar/timegrid/main.css";
+@import url("@fullcalendar/daygrid/main.css");
+@import url("@fullcalendar/timegrid/main.css");
 
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {

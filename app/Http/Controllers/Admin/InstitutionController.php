@@ -35,7 +35,7 @@ class InstitutionController extends Controller
         $days_of_week = WeekDay::get();
 
         return Inertia::render('Admin/Institutions/Form', [
-            'days_of_week' => $days_of_week,
+            'daysOfWeek' => $days_of_week,
         ]);
     }
 
@@ -67,7 +67,7 @@ class InstitutionController extends Controller
 
         return Inertia::render('Admin/Institutions/Form', [
             'institution' => $institution,
-            'days_of_week' => WeekDay::get(),
+            'daysOfWeek' => WeekDay::get(),
         ]);
     }
 

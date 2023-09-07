@@ -12,11 +12,12 @@
 </template>
 
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import AdminNavigation from "@/Shared/Navigation/AdminNavigation.vue";
 import BaseNavigation from "@/Shared/Navigation/BaseNavigation.vue";
 import RegularNavigation from "@/Shared/Navigation/RegularNavigation.vue";
-import AdminNavigation from "@/Shared/Navigation/AdminNavigation.vue";
 import SplashNavigation from "@/Shared/Navigation/SplashNavigation.vue";
+
+import { Head } from "@inertiajs/vue3";
 import { computed } from "vue";
 
 const props = defineProps({
@@ -52,7 +53,7 @@ const isAdminPage = computed(() => {
     z-index: 10;
     margin-top: -15px;
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
 }
 </style>

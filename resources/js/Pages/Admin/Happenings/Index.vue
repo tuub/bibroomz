@@ -106,7 +106,7 @@
                                         {},
                                         { message: $t('popup.content.delete.happening') },
                                         happening,
-                                        actions
+                                        actions,
                                     )
                                 "
                             >
@@ -121,17 +121,18 @@
 </template>
 
 <script setup>
+import BodyHead from "@/Shared/BodyHead.vue";
+import PageHead from "@/Shared/PageHead.vue";
+import PopupModal from "@/Shared/PopupModal.vue";
+import { useAuthStore } from "@/Stores/AuthStore";
+import useModal from "@/Stores/Modal";
+
+import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import PageHead from "@/Shared/PageHead.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
-import useModal from "@/Stores/Modal";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
-import { trans } from "laravel-vue-i18n";
-import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
-import { useAuthStore } from "@/Stores/AuthStore";
+import { trans } from "laravel-vue-i18n";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -207,7 +208,7 @@ onMounted(() => {
             onHide: () => {
                 modal.cleanup();
             },
-        })
+        }),
     );
 });
 </script>

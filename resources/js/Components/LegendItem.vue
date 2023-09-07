@@ -1,17 +1,21 @@
 <template>
-    <span class=""
-         :class="cssClass">
+    <span :class="cssClass">
         {{ label }}
     </span>
-
 </template>
 
 <script setup>
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
-    cssClass: String,
-    label: String,
-})
+defineProps({
+    cssClass: {
+        type: String,
+        default: "",
+    },
+    label: {
+        type: String,
+        required: true,
+    },
+});
 </script>

@@ -1,20 +1,22 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 export const useHappeningStore = defineStore({
-    id: 'happening',
+    id: "happening",
     persist: true,
+
     state: () => {
         return {
             happening: {
                 resource: {},
-                start: '',
-                end: '',
+                start: "",
+                end: "",
             },
             error: "",
         };
     },
+
     actions: {
         addHappening(happening) {
             return axios.post(`${baseUrl}/happening/add`, happening);
@@ -27,12 +29,12 @@ export const useHappeningStore = defineStore({
         },
         deleteHappening(id) {
             return axios.delete(`${baseUrl}/happening/delete/${id}`);
-        }
+        },
     },
+
     getters: {
         getHappeningResource: (state) => state.happening.resource,
         getHappeningStart: (state) => state.happening.start,
         getHappeningEnd: (state) => state.happening.end,
-        getValidationErrors: (state) => state.validationErrors,
     },
 });

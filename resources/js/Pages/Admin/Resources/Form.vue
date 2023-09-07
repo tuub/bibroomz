@@ -177,13 +177,15 @@
     </form>
 </template>
 <script setup>
-import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import PageHead from "@/Shared/PageHead.vue";
+
+import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
+
+import { useForm } from "@inertiajs/vue3";
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
