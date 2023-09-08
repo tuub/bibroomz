@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\RemoveUnverifiedHappenings;
+use App\Console\Commands\RemoveUsers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -23,6 +24,14 @@ class Kernel extends ConsoleKernel
                 '--isolated',
             ],
         )->everyMinute();
+
+        $schedule->command(
+            RemoveUsers::class,
+            [
+                '--force',
+                '--isolated',
+            ]
+        )->dailyAt('04:05');
     }
 
     /**
