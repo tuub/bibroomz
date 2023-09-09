@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DeleteUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\Admin\DeleteUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class UserController extends Controller

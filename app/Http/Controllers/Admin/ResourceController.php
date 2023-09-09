@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Http\Requests\Admin\UpdateResourceRequest;
-use App\Http\Requests\CloneResourceRequest;
+use App\Http\Requests\Admin\CloneResourceRequest;
 use App\Models\BusinessHour;
 use App\Models\Institution;
 use App\Models\Resource;
