@@ -10,11 +10,14 @@
 // Props
 // ------------------------------------------------
 const props = defineProps({
-    size: String,
+    size: {
+        type: String,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let imageUrl = '/images/spinner_' + props.size + '.gif'
+const imageUrl = "/images/spinner_" + props.size + ".gif";
 </script>

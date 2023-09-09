@@ -3,7 +3,7 @@
         <div class="grid md:grid-cols-2 md:gap-2">
             <div class="mb-6">
                 <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
-                <spinner v-if="isLoading" size="small"></spinner>
+                <Spinner v-if="isLoading" size="small"></Spinner>
                 <select
                     v-else
                     id="start"
@@ -27,7 +27,7 @@
 
             <div class="mb-6">
                 <FormLabel field="end" field-key="modal.form.fields.end"></FormLabel>
-                <spinner v-if="isLoading" size="small"></spinner>
+                <Spinner v-if="isLoading" size="small"></Spinner>
                 <select
                     v-else
                     id="end"
@@ -35,7 +35,7 @@
                     name="end"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
-                    @input="$emit('update:happening', happening)"
+                    @input="$emit('update-happening', happening)"
                 >
                     <option
                         v-for="end_time_slot in end_time_slots"
@@ -59,7 +59,7 @@
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 :placeholder="$t('modal.form.fields.verifier.placeholder')"
                 :disabled="!!happening.id"
-                @input="$emit('update:happening', happening)"
+                @input="$emit('update-happening', happening)"
                 @keypress.enter.prevent="$emit('submit')"
             />
         </div>
@@ -93,7 +93,7 @@ const props = defineProps({
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits(["update:happening", "submit"]);
+defineEmits(["update-happening", "submit"]);
 
 // ------------------------------------------------
 // Stores

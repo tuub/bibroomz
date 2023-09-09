@@ -8,14 +8,20 @@
     </div>
 
     <HappeningInfo :happening="happening" />
-    <HappeningForm v-if="editable" v-model:happening="happening" @submit="$emit('submit')" />
+    <HappeningForm
+        v-if="editable"
+        :happening="happening"
+        @update-happening="$emit('update:payload', $event)"
+        @submit="$emit('submit')"
+    />
 </template>
 
 <script setup>
 import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
-import { unref, reactive, watchEffect } from "vue";
+
 import dayjs from "dayjs";
+import { toRaw } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -34,28 +40,19 @@ const props = defineProps({
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-const emit = defineEmits(["update:payload", "submit"]);
+defineEmits(["update:payload", "submit"]);
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const happening = reactive({
+const happening = {
     id: props.payload.id,
-    resource: props.payload.resource,
+    resource: toRaw(props.payload.resource),
     start: dayjs.utc(props.payload.start).format("YYYY-MM-DDTHH:mm:ss"),
     end: dayjs.utc(props.payload.end).format("YYYY-MM-DDTHH:mm:ss"),
     isVerificationRequired: props.payload.isVerificationRequired,
     verifier: props.payload.user_02,
-});
+};
 
-const { editable } = unref(props.payload);
-
-// ------------------------------------------------
-// Watchers
-// ------------------------------------------------
-if (editable) {
-    watchEffect(() => {
-        emit("update:payload", happening);
-    });
-}
+const editable = props.payload?.editable ?? false;
 </script>
