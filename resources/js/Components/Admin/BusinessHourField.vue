@@ -1,107 +1,133 @@
 <template>
-    <div class="flex flex-wrap -mx-3 mb-2 mt-4">
+    <div class="flex flex-wrap -mx-3">
         <div class="w-full mx-3 font-bold text-black">
             {{ $t("admin.resources.form.fields.business_hours.label", { index: (index + 1).toString() }) }}
-            <a v-if="is_last" href="#" class="p5" @click="removeBusinessHourField">
+            <a v-if="isLast" href="#" class="p5" @click.prevent="removeBusinessHourField">
                 <i class="ri-delete-bin-line"></i>
             </a>
         </div>
         <div class="w-full px-3 mb-6 md:mb-0">
             <FormLabel
-                field="week_days"
+                field="weekDays"
                 field-key="admin.resources.form.fields.business_hours.subfields.week_days"
             ></FormLabel>
-            <span v-for="day_of_week in days_of_week" class="mr-2">
+            <span v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
                 <input
                     v-model="checkedWeekDays"
+                    name="weekDays"
                     type="checkbox"
-                    :value="day_of_week.id"
-                    name="week_days[]"
+                    :value="dayOfWeek.id"
                     @change="updateWeekDays"
                 />
-                {{ $t("admin.general.week_days." + day_of_week.key + ".short_label") }}
+                {{ $t("admin.general.week_days." + dayOfWeek.key + ".short_label") }}
             </span>
+            <FormValidationError v-if="errors?.weekDays" :message="errors.weekDays"></FormValidationError>
         </div>
         <div class="w-full md:w-2/4 px-3 my-3">
             <FormLabel
-                field="business_hour_start"
+                :field="`businessHourStart-${index}`"
                 field-key="admin.resources.form.fields.business_hours.subfields.start"
             ></FormLabel>
             <input
-                v-model="time_slot.start"
+                :id="`businessHourStart-${index}`"
+                v-model="start"
+                name="businessHourStart"
                 class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.start.placeholder')"
+                @change="updateTimeSlot"
             />
+            <FormValidationError v-if="errors?.start" :message="errors.start"></FormValidationError>
         </div>
         <div class="w-full md:w-2/4 px-3 my-3">
             <FormLabel
-                field="business_hour_end"
+                :field="`businessHourEnd-${index}`"
                 field-key="admin.resources.form.fields.business_hours.subfields.end"
             ></FormLabel>
             <input
-                v-model="time_slot.end"
+                :id="`businessHourEnd-${index}`"
+                v-model="end"
+                name="businessHourEnd"
                 class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.end.placeholder')"
+                @change="updateTimeSlot"
             />
+            <FormValidationError v-if="errors?.end" :message="errors.end"></FormValidationError>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
-    time_slot: Object,
-    index: Number,
-    is_last: Boolean,
-    is_new: Boolean,
-    days_of_week: Array,
+const props = defineProps({
+    timeSlot: {
+        type: Object,
+        required: true,
+    },
+    index: {
+        type: Number,
+        required: true,
+    },
+    isLast: {
+        type: Boolean,
+        required: true,
+    },
+    isNew: {
+        type: Boolean,
+        required: true,
+    },
+    daysOfWeek: {
+        type: Array,
+        required: true,
+    },
+    errors: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-const emit = defineEmits(["removeBusinessHourField", "updateWeekDays"]);
+const emit = defineEmits(["remove-business-hour-field", "update-week-days", "update-time-slot"]);
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let checkedWeekDays = ref([]);
+const start = ref(props.timeSlot.start);
+const end = ref(props.timeSlot.end);
+
+const checkedWeekDays = ref(props.timeSlot.week_days ?? []);
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const removeBusinessHourField = () => {
-    emit("removeBusinessHourField", {
-        time_slot: props.time_slot,
+    emit("remove-business-hour-field", {
+        time_slot: props.timeSlot,
     });
 };
 
-const getWeekDays = () => {
-    if (props.time_slot.week_days) {
-        return props.time_slot.week_days;
-    }
-    return [];
-};
-
 const updateWeekDays = () => {
-    emit("updateWeekDays", {
-        id: props.time_slot.id,
+    emit("update-week-days", {
+        id: props.timeSlot.id,
         checkedWeekDays: checkedWeekDays.value.sort(),
     });
 };
 
-// ------------------------------------------------
-// Mount
-// ------------------------------------------------
-onMounted(() => {
-    checkedWeekDays.value = getWeekDays();
-});
+const updateTimeSlot = () => {
+    emit("update-time-slot", {
+        id: props.timeSlot.id,
+        start,
+        end,
+    });
+};
 </script>

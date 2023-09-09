@@ -10,6 +10,7 @@ use App\Models\BusinessHour;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\WeekDay;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -60,7 +61,6 @@ class ResourceController extends Controller
     public function editResource(Request $request): Response
     {
         $resource = Resource::where('id', $request->id)->with([
-            'closings',
             'business_hours',
             'business_hours.week_days:id'
         ])->firstOrFail();
@@ -71,7 +71,25 @@ class ResourceController extends Controller
             ->filter->isUserAbleToCreateResource(auth()->user());
 
         return Inertia::render('Admin/Resources/Form', [
-            'resource' => $resource,
+            'resource' => [
+                ...$resource->only([
+                    'id',
+                    'institution_id',
+                    'title',
+                    'location',
+                    'location_uri',
+                    'description',
+                    'capacity',
+                    'is_active',
+                    'is_verification_required',
+                ]),
+                'business_hours' => $resource->business_hours->map(fn ($business_hour) => [
+                    'id' => $business_hour->id,
+                    'start' => Carbon::parse($business_hour->start)->format('H:i'),
+                    'end' => Carbon::parse($business_hour->end)->format('H:i'),
+                    'week_days' => $business_hour->week_days->map->id,
+                ]),
+            ],
             'institutions' => $institutions,
             'weekDays' => WeekDay::get(),
         ]);

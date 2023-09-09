@@ -113,7 +113,7 @@
         <!-- Checkbox: Is active -->
         <div class="mb-6">
             <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
+                <input id="is_active" v-model="form.is_active" type="checkbox" class="sr-only peer" />
                 <div
                     class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
                 ></div>
@@ -127,7 +127,12 @@
         <!-- Checkbox: Is verification required -->
         <div class="mb-6">
             <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_verification_required" type="checkbox" class="sr-only peer" />
+                <input
+                    id="is_verification_required"
+                    v-model="form.is_verification_required"
+                    type="checkbox"
+                    class="sr-only peer"
+                />
                 <div
                     class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
                 ></div>
@@ -141,28 +146,33 @@
             ></FormValidationError>
         </div>
 
-        <business-hour-field
-            v-for="(time_slot, index) in form.business_hours"
-            :key="time_slot.id"
-            :time_slot="time_slot"
-            :index="index"
-            :is_last="index === form.business_hours.length - 1"
-            :is_new="isNaN(time_slot.id) === false"
-            :days_of_week="days_of_week"
-            @update-week-days="updateWeekDays"
-            @remove-business-hour-field="removeBusinessHourField"
-        >
-        </business-hour-field>
-        <FormValidationError
-            v-if="form.errors.business_hours"
-            :message="form.errors.business_hours"
-        ></FormValidationError>
-        <div class="flex flex-wrap -mx-2 mb-4 mt-6">
-            <div class="w-full px-3 text-center">
-                <a href="#" class="p-3 bg-green-600 text-white my-13" @click="addBusinessHourField">
-                    {{ $t("admin.resources.form.actions.add_business_hours") }}
-                </a>
+        <div class="mb-6">
+            <BusinessHourField
+                v-for="(timeSlot, index) in form.business_hours"
+                :key="timeSlot.id"
+                :time-slot="timeSlot"
+                :index="index"
+                :is-last="index === form.business_hours.length - 1"
+                :is-new="isNaN(timeSlot.id) === false"
+                :days-of-week="weekDays"
+                :errors="getBusinessHourErrors(index)"
+                @update-time-slot="updateTimeSlot"
+                @update-week-days="updateWeekDays"
+                @remove-business-hour-field="removeBusinessHourField"
+            ></BusinessHourField>
+
+            <div class="flex flex-wrap mb-4 mt-4">
+                <div class="w-full text-center">
+                    <a href="#" class="p-3 bg-green-600 text-white my-13" @click.prevent="addBusinessHourField">
+                        {{ $t("admin.resources.form.actions.add_business_hours") }}
+                    </a>
+                </div>
             </div>
+
+            <FormValidationError
+                v-if="form.errors.business_hours"
+                :message="form.errors.business_hours"
+            ></FormValidationError>
         </div>
 
         <div id="submitButton" class="mb-6">
@@ -210,18 +220,6 @@ const props = defineProps({
 // ------------------------------------------------
 const isProcessing = ref(false);
 
-const days_of_week = props.weekDays;
-
-// FIXME: this is cool but not cool. We should control the data coming from the backend in another way.
-// We should find a way to define the data coming from a relation, in this case belongsToMany relation week_days.
-const business_hours = [];
-if (props.resource?.business_hours) {
-    for (const business_hour of props.resource.business_hours) {
-        const week_days = business_hour.week_days.map((week_day) => week_day.id).sort();
-        business_hours.push({ ...business_hour, week_days: week_days });
-    }
-}
-
 const form = useForm({
     id: props.resource?.id ?? "",
     institution_id: props.resource?.institution_id ?? "",
@@ -232,38 +230,36 @@ const form = useForm({
     capacity: props.resource?.capacity ?? "0",
     is_active: props.resource?.is_active ?? false,
     is_verification_required: props.resource?.is_verification_required ?? true,
-    business_hours: business_hours ?? [],
+    business_hours: props.resource?.business_hours ?? [],
 });
-
-const businessHourTemplate = {
-    id: 0,
-    resource_id: form.id,
-    start: undefined,
-    end: undefined,
-    week_days: [],
-};
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const addBusinessHourField = (e) => {
-    e.preventDefault();
-    // Here we're using Object.assign to prevent reactivity by reference!
-    // See: https://stackoverflow.com/a/54079074/6948765
-    const business_hour_field = Object.assign({}, businessHourTemplate);
-    business_hour_field.id = generateUid();
-    form.business_hours.push(business_hour_field);
+const addBusinessHourField = () => {
+    const businessHourField = {
+        id: generateUid(),
+        resource_id: form.id,
+    };
 
-    document.getElementById("submitButton").scrollIntoView();
+    form.business_hours.push(businessHourField);
 };
 
 const removeBusinessHourField = () => {
     form.business_hours.splice(-1);
 };
 
-const updateWeekDays = (e) => {
-    const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === e.id);
-    currentTimeSlot["week_days"] = days_of_week.filter((el) => e.checkedWeekDays.includes(el.id)).map((el) => el.id);
+const updateTimeSlot = ({ id, start, end }) => {
+    const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === id);
+
+    currentTimeSlot.start = start;
+    currentTimeSlot.end = end;
+};
+
+const updateWeekDays = ({ id, checkedWeekDays }) => {
+    const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === id);
+
+    currentTimeSlot.week_days = props.weekDays.filter((el) => checkedWeekDays.includes(el.id)).map((el) => el.id);
 };
 
 const generateUid = () => {
@@ -272,11 +268,21 @@ const generateUid = () => {
 
 const submitForm = () => {
     isProcessing.value = true;
+
     if (form.id) {
         form.post("/admin/resource/update");
     } else {
         form.post("/admin/resource/store");
     }
+
     isProcessing.value = false;
+};
+
+const getBusinessHourErrors = (index) => {
+    return {
+        start: form.errors[`business_hours.${index}.start`],
+        end: form.errors[`business_hours.${index}.end`],
+        weekDays: form.errors[`business_hours.${index}.week_days`],
+    };
 };
 </script>
