@@ -8,7 +8,7 @@ export const useAppStore = defineStore({
     persist: true,
     state: () => {
         return {
-            app_name: import.meta.env.VITE_APP_NAME,
+            appName: import.meta.env.VITE_APP_NAME,
             institution: null,
             isMultiTenancy: false,
             locale: getActiveLanguage(),
@@ -30,7 +30,7 @@ export const useAppStore = defineStore({
         },
     },
     getters: {
-        appName: (state) => state.app_name,
+        appName: (state) => state.appName,
         institutionTitle: (state) => state.institution?.title,
         institutionShortTitle: (state) => state.institution?.short_title,
         institutionSlug: (state) => state.institution?.slug,

@@ -12,14 +12,18 @@
 </template>
 
 <script setup>
+// IMPORTS
 import AdminNavigation from "@/Shared/Navigation/AdminNavigation.vue";
 import BaseNavigation from "@/Shared/Navigation/BaseNavigation.vue";
 import RegularNavigation from "@/Shared/Navigation/RegularNavigation.vue";
 import SplashNavigation from "@/Shared/Navigation/SplashNavigation.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import { Head } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, onBeforeMount, onUnmounted } from "vue";
 
+// PROPS
 const props = defineProps({
     title: {
         type: String,
@@ -31,11 +35,14 @@ const props = defineProps({
     },
 });
 
-// ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const appName = import.meta.env.VITE_APP_NAME;
+// STORES
+const appStore = useAppStore();
+const authStore = useAuthStore();
 
+// VARIABLES
+const appName = appStore.appName;
+
+// COMPUTED
 const isSplashPage = computed(() => {
     return props.pageType === "splash";
 });
@@ -47,6 +54,14 @@ const isRegularPage = computed(() => {
 const isAdminPage = computed(() => {
     return props.pageType === "admin";
 });
+
+onBeforeMount(() => {
+    authStore.check();
+})
+
+onUnmounted(() => {
+    authStore.unsubscribe();
+})
 </script>
 <style>
 #header {

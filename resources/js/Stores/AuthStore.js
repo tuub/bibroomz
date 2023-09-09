@@ -112,7 +112,7 @@ export const useAuthStore = defineStore({
         },
 
         addUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id);
+            const index = this._findUserHappeningIndex(happening.id);
             if (index === -1) {
                 this.userHappenings.push(happening);
                 // Order userHappenings array by start datetime
@@ -121,14 +121,14 @@ export const useAuthStore = defineStore({
         },
 
         updateUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id);
+            const index = this._findUserHappeningIndex(happening.id);
             this.userHappenings[index] = happening;
             // Order userHappenings array by start datetime
             this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
 
         removeUserHappening(happening) {
-            let index = this._findUserHappeningIndex(happening.id);
+            const index = this._findUserHappeningIndex(happening.id);
             if (index >= 0) {
                 this.userHappenings.splice(index, 1);
             }
@@ -143,7 +143,7 @@ export const useAuthStore = defineStore({
                 return;
             }
 
-            let userChannel = `happenings.${this.user.id}`;
+            const userChannel = `happenings.${this.user.id}`;
 
             const showHappeningToast = (message, happening) => {
                 toast.success({
@@ -190,7 +190,7 @@ export const useAuthStore = defineStore({
                 return;
             }
 
-            let userChannel = `happenings.${this.user.id}`;
+            const userChannel = `happenings.${this.user?.id}`;
             Echo.leave(userChannel);
         },
 

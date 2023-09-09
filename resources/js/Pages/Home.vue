@@ -29,7 +29,7 @@ import useModal from "@/Stores/Modal";
 
 import { Modal as FlowbiteModal } from "flowbite";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -75,8 +75,6 @@ const getModal = (data) => {
 // ------------------------------------------------
 onBeforeMount(() => {
     appStore.setCurrentInstitution(props.institution, props.isMultiTenancy);
-
-    authStore.check();
 });
 
 onMounted(() => {
@@ -91,10 +89,6 @@ onMounted(() => {
             },
         }),
     );
-});
-
-onUnmounted(() => {
-    authStore.unsubscribe();
 });
 </script>
 
