@@ -32,35 +32,9 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const appStore = useAppStore();
-
-// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const slug = appStore.institution.slug;
-
-const pagination = {
-    currentPage: `/${slug}/resources`,
-    nextPage: null,
-    previousPage: null,
-};
-
-const { calendarOptions, refetchHappenings } = useCalendar({
-    calendarOptions: {
-        headerToolbar: {
-            left: "title",
-            center: "",
-            right: "",
-        },
-        select: false,
-        selectable: false,
-        selectAllow: false,
-        eventClick: false,
-    },
-    pagination,
-});
+let calendarOptions, refetchHappenings;
 
 const refCalendar = ref(null);
 
@@ -68,7 +42,29 @@ const refCalendar = ref(null);
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
+    const appStore = useAppStore();
     appStore.setCurrentInstitution(props.institution, false);
+
+    const pagination = {
+        currentPage: `/${props.institution.slug}/resources`,
+        nextPage: null,
+        previousPage: null,
+    };
+
+    ({ calendarOptions, refetchHappenings } = useCalendar({
+        calendarOptions: {
+            headerToolbar: {
+                left: "title",
+                center: "",
+                right: "",
+            },
+            select: false,
+            selectable: false,
+            selectAllow: false,
+            eventClick: false,
+        },
+        pagination,
+    }));
 });
 
 onMounted(() => {

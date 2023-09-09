@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institution;
-use App\Models\WeekDay;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -39,8 +38,6 @@ class HomeController extends Controller
             $settings[$setting->key] = $setting->value;
         }
 
-        // FIXME: We dont know why we need ->withoutRelations() here ...
-        //$output = $institution->withoutRelations()->toArray();
         $output = $institution->toArray();
         $output['settings'] = $settings;
         $output['hiddenDays'] = $institution->getHiddenDays();
@@ -72,6 +69,7 @@ class HomeController extends Controller
 
         $output = $institution->withoutRelations()->toArray();
         $output['settings'] = $settings;
+        $output['hiddenDays'] = $institution->getHiddenDays();
 
         return Inertia::render('TerminalView', [
             'institution' => $output,
