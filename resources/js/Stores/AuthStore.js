@@ -113,29 +113,52 @@ export const useAuthStore = defineStore({
 
         addUserHappening(happening) {
             const index = this._findUserHappeningIndex(happening.id);
-            if (index === -1) {
-                this.userHappenings.push(happening);
-                // Order userHappenings array by start datetime
-                this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+
+            // filter duplicate happenings
+            if (index > -1) {
+                return;
             }
+
+            this.userHappenings.push(happening);
+            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
 
         updateUserHappening(happening) {
             const index = this._findUserHappeningIndex(happening.id);
+
             this.userHappenings[index] = happening;
-            // Order userHappenings array by start datetime
             this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
         },
 
         removeUserHappening(happening) {
             const index = this._findUserHappeningIndex(happening.id);
-            if (index >= 0) {
-                this.userHappenings.splice(index, 1);
+
+            if (index < 0) {
+                return;
             }
+
+            this.userHappenings.splice(index, 1);
         },
 
         _findUserHappeningIndex(id) {
             return this.userHappenings.findIndex((x) => x.id === id);
+        },
+
+        updateUserHappenings(happening, callback, message) {
+            const appStore = useAppStore();
+            const institution = appStore.institution;
+
+            // filter happenings from other institutions
+            if (happening.resource.institutionId !== institution.id) {
+                return;
+            }
+
+            callback(happening);
+
+            toast.success({
+                component: HappeningToast,
+                props: { message, happening },
+            });
         },
 
         subscribe() {
@@ -145,43 +168,41 @@ export const useAuthStore = defineStore({
 
             const userChannel = `happenings.${this.user.id}`;
 
-            const showHappeningToast = (message, happening) => {
-                toast.success({
-                    component: HappeningToast,
-                    props: { message, happening },
-                });
-            };
-
             Echo.private(userChannel)
                 .listen("HappeningCreated", (event) => {
-                    const happening = event.happening;
-                    this.addUserHappening(happening);
-                    const message = trans("toast.happening.event.created");
-                    showHappeningToast(message, happening);
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.addUserHappening,
+                        trans("toast.happening.event.created"),
+                    );
                 })
                 .listen("HappeningVerified", (event) => {
-                    const happening = event.happening;
-                    this.updateUserHappening(happening);
-                    const message = trans("toast.happening.event.verified");
-                    showHappeningToast(message, happening);
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.updateUserHappening,
+                        trans("toast.happening.event.verified"),
+                    );
                 })
                 .listen("HappeningUpdated", (event) => {
-                    const happening = event.happening;
-                    this.updateUserHappening(happening);
-                    const message = trans("toast.happening.event.updated");
-                    showHappeningToast(message, happening);
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.updateUserHappening,
+                        trans("toast.happening.event.updated"),
+                    );
                 })
                 .listen("HappeningDeleted", (event) => {
-                    const happening = event.happening;
-                    this.removeUserHappening(happening);
-                    const message = trans("toast.happening.event.deleted");
-                    showHappeningToast(message, happening);
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.removeUserHappening,
+                        trans("toast.happening.event.deleted"),
+                    );
                 })
                 .listen("UnverifiedHappeningRemovedByScheduler", (event) => {
-                    const happening = event.happening;
-                    this.removeUserHappening(happening);
-                    const message = trans("toast.happening.event.scheduler");
-                    showHappeningToast(message, happening);
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.removeUserHappening,
+                        trans("toast.happening.event.scheduler"),
+                    );
                 });
         },
 

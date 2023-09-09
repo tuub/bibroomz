@@ -25,7 +25,7 @@ class HappeningDeleted implements ShouldBroadcast
      */
     public function __construct(Happening $happening, User $user)
     {
-        $this->happening = $happening->only(['id', 'start', 'end']);
+        $this->happening = $happening->only(['id', 'start', 'end', 'resource']);
         $this->user = $user;
     }
 
@@ -41,6 +41,11 @@ class HappeningDeleted implements ShouldBroadcast
                 'id' => $this->happening['id'],
                 'start' => Carbon::parse($this->happening['start'])->format('Y-m-d H:i'),
                 'end' => Carbon::parse($this->happening['end'])->format('Y-m-d H:i'),
+                'resource' => [
+                    'id' => $this->happening['resource']['id'],
+                    'title' => $this->happening['resource']['title'],
+                    'institutionId' => $this->happening['resource']['institution_id'],
+                ],
             ],
         ];
     }

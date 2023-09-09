@@ -106,7 +106,7 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
+const props = defineProps({
     happening: {
         type: Object,
         default: () => ({}),
@@ -125,6 +125,10 @@ dayjs.extend(utc);
 // Variables
 // ------------------------------------------------
 const modal = useModal();
+
+// ------------------------------------------------
+// Computed
+// ------------------------------------------------
 const happeningDate = computed(() => {
     return dayjs.utc(props.happening.start).format("DD.MM.YYYY");
 });
