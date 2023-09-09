@@ -52,8 +52,10 @@ class UserController extends Controller
                 'resource' => [
                     'id' => $happening->resource_id,
                     'title' => $happening->resource->title,
+                    'capacity' => $happening->resource->capacity,
                     'location' => $happening->resource->location,
                     'locationUri' => $happening->resource->location_uri,
+                    'description' => $happening->resource->description,
                     'institutionId' => $happening->resource->institution_id,
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
