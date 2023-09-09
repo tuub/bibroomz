@@ -11,8 +11,14 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    title: String,
-    description: String,
-})
+defineProps({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+});
 </script>

@@ -1,5 +1,5 @@
-import { defineStore } from "pinia";
 import { getActiveLanguage } from "laravel-vue-i18n";
+import { defineStore } from "pinia";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -30,7 +30,6 @@ export const useAppStore = defineStore({
         },
     },
     getters: {
-        appName: (state) => state.appName,
         institutionTitle: (state) => state.institution?.title,
         institutionShortTitle: (state) => state.institution?.short_title,
         institutionSlug: (state) => state.institution?.slug,

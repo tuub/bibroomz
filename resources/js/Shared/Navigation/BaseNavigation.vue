@@ -1,8 +1,6 @@
 <template>
     <nav class="w-full">
-        <div>
-            <Brand />
-        </div>
+        <Brand />
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
             <div class="login-lang-wrapper w-20p">

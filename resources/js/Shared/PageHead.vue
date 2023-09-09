@@ -1,7 +1,8 @@
 <template>
-    <Head :title="title ? `${title} - ${appName}` : `${appName}`">
-        <slot />
+    <Head>
+        <title>{{ title ? `${title} - ${appName}` : `${appName}` }}</title>
     </Head>
+
     <section id="header" class="w-full">
         <BaseNavigation>
             <RegularNavigation v-if="isRegularPage"></RegularNavigation>
@@ -57,11 +58,11 @@ const isAdminPage = computed(() => {
 
 onBeforeMount(() => {
     authStore.check();
-})
+});
 
 onUnmounted(() => {
     authStore.unsubscribe();
-})
+});
 </script>
 <style>
 #header {
