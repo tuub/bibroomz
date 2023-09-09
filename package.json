@@ -14,7 +14,7 @@
         "eslint": "^8.40.0",
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-vue": "^9.12.0",
-        "laravel-vite-plugin": "^0.6.0",
+        "laravel-vite-plugin": "^0.8.0",
         "lodash": "^4.17.21",
         "postcss": "^8.4.16",
         "postcss-html": "^1.5.0",
@@ -26,7 +26,7 @@
         "stylelint-prettier": "^4.0.2",
         "tailwindcss": "^3.1.8",
         "typescript": "^5.0.4",
-        "vite": "^3.0.0"
+        "vite": "^4.4.9"
     },
     "dependencies": {
         "@fullcalendar/core": "^5.11.3",
@@ -40,7 +40,7 @@
         "@inertiajs/vue3": "^1.0.2",
         "@soketi/soketi": "^1.5.0",
         "@tailwindcss/typography": "^0.5.9",
-        "@vitejs/plugin-vue": "^3.0.3",
+        "@vitejs/plugin-vue": "^4.3.4",
         "chart.js": "^3.9.1",
         "dayjs": "^1.11.7",
         "flowbite": "^1.6.5",
