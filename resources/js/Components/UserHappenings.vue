@@ -3,9 +3,7 @@
         class="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700"
     >
         <div class="flex items-center justify-between mb-4">
-            <h5
-                class="text-xl font-bold leading-none text-gray-900 dark:text-white"
-            >
+            <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
                 {{ $t("user_happening.header") }}
             </h5>
             <span class="text-sm font-medium text-blue-600 dark:text-blue-500">
@@ -17,18 +15,13 @@
         </div>
         <div class="mt-4">
             <label class="relative inline-flex items-center cursor-pointer">
-                <input
-                    v-model="hidePast"
-                    type="checkbox"
-                    class="sr-only peer"
-                />
+                <input v-model="hidePast" type="checkbox" class="sr-only peer" />
                 <div
                     class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
                 ></div>
-                <span
-                    class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-                    >{{ $t("user_happening.hide_past_happenings") }}</span
-                >
+                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
+                    $t("user_happening.hide_past_happenings")
+                }}</span>
             </label>
         </div>
         <div class="flow-root">
@@ -42,15 +35,8 @@
                 role="list"
                 class="divide-y divide-gray-200 dark:divide-gray-700"
             >
-                <li
-                    v-for="happening in happenings"
-                    :key="happening.id"
-                    class="py-3 sm:py-4"
-                >
-                    <UserHappening
-                        :happening="happening"
-                        :is-past="isPastHappening(happening)"
-                    ></UserHappening>
+                <li v-for="happening in happenings" :key="happening.id" class="py-3 sm:py-4">
+                    <UserHappening :happening="happening" :is-past="isPastHappening(happening)"></UserHappening>
                 </li>
             </TransitionGroup>
         </div>
@@ -59,12 +45,14 @@
 
 <script setup>
 import { useAuthStore } from "@/Stores/AuthStore";
-import UserHappening from "./UserHappening.vue";
-import { computed, ref } from "vue";
+
 import HappeningCount from "./HappeningCount.vue";
 import HappeningQuotas from "./HappeningQuotas.vue";
+import UserHappening from "./UserHappening.vue";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { computed, ref } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -93,9 +81,7 @@ const hidePast = ref(false);
 
 const happenings = computed(() => {
     if (hidePast.value) {
-        return props.happenings.filter(
-            (happening) => !isPastHappening(happening)
-        );
+        return props.happenings.filter((happening) => !isPastHappening(happening));
     }
 
     return props.happenings;

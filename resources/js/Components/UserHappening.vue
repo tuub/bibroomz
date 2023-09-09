@@ -96,11 +96,12 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
+import useModal from "@/Stores/Modal";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import useModal from "@/Stores/Modal";
-import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
