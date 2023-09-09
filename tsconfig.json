@@ -7,10 +7,11 @@
         "isolatedModules": true,
         "noEmit": true,
         "allowJs": true,
+        "skipLibCheck": true,
         "paths": {
             "@/*": [
                 "./resources/js/*"
-            ],
+            ]
         }
     }
 }
