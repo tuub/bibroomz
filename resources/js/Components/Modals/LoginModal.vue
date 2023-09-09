@@ -20,7 +20,6 @@
                     type="text"
                     name="username"
                     :placeholder="$t('login.form.username.placeholder')"
-                    @input="$emit('update:payload', { username, password })"
                 />
 
                 <FormValidationError
@@ -42,7 +41,6 @@
                     type="password"
                     name="password"
                     :placeholder="$t('login.form.password.placeholder')"
-                    @input="$emit('update:payload', { username, password })"
                 />
 
                 <FormValidationError
@@ -91,7 +89,7 @@ const props = defineProps({
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits(["update:payload", "submit"]);
+const emit = defineEmits(["update:payload", "submit"]);
 
 // ------------------------------------------------
 // Stores
@@ -111,7 +109,23 @@ const passwordError = computed(() => {
     return error.value?.data?.errors?.password;
 });
 
-const { username, password } = props.payload;
+const username = computed({
+    get() {
+        return props.payload.username;
+    },
+    set(value) {
+        emit("update:payload", { username: value, password });
+    },
+});
+
+const password = computed({
+    get() {
+        return props.payload.password;
+    },
+    set(value) {
+        emit("update:payload", { username, password: value });
+    },
+});
 </script>
 <style>
 .login-wapper {
