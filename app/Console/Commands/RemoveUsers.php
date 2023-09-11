@@ -42,9 +42,9 @@ class RemoveUsers extends Command implements Isolatable
         $this->info("Removing users with no happenings more recent than $days days ago.");
 
         /** @var Builder $query */
-
-        // do not delete admins
-        $query = User::where('is_admin', '=', false);
+        $query = User::query()
+            ->where('is_logged_in', '=', false)
+            ->where('is_admin', '=', false);
 
         // do not delete privileged users
         $query->whereNotExists(function (Builder $query) {
