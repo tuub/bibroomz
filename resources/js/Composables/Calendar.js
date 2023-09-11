@@ -273,6 +273,11 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
         datesSet: onDatesSet,
         resourceLabelContent: getResourceInfoLabel,
         slotLabelContent: getSlotLabel,
+        eventTimeFormat: {
+            hour: "numeric",
+            minute: "2-digit",
+            meridiem: "short",
+        },
     };
 
     return {
