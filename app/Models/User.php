@@ -37,6 +37,8 @@ class User extends Authenticatable
         'is_admin',
         'banned_at',
         'password',
+        'last_login',
+        'is_logged_in',
     ];
 
     /**
@@ -56,8 +58,15 @@ class User extends Authenticatable
      */
     protected $casts = [
         'is_admin' => 'boolean',
-        'banned_at' => 'datetime',
-        'email_verified_at' => 'datetime',
+        'is_logged_in' => 'boolean',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'banned_at',
+        'email_verified_at',
+        'last_login',
     ];
 
     /*****************************************************************
