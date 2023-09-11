@@ -98,11 +98,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])
         ->name('admin.institution.delete');
 
-    /* Institution Special */
+    /* Institution Settings */
     Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])
         ->name('admin.setting.index');
-    // Route::get('/admin/form/institutions', [AdminInstitutionController::class, 'getFormInstitutions'])
-    //     ->name('admin.institution.form');
 
     /* Resources */
     Route::get('/admin/resources', [AdminResourceController::class, 'getResources'])
@@ -119,10 +117,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.resource.delete');
     Route::post('/admin/resource/clone', [AdminResourceController::class, 'cloneResource'])
         ->name('admin.resource.clone');
-
-    // /* Resource Special */
-    // Route::get('/admin/form/resources', [AdminResourceController::class, 'getFormResources'])
-    //     ->name('admin.resource.form');
 
     /* Closings */
     Route::get('/admin/{closable_type}/{closable_id}/closings', [AdminClosingController::class, 'getClosings'])
@@ -157,10 +151,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.user.delete');
     Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
         ->name('admin.user.update');
-
-    // /* User Special */
-    // Route::get('/admin/form/users', [AdminUserController::class, 'getFormUsers'])
-    //     ->name('admin.user.form');
 
     /* Roles and Permissions */
     Route::get('/admin/roles', [RoleController::class, 'getRoles'])
