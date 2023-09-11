@@ -7,7 +7,7 @@
             :title="name"
             @click="switchLocale(code)"
         >
-            <span>{{ code }}</span>
+            <span :class="{ 'locale-active': activeLocale === code }">{{ code }}</span>
             <span v-if="index > 0" class="px-2">/</span>
         </button>
     </div>
@@ -46,5 +46,9 @@ onBeforeMount(() => {
 
 .language-button-wrapper {
     display: contents;
+}
+
+.locale-active {
+    font-weight: bold;
 }
 </style>
