@@ -225,13 +225,9 @@ div.fc-timegrid-slots tr {
     }
 }
 
-#legend-full-calendar-wrapper {
-    margin-top: -50px;
-}
-
 .page-change-wrapper {
     position: fixed;
-    top: 145px;
+    top: 140px;
     right: 30px;
 }
 </style>

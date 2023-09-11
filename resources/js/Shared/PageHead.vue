@@ -67,7 +67,7 @@ onUnmounted(() => {
 <style>
 #header {
     z-index: 10;
-    margin-top: -15px;
+    margin-top: -5px;
     position: fixed;
     top: 0;
     left: 0;

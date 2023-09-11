@@ -101,6 +101,13 @@ const toggle = () => {
     #mobile-menu > ul > li:nth-child(5){
         top: 185px;    
     }
+    #mobile-menu > ul > li:nth-child(6){
+        top: 225px;    
+    }
+    #mobile-menu > ul > li:nth-child(7){
+        top: 265px;    
+    }
+    
     .mobile-menu-hidden {
         display: none;
     }

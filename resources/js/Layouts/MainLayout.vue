@@ -23,6 +23,6 @@ const appName = appStore.appName;
 </script>
 <style>
 #content {
-    margin: 10em 2em 0 2em;
+    margin: 8em 2em 0 2em;
 }
 </style>
