@@ -42,10 +42,8 @@ onBeforeMount(() => {
 }
 
 .language-button-wrapper {
-    float: left;
-}
-
-.locale-active {
-    font-weight: bold;
+    position: absolute;
+    top: 76px;
+    left: 213px;
 }
 </style>
