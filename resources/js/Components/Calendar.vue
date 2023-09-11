@@ -180,14 +180,12 @@ a.fc-event:hover {
     cursor: pointer;
 }
 
-/*
 .fc-non-business {
     background-color: #BEBEBE !important;
 }
-*/
 
 div.fc-timegrid-slots tr {
-    background-color: #fff;
+    background-color: #ffffff;
 }
 
 .fc .fc-timegrid-axis-frame {
@@ -209,7 +207,7 @@ div.fc-timegrid-slots tr {
     padding-right: 1em;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1150px) {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 30%;
     }

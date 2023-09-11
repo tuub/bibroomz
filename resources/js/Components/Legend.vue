@@ -57,7 +57,7 @@ const toggle = () => {
 #status-legend {
     position: fixed;
     top: 225px;
-    z-index: 40;
+    z-index: 9;
     background: rgba(0 0 0 / 0%);
     right: 0;
     height: 168px;
@@ -82,7 +82,7 @@ const toggle = () => {
     rotate: unset;
     height: 33px;
     width: 89px;
-    z-index: 10;
+    z-index: 9;
     background: white;
     border: 0.0625rem solid #c40d1e;
     color: #c40d1e;

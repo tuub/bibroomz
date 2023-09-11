@@ -42,9 +42,9 @@ nav {
     }
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1150px) {
     .login-lang-wrapper {
-        width: 40%;
+        width: 180px;
     }
 }
 </style>

@@ -6,6 +6,7 @@
     "rules": {
         "media-feature-range-notation": "prefix",
         "color-hex-length": "long",
-        "shorthand-property-no-redundant-values": null
+        "shorthand-property-no-redundant-values": null,
+        "color-hex-case": "upper"
     }
 }

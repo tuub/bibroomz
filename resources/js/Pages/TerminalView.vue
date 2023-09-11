@@ -99,6 +99,6 @@ a.fc-event:hover {
 */
 
 div.fc-timegrid-slots tr {
-    background-color: #fff;
+    background-color: #ffffff;
 }
 </style>

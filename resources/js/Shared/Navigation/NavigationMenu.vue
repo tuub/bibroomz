@@ -1,15 +1,15 @@
 <template>
     <div class="navigation-menu-wrapper">
         <button
-            data-collapse-toggle="mobile-menu-2"
             class="mobile-menu-button"
             type="button"
-            aria-controls="mobile-menu-2"
+            aria-controls="mobile-menu"
             aria-expanded="false"
+            @click="toggle"
         >
             <span class="sr-only">Open main menu</span>
             <svg
-                class="w-6 h-6"
+                class="mobile-button w-6 h-6"
                 aria-hidden="true"
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -23,11 +23,27 @@
             </svg>
         </button>
 
-        <div id="mobile-menu-2" class="w-70p mt-3px float-right">
+        <div id="mobile-menu" class="w-70p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
             <slot></slot>
         </div>
     </div>
 </template>
+<script setup>
+import { ref } from "vue";
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const isVisible = ref(false);
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+const toggle = () => {
+    isVisible.value = !isVisible.value;
+};
+</script>
+
 <style>
 .w-70p {
     width: 70%;
@@ -45,14 +61,51 @@
     display: block;
 }
 
-#mobile-menu-2 > ul > li {
+#mobile-menu > ul > li {
     float: right;
     margin-left: 20px;
 }
-
-@media only screen and (max-width: 1000px) {
-    #mobile-menu-2 {
+.mobile-button{
+    position: absolute;
+    top: 77px;
+    right: 27px;
+    display: none;
+}
+@media only screen and (max-width: 1150px) {
+    .mobile-button {
+        position: absolute;    
+        display: block;
+    }
+    #mobile-menu > ul > li {
+        position: absolute;
+        height: 40px;
+        width: 190px;
+        top: 25px;
+        right: 0px;
+        background: #FFFFFF;
+        padding: 8px;
+        z-index: 25;
+    }
+    #mobile-menu > ul > li:nth-child(1){
+        top: 25px;   
+    }
+    #mobile-menu > ul > li:nth-child(2){
+        top: 65px;     
+    }
+    #mobile-menu > ul > li:nth-child(3){
+        top: 105px;    
+    }
+    #mobile-menu > ul > li:nth-child(4){
+        top: 145px;
+    }
+    #mobile-menu > ul > li:nth-child(5){
+        top: 185px;    
+    }
+    .mobile-menu-hidden {
         display: none;
+    }
+    .mobile-menu-visible {
+        display: block;
     }
 }
 </style>
