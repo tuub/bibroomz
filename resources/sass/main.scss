@@ -198,9 +198,14 @@ body {
 .mt-3px{
     margin-top: -3px;
 }
+
+#mobile-menu > ul > li{
+    float: right;
+    margin-left: 20px;
+}
 #mobile-menu{
     position: absolute;
-    top: 85px;
+    top: 80px;
     right: 30px;
 }
 

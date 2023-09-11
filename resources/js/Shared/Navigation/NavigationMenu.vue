@@ -23,7 +23,7 @@
             </svg>
         </button>
 
-        <div id="mobile-menu" class="w-90p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
+        <div id="mobile-menu" class="w-70p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
             <slot></slot>
         </div>
     </div>
@@ -48,9 +48,6 @@ const toggle = () => {
 .w-70p {
     width: 70%;
 }
-.w-90p {
-    width: 90%;
-}
 
 .mt-3px {
     margin-top: -3px;
@@ -63,14 +60,11 @@ const toggle = () => {
 .mobile-menu-button {
     display: block;
 }
-#mobile-menu > ul{
-    float: right;
-}
+
 #mobile-menu > ul > li {
-    float: left;
+    float: right;
     margin-left: 20px;
 }
-
 .mobile-button{
     position: absolute;
     top: 77px;
@@ -79,7 +73,7 @@ const toggle = () => {
 }
 @media only screen and (max-width: 1150px) {
     .mobile-button {
-        position: absolute;    
+        position: absolute;
         display: block;
     }
     #mobile-menu > ul > li {
@@ -93,27 +87,20 @@ const toggle = () => {
         z-index: 25;
     }
     #mobile-menu > ul > li:nth-child(1){
-        top: 25px;   
+        top: 25px;
     }
     #mobile-menu > ul > li:nth-child(2){
-        top: 65px;     
+        top: 65px;
     }
     #mobile-menu > ul > li:nth-child(3){
-        top: 105px;    
+        top: 105px;
     }
     #mobile-menu > ul > li:nth-child(4){
         top: 145px;
     }
     #mobile-menu > ul > li:nth-child(5){
-        top: 185px;    
+        top: 185px;
     }
-    #mobile-menu > ul > li:nth-child(6){
-        top: 225px;    
-    }
-    #mobile-menu > ul > li:nth-child(7){
-        top: 265px;    
-    }
-    
     .mobile-menu-hidden {
         display: none;
     }
