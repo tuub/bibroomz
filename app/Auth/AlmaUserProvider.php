@@ -1,16 +1,16 @@
 <?php
+
 namespace App\Auth;
 
-//use App\Library\Utility;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Ixudra\Curl\Facades\Curl;
 use Vyuldashev\XmlToArray\XmlToArray;
+
 /*
  * https://stackoverflow.com/questions/53898804/what-is-authserviceprovider-in-laravel
  * https://stackoverflow.com/questions/45024429/how-to-add-a-custom-user-provider-in-laravel-5-4
@@ -33,13 +33,9 @@ class AlmaUserProvider implements UserProvider
      * @param  mixed  $identifier
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    public function retrieveByID($identifier)
+    public function retrieveByID($id)
     {
-        // Get and return a user by their unique identifier
-        $this->user = User::find($identifier);
-        //dd($identifier);
-        //$this->user = AlmaUser::find($identifier);
-        return $this->user;
+        return User::find($id);
     }
 
     /**
@@ -58,7 +54,7 @@ class AlmaUserProvider implements UserProvider
         $user = null;
         $userData = null;
 
-        # FIXME!!!
+        // FIXME!!!
         // Is this the configured general admin user? Otherwise, call the configured external auth webservice
         if ($credentials['username'] == env('ADMIN_USER') && $credentials['password'] == env('ADMIN_PASSWORD')) {
             $userData = [
@@ -92,13 +88,13 @@ class AlmaUserProvider implements UserProvider
                     ->withData($ws_credentials)
                     ->withTimeout(env('AUTH_API_TIMEOUT'))
                     ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
-                    ->withOption('SSL_VERIFYHOST', 0)
-                    ->withOption('SSL_VERIFYPEER', 0)
+                    ->withOption('SSL_VERIFYHOST', 2)
+                    ->withOption('SSL_VERIFYPEER', 1)
                     ->withOption('POST', 1)
                     ->withOption('RETURNTRANSFER', true)
                     ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
                     ->post();
-            } catch (\Exception) {
+            } catch (Exception) {
                 return null;
             }
 
@@ -127,6 +123,7 @@ class AlmaUserProvider implements UserProvider
 
         if ($userData) {
             $user = User::where('name', $userData['name'])->first();
+
             if ($user) {
                 $user->update([
                     'email' => $userData['email'],
@@ -142,6 +139,7 @@ class AlmaUserProvider implements UserProvider
                     'last_login' => Carbon::now(),
                 ]);
             }
+
             $session_data = [
                 'auth_message' => 'Logged in!',
             ];
@@ -170,9 +168,13 @@ class AlmaUserProvider implements UserProvider
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
         return true;
-        //return $credentials['username'] == $user->barcode || $credentials['username'] == $user->username;
     }
 
-    public function updateRememberToken(Authenticatable $user, $token) { }
-    public function retrieveByToken($identifier, $token) { }
+    public function updateRememberToken(Authenticatable $user, $token)
+    {
+    }
+
+    public function retrieveByToken($identifier, $token)
+    {
+    }
 }
