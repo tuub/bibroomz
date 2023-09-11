@@ -305,7 +305,7 @@ return [
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Gesperrt?',
                     'happenings' => '# Events',
-                    'is_prvileged' => 'Privilegiert?',
+                    'is_privileged' => 'Privilegiert?',
                 ],
                 'actions' => [
                     'edit' => 'Bearbeiten',
