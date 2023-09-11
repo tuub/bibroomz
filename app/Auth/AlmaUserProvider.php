@@ -24,144 +24,76 @@ class AlmaUserProvider implements UserProvider
 {
     public $user;
 
-    public function __construct($user)
+    /**
+     * @param User $user
+     * @return void
+     */
+    public function __construct(User $user)
     {
         $this->user = $user;
     }
 
     /**
+     * Retrieve a user by their unique identifier.
+     *
      * @param  mixed  $identifier
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return Authenticatable|null
      */
-    public function retrieveByID($id)
+    public function retrieveByID($identifier)
     {
-        return User::find($id);
+        return User::find($identifier);
     }
 
     /**
      * Retrieve a user by the given credentials.
      *
      * @param  array  $credentials
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
     {
-        // Get and return a user by looking up the given credentials
-        if (!$credentials) {
+        $user_data = $this->getLocalUserInfo($credentials);
+
+        if (!$user_data) {
+            $user_data = $this->getRemoteUserInfo([
+                'uid' => $credentials['username'],
+                'pw' => $credentials['password'],
+            ]);
+        }
+
+        if (!$user_data) {
             return null;
         }
 
-        $user = null;
-        $userData = null;
+        $user = User::where('name', $user_data['name'])->first();
 
-        // FIXME!!!
-        // Is this the configured general admin user? Otherwise, call the configured external auth webservice
-        if ($credentials['username'] == env('ADMIN_USER') && $credentials['password'] == env('ADMIN_PASSWORD')) {
-            $userData = [
-                'name' => env('ADMIN_USER'),
-                'password' => Hash::make(env('ADMIN_PASSWORD')),
-                'email' => env('ADMIN_EMAIL'),
-                'is_admin' => true,
-            ];
-        } else if ($credentials['username'] == env('TEST_USER_01') && $credentials['password'] == env('TEST_USER_01_PASSWORD')) {
-            $userData = [
-                'name' => env('TEST_USER_01'),
-                'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
-                'email' => env('TEST_USER_01_EMAIL'),
-                'is_admin' => false,
-            ];
-        } else if ($credentials['username'] == env('TEST_USER_02') && $credentials['password'] == env('TEST_USER_02_PASSWORD')) {
-            $userData = [
-                'name' => env('TEST_USER_02'),
-                'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
-                'email' => env('TEST_USER_02_EMAIL'),
-                'is_admin' => false,
-            ];
+        if ($user) {
+            $user->update([
+                'email' => $user_data['email'],
+                'last_login' => Carbon::now(),
+            ]);
         } else {
-            $ws_credentials = [
-                'uid' => $credentials['username'],
-                'pw' => $credentials['password'],
-            ];
-
-            try {
-                $response = Curl::to(env('AUTH_API_ENDPOINT'))
-                    ->withData($ws_credentials)
-                    ->withTimeout(env('AUTH_API_TIMEOUT'))
-                    ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
-                    ->withOption('SSL_VERIFYHOST', 2)
-                    ->withOption('SSL_VERIFYPEER', 1)
-                    ->withOption('POST', 1)
-                    ->withOption('RETURNTRANSFER', true)
-                    ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
-                    ->post();
-            } catch (Exception) {
-                return null;
-            }
-
-            if ($response) {
-                $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
-                $response = XmlToArray::convert($response);
-
-                /*
-                 * CODE 0 = Login OK
-                 * CODE 1 = Wrong credentials
-                 */
-
-                if ($response['result']['code'] == 0) {
-                    $userData = [
-                        'name' => $response['result']['primary_id'],
-                        'email' => $response['result']['email_address'],
-                        'password' => Hash::make('Test123!'),
-                        'is_admin' => false,
-                    ];
-                } else {
-                    // FIXME: Message invalid creds and return
-                    // $response['result']['messg']
-                }
-            }
+            $user = User::create([
+                'name' => $user_data['name'],
+                'email' => $user_data['email'],
+                'password' => Hash::make('Test123!'),
+                'last_login' => Carbon::now(),
+            ]);
         }
 
-        if ($userData) {
-            $user = User::where('name', $userData['name'])->first();
-
-            if ($user) {
-                $user->update([
-                    'email' => $userData['email'],
-                    'is_admin' => $userData['is_admin'],
-                    'last_login' => Carbon::now(),
-                ]);
-            } else {
-                $user = User::create([
-                    'name' => $userData['name'],
-                    'email' => $userData['email'],
-                    'is_admin' => $userData['is_admin'],
-                    'password' => Hash::make('Test123!'),
-                    'last_login' => Carbon::now(),
-                ]);
-            }
-
-            $session_data = [
-                'auth_message' => 'Logged in!',
-            ];
-        } else {
-            $session_data = [
-                'auth_message' => 'No response!',
-            ];
-        }
+        $session_data = [
+            'auth_message' => 'Logged in!',
+        ];
 
         session()->put($session_data);
 
-        if ($user) {
-            return $user;
-        }
-
-        return null;
+        return $user;
     }
 
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  Authenticatable  $user
      * @param  array  $credentials
      * @return bool
      */
@@ -170,11 +102,91 @@ class AlmaUserProvider implements UserProvider
         return true;
     }
 
+    /**
+     * Update the "remember me" token for the given user in storage.
+     *
+     * @param Authenticatable $user
+     * @param string $token
+     * @return void
+     */
     public function updateRememberToken(Authenticatable $user, $token)
     {
     }
 
+    /**
+     * Retrieve a user by their unique identifier and "remember me" token.
+     *
+     * @param mixed $identifier
+     * @param string $token
+     * @return Authenticatable|null
+     */
     public function retrieveByToken($identifier, $token)
     {
+    }
+
+    private function getLocalUserInfo($credentials)
+    {
+        if (
+            $credentials['username'] == env('ADMIN_USER')
+            && $credentials['password'] == env('ADMIN_PASSWORD')
+        ) {
+            return [
+                'name' => env('ADMIN_USER'),
+                'password' => Hash::make(env('ADMIN_PASSWORD')),
+                'email' => env('ADMIN_EMAIL'),
+                'is_admin' => true,
+            ];
+        }
+
+        if (
+            $credentials['username'] == env('TEST_USER_01')
+            && $credentials['password'] == env('TEST_USER_01_PASSWORD')
+        ) {
+            return [
+                'name' => env('TEST_USER_01'),
+                'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
+                'email' => env('TEST_USER_01_EMAIL'),
+            ];
+        }
+
+        if (
+            $credentials['username'] == env('TEST_USER_02')
+            && $credentials['password'] == env('TEST_USER_02_PASSWORD')
+        ) {
+            return [
+                'name' => env('TEST_USER_02'),
+                'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
+                'email' => env('TEST_USER_02_EMAIL'),
+            ];
+        }
+
+        return null;
+    }
+
+    private function getRemoteUserInfo($credentials)
+    {
+        $response = Curl::to(env('AUTH_API_ENDPOINT'))
+            ->withData($credentials)
+            ->withTimeout(env('AUTH_API_TIMEOUT'))
+            ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
+            ->withOption('SSL_VERIFYHOST', 2)
+            ->withOption('SSL_VERIFYPEER', 1)
+            ->withOption('POST', 1)
+            ->withOption('RETURNTRANSFER', true)
+            ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
+            ->post();
+
+        $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
+        $response = XmlToArray::convert($response);
+
+        if ($response['result']['code'] == 0) {
+            return [
+                'name' => $response['result']['barcode'],
+                'email' => $response['result']['email_address'],
+                'password' => Hash::make('Test123!'),
+            ];
+        }
+
+        return null;
     }
 }

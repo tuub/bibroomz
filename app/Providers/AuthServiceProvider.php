@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -55,10 +54,6 @@ class AuthServiceProvider extends ServiceProvider
                 return true;
             }
         });
-
-        if (env('AUTH_METHOD') == 'eloquent') {
-            return;
-        }
 
         Auth::provider('alma', function () {
             return new AlmaUserProvider(new User());

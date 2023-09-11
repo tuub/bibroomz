@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
     private function userStatus()
     {
-        $user = Auth::user();
+        $user = Auth::user()->refresh();
 
         return [
             'isAdmin' => $user->isAdmin(),
@@ -51,8 +50,9 @@ class LoginController extends Controller
 
     public function logout()
     {
-        $user = Auth::user();
-        $user->update(['is_logged_in' => false]);
+        Auth::user()->update([
+            'is_logged_in' => false,
+        ]);
 
         Auth::logout();
 
