@@ -76,7 +76,8 @@ class AlmaUserProvider implements UserProvider
             $user = User::create([
                 'name' => $user_data['name'],
                 'email' => $user_data['email'],
-                'password' => Hash::make('Test123!'),
+                'password' => $user_data['password'],
+                'is_admin' => $user_data['is_admin'],
                 'last_login' => Carbon::now(),
             ]);
         }
@@ -146,6 +147,7 @@ class AlmaUserProvider implements UserProvider
                 'name' => env('TEST_USER_01'),
                 'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
                 'email' => env('TEST_USER_01_EMAIL'),
+                'is_admin' => false,
             ];
         }
 
@@ -157,6 +159,7 @@ class AlmaUserProvider implements UserProvider
                 'name' => env('TEST_USER_02'),
                 'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
                 'email' => env('TEST_USER_02_EMAIL'),
+                'is_admin' => false,
             ];
         }
 
@@ -184,6 +187,7 @@ class AlmaUserProvider implements UserProvider
                 'name' => $response['result']['barcode'],
                 'email' => $response['result']['email_address'],
                 'password' => Hash::make('Test123!'),
+                'is_admin' => false,
             ];
         }
 
