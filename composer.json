@@ -9,6 +9,7 @@
         "binarycabin/laravel-uuid": "^1.0",
         "bkwld/cloner": "^3.11",
         "doctrine/dbal": "^3.6",
+        "fakerphp/faker": "^1.23",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.6.9",
         "ixudra/curl": "^6.22",
@@ -21,7 +22,6 @@
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",
-        "fakerphp/faker": "^1.9.1",
         "laravel-lang/common": "^3.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
