@@ -3,8 +3,9 @@
 locales=( de en )
 groups=( auth calendar legend login modal navigation privacy_statement quota site_credits toast user_happening )
 source=$1
+delimiter=","
 
-if [ -z "${target}" ]; then
+if [ -z "${source}" ]; then
     echo "Source dir is not set.";
     exit 1
 else
@@ -19,8 +20,8 @@ for locale in "${locales[@]}"
 do
 	for group in "${groups[@]}"
 	do
-		echo "php artisan lang-import:csv --delimiter=';' ${source}${group}_${locale}.csv"
-		php artisan lang-import:csv --delimiter=';' ${source}${group}_${locale}.csv
+		echo "php artisan lang-import:csv --delimiter=$delimiter ${source}${group}_${locale}.csv"
+		php artisan lang-import:csv --delimiter=$delimiter ${source}${group}_${locale}.csv
 	done
 done
 

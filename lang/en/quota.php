@@ -10,7 +10,7 @@ return [
         'value' => ':remaining hours remaining',
     ],
     'weekly_happenings' => [
-        'label' => 'Weekly Events',
+        'label' => 'Weekly Bookings',
         'value' => ':remaining remaining',
     ],
 ];

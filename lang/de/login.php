@@ -2,17 +2,17 @@
 
 return [
     'header' => 'Login',
-    'description' => ' ',
+    'description' => 'Blablabla',
     'form' => [
         'username' => [
-            'label' => 'Benutzername',
-            'placeholder' => 'Ihr Benutzername',
-            'hint' => ' ',
+            'label' => 'Bibliothekskonto (TU: TUB-Account) ',
+            'placeholder' => 'Ihr Bibliothekskonto (TU: TUB-Account) ',
+            'hint' => 'Über Ihren Benutzernamen',
         ],
         'password' => [
             'label' => 'Passwort',
             'placeholder' => 'Ihr Passwort',
-            'hint' => ' ',
+            'hint' => 'Über Ihr Passwort',
         ],
         'submit' => [
             'label' => 'Login',

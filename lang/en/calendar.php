@@ -2,8 +2,7 @@
 
 return [
     'resource_info' => [
-        'de' => 'Informationen zu dieser Ressource',
-        'en' => 'About this resource',
+        'de' => 'Informationen zum Raum/zur Workbay',
+        'en' => 'About this room/workbay',
     ],
-    'resource_change' => 'Change rooms',
 ];

@@ -1,16 +1,16 @@
 <?php
 
 return [
-    'header' => 'My Events',
+    'header' => 'My Bookings',
     'description' => 'Blablabla',
-    'no_happenings' => 'You have no current events.',
-    'hide_past_happenings' => 'Hide past events',
-    'past_happening' => 'Past Event',
-    'present_happening' => 'Present Event',
+    'no_happenings' => 'You have no current bookings.',
+    'hide_past_happenings' => 'Hide past bookings',
+    'past_happening' => 'Past Booking',
+    'present_happening' => 'Present Booking',
     'verified' => 'Verified',
     'unverified' => 'Unverified',
     'date_time' => 'Date/Time',
-    'resource' => 'Resource',
+    'resource' => 'Room',
     'location' => 'Location',
     'user_01' => 'User 1',
     'user_02' => 'User 2',
@@ -18,5 +18,5 @@ return [
         'verify' => 'Verify',
         'edit' => 'Edit',
         'delete' => 'Delete',
-    ]
+    ],
 ];

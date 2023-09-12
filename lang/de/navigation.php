@@ -2,9 +2,8 @@
 
 return [
     'regular' => [
-        'institutions' => 'Einrichtungen',
-        'home' => 'Home :short_title',
-        'profile' => 'Profil',
+        'institutions' => 'zurück zur Übersicht',
+        'home' => 'Start :short_title',
         'admin' => 'Administration',
         'help' => [
             'text' => 'Hilfe',
@@ -15,16 +14,14 @@ return [
     ],
     'admin' => [
         'dashboard' => 'Dashboard',
-        'happenings' => 'Happenings',
+        'happenings' => 'Buchungen',
         'institutions' => 'Einrichtungen',
-        'resources' => 'Ressourcen',
+        'resources' => 'Räume',
         'users' => 'Benutzer*innen',
         'stats' => 'Statistiken',
-        'roles' => 'Rollen',
         'exit' => 'Administration verlassen',
     ],
     'current_login' => [
-        'login' => 'Einloggen',
         'logout' => 'Logout',
-    ]
+    ],
 ];

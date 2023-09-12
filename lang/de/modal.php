@@ -4,68 +4,68 @@ return [
     'form' => [
         'fields' => [
             'start' => [
-                'label' => 'Start',
-                'placeholder' => 'Your start',
-                'hint' => 'About your start',
+                'label' => 'Beginn',
+                'placeholder' => 'Beginn Ihrer Reservierung',
+                'hint' => 'Start of your reservation',
             ],
             'end' => [
-                'label' => 'End',
-                'placeholder' => 'Your end',
-                'hint' => 'About your end',
+                'label' => 'Ende',
+                'placeholder' => 'Ende Ihrer Reservierung',
+                'hint' => 'End of your Reservation',
             ],
             'verifier' => [
-                'label' => 'Verifier',
-                'placeholder' => 'Your verifier',
+                'label' => 'Bestätigung',
+                'placeholder' => 'Bibliothekskonto (TU: TUB-Account) der 2. Person',
                 'hint' => 'About your verifier',
             ],
         ],
     ],
     'info' => [
-        'title' => 'Event Info',
-        'description' => 'Event-Informationen anzeigen:',
+        'title' => 'Buchungsinfo',
+        'description' => 'Buchungsinformationen anzeigen',
         'action' => [
             'ok' => 'OK',
         ],
     ],
     'create' => [
-        'title' => 'Event erstellen',
-        'description' => 'Erstellen Sie ein neues Event:',
+        'title' => 'Buchung erstellen',
+        'description' => 'Erstellen Sie eine neue Buchung:',
         'action' => [
             'create' => 'Erstellen',
         ],
     ],
     'edit' => [
-        'title' => 'Event bearbeiten',
-        'description' => 'Bearbeiten Sie Ihr Event:',
+        'title' => 'Buchung bearbeiten',
+        'description' => 'Bearbeiten Sie Ihre Buchung:',
         'action' => [
             'update' => 'Speichern',
         ],
     ],
     'delete' => [
-        'title' => 'Event löschen',
-        'description' => 'Löschen Sie Ihr Event:',
+        'title' => 'Buchung löschen',
+        'description' => 'Löschen Sie Ihre Buchung',
         'action' => [
             'delete' => 'Löschen',
         ],
     ],
     'edit_delete' => [
-        'title' => 'Event bearbeiten/löschen',
-        'description' => 'Bearbeiten oder löschen Sie Ihr Event:',
+        'title' => 'Buchung bearbeiten/löschen',
+        'description' => 'Bearbeiten oder löschen Sie Ihre Buchung:',
         'action' => [
             'update' => 'Speichern',
             'delete' => 'Löschen',
         ],
     ],
     'verify' => [
-        'title' => 'Event bestätigen',
-        'description' => 'Bestätigen Sie Ihr Event:',
+        'title' => 'Buchung bestätigen',
+        'description' => 'Bestätigen Sie Ihre Buchung:',
         'action' => [
             'verify' => 'Bestätigen',
         ],
     ],
     'resource_info' => [
-        'title' => 'Information zu Ressource :resource_title',
-        'description' => 'Hier finden Sie Informationen zu dieser Ressource.',
+        'title' => 'Informationen zum Raum/zur Workbay :resource_title',
+        'description' => 'Hier finden Sie Informationen zu diesem Raum/dieser Workbay:',
         'resource_capacity' => 'Kapazität',
         'resource_description' => 'Beschreibung',
         'resource_location' => 'Standort',

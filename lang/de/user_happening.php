@@ -1,22 +1,22 @@
 <?php
 
 return [
-    'header' => 'Meine Events',
+    'header' => 'Meine Buchungen',
     'description' => 'Blablabla',
-    'no_happenings' => 'Sie haben keine aktuellen Events.',
-    'hide_past_happenings' => 'Vergangene Events ausblenden',
-    'past_happening' => 'Vergangenes Event',
-    'present_happening' => 'Aktuelles Event',
+    'no_happenings' => 'Sie haben keine aktuellen Buchungen.',
+    'hide_past_happenings' => 'Vergangene Buchungen ausblenden',
+    'past_happening' => 'Abgelaufene Buchung',
+    'present_happening' => 'Aktuelle Buchung',
     'verified' => 'Bestätigt',
     'unverified' => 'Unbestätigt',
-    'date_time' => 'Date/Time',
-    'resource' => 'Resource',
-    'location' => 'Location',
-    'user_01' => 'User 1',
-    'user_02' => 'User 2',
+    'date_time' => 'Datum/Zeit',
+    'resource' => 'Raum',
+    'location' => 'Ort',
+    'user_01' => '1. Person',
+    'user_02' => '2. Person',
     'form' => [
         'verify' => 'Bestätigen',
         'edit' => 'Bearbeiten',
         'delete' => 'Löschen',
-    ]
+    ],
 ];

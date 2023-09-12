@@ -2,15 +2,15 @@
 
 return [
     'daily_hours' => [
-        'label' => 'Tägliches Stunden-Kontingent',
+        'label' => 'Tägliches Stundenkontingent',
         'value' => ':remaining Stunden verbleibend',
     ],
     'weekly_hours' => [
-        'label' => 'Wöchentliches Stunden-Kontingent',
+        'label' => 'Wöchentliches Stundenkontingent',
         'value' => ':remaining Stunden verbleibend',
     ],
     'weekly_happenings' => [
-        'label' => 'Wöchentliches Event-Kontingent',
+        'label' => 'Wöchentliches Buchungskontingent',
         'value' => ':remaining verbleibend',
     ],
 ];
