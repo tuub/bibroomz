@@ -3,7 +3,7 @@
         <Legend class="mb-5"></Legend>
 
         <div v-if="pagination.previousPage || pagination.nextPage" class="page-change-wrapper">
-            <label>{{ $t("calendar.resource_change") }}</label>
+            <label>{{ $t("calendar.browse_resources") }}</label>
             <button
                 :disabled="!pagination.previousPage"
                 :class="{ 'opacity-25': !pagination.previousPage }"

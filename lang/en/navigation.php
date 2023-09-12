@@ -22,6 +22,7 @@ return [
         'exit' => 'Leave Administration',
     ],
     'current_login' => [
+        'login' => 'Login',
         'logout' => 'Logout',
     ],
 ];

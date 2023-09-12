@@ -2,7 +2,9 @@
 
 return [
     'resource_info' => [
-        'de' => 'Informationen zum Raum/zur Workbay',
-        'en' => 'About this room/workbay',
+        /* Contains all locales since FullCalendar is unable to use current language by file */
+        'de' => 'Info',
+        'en' => 'Info',
     ],
+    'browse_resources' => 'Räume durchblättern',
 ];
