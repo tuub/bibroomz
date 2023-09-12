@@ -18,6 +18,7 @@ return [
         'institutions' => 'Einrichtungen',
         'resources' => 'Räume',
         'users' => 'Benutzer*innen',
+        'roles' => 'Rollen',
         'stats' => 'Statistiken',
         'exit' => 'Administration verlassen',
     ],
