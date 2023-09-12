@@ -34,7 +34,7 @@ class HappeningController extends Controller
             ->filter->isUserAbleToCreateHappening(auth()->user())->values();
 
         $users = User::all()->map(function ($user) {
-            $user->permissions = $user->getPermissions(['no verifier']);
+            $user->permissions = $user->getPermissions(['no_verifier']);
 
             return $user;
         });
@@ -71,7 +71,7 @@ class HappeningController extends Controller
             ->active()->orderBy('title')->without('closings')->get();
 
         $users = User::all()->map(function ($user) {
-            $user->permissions = $user->getPermissions(['no verifier']);
+            $user->permissions = $user->getPermissions(['no_verifier']);
 
             return $user;
         });

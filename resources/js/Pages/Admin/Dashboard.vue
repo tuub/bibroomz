@@ -3,7 +3,7 @@
 
     <div class="dashboard-card-wrapper">
         <DashboardCard
-            v-if="hasPermission('view happenings')"
+            v-if="hasPermission('view_happenings')"
             :title="$t('admin.happenings.index.title')"
             :description="$t('admin.happenings.index.description')"
             :link="route('admin.happening.index')"
@@ -17,28 +17,28 @@
             icon="ri-home-smile-fill"
         ></DashboardCard>
         <DashboardCard
-            v-if="hasPermission('view resources')"
+            v-if="hasPermission('view_resources')"
             :title="$t('admin.resources.index.title')"
             :description="$t('admin.resources.index.description')"
             :link="route('admin.resource.index')"
             icon="ri-map-pin-fill"
         ></DashboardCard>
         <DashboardCard
-            v-if="hasPermission('view users')"
+            v-if="hasPermission('view_users')"
             :title="$t('admin.users.index.title')"
             :description="$t('admin.users.index.description')"
             :link="route('admin.user.index')"
             icon="ri-user-fill"
         ></DashboardCard>
         <DashboardCard
-            v-if="hasPermission('view roles')"
+            v-if="hasPermission('view_roles')"
             :title="$t('admin.roles.index.title')"
             :description="$t('admin.roles.index.description')"
             :link="route('admin.role.index')"
             icon="ri-group-line"
         ></DashboardCard>
         <DashboardCard
-            v-if="hasPermission('view statistics')"
+            v-if="hasPermission('view_statistics')"
             :title="$t('admin.stats.title')"
             :description="$t('admin.stats.description')"
             :link="route('admin.statistic.index')"

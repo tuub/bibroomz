@@ -17,7 +17,7 @@
                 </option>
 
                 <option v-for="institution in institutions" :key="institution.id" :value="institution.id">
-                    {{ institution.title }}
+                    {{ translate(institution.title) }}
                 </option>
             </select>
             <FormValidationError
@@ -27,32 +27,24 @@
         </div>
 
         <!-- Input: Title -->
-        <div class="mb-6">
-            <FormLabel field="title" field-key="admin.resources.form.fields.title"></FormLabel>
-            <input
-                id="title"
-                v-model="form.title"
-                type="text"
-                name="title"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                :placeholder="$t('admin.resources.form.fields.title.placeholder')"
-            />
-            <FormValidationError v-if="form.errors.title" :message="form.errors.title"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.title"
+            field="title"
+            field-key="admin.resources.form.fields.title"
+            :placeholder="$t('admin.resources.form.fields.title.placeholder')"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Input: Location -->
-        <div class="mb-6">
-            <FormLabel field="location" field-key="admin.resources.form.fields.location"></FormLabel>
-            <input
-                id="location"
-                v-model="form.location"
-                type="text"
-                name="location"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                :placeholder="$t('admin.resources.form.fields.location.placeholder')"
-            />
-            <FormValidationError v-if="form.errors.location" :message="form.errors.location"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.location"
+            field="location"
+            field-key="admin.resources.form.fields.location"
+            :placeholder="$t('admin.resources.form.fields.location.placeholder')"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Input: Location URI -->
         <div class="mb-6">
@@ -72,22 +64,23 @@
         </div>
 
         <!-- Textarea: Description -->
-        <div class="mb-6">
-            <FormLabel field="description" field-key="admin.resources.form.fields.description"></FormLabel>
-            <textarea
-                id="description"
-                v-model="form.description"
-                name="description"
-                rows="4"
-                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                :placeholder="$t('admin.resources.form.fields.description.placeholder')"
-            >
-            </textarea>
-            <FormValidationError
-                v-if="form.errors.description"
-                :message="form.errors.description"
-            ></FormValidationError>
-        </div>
+        <TranslatableFormField
+            field="description"
+            field-key="admin.resources.form.fields.description"
+            :languages="languages"
+            :errors="form.errors"
+        >
+            <template #default="{ language }">
+                <textarea
+                    :id="`description-${language}`"
+                    v-model="form.description[language]"
+                    name="description"
+                    rows="4"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    :placeholder="$t('admin.resources.form.fields.description.placeholder')"
+                ></textarea>
+            </template>
+        </TranslatableFormField>
 
         <!-- Input: Capacity -->
         <div class="mb-6">
@@ -187,6 +180,8 @@
     </form>
 </template>
 <script setup>
+import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
@@ -195,7 +190,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -213,20 +208,25 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    languages: {
+        type: Array,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = inject("translate");
 const isProcessing = ref(false);
 
 const form = useForm({
     id: props.resource?.id ?? "",
     institution_id: props.resource?.institution_id ?? "",
-    title: props.resource?.title ?? "",
-    location: props.resource?.location ?? "",
+    title: props.resource?.title ?? {},
+    location: props.resource?.location ?? {},
     location_uri: props.resource?.location_uri ?? "",
-    description: props.resource?.description ?? "",
+    description: props.resource?.description ?? {},
     capacity: props.resource?.capacity ?? "0",
     is_active: props.resource?.is_active ?? false,
     is_verification_required: props.resource?.is_verification_required ?? true,

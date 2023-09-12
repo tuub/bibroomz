@@ -45,6 +45,7 @@ class ResourceController extends Controller
         return Inertia::render('Admin/Resources/Form', [
             'institutions' => $institutions,
             'weekDays' => WeekDay::get(),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
@@ -75,14 +76,14 @@ class ResourceController extends Controller
                 ...$resource->only([
                     'id',
                     'institution_id',
-                    'title',
-                    'location',
                     'location_uri',
-                    'description',
                     'capacity',
                     'is_active',
                     'is_verification_required',
                 ]),
+                'title' => $resource->getTranslations('title'),
+                'location' => $resource->getTranslations('location'),
+                'description' => $resource->getTranslations('description'),
                 'business_hours' => $resource->business_hours->map(fn ($business_hour) => [
                     'id' => $business_hour->id,
                     'start' => Carbon::parse($business_hour->start)->format('H:i'),
@@ -92,6 +93,7 @@ class ResourceController extends Controller
             ],
             'institutions' => $institutions,
             'weekDays' => WeekDay::get(),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 

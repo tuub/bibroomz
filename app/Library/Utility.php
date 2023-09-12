@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Library;
@@ -6,9 +7,9 @@ namespace App\Library;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
-class Utility {
+class Utility
+{
 
     public static function carbonize($date): Carbon
     {
@@ -30,21 +31,17 @@ class Utility {
         return Carbon::createFromFormat('d.m.Y H:i',  $date . ' ' . $time);
     }
 
-    public static function sendToLog(string $channel, array $data, string $level='info'): void
+    public static function sendToLog(string $channel, array $data, string $level = 'info'): void
     {
-        /*
-        $callingClass = debug_backtrace(
-            !DEBUG_BACKTRACE_PROVIDE_OBJECT|DEBUG_BACKTRACE_IGNORE_ARGS,2
-        )[1]['class'];
-        */
         $callingMethod = debug_backtrace(
-            !DEBUG_BACKTRACE_PROVIDE_OBJECT|DEBUG_BACKTRACE_IGNORE_ARGS,2
+            !DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS,
+            2
         )[1]['function'];
 
         $data = ['ACTION' => $callingMethod] + $data;
 
         Log::channel($channel)->$level(
-            urldecode(http_build_query($data, '',' / '))
+            urldecode(http_build_query($data, '', ' / '))
         );
     }
 
@@ -59,5 +56,27 @@ class Utility {
         $time_arr = explode(':', $time_str);
 
         return $date->hour(str($time_arr[0]))->minute(str($time_arr[1]));
+    }
+
+    /**
+     * Make the given rule keys translatable.
+     *
+     * @param array $rules
+     * @param array $translatables
+     * @return array
+     */
+    public static function makeRulesTranslatable(array &$rules, array $translatables): array
+    {
+        $lanugages = config('app.supported_locales');
+
+        foreach ($translatables as $translatable) {
+            foreach ($lanugages as $language) {
+                $rules[$translatable . '.' . $language] = $rules[$translatable];
+            }
+
+            unset($rules[$translatable]);
+        }
+
+        return $rules;
     }
 }

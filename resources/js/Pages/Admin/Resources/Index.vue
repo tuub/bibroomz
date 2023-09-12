@@ -5,7 +5,7 @@
     <PopupModal />
 
     <div>
-        <Link v-if="hasPermission('create resources')" :href="route('admin.resource.create')">{{
+        <Link v-if="hasPermission('create_resources')" :href="route('admin.resource.create')">{{
             $t("admin.resources.index.table.actions.create")
         }}</Link>
     </div>
@@ -50,10 +50,10 @@
                         scope="row"
                         class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     >
-                        {{ resource.title }}
+                        {{ translate(resource.title) }}
                     </th>
                     <td class="px-6 py-4 align-top">
-                        {{ resource.location }}
+                        {{ translate(resource.location) }}
                         <template v-if="resource.location_uri">
                             <a :href="resource.location_uri" target="_blank">
                                 <i class="inline ri-external-link-line"></i>
@@ -61,7 +61,7 @@
                         </template>
                     </td>
                     <td class="px-6 py-4 align-top">
-                        {{ resource.institution.title }}
+                        {{ translate(resource.institution.title) }}
                     </td>
                     <td class="px-6 py-4 align-top">
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
@@ -86,7 +86,7 @@
                         <i v-if="!resource.is_verification_required" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <span v-if="hasPermission('edit resources', resource.institution_id)">
+                        <span v-if="hasPermission('edit_resources', resource.institution_id)">
                             <Link
                                 :href="
                                     route('admin.resource.edit', {
@@ -98,7 +98,7 @@
                                 {{ $t("admin.resources.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('create resources', resource.institution_id)">
+                        <span v-if="hasPermission('create_resources', resource.institution_id)">
                             |
                             <Link
                                 :href="
@@ -113,7 +113,7 @@
                                 {{ $t("admin.resources.index.table.actions.clone") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('view closings', resource.institution_id)">
+                        <span v-if="hasPermission('view_closings', resource.institution_id)">
                             |
                             <Link
                                 :href="
@@ -127,7 +127,7 @@
                                 {{ $t("admin.resources.index.table.actions.closings") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete resources', resource.institution_id)">
+                        <span v-if="hasPermission('delete_resources', resource.institution_id)">
                             |
                             <a
                                 :href="route('admin.resource.delete', { id: resource.id })"
@@ -184,6 +184,7 @@ const modal = useModal();
 const { hasPermission } = authStore;
 
 const route = inject("route");
+const translate = inject("translate");
 
 // ------------------------------------------------
 // Methods

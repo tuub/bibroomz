@@ -4,30 +4,22 @@
 
     <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Name -->
-        <div class="mb-6">
-            <FormLabel field="name" field-key="admin.roles.form.fields.name"></FormLabel>
-            <input
-                id="name"
-                v-model="form.name"
-                type="text"
-                name="name"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            />
-            <FormValidationError :message="form.errors.name"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.name"
+            field="name"
+            field-key="admin.roles.form.fields.name"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Input: Description -->
-        <div class="mb-6">
-            <FormLabel field="description" field-key="admin.roles.form.fields.description"></FormLabel>
-            <input
-                id="description"
-                v-model="form.description"
-                type="text"
-                name="description"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            />
-            <FormValidationError :message="form.errors.description"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.description"
+            field="description"
+            field-key="admin.roles.form.fields.description"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Checkbox: Permissions -->
         <div class="mb-6">
@@ -51,13 +43,13 @@
                             <label
                                 :for="`permission-checkbox-${index}`"
                                 class="font-medium text-gray-900 dark:text-gray-300"
-                                >{{ permission.name }}</label
+                                >{{ translate(permission.name) }}</label
                             >
                             <p
                                 :id="`permission-checkbox-text-${index}`"
                                 class="text-xs font-normal text-gray-500 dark:text-gray-300"
                             >
-                                {{ permission.name }}
+                                {{ translate(permission.description) }}
                             </p>
                         </div>
                     </div>
@@ -77,13 +69,13 @@
     </form>
 </template>
 <script setup>
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
-import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -97,17 +89,22 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    languages: {
+        type: Array,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = inject("translate");
 const isProcessing = ref(false);
 
 const form = useForm({
     id: props.role.id ?? "",
-    name: props.role.name ?? "",
-    description: props.role.description ?? "",
+    name: props.role.name ?? {},
+    description: props.role.description ?? {},
     permissions: props.role.permissions?.map((permission) => permission.id) ?? [],
 });
 

@@ -20,7 +20,7 @@ class ResourcePolicy
      */
     public function view(User $user, Resource $resource)
     {
-        if ($user->can('view resources', $resource->institution)) {
+        if ($user->can('view_resources', $resource->institution)) {
             return true;
         }
     }
@@ -34,7 +34,7 @@ class ResourcePolicy
      */
     public function create(User $user, Institution $institution)
     {
-        if ($user->can('create resources', $institution)) {
+        if ($user->can('create_resources', $institution)) {
             return true;
         }
     }
@@ -48,7 +48,7 @@ class ResourcePolicy
      */
     public function update(User $user, Resource $resource)
     {
-        if ($user->can('edit resources', $resource->institution)) {
+        if ($user->can('edit_resources', $resource->institution)) {
             return true;
         }
     }
@@ -67,7 +67,7 @@ class ResourcePolicy
      */
     public function delete(User $user, Resource $resource)
     {
-        if ($user->can('delete resources', $resource->institution)) {
+        if ($user->can('delete_resources', $resource->institution)) {
             return true;
         }
     }
@@ -81,7 +81,7 @@ class ResourcePolicy
      */
     public function clone(User $user, Resource $resource)
     {
-        if ($user->can('create resources', $resource->institution)) {
+        if ($user->can('create_resources', $resource->institution)) {
             return true;
         }
     }

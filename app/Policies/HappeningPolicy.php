@@ -96,28 +96,28 @@ class HappeningPolicy
 
     public function adminView(User $user, Happening $happening)
     {
-        if ($user->can('view happenings', $happening->resource->institution)) {
+        if ($user->can('view_happenings', $happening->resource->institution)) {
             return true;
         }
     }
 
     public function adminCreate(User $user, Institution $institution)
     {
-        if ($user->can('create happenings', $institution)) {
+        if ($user->can('create_happenings', $institution)) {
             return true;
         }
     }
 
     public function adminUpdate(User $user, Happening $happening)
     {
-        if ($user->can('edit happenings', $happening->resource->institution)) {
+        if ($user->can('edit_happenings', $happening->resource->institution)) {
             return true;
         }
     }
 
     public function adminDelete(User $user, Happening $happening)
     {
-        if ($user->can('delete happenings', $happening->resource->institution)) {
+        if ($user->can('delete_happenings', $happening->resource->institution)) {
             return true;
         }
     }

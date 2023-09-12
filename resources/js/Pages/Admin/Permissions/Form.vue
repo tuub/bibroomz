@@ -4,30 +4,22 @@
 
     <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Name -->
-        <div class="mb-6">
-            <FormLabel field="name" field-key="admin.permissions.form.fields.name"></FormLabel>
-            <input
-                id="name"
-                v-model="form.name"
-                type="text"
-                name="name"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            />
-            <FormValidationError :message="form.errors.name"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.name"
+            field="name"
+            field-key="admin.permissions.form.fields.name"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Input: Description -->
-        <div class="mb-6">
-            <FormLabel field="description" field-key="admin.permissions.form.fields.description"></FormLabel>
-            <input
-                id="description"
-                v-model="form.description"
-                type="text"
-                name="description"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            />
-            <FormValidationError :message="form.errors.description"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.description"
+            field="description"
+            field-key="admin.permissions.form.fields.description"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <div class="mb-6">
             <button
@@ -41,9 +33,8 @@
     </form>
 </template>
 <script setup>
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
-import FormLabel from "@/Shared/Form/FormLabel.vue";
-import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
@@ -57,6 +48,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    languages: {
+        type: Array,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
@@ -66,8 +61,8 @@ const isProcessing = ref(false);
 
 const form = useForm({
     id: props.permission.id ?? "",
-    name: props.permission.name ?? "",
-    description: props.permission.description ?? "",
+    name: props.permission.name ?? {},
+    description: props.permission.description ?? {},
 });
 
 // ------------------------------------------------

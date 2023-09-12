@@ -24,22 +24,22 @@
                     {{ $t("navigation.admin.institutions") }}
                 </NavLink>
             </li>
-            <li v-if="hasPermission('view resources')">
+            <li v-if="hasPermission('view_resources')">
                 <NavLink icon="ri-map-pin-fill" :href="route('admin.resource.index')" :is-active="isPageResources">
                     {{ $t("navigation.admin.resources") }}
                 </NavLink>
             </li>
-            <li v-if="hasPermission('view users')">
+            <li v-if="hasPermission('view_users')">
                 <NavLink icon="ri-user-fill" :href="route('admin.user.index')" :is-active="isPageUsers">
                     {{ $t("navigation.admin.users") }}
                 </NavLink>
             </li>
-            <li v-if="hasPermission('view roles')">
+            <li v-if="hasPermission('view_roles')">
                 <NavLink icon="ri-group-line" :href="route('admin.role.index')" :is-active="isPageRoles">
                     {{ $t("navigation.admin.roles") }}
                 </NavLink>
             </li>
-            <li v-if="hasPermission('view statistics')">
+            <li v-if="hasPermission('view_statistics')">
                 <NavLink icon="ri-bar-chart-fill" :href="route('admin.statistic.index')" :is-active="isPageStats">
                     {{ $t("navigation.admin.stats") }}
                 </NavLink>

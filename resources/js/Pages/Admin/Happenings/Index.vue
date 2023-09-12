@@ -5,7 +5,7 @@
     <PopupModal />
 
     <div>
-        <Link v-if="hasPermission('create happenings')" :href="route('admin.happening.create')">{{
+        <Link v-if="hasPermission('create_happenings')" :href="route('admin.happening.create')">{{
             $t("admin.happenings.index.table.actions.create")
         }}</Link>
     </div>
@@ -84,7 +84,7 @@
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <span v-if="hasPermission('edit happenings', happening.resource.institution_id)">
+                        <span v-if="hasPermission('edit_happenings', happening.resource.institution_id)">
                             <Link
                                 :href="
                                     route('admin.happening.edit', {
@@ -96,7 +96,7 @@
                                 {{ $t("admin.happenings.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete happenings', happening.resource.institution_id)">
+                        <span v-if="hasPermission('delete_happenings', happening.resource.institution_id)">
                             |
                             <a
                                 :href="route('admin.happening.delete', { id: happening.id })"

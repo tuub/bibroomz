@@ -1,10 +1,10 @@
 <template>
     <PageHead
-        :title="$t('admin.closings.index.title', { type: closable_type, title: closable.title })"
+        :title="$t('admin.closings.index.title', { type: closable_type, title: translate(closable.title) })"
         page-type="admin"
     />
     <BodyHead
-        :title="$t('admin.closings.index.title', { type: closable_type, title: closable.title })"
+        :title="$t('admin.closings.index.title', { type: closable_type, title: translate(closable.title) })"
         :description="$t('admin.closings.index.description')"
     />
 
@@ -12,7 +12,7 @@
 
     <div>
         <Link
-            v-if="hasPermission('create closings', institutionId)"
+            v-if="hasPermission('create_closings', institutionId)"
             :href="
                 route('admin.closing.create', {
                     closable_type: closable_type,
@@ -57,14 +57,14 @@
                         {{ formatDateTime(closing.end) }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ closing.description }}
+                        {{ translate(closing.description) }}
                     </td>
                     <td class="px-6 py-4 text-center">
                         <i v-if="isPastClosing(closing)" class="ri-checkbox-circle-line text-green-500"></i>
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <span v-if="hasPermission('edit closings', institutionId)">
+                        <span v-if="hasPermission('edit_closings', institutionId)">
                             <Link
                                 :href="
                                     route('admin.closing.edit', {
@@ -76,7 +76,7 @@
                                 {{ $t("admin.closings.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete closings', institutionId)">
+                        <span v-if="hasPermission('delete_closings', institutionId)">
                             |
                             <a
                                 :href="route('admin.closing.delete', { id: closing.id })"
@@ -144,6 +144,7 @@ const modal = useModal();
 const { hasPermission } = authStore;
 
 const route = inject("route");
+const translate = inject("translate");
 
 // ------------------------------------------------
 // Variables

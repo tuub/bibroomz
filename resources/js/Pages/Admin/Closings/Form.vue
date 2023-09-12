@@ -1,10 +1,10 @@
 <template>
     <PageHead
-        :title="$t('admin.closings.form.title', { type: closable_type, title: closable.title })"
+        :title="$t('admin.closings.form.title', { type: closable_type, title: translate(closable.title) })"
         page-type="admin"
     />
     <BodyHead
-        :title="$t('admin.closings.form.title', { type: closable_type, title: closable.title })"
+        :title="$t('admin.closings.form.title', { type: closable_type, title: translate(closable.title) })"
         :description="$t('admin.closings.form.description')"
     />
 
@@ -66,18 +66,23 @@
         </div>
 
         <!-- Input: Description -->
-        <div class="mb-6">
-            <FormLabel field="description" field-key="admin.closings.form.fields.description"></FormLabel>
-            <input
-                id="description"
-                v-model="form.description"
-                type="text"
-                name="description"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                :placeholder="$t('admin.closings.form.fields.description.placeholder')"
-            />
-            <FormValidationError :message="form.errors.description"></FormValidationError>
-        </div>
+        <TranslatableFormField
+            field="description"
+            field-key="admin.closings.form.fields.description"
+            :languages="languages"
+            :errors="form.errors"
+        >
+            <template #default="{ language }">
+                <textarea
+                    :id="`description-${language}`"
+                    v-model="form.description[language]"
+                    name="description"
+                    rows="4"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    :placeholder="$t('admin.closings.form.fields.description.placeholder')"
+                ></textarea>
+            </template>
+        </TranslatableFormField>
 
         <div class="mb-6">
             <button
@@ -91,13 +96,14 @@
     </form>
 </template>
 <script setup>
+import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -116,11 +122,16 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    languages: {
+        type: Array,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = inject("translate");
 const processing = ref(false);
 
 const form = useForm({
@@ -129,7 +140,7 @@ const form = useForm({
     start_time: props.closing.start_time ?? "",
     end_date: props.closing.end_date ?? "",
     end_time: props.closing.end_time ?? "",
-    description: props.closing.description ?? "",
+    description: props.closing.description ?? {},
     closable_id: props.closable.id,
     closable_type: props.closable_type,
 });

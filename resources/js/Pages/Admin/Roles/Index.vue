@@ -33,10 +33,10 @@
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ role.name }}
+                        {{ translate(role.name) }}
                     </td>
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ role.description }}
+                        {{ translate(role.description) }}
                     </td>
                     <td class="px-6 py-4 text-center">
                         {{
@@ -93,6 +93,7 @@ const modal = useModal();
 
 // INJECT
 const route = inject("route");
+const translate = inject("translate");
 
 // STATE
 const actions = [];

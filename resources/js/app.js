@@ -1,27 +1,41 @@
-import "./bootstrap";
-
-import { createApp, h } from "vue";
-import { createInertiaApp, Head, Link } from "@inertiajs/vue3";
-import { createPinia } from "pinia";
-import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-import mitt from "mitt";
-import MainLayout from "./Layouts/MainLayout.vue";
-import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
-import { ZiggyVue } from "ziggy";
-import { Ziggy } from "./ziggy";
-import Toast from "vue-toastification";
-import "vue-toastification/dist/index.css";
-import { i18nVue } from "laravel-vue-i18n";
+import MainLayout from "@/Layouts/MainLayout.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 // FIXME
 import route from "../../vendor/tightenco/ziggy/src/js";
 
+import "./bootstrap";
+import { Ziggy } from "./ziggy";
+
+import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { i18nVue } from "laravel-vue-i18n";
+import mitt from "mitt";
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import { createApp, h } from "vue";
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
+import { ZiggyVue } from "ziggy";
+
 const emitter = mitt();
+
+const translate = (translatable, locale) => {
+    if (!translatable) {
+        return;
+    }
+
+    if (!locale) {
+        const appStore = useAppStore();
+        locale = appStore.locale;
+    }
+
+    return translatable[locale] ?? translatable["de"] ?? translatable["en"];
+};
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
-
-// FIXME: check cookie for current language
+pinia.use(() => ({ translate }));
 
 createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
@@ -91,6 +105,8 @@ createInertiaApp({
         app.provide("route", (name, params, absolute, config = Ziggy) => {
             return route(name, params, absolute, config);
         });
+
+        app.provide("translate", translate);
 
         app.mount(el);
     },

@@ -30,7 +30,7 @@ class AddHappeningRequest extends FormRequest
 
         $user = $this->user();
 
-        $is_verification_required = $resource->isVerificationRequired() && !$user->hasPermission('no verifier', $institution);
+        $is_verification_required = $resource->isVerificationRequired() && !$user->hasPermission('no_verifier', $institution);
 
         return [
             'resource' => ['required'],

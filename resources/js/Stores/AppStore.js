@@ -1,4 +1,4 @@
-import { getActiveLanguage } from "laravel-vue-i18n";
+import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
@@ -25,12 +25,13 @@ export const useAppStore = defineStore({
                     locale,
                 })
                 .then(() => {
+                    loadLanguageAsync(locale);
                     this.locale = locale;
                 });
         },
     },
     getters: {
-        institutionTitle: (state) => state.institution?.title,
+        institutionTitle: (state) => state.translate(state.institution?.title),
         institutionShortTitle: (state) => state.institution?.short_title,
         institutionSlug: (state) => state.institution?.slug,
         institutionHomeUri: (state) => state.institution?.home_uri,

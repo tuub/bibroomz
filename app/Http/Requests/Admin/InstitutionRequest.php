@@ -2,21 +2,11 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\Institution;
+use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreInstitutionRequest extends FormRequest
+class InstitutionRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return $this->user()->can('create', Institution::class);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,7 +14,7 @@ class StoreInstitutionRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'title' => ['required'],
             'short_title' => ['required'],
             'slug' => ['required'],
@@ -35,5 +25,9 @@ class StoreInstitutionRequest extends FormRequest
             'teaser_uri' => ['url'],
             'is_active' => ['required'],
         ];
+
+        Utility::makeRulesTranslatable($rules, ['title']);
+
+        return $rules;
     }
 }

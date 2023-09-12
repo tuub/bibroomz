@@ -139,7 +139,7 @@ class HappeningController extends Controller
 
         $this->isHappeningValid($user, $resource, $start, $end);
 
-        $is_admin = $user->hasPermission('no verifier', $resource->institution);
+        $is_admin = $user->hasPermission('no_verifier', $resource->institution);
         $is_verified = !$resource->isVerificationRequired() || $is_admin;
 
         // Compile happening payload

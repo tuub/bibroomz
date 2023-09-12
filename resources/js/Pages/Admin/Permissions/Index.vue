@@ -30,10 +30,10 @@
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ permission.name }}
+                        {{ translate(permission.name) }}
                     </td>
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ permission.description }}
+                        {{ translate(permission.description) }}
                     </td>
                     <td class="px-6 py-4 text-right">
                         <Link
@@ -71,7 +71,7 @@ import useModal from "@/Stores/Modal";
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onBeforeMount, onMounted } from "vue";
 
 defineProps({
     permissions: {
@@ -82,22 +82,25 @@ defineProps({
 
 const modal = useModal();
 const route = inject("route");
+const translate = inject("translate");
 
 const actions = [];
 
-const deletePermissionLabel = computed(() => trans("popup.actions.delete"));
+onBeforeMount(() => {
+    const deletePermissionLabel = computed(() => trans("popup.actions.delete"));
 
-const deletePermissionAction = {
-    label: deletePermissionLabel,
-    callback: (permission) => {
-        router.visit(route("admin.permission.delete", { id: permission.id }), {
-            method: "post",
-            preserveScroll: true,
-        });
-    },
-};
+    const deletePermissionAction = {
+        label: deletePermissionLabel,
+        callback: (permission) => {
+            router.visit(route("admin.permission.delete", { id: permission.id }), {
+                method: "post",
+                preserveScroll: true,
+            });
+        },
+    };
 
-actions.push(deletePermissionAction);
+    actions.push(deletePermissionAction);
+});
 
 onMounted(() => {
     modal.init(

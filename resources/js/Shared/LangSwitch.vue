@@ -16,7 +16,6 @@
 <script setup>
 import { useAppStore } from "@/Stores/AppStore";
 
-import { loadLanguageAsync } from "laravel-vue-i18n";
 import { storeToRefs } from "pinia";
 import { onBeforeMount } from "vue";
 
@@ -30,9 +29,7 @@ const locales = {
 const { locale: activeLocale } = storeToRefs(appStore);
 
 const switchLocale = (code) => {
-    loadLanguageAsync(code);
     appStore.setCurrentLocale(code);
-    activeLocale.value = code;
 };
 
 onBeforeMount(() => {

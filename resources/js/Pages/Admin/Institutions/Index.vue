@@ -5,7 +5,7 @@
     <PopupModal />
 
     <div>
-        <Link v-if="hasPermission('create institutions')" :href="route('admin.institution.create')">{{
+        <Link v-if="hasPermission('create_institutions')" :href="route('admin.institution.create')">{{
             $t("admin.institutions.index.table.actions.create")
         }}</Link>
     </div>
@@ -44,7 +44,7 @@
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ institution.title }}
+                        {{ translate(institution.title) }}
                     </th>
                     <td class="px-6 py-4">
                         {{ institution.short_title }}
@@ -63,7 +63,7 @@
                         <i v-if="!institution.is_active" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <span v-if="hasPermission('edit institution', institution.id)">
+                        <span v-if="hasPermission('edit_institution', institution.id)">
                             <Link
                                 :href="
                                     route('admin.institution.edit', {
@@ -75,7 +75,7 @@
                                 {{ $t("admin.institutions.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('view closings', institution.id)">
+                        <span v-if="hasPermission('view_closings', institution.id)">
                             |
                             <Link
                                 :href="
@@ -89,7 +89,7 @@
                                 {{ $t("admin.institutions.index.table.actions.closings") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('edit institution', institution.id)">
+                        <span v-if="hasPermission('edit_institution', institution.id)">
                             |
                             <Link
                                 :href="
@@ -102,7 +102,7 @@
                                 {{ $t("admin.institutions.index.table.actions.settings") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete institution', institution.id)">
+                        <span v-if="hasPermission('delete_institution', institution.id)">
                             |
                             <a
                                 :href="route('admin.institution.delete', { id: institution.id })"
@@ -167,6 +167,7 @@ const { hasPermission } = authStore;
 // Variables
 // ------------------------------------------------
 const route = inject("route");
+const translate = inject("translate");
 
 const actions = [];
 

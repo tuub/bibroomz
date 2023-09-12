@@ -273,7 +273,7 @@ export const useAuthStore = defineStore({
             const quota_weekly_hours = institution.settings.quota_weekly_hours;
             const quota_daily_hours = institution.settings.quota_daily_hours;
 
-            if (this.can("unlimited quotas")) {
+            if (this.can("unlimited_quotas")) {
                 return false;
             }
 
@@ -376,11 +376,11 @@ export const useAuthStore = defineStore({
         },
 
         canViewInstitutions() {
-            if (this.hasPermission("view institutions")) {
+            if (this.hasPermission("view_institutions")) {
                 return true;
             }
 
-            if (this.hasPermission("view institution")) {
+            if (this.hasPermission("view_institution")) {
                 return true;
             }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
+use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,15 +14,16 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Institution extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'institutions';
     protected $uuidFieldName = 'id';
-    public $timestamps = false;
     public $incrementing = false;
+    public $timestamps = false;
+
     protected $fillable = [
         'title',
         'short_title',
@@ -32,9 +34,15 @@ class Institution extends Model
         'teaser_uri',
         'is_active',
     ];
+
     protected $morphClass = 'institution';
+
     protected $casts = [
         'is_active' => 'boolean',
+    ];
+
+    protected $translatable = [
+        'title',
     ];
 
     /*****************************************************************

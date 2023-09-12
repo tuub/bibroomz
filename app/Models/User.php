@@ -106,7 +106,11 @@ class User extends Authenticatable
             ->get();
     }
 
-    public function isHavingConcurrentHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
+    public function isHavingConcurrentHappening(
+        CarbonImmutable $start,
+        CarbonImmutable $end,
+        Happening $happening = null,
+    ): bool
     {
         return $this->getHappenings()
             ->whereNotIn('id', [$happening?->id])
@@ -118,14 +122,14 @@ class User extends Authenticatable
     {
         if ($this->isAdmin()) {
             return Institution::all()->pluck('id')->flatMap(fn ($id): array => [
-                $id => Permission::all()->pluck('name')->intersect($filter)->values(),
+                $id => Permission::all()->pluck('key')->intersect($filter)->values(),
             ]);
         }
 
         return $this->roles
             ->map(fn (Role $role): array => [
                 "institution" => $role->pivot->institution->id,
-                "permissions" => $role->getPermissionNames($filter),
+                "permissions" => $role->getPermissionKeys($filter),
             ])
             ->reduce(fn (Collection $result, array $value): Collection => $result->mergeRecursive([
                 $value['institution'] => $value['permissions'],

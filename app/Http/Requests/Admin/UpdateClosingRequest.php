@@ -2,20 +2,11 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateClosingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,13 +14,17 @@ class UpdateClosingRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'id' => ['required'],
-            'start_date' => ['required'],
-            'start_time' => ['required'],
-            'end_date' => ['required'],
-            'end_time' => ['required'],
+        $rules = [
+            'id' => ['required', 'uuid'],
+            'start_date' => ['required', 'date_format:d.m.Y'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_date' => ['required', 'date_format:d.m.Y'],
+            'end_time' => ['required', 'date_format:H:i'],
             'description' => [''],
         ];
+
+        Utility::makeRulesTranslatable($rules, ['description']);
+
+        return $rules;
     }
 }

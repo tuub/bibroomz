@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
+use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,12 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
 
     protected string $uuidFieldName = 'id';
     public $incrementing = false;
 
     protected $fillable = [
+        'name',
+        'description',
+    ];
+
+    protected $translatable = [
         'name',
         'description',
     ];
@@ -44,18 +50,18 @@ class Role extends Model
         $pivot = $this->pivot;
 
         if (!$pivot || !$institution) {
-            return $this->permissions->contains('name', $permission);
+            return $this->permissions->contains('key', $permission);
         }
 
         return $pivot->hasPermission($permission, $institution);
     }
 
-    public function getPermissionNames(array $permissions = null): array
+    public function getPermissionKeys(array $permissions = null): array
     {
         if (!$permissions) {
-            return $this->permissions->pluck('name')->toArray();
+            return $this->permissions->pluck('key')->toArray();
         }
 
-        return $this->permissions->pluck('name')->intersect($permissions)->toArray();
+        return $this->permissions->pluck('key')->intersect($permissions)->toArray();
     }
 }

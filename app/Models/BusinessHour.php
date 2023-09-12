@@ -20,12 +20,24 @@ class BusinessHour extends Model
      * OPTIONS
      ****************************************************************/
     protected $table = 'business_hours';
-    protected string $uuidFieldName = 'id';
+    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = true;
-    protected $fillable = ['resource_id', 'start', 'end'];
-    protected $dates = ['created_at', 'updated_at'];
-    protected $cloneable_relations = ['week_days'];
+
+    protected $fillable = [
+        'resource_id',
+        'start',
+        'end',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $cloneable_relations = [
+        'week_days',
+    ];
 
     /*****************************************************************
      * RELATIONS

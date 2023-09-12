@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Library\Utility;
+use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
@@ -23,15 +24,16 @@ use \Bkwld\Cloner\Cloneable;
 
 class Resource extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'resources';
-    protected string $uuidFieldName = 'id';
+    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
+
     protected $fillable = [
         'institution_id',
         'title',
@@ -42,15 +44,24 @@ class Resource extends Model
         'is_active',
         'is_verification_required',
     ];
+
     protected $with = ['closings'];
+
     protected $casts = [
         'is_active' => 'boolean',
         'is_verification_required' => 'boolean',
     ];
+
     protected $cloneable_relations = [
         'institution',
         'business_hours',
         'closings',
+    ];
+
+    protected $translatable = [
+        'title',
+        'location',
+        'description',
     ];
 
     /*****************************************************************
@@ -90,13 +101,6 @@ class Resource extends Model
     public function isVerificationRequired(): bool
     {
         return $this->is_verification_required;
-    }
-
-    public function onCloning($source, $child = null)
-    {
-        $this->title = $source->title . ' (' . trans('admin.general.table.clone') . ')';
-        if ($child) echo 'This was cloned as a relation!';
-        echo 'The original key is: ' . $source->getKey();
     }
 
     /**
@@ -211,8 +215,11 @@ class Resource extends Model
      * @return array
      * @throws InvalidArgumentException
      */
-    public function getFormBusinessHours(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): array
-    {
+    public function getFormBusinessHours(
+        CarbonImmutable $start,
+        CarbonImmutable $end,
+        Happening $happening = null,
+    ): array {
         $start_time_slots = $this->getStartTimeSlots($start, $happening)->values();
         $end_time_slots = $this->getEndTimeSlots($start, $end, $happening)->values();
 
@@ -292,8 +299,11 @@ class Resource extends Model
      * @return Collection
      * @throws InvalidArgumentException
      */
-    private function getEndTimeSlots(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): Collection
-    {
+    private function getEndTimeSlots(
+        CarbonImmutable $start,
+        CarbonImmutable $end,
+        Happening $happening = null,
+    ): Collection {
         $time_slots = $this->initTimeSlots($this->initTimePeriod($start), $end);
 
         $time_slots = $this->removePastTimeSlots($time_slots);
@@ -391,7 +401,10 @@ class Resource extends Model
     private function disableNonSeqentialTimeSlots(Collection $time_slots, CarbonImmutable $start): Collection
     {
         return $time_slots->map(function ($time_slot) use ($start, $time_slots) {
-            if ($time_slots->contains(fn ($_time_slot) => $_time_slot['time'] > $start && $_time_slot['time'] < $time_slot['time'] && $_time_slot['is_disabled'])) {
+            if (
+                $time_slots->contains(fn ($_time_slot) => $_time_slot['time'] > $start
+                    && $_time_slot['time'] < $time_slot['time'] && $_time_slot['is_disabled'])
+            ) {
                 $time_slot['is_disabled'] = true;
             }
 
@@ -589,7 +602,7 @@ class Resource extends Model
     {
         /** @var User */
         $user = auth()->user();
-        if ($user->can('edit', $this->institution)) {
+        if ($user->can('unlimited_quotas', $this->institution)) {
             return false;
         }
 
@@ -609,7 +622,10 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        $happenings = Happening::whereHas('resource', fn (Builder $query) => $query->where('institution_id', $this->institution->getKey()))
+        $happenings = Happening::whereHas(
+            'resource',
+            fn (Builder $query) => $query->where('institution_id', $this->institution->getKey()),
+        )
             ->whereNot('id', $happening?->id)
             ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
                 ->orWhere('user_id_02', $user->getKey()))

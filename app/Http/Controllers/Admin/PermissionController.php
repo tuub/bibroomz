@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PermissionRequest;
 use App\Models\Permission;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,14 +24,16 @@ class PermissionController extends Controller
     {
         $this->authorize('create', Permission::class);
 
-        return Inertia::render('Admin/Permissions/Form');
+        return Inertia::render('Admin/Permissions/Form', [
+            'languages' => config('app.supported_locales'),
+        ]);
     }
 
-    public function storePermission(Request $request): RedirectResponse
+    public function storePermission(PermissionRequest $request): RedirectResponse
     {
         $this->authorize('create', Permission::class);
 
-        Permission::create($request->only('name', 'description'));
+        Permission::create($request->validated());
 
         return redirect()->route('admin.permission.index');
     }
@@ -42,14 +44,15 @@ class PermissionController extends Controller
 
         return Inertia::render('Admin/Permissions/Form', [
             'permission' => $permission,
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
-    public function updatePermission(Permission $permission, Request $request): RedirectResponse
+    public function updatePermission(Permission $permission, PermissionRequest $request): RedirectResponse
     {
         $this->authorize('edit', $permission);
 
-        $permission->update($request->only('name', 'description'));
+        $permission->update($request->validated());
 
         return redirect()->route('admin.permission.index');
     }

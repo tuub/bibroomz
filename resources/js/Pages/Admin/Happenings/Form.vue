@@ -262,7 +262,7 @@ const isHappeningToVerify = computed(() => {
         return true;
     }
 
-    if (currentUser.value.permissions[currentInstitutionId]?.includes("no verifier")) {
+    if (currentUser.value.permissions[currentInstitutionId]?.includes("no_verifier")) {
         return false;
     }
 

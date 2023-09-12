@@ -17,7 +17,7 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->can('view users')) {
+        if ($user->can('view_users')) {
             return true;
         }
     }
@@ -31,11 +31,11 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        if ($model->isAdmin() && !$user->can('edit admin users')) {
+        if ($model->isAdmin() && !$user->can('edit_admin_users')) {
             return false;
         }
 
-        if ($user->can('edit users')) {
+        if ($user->can('edit_users')) {
             return true;
         }
     }
@@ -54,11 +54,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-        if ($model->isAdmin() && !$user->can('delete admin users')) {
+        if ($model->isAdmin() && !$user->can('delete_admin_users')) {
             return false;
         }
 
-        if ($user->can('delete users')) {
+        if ($user->can('delete_users')) {
             return true;
         }
     }

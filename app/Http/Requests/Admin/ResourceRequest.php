@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
 abstract class ResourceRequest extends FormRequest
@@ -13,7 +14,7 @@ abstract class ResourceRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
             'title' => ['required'],
             'location' => ['required'],
@@ -28,5 +29,9 @@ abstract class ResourceRequest extends FormRequest
             'business_hours.*.end' => ['required_with:business_hours', 'date_format:H:i'],
             'business_hours.*.week_days' => ['required_with:business_hours'],
         ];
+
+        Utility::makeRulesTranslatable($rules, ['title', 'location', 'description']);
+
+        return $rules;
     }
 }

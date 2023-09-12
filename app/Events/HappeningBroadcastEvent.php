@@ -42,7 +42,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcast
         /** @var User */
         $user1 = User::find($happening->user_id_01);
 
-        $is_admin = $user1->hasPermission('no verifier', $resource->institution);
+        $is_admin = $user1->hasPermission('no_verifier', $resource->institution);
         $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [

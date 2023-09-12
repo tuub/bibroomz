@@ -30,21 +30,42 @@ class PermissionSeeder extends Seeder
             'roles',
         ];
 
-        foreach ($verbs as $verb) {
-            foreach ($models as $model) {
-                Permission::create(['name' => $verb . ' ' . $model]);
-            }
+        foreach ($models as $model) {
+            $this->createPermissions($verbs, $model);
         }
 
-        Permission::create(['name' => 'view institution']);
-        Permission::create(['name' => 'edit institution']);
-        Permission::create(['name' => 'delete institution']);
+        $this->createPermissions(['view', 'edit', 'delete'], 'institution');
+        $this->createPermissions(['view', 'edit', 'delete'], 'admin users');
 
-        Permission::create(['name' => 'view admin users']);
-        Permission::create(['name' => 'edit admin users']);
-        Permission::create(['name' => 'delete admin users']);
+        Permission::create([
+            'key' => 'unlimited_quotas',
+            'name' => [
+                'en' => 'Unlimited quotas',
+            ],
+        ]);
 
-        Permission::create(['name' => 'unlimited quotas']);
-        Permission::create(['name' => 'no verifier']);
+        Permission::create([
+            'key' => 'no_verifier',
+            'name' => [
+                'en' => 'No verifier',
+            ],
+        ]);
+    }
+
+    private function createPermissions(array $verbs, string $model)
+    {
+        foreach ($verbs as $verb) {
+            $this->createPermission($verb, $model);
+        }
+    }
+
+    private function createPermission(String $verb, String $model)
+    {
+        Permission::create([
+            'key' => implode('_', [$verb, str_replace(' ', '_', $model)]),
+            'name' => [
+                'en' => implode(' ', [ucfirst($verb), $model]),
+            ],
+        ]);
     }
 }

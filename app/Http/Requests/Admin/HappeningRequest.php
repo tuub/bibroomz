@@ -22,7 +22,7 @@ abstract class HappeningRequest extends FormRequest
         /** @var Resource */
         $resource = Resource::find($this->resource_id);
 
-        $is_admin = $user1?->hasPermission('no verifier', $resource?->institution);
+        $is_admin = $user1?->hasPermission('no_verifier', $resource?->institution);
         $is_verification_required = !$is_admin && $resource?->is_verification_required;
 
         return [

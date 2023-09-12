@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,14 +27,15 @@ class RoleController extends Controller
 
         return Inertia::render('Admin/Roles/Form', [
             'permissions' => Permission::orderBy('name')->get(),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
-    public function storeRole(Request $request): RedirectResponse
+    public function storeRole(RoleRequest $request): RedirectResponse
     {
         $this->authorize('create', Role::class);
 
-        $role = Role::create($request->only('name', 'description'));
+        $role = Role::create($request->validated());
         $role->permissions()->sync($request->permissions);
 
         return redirect()->route('admin.role.index');
@@ -47,14 +48,15 @@ class RoleController extends Controller
         return Inertia::render('Admin/Roles/Form', [
             'role' => $role->load('permissions'),
             'permissions' => Permission::orderBy('name')->get(),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
-    public function updateRole(Role $role, Request $request): RedirectResponse
+    public function updateRole(Role $role, RoleRequest $request): RedirectResponse
     {
         $this->authorize('edit', $role);
 
-        $role->update($request->only('name', 'description'));
+        $role->update($request->validated());
         $role->permissions()->sync($request->permissions);
 
         return redirect()->route('admin.role.index');

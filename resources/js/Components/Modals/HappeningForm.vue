@@ -49,7 +49,7 @@
                 </select>
             </div>
         </div>
-        <div v-if="happening.isVerificationRequired && !can('no verifier')" class="mb-6">
+        <div v-if="happening.isVerificationRequired && !can('no_verifier')" class="mb-6">
             <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input
                 id="verifier"

@@ -17,6 +17,7 @@
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
         "pusher/pusher-php-server": "^7.2",
+        "spatie/laravel-translatable": "^6.5",
         "tightenco/ziggy": "^1.5",
         "vyuldashev/xml-to-array": "^1.1"
     },

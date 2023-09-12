@@ -39,9 +39,9 @@ class ClosingController extends Controller
         $this->authorize('create', [Closing::class, $closable]);
 
         return Inertia::render('Admin/Closings/Form', [
-            'closing' => '',
-            'closable_type' => $request->closable_type,
             'closable' => $closable,
+            'closable_type' => $request->closable_type,
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
@@ -89,6 +89,7 @@ class ClosingController extends Controller
             'closing' => $closing,
             'closable' => $closing->closable,
             'closable_type' => strtolower(end($closable_type)),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Library\Traits\UUIDIsPrimaryKey;
+use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Closing extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -20,6 +21,7 @@ class Closing extends Model
     protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
+
     protected $fillable = [
         'closable_id',
         'closable_type',
@@ -27,9 +29,14 @@ class Closing extends Model
         'end',
         'description',
     ];
+
     protected $dates = [
         'start',
         'end',
+    ];
+
+    protected $translatable = [
+        'description',
     ];
 
     /*****************************************************************

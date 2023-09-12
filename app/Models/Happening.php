@@ -28,6 +28,7 @@ class Happening extends Model
     protected $table = 'happenings';
     protected $uuidFieldName = 'id';
     public $incrementing = false;
+
     protected $fillable = [
         'user_id_01',
         'user_id_02',
@@ -39,6 +40,7 @@ class Happening extends Model
         'reserved_at',
         'verified_at',
     ];
+
     protected $dates = [
         'created_at',
         'updated_at',
@@ -47,6 +49,7 @@ class Happening extends Model
         'reserved_at',
         'verified_at',
     ];
+
     protected $casts = [
         'is_verified' => 'boolean',
     ];
@@ -73,18 +76,6 @@ class Happening extends Model
     /*****************************************************************
      * SCOPES
      ****************************************************************/
-
-    // /**
-    //  * Get only happenings that are not in the past.
-    //  *
-    //  * @param Builder $query
-    //  * @return Builder
-    //  * @throws InvalidArgumentException
-    //  */
-    // public function scopeCurrent(Builder $query): Builder
-    // {
-    //     return $query->where('end', '>=', Carbon::now());
-    // }
 
     /**
      * Get only happenings that are within the current week.

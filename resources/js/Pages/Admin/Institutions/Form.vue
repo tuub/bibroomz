@@ -4,19 +4,13 @@
 
     <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Title -->
-        <div class="mb-6">
-            <FormLabel field="title" field-key="admin.institutions.form.fields.title"></FormLabel>
-            <input
-                id="title"
-                v-model="form.title"
-                type="text"
-                name="title"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                :placeholder="$t('admin.institutions.form.fields.title.placeholder')"
-                required
-            />
-            <FormValidationError :message="form.errors.title"></FormValidationError>
-        </div>
+        <TranslatableFormInput
+            v-model="form.title"
+            field="title"
+            field-key="admin.institutions.form.fields.title"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
 
         <!-- Input: Short title -->
         <div class="mb-6">
@@ -140,6 +134,7 @@
     </form>
 </template>
 <script setup>
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
@@ -161,6 +156,10 @@ const props = defineProps({
     daysOfWeek: {
         type: Array,
         default: () => [],
+    },
+    languages: {
+        type: Array,
+        required: true,
     },
 });
 

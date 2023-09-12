@@ -10,7 +10,7 @@
                 <HappeningCount :count="happeningsCount"></HappeningCount>
             </span>
         </div>
-        <div v-if="!can('unlimited quotas')" class="text-sm font-medium">
+        <div v-if="!can('unlimited_quotas')" class="text-sm font-medium">
             <HappeningQuotas></HappeningQuotas>
         </div>
         <div class="mt-4">

@@ -16,7 +16,7 @@ class ClosingPolicy
     {
         $institution = $closable instanceof Institution ? $closable : $closable->institution;
 
-        if ($user->can('view closings', $institution)) {
+        if ($user->can('view_closings', $institution)) {
             return true;
         }
     }
@@ -25,7 +25,7 @@ class ClosingPolicy
     {
         $institution = $closable instanceof Institution ? $closable : $closable->institution;
 
-        if ($user->can('create closings', $institution)) {
+        if ($user->can('create_closings', $institution)) {
             return true;
         }
     }
@@ -35,7 +35,7 @@ class ClosingPolicy
         $closable = $closing->closable;
         $institution = $closable instanceof Institution ? $closable : $closable->institution;
 
-        if ($user->can('edit closings', $institution)) {
+        if ($user->can('edit_closings', $institution)) {
             return true;
         }
     }
@@ -50,7 +50,7 @@ class ClosingPolicy
         $closable = $closing->closable;
         $institution = $closable instanceof Institution ? $closable : $closable->institution;
 
-        if ($user->can('delete closings', $institution)) {
+        if ($user->can('delete:closings', $institution)) {
             return true;
         }
     }

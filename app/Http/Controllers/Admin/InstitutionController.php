@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreInstitutionRequest;
-use App\Http\Requests\Admin\UpdateInstitutionRequest;
+use App\Http\Requests\Admin\InstitutionRequest;
 use App\Models\Institution;
 use App\Models\Setting;
 use App\Models\WeekDay;
@@ -36,11 +35,14 @@ class InstitutionController extends Controller
 
         return Inertia::render('Admin/Institutions/Form', [
             'daysOfWeek' => $days_of_week,
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
-    public function storeInstitution(StoreInstitutionRequest $request)
+    public function storeInstitution(InstitutionRequest $request)
     {
+        $this->authorize('create', Institution::class);
+
         $validated = $request->safe();
         $institution = Institution::create($validated->except('week_days'));
 
@@ -68,12 +70,15 @@ class InstitutionController extends Controller
         return Inertia::render('Admin/Institutions/Form', [
             'institution' => $institution,
             'daysOfWeek' => WeekDay::get(),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
-    public function updateInstitution(UpdateInstitutionRequest $request)
+    public function updateInstitution(InstitutionRequest $request)
     {
         $institution = Institution::findOrFail($request->id);
+
+        $this->authorize('update', $institution);
 
         $validated = $request->safe();
 

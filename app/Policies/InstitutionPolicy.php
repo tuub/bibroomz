@@ -12,29 +12,29 @@ class InstitutionPolicy
 
     public function view(User $user, Institution $institution)
     {
-        if ($user->can('view institutions')) {
+        if ($user->can('view_institutions')) {
             return true;
         }
 
-        if ($user->can('view institution', $institution)) {
+        if ($user->can('view_institution', $institution)) {
             return true;
         }
     }
 
     public function create(User $user)
     {
-        if ($user->can('create institutions')) {
+        if ($user->can('create_institutions')) {
             return true;
         }
     }
 
     public function update(User $user, Institution $institution)
     {
-        if ($user->can('edit institutions')) {
+        if ($user->can('edit_institutions')) {
             return true;
         }
 
-        if ($user->can('edit institution', $institution)) {
+        if ($user->can('edit_institution', $institution)) {
             return true;
         }
     }
@@ -46,11 +46,11 @@ class InstitutionPolicy
 
     public function delete(User $user, Institution $institution)
     {
-        if ($user->can('delete institutions')) {
+        if ($user->can('delete_institutions')) {
             return true;
         }
 
-        if ($user->can('delete institution', $institution)) {
+        if ($user->can('delete_institution', $institution)) {
             return true;
         }
     }
