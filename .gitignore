@@ -21,3 +21,4 @@ lang/php_*.json
 lang/*.csv
 run
 _ide_helper.php
+_ide_helper_models.php
