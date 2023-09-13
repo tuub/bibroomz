@@ -1,0 +1,18 @@
+"*.css":
+  - "stylelint"
+
+"*.js":
+  - "eslint"
+
+"*.scss":
+  - "stylelint"
+
+"*.ts":
+  - "eslint"
+
+"*.vue":
+  - "eslint"
+  - "stylelint"
+
+"*.php":
+  - "php -l"
