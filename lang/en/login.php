@@ -2,7 +2,7 @@
 
 return [
     'header' => 'Login',
-    'description' => 'Blablabla',
+    'description' => 'TU Berlin students log in with their TUB account. UdK students log in with their campus card number and library account password.',
     'form' => [
         'username' => [
             'label' => 'Library Account (TU: TUB Account)',

@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'header' => 'Login',
-    'description' => 'Blablabla',
+    'header' => 'Anmelden',
+    'description' => 'Studierende der TU Berlin melden sich mit ihrem TUB-Account an. UdK-Studierende melden sich mit ihrer Nummer auf der Campuscard und dem Bibliothekspasswort an.',
     'form' => [
         'username' => [
             'label' => 'Bibliothekskonto (TU: TUB-Account) ',
