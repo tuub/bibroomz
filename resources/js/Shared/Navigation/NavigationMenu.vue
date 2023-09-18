@@ -23,7 +23,7 @@
             </svg>
         </button>
 
-        <div id="mobile-menu" class="w-70p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
+        <div id="mobile-menu" class="w-90p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
             <slot></slot>
         </div>
     </div>
@@ -48,6 +48,9 @@ const toggle = () => {
 .w-70p {
     width: 70%;
 }
+.w-90p {
+    width: 90%;
+}
 
 .mt-3px {
     margin-top: -3px;
@@ -60,11 +63,14 @@ const toggle = () => {
 .mobile-menu-button {
     display: block;
 }
-
-#mobile-menu > ul > li {
+#mobile-menu > ul{
     float: right;
+}
+#mobile-menu > ul > li {
+    float: left;
     margin-left: 20px;
 }
+
 .mobile-button{
     position: absolute;
     top: 77px;

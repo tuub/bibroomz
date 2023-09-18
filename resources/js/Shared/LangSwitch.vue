@@ -42,9 +42,7 @@ onBeforeMount(() => {
 }
 
 .language-button-wrapper {
-    position: absolute;
-    top: 76px;
-    left: 213px;
+    float: left;
 }
 
 .locale-active {

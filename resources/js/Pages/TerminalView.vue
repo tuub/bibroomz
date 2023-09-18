@@ -1,5 +1,5 @@
 <template>
-    <FullCalendar ref="refCalendar" class="calendar" :options="calendarOptions">
+    <FullCalendar id="terminal-view-calendar" ref="refCalendar" class="calendar" :options="calendarOptions">
         <template #eventContent="arg">
             <div class="text-center">
                 <div v-if="arg.event.display == 'background'" class="border-b-2 pt-5 text-xl">
@@ -101,4 +101,5 @@ a.fc-event:hover {
 div.fc-timegrid-slots tr {
     background-color: #ffffff;
 }
+
 </style>

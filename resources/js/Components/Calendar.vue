@@ -227,7 +227,7 @@ div.fc-timegrid-slots tr {
 
 .page-change-wrapper {
     position: fixed;
-    top: 140px;
+    top: 155px;
     right: 30px;
 }
 </style>

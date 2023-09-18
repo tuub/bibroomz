@@ -21,16 +21,6 @@
                     {{ $t("navigation.regular.help.text") }}
                 </ExternalLink>
             </li>
-            <li>
-                <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is-active="isPrivacyStatement">
-                    {{ $t("navigation.regular.privacy_statement") }}
-                </NavLink>
-            </li>
-            <li>
-                <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is-active="isSiteCredits">
-                    {{ $t("navigation.regular.site_credits") }}
-                </NavLink>
-            </li>
         </ul>
     </NavigationMenu>
 </template>

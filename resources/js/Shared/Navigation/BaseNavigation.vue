@@ -3,11 +3,10 @@
         <Brand />
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
-            <div class="login-lang-wrapper w-20p">
-                <CurrentLogin />
-                <LangSwitch />
-            </div>
 
+            <a :href="institutionHomeUri" class="float-left" target="_blank">
+            <img :src="institutionLogoUri" class="float-left h-7" :alt="institutionTitle" />
+            </a>
             <slot />
         </div>
     </nav>
@@ -15,8 +14,10 @@
 
 <script setup>
 import Brand from "@/Shared/Brand.vue";
-import CurrentLogin from "@/Shared/CurrentLogin.vue";
-import LangSwitch from "@/Shared/LangSwitch.vue";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/Stores/AppStore";
+const appStore = useAppStore();
+const {institutionHomeUri, institutionLogoUri, institutionTitle } = storeToRefs(appStore);
 </script>
 
 <style>
@@ -28,13 +29,10 @@ nav {
     background-color: white;
     color: #c40d20;
     padding: 30px;
-    height: 7em;
+    height: 7.5em;
 }
 
-.login-lang-wrapper {
-    display: inline-block;
-    height: 2em;
-}
+
 
 @media only screen and (max-width: 600px) {
     .login-lang-wrapper {
