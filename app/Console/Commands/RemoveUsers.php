@@ -33,7 +33,7 @@ class RemoveUsers extends Command implements Isolatable
      */
     public function handle()
     {
-        $days = env('USER_CLEANUP_DAYS', 14);
+        $days = config('roomz.user.cleanup_days');
 
         if ($this->option('days')) {
             $days = $this->option('days');

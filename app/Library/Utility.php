@@ -22,7 +22,7 @@ class Utility
 
     public static function getCarbonNow(): CarbonImmutable
     {
-        $tz_offset = CarbonImmutable::now(env('APP_TIMEZONE'))->offsetHours;
+        $tz_offset = CarbonImmutable::now(config('roomz.app.timezone'))->offsetHours;
         return CarbonImmutable::now()->addHours($tz_offset);
     }
 

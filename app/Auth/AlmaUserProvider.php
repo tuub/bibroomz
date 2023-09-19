@@ -128,37 +128,37 @@ class AlmaUserProvider implements UserProvider
     private function getLocalUserInfo($credentials)
     {
         if (
-            $credentials['username'] == env('ADMIN_USER')
-            && $credentials['password'] == env('ADMIN_PASSWORD')
+            $credentials['username'] == config('roomz.test-user.admin.username')
+            && $credentials['password'] == config('roomz.test-user.admin.password')
         ) {
             return [
-                'name' => env('ADMIN_USER'),
-                'password' => Hash::make(env('ADMIN_PASSWORD')),
-                'email' => env('ADMIN_EMAIL'),
+                'name' => config('roomz.test-user.admin.username'),
+                'password' => Hash::make(config('roomz.test-user.admin.password')),
+                'email' => config('roomz.test-user.admin.email'),
                 'is_admin' => true,
             ];
         }
 
         if (
-            $credentials['username'] == env('TEST_USER_01')
-            && $credentials['password'] == env('TEST_USER_01_PASSWORD')
+            $credentials['username'] == config('roomz.test-user.test1.username')
+            && $credentials['password'] == config('roomz.test-user.test1.password')
         ) {
             return [
-                'name' => env('TEST_USER_01'),
-                'password' => Hash::make(env('TEST_USER_01_PASSWORD')),
-                'email' => env('TEST_USER_01_EMAIL'),
+                'name' => config('roomz.test-user.test1.username'),
+                'password' => Hash::make(config('roomz.test-user.test1.password')),
+                'email' => config('roomz.test-user.test1.email'),
                 'is_admin' => false,
             ];
         }
 
         if (
-            $credentials['username'] == env('TEST_USER_02')
-            && $credentials['password'] == env('TEST_USER_02_PASSWORD')
+            $credentials['username'] == config('roomz.test-user.test2.username')
+            && $credentials['password'] == config('roomz.test-user.test2.password')
         ) {
             return [
-                'name' => env('TEST_USER_02'),
-                'password' => Hash::make(env('TEST_USER_02_PASSWORD')),
-                'email' => env('TEST_USER_02_EMAIL'),
+                'name' => config('roomz.test-user.test2.username'),
+                'password' => Hash::make(config('roomz.test-user.test2.password')),
+                'email' => config('roomz.test-user.test2.email'),
                 'is_admin' => false,
             ];
         }
@@ -168,15 +168,15 @@ class AlmaUserProvider implements UserProvider
 
     private function getRemoteUserInfo($credentials)
     {
-        $response = Curl::to(env('AUTH_API_ENDPOINT'))
+        $response = Curl::to(config('roomz.auth.api.endpoint'))
             ->withData($credentials)
-            ->withTimeout(env('AUTH_API_TIMEOUT'))
-            ->withConnectTimeout(env('AUTH_API_TIMEOUT'))
+            ->withTimeout(config('roomz.auth.api.timeout'))
+            ->withConnectTimeout(config('roomz.auth.api.timeout'))
             ->withOption('SSL_VERIFYHOST', 2)
             ->withOption('SSL_VERIFYPEER', 1)
             ->withOption('POST', 1)
             ->withOption('RETURNTRANSFER', true)
-            ->enableDebug(storage_path(env('AUTH_API_STORAGE_LOG_FILE')))
+            ->enableDebug(storage_path(config('roomz.auth.api.log_file')))
             ->post();
 
         $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);

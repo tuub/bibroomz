@@ -34,18 +34,18 @@ class Setting extends Model
     public static function getInitialValues(): array
     {
         return [
-            'timezone' => env('DEFAULT_TIMEZONE'),
-            'start_time_slot' => env('DEFAULT_START_TIME_SLOT'),
-            'end_time_slot' => env('DEFAULT_END_TIME_SLOT'),
-            'time_slot_length' => env('DEFAULT_TIMESLOT_LENGTH'),
-            'weeks_in_advance' => env('DEFAULT_WEEKS_IN_ADVANCE'),
-            'quota_weekly_happenings' => env('DEFAULT_QUOTA_WEEKLY_HAPPENINGS'),
-            'quota_daily_hours' => env('DEFAULT_QUOTA_DAILY_HOURS'),
-            'quota_weekly_hours' => env('DEFAULT_QUOTA_WEEKLY_HOURS'),
-            'quota_happening_block_hours' => env('DEFAULT_QUOTA_HAPPENING_BLOCK_HOURS'),
-            'date_format' => env('DEFAULT_DATE_FORMAT'),
-            'time_format' => env('DEFAULT_TIME_FORMAT'),
-            'cleanup_interval' => env('DEFAULT_CLEANUP_INTERVAL'),
+            'timezone' => config('roomz.default.timezone'),
+            'start_time_slot' => config('roomz.default.start_time_slot'),
+            'end_time_slot' => config('roomz.default.end_time_slot'),
+            'time_slot_length' => config('roomz.default.timeslot_length'),
+            'weeks_in_advance' => config('roomz.default.weeks_in_advance'),
+            'quota_weekly_happenings' => config('roomz.default.quota.weekly_happenings'),
+            'quota_daily_hours' => config('roomz.default.quota.daily_hours'),
+            'quota_weekly_hours' => config('roomz.default.quota.weekly_hours'),
+            'quota_happening_block_hours' => config('roomz.default.quota.happening_block_hours'),
+            'date_format' => config('roomz.default.date_format'),
+            'time_format' => config('roomz.default.time_format'),
+            'cleanup_interval' => config('roomz.default.cleanup_interval'),
         ];
     }
 }

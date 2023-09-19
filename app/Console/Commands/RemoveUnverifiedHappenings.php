@@ -138,7 +138,8 @@ class RemoveUnverifiedHappenings extends Command implements Isolatable
     {
         $time = now();
 
-        $setting = $institution->settings->where('key', 'cleanup_interval')->first()?->value ?? env('DEFAULT_CLEANUP_INTERVAL');
+        $setting = $institution->settings->where('key', 'cleanup_interval')->first()?->value ??
+            config('roomz.default.cleanup_interval');
 
         foreach (explode(':', $setting) as $index => $interval) {
             $interval = (int) $interval ?? 0;
