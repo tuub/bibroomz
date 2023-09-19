@@ -41,17 +41,14 @@ class Happening extends Model
         'verified_at',
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'start',
-        'end',
-        'reserved_at',
-        'verified_at',
-    ];
-
     protected $casts = [
         'is_verified' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'start' => 'datetime',
+        'end' => 'datetime',
+        'reserved_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     /*****************************************************************

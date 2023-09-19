@@ -30,9 +30,9 @@ class BusinessHour extends Model
         'end',
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected $cloneable_relations = [

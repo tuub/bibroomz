@@ -13,8 +13,8 @@
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.6.9",
         "ixudra/curl": "^6.22",
-        "laravel/framework": "^9.19",
-        "laravel/sanctum": "^3.0",
+        "laravel/framework": "^10.0",
+        "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.7",
         "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-translatable": "^6.5",
@@ -26,12 +26,11 @@
         "laravel-lang/common": "^3.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
-        "laravel/telescope": "^4.9",
+        "laravel/telescope": "^4.16",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.5.10",
-        "spatie/laravel-ignition": "^1.0",
-        "ufirst/lang-import-export": "^8.1.0"
+        "nunomaduro/collision": "^7.0",
+        "phpunit/phpunit": "^10.0",
+        "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
         "psr-4": {

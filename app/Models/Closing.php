@@ -30,9 +30,9 @@ class Closing extends Model
         'description',
     ];
 
-    protected $dates = [
-        'start',
-        'end',
+    protected $casts = [
+        'start' => 'datetime',
+        'end' => 'datetime',
     ];
 
     protected $translatable = [
