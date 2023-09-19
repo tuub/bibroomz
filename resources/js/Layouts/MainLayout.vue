@@ -5,21 +5,22 @@
     </Head>
     <section id="content" class="content-wrapper">
         <slot />
+        <footer class="footer">
+            <ul>
+                <li>
+                    <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is-active="isPrivacyStatement">
+                        {{ $t("navigation.regular.privacy_statement") }}
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is-active="isSiteCredits">
+                        {{ $t("navigation.regular.site_credits") }}
+                    </NavLink>
+                </li>
+            </ul>
+        </footer>
     </section>
-    <footer class="footer">
-        <ul>
-            <li>
-                <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is-active="isPrivacyStatement">
-                    {{ $t("navigation.regular.privacy_statement") }}
-                </NavLink>
-            </li>
-            <li>
-                <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is-active="isSiteCredits">
-                    {{ $t("navigation.regular.site_credits") }}
-                </NavLink>
-            </li>
-        </ul>
-    </footer>
+
 </template>
 
 <script setup>
@@ -68,13 +69,31 @@ const isSiteCredits = computed(() => {
 <style>
 .content-wrapper {
     margin: 8em 2em 0 2em;
+    min-height: 100vh;
+    position: relative;
 }
 .footer{
-    width: 100%;
-    height: 100px;
-    padding: 40px;
-    margin-top: 100px;
+    padding: 20px 0px 20px 0px;
     background-color: black;
     color: white;
+    position: absolute;
+    bottom: -80px;
+    right: -32px;
+    width: 105%;
+    height: 0.5rem;
 }
+.footer > ul > li:nth-child(1) > a{
+    position: absolute;
+    right: 160px;
+    top: 8px;
+}
+
+.footer > ul > li:nth-child(2) > a{
+    position: absolute;
+    right: 40px;
+    top: 8px;
+}
+
+
+
 </style>
