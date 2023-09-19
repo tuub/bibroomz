@@ -33,16 +33,9 @@ nav {
 }
 
 
-
-@media only screen and (max-width: 600px) {
-    .login-lang-wrapper {
-        width: 50%;
-    }
-}
-
 @media only screen and (max-width: 1150px) {
     .login-lang-wrapper {
-        width: 180px;
+        width: 40px;
     }
 }
 </style>

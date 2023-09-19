@@ -194,13 +194,13 @@ div.fc-timegrid-slots tr {
 }
 
 .fc .fc-toolbar-title {
-    font-size: 1rem;
-    margin-right: 1em;
+    font-size: 0.9rem;
+    margin-right: 0.5em;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
     float: left;
-    width: 20%;
+    width: 27%;
     margin-bottom: 0.5em;
     margin-top: 1em;
     margin-right: 1em;
@@ -221,7 +221,7 @@ div.fc-timegrid-slots tr {
 
 @media only screen and (max-width: 500px) {
     .fc .fc-toolbar.fc-header-toolbar {
-        width: 60%;
+        width: 50%;
     }
 }
 

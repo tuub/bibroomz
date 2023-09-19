@@ -1,6 +1,8 @@
 <template>
     <div class="legend-item-toggle-button-wrapper">
-        <button class="legend-item-toggle-button" @click="toggle">legend</button>
+        <button class="legend-item-toggle-button" @click="toggle">
+            <i class="ri-question-line"></i>
+        </button>
         <Transition>
             <div v-show="isOpen" id="status-legend">
                 <LegendItem
@@ -56,7 +58,7 @@ const toggle = () => {
 <style>
 #status-legend {
     position: fixed;
-    top: 225px;
+    top: 235px;
     z-index: 9;
     background: rgba(0 0 0 / 0%);
     right: 0;
@@ -77,27 +79,23 @@ const toggle = () => {
 
 .legend-item-toggle-button {
     position: fixed;
-    right: -19px;
-    top: 208px;
+    right: -2px;
+    top: 211px;
     rotate: unset;
-    height: 33px;
-    width: 89px;
+    height: 40px;
+    width: 40px;
     z-index: 9;
     background: white;
-    border: 0.0625rem solid #c40d1e;
+    /* border: 0.0625rem solid #aaa; */
     color: #c40d1e;
     font-family: Muli, sans-serif, Arial;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: 400;
-    line-height: 1.125rem;
-    margin: 0;
-    min-width: 10rem;
-    padding: 0.375rem 1.5625rem 0.5rem;
+    min-width: 2rem;
     text-align: center;
     text-decoration: none;
-    transition:
-        background 0.25s,
-        color 0.25s;
+    transition: background 0.25s, color 0.25s;
+    box-shadow: 0 3px 3px rgb(204, 203, 203);
 }
 
 .v-enter-active,

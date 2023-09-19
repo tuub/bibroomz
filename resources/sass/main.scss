@@ -151,6 +151,14 @@ div#status-legend {
     background-color: #f6f6f6;
 }
 
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child){
+    margin: 0px;
+    padding: 0px;
+}
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child){
+    margin: 0px;
+    padding: 0px;
+}
 #calendar_sidebar_wrapper {
     display: block;
     width: 100%;
@@ -158,8 +166,8 @@ div#status-legend {
 
 /* calendar */
 #calendar {
-    display: block;
-    width: 100%;
+    display: inline-block;
+    width: 72%;
 }
 
 nav {
@@ -241,5 +249,9 @@ nav{
 
     .LangSwitch-CurrentLogin-wapper{
         width: 40%;
+    }
+    #calendar {
+        display: block;
+        width: 100%;
     }
 }

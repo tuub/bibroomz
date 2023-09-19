@@ -68,8 +68,8 @@ const isSiteCredits = computed(() => {
 </script>
 <style>
 .content-wrapper {
-    margin: 8em 2em 0 2em;
-    min-height: 100vh;
+    margin: 8.5em 2em 0 2em;
+    min-height: 80vh;
     position: relative;
 }
 .footer{
@@ -79,7 +79,7 @@ const isSiteCredits = computed(() => {
     position: absolute;
     bottom: -80px;
     right: -32px;
-    width: 105%;
+    width: 110%;
     height: 0.5rem;
 }
 .footer > ul > li:nth-child(1) > a{
@@ -93,7 +93,5 @@ const isSiteCredits = computed(() => {
     right: 40px;
     top: 8px;
 }
-
-
 
 </style>

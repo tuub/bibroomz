@@ -77,7 +77,7 @@ const toggle = () => {
     right: 27px;
     display: none;
 }
-@media only screen and (max-width: 1150px) {
+@media only screen and (max-width: 1300px) {
     .mobile-button {
         position: absolute;
         display: block;

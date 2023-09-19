@@ -29,7 +29,7 @@ const { appName, institutionHomeUri, institutionLogoUri, institutionTitle } = st
     display: inline-block;
     height: 2em;
     float: right;
-    margin-top: 10px;
+    margin-top: 8px;
     width: 240px;
 }
 .login-lang-wrapper > div:nth-child(2) {

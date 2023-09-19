@@ -60,7 +60,9 @@ onMounted(() => {
 
 <style>
 .current-user {
-    padding-right: 12px;
-    float: left;
+    position: absolute;
+    top: 23px;
+    right: 30px;
+    font-size: 10px;
 }
 </style>
