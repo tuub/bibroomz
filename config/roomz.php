@@ -20,6 +20,10 @@ return [
             'log_file' => env('AUTH_API_STORAGE_LOG_FILE', 'curl.log'),
         ],
     ],
+    'database' => [
+        'is_seed_example_institutions' => env('DB_SEED_EXAMPLE_INSTITUTIONS', true),
+        'is_seed_tub_institutions' => env('DB_SEED_TUB_INSTITUTIONS', false),
+    ],
     'default' => [
         'locale' => env('DEFAULT_LOCALE', 'de'),
         'timezone' => env('DEFAULT_TIMEZONE', 'Europe/Berlin'),

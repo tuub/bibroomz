@@ -143,6 +143,7 @@ return [
                     'edit' => 'Edit',
                     'closings' => 'Closings',
                     'settings' => 'Settings',
+                    'mails' => 'Emails',
                     'delete' => 'Delete',
                 ],
             ],
@@ -187,6 +188,11 @@ return [
                     'label' => 'Home URI',
                     'placeholder' => 'Website',
                     'hint' => 'About your home URI',
+                ],
+                'email' => [
+                    'label' => 'Email',
+                    'placeholder' => 'Email',
+                    'hint' => 'Contact email address',
                 ],
                 'logo_uri' => [
                     'label' => 'Logo URI',
@@ -533,6 +539,90 @@ return [
             ],
             'actions' => [
                 'submit' => 'Save',
+            ],
+        ],
+    ],
+    'mails' => [
+        'mail_types' => [
+            'happening_created' => 'Event created',
+            'happening_created_with_verification' => 'Event with verification created',
+            'happening_updated' => 'Event updated',
+            'happening_deleted' => 'Event deleted',
+            'happening_verified' => 'Event verified',
+            'closing_created' => 'Closing created',
+            'closing_updated' => 'Closing updated',
+        ],
+        'index' => [
+            'title' => 'Emails for institution ":title"',
+            'description' => 'All mails',
+            'table' => [
+                'header' => [
+                    'mail_type' => 'Type',
+                    'subject' => 'Subject',
+                    'is_active' => 'Active?',
+                ],
+                'actions' => [
+                    'create' => 'Create email',
+                    'edit' => 'Edit',
+                    'delete' => 'Delete',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Form for mails',
+            'description' => 'Create and edit email texts.',
+            'fields' => [
+                'mail_type' => [
+                    'label' => 'Type',
+                    'hint' => 'Choose a mail type.',
+                ],
+                'subject' => [
+                    'label' => 'Subject',
+                    'placeholder' => 'The mail subject',
+                    'hint' => 'The mail subject.',
+                ],
+                'title' => [
+                    'label' => 'Title',
+                    'placeholder' => 'The mail title',
+                    'hint' => 'The mail title.',
+                ],
+                'salutation' => [
+                    'label' => 'Salutation',
+                    'placeholder' => 'Salutation text of the mail',
+                    'hint' => 'The salutation text of the mail.',
+                ],
+                'intro' => [
+                    'label' => 'Intro',
+                    'placeholder' => 'Intro text of the mail',
+                    'hint' => 'The intro text of the mail. Markdown is allowed.',
+                ],
+                'outro' => [
+                    'label' => 'Outro',
+                    'placeholder' => 'Outro text of the mail',
+                    'hint' => 'The outro gtext of the mail. Markdown is allowed.',
+                ],
+                'action_uri' => [
+                    'label' => 'Action Button URI',
+                    'placeholder' => 'URI behind action button',
+                    'hint' => 'An action URI for a button.',
+                ],
+                'action_uri_label' => [
+                    'label' => 'Action Button URI Label',
+                    'placeholder' => 'Label for action button',
+                    'hint' => 'A label for the action button.',
+                ],
+                'farewell' => [
+                    'label' => 'Farewell',
+                    'placeholder' => 'Farewell text of the mail',
+                    'hint' => 'The farewell text of the mail. Markdown is allowed.',
+                ],
+                'is_active' => [
+                    'label' => 'Aktiv',
+                    'hint' => 'Ist die Mail aktiv?',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Speichern',
             ],
         ],
     ],

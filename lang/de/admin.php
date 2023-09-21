@@ -143,6 +143,7 @@ return [
                     'edit' => 'Bearbeiten',
                     'closings' => 'Schließungen',
                     'settings' => 'Einstellungen',
+                    'mails' => 'E-Mails',
                     'delete' => 'Löschen',
                 ],
             ],
@@ -174,6 +175,11 @@ return [
                     'placeholder' => 'Adresse',
                     'hint' => 'Über den Standort',
                 ],
+                'location_uri' => [
+                    'label' => 'Location URI',
+                    'placeholder' => 'The location link',
+                    'hint' => 'A link to more information on this resource',
+                ],
                 'week_days' => [
                     'label' => 'Aktive Wochentage',
                     'hint' => 'An welchen Wochentagen ist geöffnet?',
@@ -182,6 +188,11 @@ return [
                     'label' => 'URI Startseite',
                     'placeholder' => 'Website',
                     'hint' => 'Über Ihre Startseiten-URI',
+                ],
+                'email' => [
+                    'label' => 'E-Mail-Adresse',
+                    'placeholder' => 'E-Mail-Adresse',
+                    'hint' => 'E-Mail-Adresse für Kontakt',
                 ],
                 'logo_uri' => [
                     'label' => 'URI Logo',
@@ -529,6 +540,90 @@ return [
                 'description' => [
                     'label' => 'Beschreibung',
                     'hint' => ' ',
+                ],
+            ],
+            'actions' => [
+                'submit' => 'Speichern',
+            ],
+        ],
+    ],
+    'mails' => [
+        'mail_types' => [
+            'happening_created' => 'Event erstellt',
+            'happening_created_with_verification' => 'Event mit Vormerkung erstellt',
+            'happening_updated' => 'Event geändert',
+            'happening_deleted' => 'Event gelöscht',
+            'happening_verified' => 'Event bestätigt',
+            'closing_created' => 'Schließzeit erstellt',
+            'closing_updated' => 'Schließzeit geändert',
+        ],
+        'index' => [
+            'title' => 'E-Mails für Einrichtung ":title"',
+            'description' => 'E-Mail-Texte bearbeiten',
+            'table' => [
+                'header' => [
+                    'mail_type' => 'Typ',
+                    'subject' => 'Betreff',
+                    'is_active' => 'Aktiv?',
+                ],
+                'actions' => [
+                    'create' => 'Mail erstellen',
+                    'edit' => 'Bearbeiten',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Mails',
+            'description' => 'Mails erstellen / bearbeiten',
+            'fields' => [
+                'mail_type' => [
+                    'label' => 'Typ',
+                    'hint' => 'Wählen Sie den Typ der Mail aus.',
+                ],
+                'subject' => [
+                    'label' => 'Betreff',
+                    'placeholder' => 'Der Betreff der Mail',
+                    'hint' => 'Der Betreff der Mail.',
+                ],
+                'title' => [
+                    'label' => 'Titel',
+                    'placeholder' => 'Der Titel der Mail',
+                    'hint' => 'Der Titel der Mail.',
+                ],
+                'salutation' => [
+                    'label' => 'Begrüßung',
+                    'placeholder' => 'Begrüßungstext der Mail',
+                    'hint' => 'Der Begrüßungstext der Mail.',
+                ],
+                'intro' => [
+                    'label' => 'Beginn',
+                    'placeholder' => 'Der Start der Mail',
+                    'hint' => 'Der Start der Mail. Markdown ist erlaubt.',
+                ],
+                'outro' => [
+                    'label' => 'Schluss',
+                    'placeholder' => 'Der Schluss der Mail',
+                    'hint' => 'Der Schluss der Mail. Markdown ist erlaubt.',
+                ],
+                'action_uri' => [
+                    'label' => 'Action Button URI',
+                    'placeholder' => 'URI hinter Action Button',
+                    'hint' => 'Eine Action URI, die hinter einem Button liegt.',
+                ],
+                'action_uri_label' => [
+                    'label' => 'Action Button URI Label',
+                    'placeholder' => 'Label für Action Button',
+                    'hint' => 'Ein Button-Label für die Action URI.',
+                ],
+                'farewell' => [
+                    'label' => 'Verabschiedung',
+                    'placeholder' => 'Verabschiedungstext der Mail',
+                    'hint' => 'Der Verabschiedungstext der Mail. Markdown ist erlaubt.',
+                ],
+                'is_active' => [
+                    'label' => 'Aktiv',
+                    'hint' => 'Ist die Mail aktiv?',
                 ],
             ],
             'actions' => [

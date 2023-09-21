@@ -2,49 +2,83 @@
 
 namespace App\Listeners;
 
-use App\Events\HappeningVerified;
-use App\Events\HappeningCreated;
-use App\Events\HappeningDeleted;
-use App\Events\HappeningUpdated;
-use App\Mail\HappeningVerified as MailHappeningVerified;
-use App\Mail\HappeningCreated as MailHappeningCreated;
-use App\Mail\HappeningDeleted as MailHappeningDeleted;
-use App\Mail\HappeningUpdated as MailHappeningUpdated;
+use App\Events\HappeningVerifiedEvent;
+use App\Events\HappeningCreatedEvent;
+use App\Events\HappeningDeletedEvent;
+use App\Events\HappeningUpdatedEvent;
+use App\Mail\HappeningVerifiedMail;
+use App\Mail\HappeningCreatedMail;
+use App\Mail\HappeningDeletedMail;
+use App\Mail\HappeningUpdatedMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\MailContent;
+use ReflectionClass;
 
 class HappeningEventSubscriber
 {
-    public function handleHappeningVerified(HappeningVerified $event): void
+    public function handleHappeningCreatedEvent(HappeningCreatedEvent $event): void
     {
-        Mail::to($event->user)
-            ->queue(new MailHappeningVerified($event->happening));
+        $mail_class = (new ReflectionClass($event))->getShortName();
+
+        $mail_type = 'happening_created';
+        if ($event->happening->resource->is_verification_required) {
+            $mail_type = 'happening_created_with_verification';
+        }
+
+        $mail_content = $this->getMailContentForEvent($event, $mail_type);
+
+        if ($mail_content && $mail_content->is_active) {
+            Mail::to($event->user)
+                ->queue(new HappeningCreatedMail($event->happening, $mail_class, $mail_content));
+        }
     }
 
-    public function handleHappeningCreated(HappeningCreated $event): void
+    public function handleHappeningUpdatedEvent(HappeningUpdatedEvent $event): void
     {
-        Mail::to($event->user)
-            ->queue(new MailHappeningCreated($event->happening));
+        $mail_class = (new ReflectionClass($event))->getShortName();
+        $mail_content = $this->getMailContentForEvent($event, 'happening_updated');
+        if ($mail_content && $mail_content->is_active) {
+            Mail::to($event->user)
+                ->queue(new HappeningUpdatedMail($event->happening, $mail_class, $mail_content));
+        }
     }
 
-    public function handleHappeningDeleted(HappeningDeleted $event): void
+    public function handleHappeningDeletedEvent(HappeningDeletedEvent $event): void
     {
-        Mail::to($event->user)
-            ->queue(new MailHappeningDeleted($event->happening));
+        $mail_class = (new ReflectionClass($event))->getShortName();
+        $mail_content = $this->getMailContentForEvent($event, 'happening_deleted');
+        if ($mail_content && $mail_content->is_active) {
+            Mail::to($event->user)
+                ->queue(new HappeningDeletedMail($event->happening, $mail_class, $mail_content));
+        }
     }
 
-    public function handleHappeningUpdated(HappeningUpdated $event): void
+    public function handleHappeningVerifiedEvent(HappeningVerifiedEvent $event): void
     {
-        Mail::to($event->user)
-            ->queue(new MailHappeningUpdated($event->happening));
+        $mail_class = (new ReflectionClass($event))->getShortName();
+        $mail_content = $this->getMailContentForEvent($event, 'happening_verified');
+        if ($mail_content && $mail_content->is_active) {
+            Mail::to($event->user)
+                ->queue(new HappeningVerifiedMail($event->happening, $mail_class, $mail_content));
+        }
     }
 
     public function subscribe(): array
     {
         return [
-            HappeningVerified::class => 'handleHappeningVerified',
-            HappeningCreated::class => 'handleHappeningCreated',
-            HappeningDeleted::class => 'handleHappeningDeleted',
-            HappeningUpdated::class => 'handleHappeningUpdated',
+            HappeningVerifiedEvent::class => 'handleHappeningVerifiedEvent',
+            HappeningCreatedEvent::class => 'handleHappeningCreatedEvent',
+            HappeningDeletedEvent::class => 'handleHappeningDeletedEvent',
+            HappeningUpdatedEvent::class => 'handleHappeningUpdatedEvent',
         ];
+    }
+
+    private function getMailContentForEvent($event, string $mail_type)
+    {
+        return MailContent::where('institution_id', $event->happening->resource->institution->id)
+            ->whereHas('mail_type', function ($query) use($mail_type) {
+                $query->where('name', $mail_type);
+            })
+            ->first();
     }
 }

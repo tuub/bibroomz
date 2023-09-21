@@ -11,6 +11,7 @@ return [
             'closing' => 'Sind Sie sicher, dass Sie diese Schließung löschen wollen?',
             'role' => 'Sind Sie sicher, dass Sie diese Rolle löschen wollen?',
             'permission' => 'Sind Sie sicher, dass Sie diese Berechtigung löschen wollen?',
+            'mail' => 'Sind Sie sicher, dass Sie diese E-Mail löschen wollen?',
         ],
     ],
 

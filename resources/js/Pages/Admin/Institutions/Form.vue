@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.institutions.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.institutions.form.title')" :description="$t('admin.institutions.form.description')" />
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -80,6 +80,20 @@
                 placeholder=""
             />
             <FormValidationError :message="form.errors.home_uri"></FormValidationError>
+        </div>
+
+        <!-- Input: Email -->
+        <div class="mb-6">
+            <FormLabel field="email" field-key="admin.institutions.form.fields.email"></FormLabel>
+            <input
+                id="email"
+                v-model="form.email"
+                type="text"
+                name="email"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder=""
+            />
+            <FormValidationError :message="form.errors.email"></FormValidationError>
         </div>
 
         <!-- Input: Logo URI -->
@@ -182,6 +196,7 @@ const form = useForm({
     location: props.institution?.location ?? "",
     week_days: [],
     home_uri: props.institution?.home_uri ?? "",
+    email: props.institution?.email ?? "",
     logo_uri: props.institution?.logo_uri ?? "",
     teaser_uri: props.institution?.teaser_uri ?? "",
     is_active: props.institution?.is_active ?? false,

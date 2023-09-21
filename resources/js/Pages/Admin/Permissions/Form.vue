@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.permissions.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.permissions.form.title')" :description="$t('admin.permissions.form.description')" />
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Name -->
         <TranslatableFormInput
             v-model="form.name"

@@ -28,6 +28,7 @@ class PermissionSeeder extends Seeder
             'happenings',
             'users',
             'roles',
+            'mails',
         ];
 
         foreach ($models as $model) {

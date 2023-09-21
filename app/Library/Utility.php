@@ -67,10 +67,10 @@ class Utility
      */
     public static function makeRulesTranslatable(array &$rules, array $translatables): array
     {
-        $lanugages = config('app.supported_locales');
+        $languages = config('app.supported_locales');
 
         foreach ($translatables as $translatable) {
-            foreach ($lanugages as $language) {
+            foreach ($languages as $language) {
                 $rules[$translatable . '.' . $language] = $rules[$translatable];
             }
 

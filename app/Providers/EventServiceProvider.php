@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\ClosingEventSubscriber;
 use App\Listeners\HappeningEventSubscriber;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -27,6 +28,7 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $subscribe = [
         HappeningEventSubscriber::class,
+        ClosingEventSubscriber::class,
     ];
 
     /**

@@ -9,17 +9,17 @@
     />
 
     <PopupModal />
+    <CreateButton model="closing"></CreateButton>
 
     <div>
-        <Link
-            v-if="hasPermission('create_closings', institutionId)"
-            :href="
-                route('admin.closing.create', {
-                    closable_type: closable_type,
-                    closable_id: closable.id,
-                })
-            "
-            >{{ $t("admin.closings.index.table.actions.create") }}</Link
+        <Link v-if="hasPermission('create_closings', institutionId)"
+              :href="route('admin.closing.create', {
+                  closable_type: closable_type,
+                  closable_id: closable.id,
+              })">
+            <i class="ri-add-circle-line"></i>
+            {{ $t("admin.closings.index.table.actions.create") }}
+        </Link
         >
     </div>
 
@@ -101,6 +101,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
+import CreateButton from "@/Components/Admin/CreateButton.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";

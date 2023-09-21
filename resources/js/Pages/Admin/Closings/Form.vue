@@ -8,7 +8,7 @@
         :description="$t('admin.closings.form.description')"
     />
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Start Date & Start Time -->
         <div class="grid gap-6 mb-6 md:grid-cols-2">
             <div>

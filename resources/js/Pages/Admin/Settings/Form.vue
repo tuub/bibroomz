@@ -5,7 +5,7 @@
 
     {{ form.id }}
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Key -->
         <div class="mb-6">
             <label for="name" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase"> Key </label>

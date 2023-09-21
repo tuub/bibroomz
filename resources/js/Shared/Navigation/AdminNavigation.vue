@@ -101,6 +101,7 @@ const isPageInstitutions = computed(() => {
     return (
         inertiaPage.component.startsWith("Admin/Institutions") ||
         inertiaPage.component.startsWith("Admin/Settings") ||
+        inertiaPage.component.startsWith("Admin/Mails") ||
         isClosingsPage
     );
 });

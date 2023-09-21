@@ -3,12 +3,7 @@
     <BodyHead :title="$t('admin.institutions.index.title')" :description="$t('admin.institutions.index.description')" />
 
     <PopupModal />
-
-    <div>
-        <Link v-if="hasPermission('create_institutions')" :href="route('admin.institution.create')">{{
-            $t("admin.institutions.index.table.actions.create")
-        }}</Link>
-    </div>
+    <CreateButton model="institution"></CreateButton>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -102,6 +97,19 @@
                                 {{ $t("admin.institutions.index.table.actions.settings") }}
                             </Link>
                         </span>
+                        <span v-if="hasPermission('edit_institution', institution.id)">
+                            |
+                            <Link
+                                :href="
+                                    route('admin.mail.index', {
+                                        id: institution.id,
+                                    })
+                                "
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            >
+                                {{ $t("admin.institutions.index.table.actions.mails") }}
+                            </Link>
+                        </span>
                         <span v-if="hasPermission('delete_institution', institution.id)">
                             |
                             <a
@@ -132,6 +140,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
+import CreateButton from "@/Components/Admin/CreateButton.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -177,7 +186,7 @@ const actions = [];
 onBeforeMount(() => {
     const deleteInstitutionLabel = computed(() => trans("popup.actions.delete"));
 
-    const deleteInsitutionAction = {
+    const deleteInstitutionAction = {
         label: deleteInstitutionLabel,
         callback: (institution) => {
             router.visit(route("admin.institution.delete", { id: institution.id }), {
@@ -187,7 +196,7 @@ onBeforeMount(() => {
         },
     };
 
-    actions.push(deleteInsitutionAction);
+    actions.push(deleteInstitutionAction);
 });
 onMounted(() => {
     modal.init(

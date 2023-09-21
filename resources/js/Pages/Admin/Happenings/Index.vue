@@ -3,12 +3,7 @@
     <BodyHead :title="$t('admin.happenings.index.title')" :description="$t('admin.happenings.index.description')" />
 
     <PopupModal />
-
-    <div>
-        <Link v-if="hasPermission('create_happenings')" :href="route('admin.happening.create')">{{
-            $t("admin.happenings.index.table.actions.create")
-        }}</Link>
-    </div>
+    <CreateButton model="happening"></CreateButton>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -124,8 +119,8 @@
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
+import CreateButton from "@/Components/Admin/CreateButton.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -153,12 +148,6 @@ dayjs.extend(utc);
 // Stores
 // ------------------------------------------------
 const modal = useModal();
-const authStore = useAuthStore();
-
-const { hasPermission } = authStore;
-
-const route = inject("route");
-const translate = inject("translate");
 
 // ------------------------------------------------
 // Methods
@@ -179,6 +168,8 @@ const isPastHappening = (happening) => {
 // Variables
 // ------------------------------------------------
 const actions = [];
+const route = inject("route");
+const translate = inject("translate");
 
 // ------------------------------------------------
 // Lifecycle

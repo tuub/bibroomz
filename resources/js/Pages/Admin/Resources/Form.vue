@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.resources.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')" />
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Select: Institution -->
         <div class="mb-6">
             <FormLabel field="institution_id" field-key="admin.resources.form.fields.institution"></FormLabel>

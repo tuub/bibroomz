@@ -17,14 +17,14 @@ class InstitutionSeeder extends Seeder
     public function run()
     {
         // Add random example institutions with random example resources
-        if (env('DB_SEED_EXAMPLE_INSTITUTIONS')) {
+        if (config('roomz.database.is_seed_example_institutions')) {
             Institution::factory(1)
                 ->has(Resource::factory()->count(5))
                 ->create();
         }
 
         // Add real example institutions with random example resources
-        if (env('DB_SEED_TUB_INSTITUTIONS')) {
+        if (config('roomz.database.is_seed_tub_institutions')) {
             $institutions = [];
             $institutions[] = Institution::create([
                 'title' => 'Universitätsbibliothek der TU Berlin',
@@ -32,6 +32,7 @@ class InstitutionSeeder extends Seeder
                 'slug' => 'ub',
                 'location' => 'Fasanenstr. 88, 10623 Berlin ',
                 'home_uri' => 'https://tu.berlin/ub',
+                'email' => 'info@ub.tu-berlin.de',
                 'logo_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/UB_Signet_2018_TU_schwarz.png',
                 'teaser_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/teaser_zb.jpg',
                 'is_active' => true,
@@ -43,6 +44,7 @@ class InstitutionSeeder extends Seeder
                 'slug' => 'dbwm',
                 'location' => 'Hauptgebäude, Raum H5150b, Straße des 17. Juni 135, 10623 Berlin',
                 'home_uri' => 'https://www.tu.berlin/wm/bibliothek',
+                'email' => 'info@dbwm.tu-berlin.de',
                 'logo_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/logo_dbwm.png',
                 'teaser_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/teaser_dbwm.jpg',
                 'is_active' => true,

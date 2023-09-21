@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\MailController as AdminMailController;
 use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 
 /*
@@ -98,10 +99,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])
         ->name('admin.institution.delete');
 
-    /* Institution Settings */
-    Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])
-        ->name('admin.setting.index');
-
     /* Resources */
     Route::get('/admin/resources', [AdminResourceController::class, 'getResources'])
         ->name('admin.resource.index');
@@ -133,10 +130,26 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.closing.delete');
 
     /* Settings */
+    Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])
+        ->name('admin.setting.index');
     Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])
         ->name('admin.setting.edit');
     Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])
         ->name('admin.setting.update');
+
+    /* Mails */
+    Route::get('/admin/institution/{id}/mails', [AdminMailController::class, 'getMails'])
+        ->name('admin.mail.index');
+    Route::get('/admin/institution/{id}/mail/create', [AdminMailController::class, 'createMail'])
+        ->name('admin.mail.create');
+    Route::post('/admin/mail/store', [AdminMailController::class, 'storeMail'])
+        ->name('admin.mail.store');
+    Route::get('/admin/mail/edit/{id}', [AdminMailController::class, 'editMail'])
+        ->name('admin.mail.edit');
+    Route::post('/admin/mail/update', [AdminMailController::class, 'updateMail'])
+        ->name('admin.mail.update');
+    Route::post('/admin/mail/delete', [AdminMailController::class, 'deleteMail'])
+        ->name('admin.mail.delete');
 
     /* Stats */
     Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])

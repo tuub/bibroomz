@@ -11,6 +11,7 @@ return [
             'closing' => 'Are you sure you want to delete this closing?',
             'role' => 'Are you sure you want to delete this role?',
             'permission' => 'Are you sure you want to delete this permission?',
+            'mail' => 'Are you sire you want to delete this mail?',
         ],
     ],
 

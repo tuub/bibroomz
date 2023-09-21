@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             BusinessHourSeeder::class,
             ActiveDaySeeder::class,
             PermissionSeeder::class,
+            MailTypeSeeder::class,
         ]);
     }
 }

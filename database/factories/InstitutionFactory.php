@@ -22,6 +22,7 @@ class InstitutionFactory extends Factory
             'slug' => fake()->unique()->slug(1),
             'location' => fake()->streetAddress,
             'home_uri' => 'https://www.example.org',
+            'email' => 'info@example.org',
             'logo_uri' => 'https://picsum.photos/500/200',
             'teaser_uri' => 'https://picsum.photos/600/300',
         ];

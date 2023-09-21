@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\UpdateClosingRequest;
 use App\Library\Utility;
-use App\Mail\ClosingCreated;
-use App\Mail\ClosingUpdated;
+use App\Events\ClosingCreated;
+use App\Events\ClosingUpdated;
 use App\Models\Closing;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -61,8 +61,7 @@ class ClosingController extends Controller
 
             foreach ($users as $user) {
                 $happenings = $closing->getUserHappeningsAffected($user);
-
-                Mail::to($user)->queue(new ClosingCreated($closing, $happenings));
+                ClosingCreated::dispatch($user, $happenings, $closing);
             }
         }
 
@@ -103,12 +102,12 @@ class ClosingController extends Controller
         $sanitized = self::sanitizeClosingData($validated);
 
         // get previously affected users/happenings
-        $users = $closing->getUsersAffected();
-        foreach ($users as $user) {
-            $happenings = $closing->getUserHappeningsAffected($user);
+        // $users = $closing->getUsersAffected();
+        // foreach ($users as $user) {
+        //    $happenings = $closing->getUserHappeningsAffected($user);
 
-            $previously[$user->id] = $happenings;
-        }
+        //    $previously[$user->id] = $happenings;
+        //}
 
         if ($closing->update($sanitized)) {
             // send mails to affected users
@@ -116,8 +115,7 @@ class ClosingController extends Controller
 
             foreach ($users as $user) {
                 $happenings = $closing->getUserHappeningsAffected($user);
-
-                Mail::to($user)->queue(new ClosingUpdated($closing, $happenings, $previously[$user->id]));
+                ClosingUpdated::dispatch($user, $happenings, $closing);
             }
         }
 

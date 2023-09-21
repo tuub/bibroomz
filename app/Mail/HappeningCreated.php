@@ -3,9 +3,11 @@
 namespace App\Mail;
 
 use App\Models\Happening;
+use App\Models\MailContent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -21,6 +23,8 @@ class HappeningCreated extends Mailable implements ShouldQueue
      */
     public function __construct(
         public Happening $happening,
+        public string $class,
+        public MailContent $content,
     ) {
         //
     }
@@ -33,7 +37,13 @@ class HappeningCreated extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            subject: 'Happening Created',
+            from: new Address(
+                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+            ),
+            replyTo: new Address(
+                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+            ),
+            subject: $this->content->subject,
         );
     }
 
@@ -45,7 +55,8 @@ class HappeningCreated extends Mailable implements ShouldQueue
     public function content()
     {
         return new Content(
-            text: 'emails.happenings.created',
+            text: 'emails.text.mail',
+            markdown: 'emails.markdown.mail',
         );
     }
 

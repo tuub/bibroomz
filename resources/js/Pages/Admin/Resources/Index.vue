@@ -3,12 +3,7 @@
     <BodyHead :title="$t('admin.resources.index.title')" :description="$t('admin.resources.index.description')" />
 
     <PopupModal />
-
-    <div>
-        <Link v-if="hasPermission('create_resources')" :href="route('admin.resource.create')">{{
-            $t("admin.resources.index.table.actions.create")
-        }}</Link>
-    </div>
+    <CreateButton model="resource"></CreateButton>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -152,6 +147,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
+import CreateButton from "@/Components/Admin/CreateButton.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";

@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.users.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.users.form.title')" :description="$t('admin.users.form.description')" />
 
-    <form class="max-w-md mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Name -->
         <div class="mb-6">
             <FormLabel field="name" field-key="admin.users.form.fields.name"></FormLabel>
