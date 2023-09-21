@@ -42,10 +42,7 @@ createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
         const page = await resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob("./Pages/**/*.vue"));
-
-        if (page.layout === undefined) {
-            page.default.layout = MainLayout;
-        }
+        page.default.layout = page.default.layout || MainLayout
 
         return page;
     },

@@ -18,8 +18,12 @@ import FullCalendar from "@fullcalendar/vue3";
 
 import { useCalendar } from "@/Composables/Calendar";
 import { useAppStore } from "@/Stores/AppStore";
+import TerminalLayout from '@/Layouts/TerminalLayout.vue';
 
 import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+
+
+defineOptions({ layout: TerminalLayout })
 
 // ------------------------------------------------
 // Props
