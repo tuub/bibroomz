@@ -17,6 +17,7 @@ import { createApp, h } from "vue";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import { ZiggyVue } from "ziggy";
+import 'remixicon/fonts/remixicon.css';
 
 const emitter = mitt();
 

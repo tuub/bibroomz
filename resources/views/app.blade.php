@@ -10,7 +10,6 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <meta name="theme-color" content="#fafafa">
     @vite('resources/sass/main.scss')
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     @inertiaHead
 </head>
 <noscript>
