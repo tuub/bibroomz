@@ -7,7 +7,7 @@
             :title="name"
             @click="switchLocale(code)"
         >
-            <span :class="{ 'locale-active': activeLocale === code }">{{ code }}</span>
+            <span :class="{ 'locale-active': activeLocale === code }">{{ code.toUpperCase() }}</span>
             <span v-if="index > 0" class="px-2">/</span>
         </button>
     </div>
