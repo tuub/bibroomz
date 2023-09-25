@@ -13,6 +13,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use InvalidArgumentException;
 
 class Happening extends Model
@@ -20,7 +22,7 @@ class Happening extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, SoftDeletes, MassPrunable;
 
     /*****************************************************************
      * OPTIONS
@@ -220,5 +222,10 @@ class Happening extends Model
     public function isViewableByUser(User $user): bool
     {
         return $user->can('adminView', $this);
+    }
+
+    public function prunable(): Builder
+    {
+        return static::where('deleted_at', '<=', now()->subDays(config('roomz.happenings.cleanup_days')));
     }
 }

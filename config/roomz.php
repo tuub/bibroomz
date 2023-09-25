@@ -42,6 +42,9 @@ return [
         'suspension_days' => env('USER_SUSPENSION_DAYS', 3),
         'cleanup_days' => env('USER_CLEANUP_DAYS', 14),
     ],
+    'happenings' => [
+        'cleanup_days' => env('HAPPENINGS_CLEANUP_DAYS', 7),
+    ],
     'test-user' => [
         'admin' => [
             'username' => env('ADMIN_USER', 'admin'),

@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\RemoveUnverifiedHappenings;
 use App\Console\Commands\RemoveUsers;
+use App\Models\Happening;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -32,6 +33,13 @@ class Kernel extends ConsoleKernel
                 '--isolated',
             ]
         )->dailyAt('04:05');
+
+        $schedule->command(
+            'model:prune',
+            [
+                '--model' => [Happening::class],
+            ]
+        )->dailyAt('04:35');
     }
 
     /**

@@ -13,7 +13,6 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('happenings');
         Schema::create('happenings', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
@@ -30,6 +29,7 @@ return new class extends Migration
             $table->dateTime('reserved_at');
             $table->dateTime('verified_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -40,6 +40,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('reservations');
+        Schema::dropIfExists('happenings');
     }
 };
