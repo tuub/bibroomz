@@ -2,17 +2,20 @@
 
 namespace App\Mail;
 
-use App\Models\Happening;
+use App\Models\Closing;
+use App\Models\Institution;
 use App\Models\MailContent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Collection;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class HappeningUpdated extends Mailable implements ShouldQueue
+class ClosingCreatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,12 +25,11 @@ class HappeningUpdated extends Mailable implements ShouldQueue
      * @return void
      */
     public function __construct(
-        public Happening $happening,
+        public Closing $closing,
+        public Collection $happenings,
         public string $class,
         public MailContent $content,
-    ) {
-        //
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -36,14 +38,21 @@ class HappeningUpdated extends Mailable implements ShouldQueue
      */
     public function envelope()
     {
+        $closable = $this->closing->closable;
+        if ($closable instanceof Institution) {
+            $from_email = $closable->email;
+        } else {
+            $from_email = $closable->institution->email;
+        }
+
         return new Envelope(
             from: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $from_email, $from_email
             ),
             replyTo: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $from_email, $from_email
             ),
-            subject: trans('email.happening.updated.subject'),
+            subject: $this->content->subject,
         );
     }
 
@@ -55,8 +64,8 @@ class HappeningUpdated extends Mailable implements ShouldQueue
     public function content()
     {
         return new Content(
-            text: 'emails.happening.text.updated',
-            markdown: 'emails.happening.markdown.updated',
+            text: 'emails.text.mail',
+            markdown: 'emails.markdown.mail',
         );
     }
 

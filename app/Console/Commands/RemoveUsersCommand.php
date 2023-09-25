@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Query\Builder;
 
-class RemoveUsers extends Command implements Isolatable
+class RemoveUsersCommand extends Command implements Isolatable
 {
     /**
      * The name and signature of the console command.

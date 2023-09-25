@@ -169,35 +169,35 @@ export const useAuthStore = defineStore({
             const userChannel = `happenings.${this.user.id}`;
 
             Echo.private(userChannel)
-                .listen("HappeningCreated", (event) => {
+                .listen("HappeningCreatedEvent", (event) => {
                     this.updateUserHappenings(
                         event.happening,
                         this.addUserHappening,
                         trans("toast.happening.event.created"),
                     );
                 })
-                .listen("HappeningVerified", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.updateUserHappening,
-                        trans("toast.happening.event.verified"),
-                    );
-                })
-                .listen("HappeningUpdated", (event) => {
+                .listen("HappeningUpdatedEvent", (event) => {
                     this.updateUserHappenings(
                         event.happening,
                         this.updateUserHappening,
                         trans("toast.happening.event.updated"),
                     );
                 })
-                .listen("HappeningDeleted", (event) => {
+                .listen("HappeningDeletedEvent", (event) => {
                     this.updateUserHappenings(
                         event.happening,
                         this.removeUserHappening,
                         trans("toast.happening.event.deleted"),
                     );
                 })
-                .listen("UnverifiedHappeningRemovedByScheduler", (event) => {
+                .listen("HappeningVerifiedEvent", (event) => {
+                    this.updateUserHappenings(
+                        event.happening,
+                        this.updateUserHappening,
+                        trans("toast.happening.event.verified"),
+                    );
+                })
+                .listen("UnverifiedHappeningRemovedBySchedulerEvent", (event) => {
                     this.updateUserHappenings(
                         event.happening,
                         this.removeUserHappening,

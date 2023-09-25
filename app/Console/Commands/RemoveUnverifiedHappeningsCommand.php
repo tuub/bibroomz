@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Events\UnverifiedHappeningRemovedByScheduler;
+use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Happening;
 use App\Models\Institution;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Eloquent\Builder;
 
-class RemoveUnverifiedHappenings extends Command implements Isolatable
+class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
 {
     /**
      * The name and signature of the console command.
@@ -120,7 +120,7 @@ class RemoveUnverifiedHappenings extends Command implements Isolatable
         // remove happenings and broadcast
         $query->lazy()->each(function (Happening $happening) {
             $happening->delete();
-            $happening->broadcast(UnverifiedHappeningRemovedByScheduler::class);
+            $happening->broadcast(UnverifiedHappeningRemovedBySchedulerEvent::class);
         });
 
         $this->info('Done.');

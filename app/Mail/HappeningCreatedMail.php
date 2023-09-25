@@ -2,19 +2,17 @@
 
 namespace App\Mail;
 
-use App\Models\Closing;
-use App\Models\Institution;
+use App\Models\Happening;
 use App\Models\MailContent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Collection;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ClosingUpdated extends Mailable implements ShouldQueue
+class HappeningCreatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -24,11 +22,9 @@ class ClosingUpdated extends Mailable implements ShouldQueue
      * @return void
      */
     public function __construct(
-        public Closing $closing,
-        public Collection $happenings,
+        public Happening $happening,
         public string $class,
         public MailContent $content,
-        //public Collection $previously,
     ) {
         //
     }
@@ -40,19 +36,12 @@ class ClosingUpdated extends Mailable implements ShouldQueue
      */
     public function envelope()
     {
-        $closable = $this->closing->closable;
-        if ($closable instanceof Institution) {
-            $from_email = $closable->email;
-        } else {
-            $from_email = $closable->institution->email;
-        }
-
         return new Envelope(
             from: new Address(
-                $from_email, $from_email
+                $this->happening->resource->institution->email, $this->happening->resource->institution->email
             ),
             replyTo: new Address(
-                $from_email, $from_email
+                $this->happening->resource->institution->email, $this->happening->resource->institution->email
             ),
             subject: $this->content->subject,
         );

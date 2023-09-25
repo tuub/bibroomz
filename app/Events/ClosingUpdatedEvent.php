@@ -9,7 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-class ClosingUpdated
+class ClosingUpdatedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

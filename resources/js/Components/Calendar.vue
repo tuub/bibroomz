@@ -151,7 +151,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-    Echo.channel("happenings").listen("HappeningsChanged", () => {
+    Echo.channel("happenings").listen("HappeningsChangedEvent", () => {
         refetchHappenings(refCalendar);
     });
 

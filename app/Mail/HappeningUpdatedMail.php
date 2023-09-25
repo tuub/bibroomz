@@ -12,7 +12,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class HappeningVerified extends Mailable implements ShouldQueue
+class HappeningUpdatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -43,7 +43,7 @@ class HappeningVerified extends Mailable implements ShouldQueue
             replyTo: new Address(
                 $this->happening->resource->institution->email, $this->happening->resource->institution->email
             ),
-            subject: trans('email.happening.verified.subject'),
+            subject: trans('email.happening.updated.subject'),
         );
     }
 
@@ -55,8 +55,8 @@ class HappeningVerified extends Mailable implements ShouldQueue
     public function content()
     {
         return new Content(
-            text: 'emails.happening.text.verified',
-            markdown: 'emails.happening.markdown.verified',
+            text: 'emails.happening.text.updated',
+            markdown: 'emails.happening.markdown.updated',
         );
     }
 

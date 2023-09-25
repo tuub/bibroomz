@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Events\HappeningsChanged;
+use App\Events\HappeningsChangedEvent;
 use App\Library\Utility;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -206,7 +206,7 @@ class Happening extends Model
             $broadcastEvent::dispatch($this, $user);
         }
 
-        HappeningsChanged::dispatch();
+        HappeningsChangedEvent::dispatch();
     }
 
     public function isConcurrent(CarbonImmutable $start, CarbonImmutable $end): bool

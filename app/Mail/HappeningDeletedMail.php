@@ -12,7 +12,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class HappeningCreated extends Mailable implements ShouldQueue
+class HappeningDeletedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -43,6 +43,7 @@ class HappeningCreated extends Mailable implements ShouldQueue
             replyTo: new Address(
                 $this->happening->resource->institution->email, $this->happening->resource->institution->email
             ),
+            //subject: trans('email.happening.created.subject'),
             subject: $this->content->subject,
         );
     }

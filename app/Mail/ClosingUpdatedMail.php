@@ -13,9 +13,8 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
-class ClosingCreated extends Mailable implements ShouldQueue
+class ClosingUpdatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -29,7 +28,10 @@ class ClosingCreated extends Mailable implements ShouldQueue
         public Collection $happenings,
         public string $class,
         public MailContent $content,
-    ) {}
+        //public Collection $previously,
+    ) {
+        //
+    }
 
     /**
      * Get the message envelope.

@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use App\Console\Commands\RemoveUnverifiedHappenings;
-use App\Console\Commands\RemoveUsers;
 use App\Models\Happening;
+use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
+use App\Console\Commands\RemoveUsersCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command(
-            RemoveUnverifiedHappenings::class,
+            RemoveUnverifiedHappeningsCommand::class,
             [
                 '--force',
                 '--isolated',
@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
         )->everyMinute();
 
         $schedule->command(
-            RemoveUsers::class,
+            RemoveUsersCommand::class,
             [
                 '--force',
                 '--isolated',

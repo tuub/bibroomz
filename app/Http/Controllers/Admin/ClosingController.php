@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\UpdateClosingRequest;
 use App\Library\Utility;
-use App\Events\ClosingCreated;
-use App\Events\ClosingUpdated;
+use App\Events\ClosingCreatedEvent;
+use App\Events\ClosingUpdatedEvent;
 use App\Models\Closing;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -61,7 +61,7 @@ class ClosingController extends Controller
 
             foreach ($users as $user) {
                 $happenings = $closing->getUserHappeningsAffected($user);
-                ClosingCreated::dispatch($user, $happenings, $closing);
+                ClosingCreatedEvent::dispatch($user, $happenings, $closing);
             }
         }
 
@@ -115,7 +115,7 @@ class ClosingController extends Controller
 
             foreach ($users as $user) {
                 $happenings = $closing->getUserHappeningsAffected($user);
-                ClosingUpdated::dispatch($user, $happenings, $closing);
+                ClosingUpdatedEvent::dispatch($user, $happenings, $closing);
             }
         }
 

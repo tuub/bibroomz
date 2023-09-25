@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\HappeningVerified;
-use App\Events\HappeningCreated;
-use App\Events\HappeningDeleted;
-use App\Events\HappeningUpdated;
+use App\Events\HappeningVerifiedEvent;
+use App\Events\HappeningCreatedEvent;
+use App\Events\HappeningDeletedEvent;
+use App\Events\HappeningUpdatedEvent;
 use App\Http\Requests\AddHappeningRequest;
 use App\Http\Requests\DeleteHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
@@ -167,7 +167,7 @@ class HappeningController extends Controller
         // LOG
         Utility::sendToLog('happenings', $log);
 
-        $happening->broadcast(HappeningCreated::class);
+        $happening->broadcast(HappeningCreatedEvent::class);
     }
 
     public function updateHappening(UpdateHappeningRequest $request)
@@ -211,7 +211,7 @@ class HappeningController extends Controller
         Utility::sendToLog('happenings', $log);
 
         // Broadcast
-        $happening->broadcast(HappeningUpdated::class);
+        $happening->broadcast(HappeningUpdatedEvent::class);
     }
 
     public function verifyHappening(VerifyHappeningRequest $request)
@@ -257,7 +257,7 @@ class HappeningController extends Controller
         Utility::sendToLog('happenings', $log);
 
         // Broadcast
-        $happening->broadcast(HappeningVerified::class);
+        $happening->broadcast(HappeningVerifiedEvent::class);
     }
 
     public function deleteHappening(DeleteHappeningRequest $request): void
@@ -269,7 +269,7 @@ class HappeningController extends Controller
             return;
         }
 
-        $happening->broadcast(HappeningDeleted::class);
+        $happening->broadcast(HappeningDeletedEvent::class);
     }
 
     private function isHappeningValid(
