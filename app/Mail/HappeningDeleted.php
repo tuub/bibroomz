@@ -20,7 +20,7 @@ class HappeningDeleted extends Mailable implements ShouldQueue
      * @return void
      */
     public function __construct(
-        public array $happening,
+        public Happening $happening,
     ) {
         //
     }

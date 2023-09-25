@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-class UnverifiedHappeningRemovedByScheduler extends HappeningDeleted
+class UnverifiedHappeningRemovedByScheduler extends HappeningBroadcastEvent
 {
 
 }
