@@ -79,7 +79,7 @@ const isSiteCredits = computed(() => {
     position: absolute;
     bottom: -80px;
     right: -32px;
-    width: 110%;
+    width: 130%;
     height: 0.5rem;
 }
 .footer > ul > li:nth-child(1) > a{

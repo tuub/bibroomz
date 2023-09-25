@@ -102,6 +102,11 @@ const can = authStore.can;
 </script>
 
 <style>
+@media only screen and (max-width: 1150px) {
+    .events {
+        margin-top: 30px;
+    }
+}
 .list-move, /* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {

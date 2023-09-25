@@ -98,14 +98,15 @@ onMounted(() => {
     margin-bottom: 30px;
     width: 26%;
     float: right;
-}   
+}
 
 @media only screen and (max-width: 1150px) {
     #sidebar {
         margin-top: 30px;
         margin-bottom: 30px;
+        display: contents;
         width: 100%;
         float: left;
-    }   
+    }
 }
 </style>
