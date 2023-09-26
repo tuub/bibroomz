@@ -9,19 +9,7 @@
     />
 
     <PopupModal />
-    <CreateButton model="closing"></CreateButton>
-
-    <div>
-        <Link v-if="hasPermission('create_closings', institutionId)"
-              :href="route('admin.closing.create', {
-                  closable_type: closable_type,
-                  closable_id: closable.id,
-              })">
-            <i class="ri-add-circle-line"></i>
-            {{ $t("admin.closings.index.table.actions.create") }}
-        </Link
-        >
-    </div>
+    <CreateButton model="closing" :params="{closable_type: closable_type, closable_id: closable.id}"></CreateButton>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">

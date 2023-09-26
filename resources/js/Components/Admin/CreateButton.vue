@@ -1,6 +1,6 @@
 <template>
     <Link v-if="hasPermission('create_' + model + 's')"
-          :href="route('admin.' + model + '.create')">
+          :href="route('admin.' + model + '.create', params)">
         <i class="ri-add-circle-line"></i>
         {{ $t('admin.' + model + 's.index.table.actions.create') }}
     </Link>
@@ -16,6 +16,10 @@ const props = defineProps({
     model: {
         type: String,
         default: '',
+    },
+    params: {
+        type: Object,
+        default: {},
     },
 });
 
