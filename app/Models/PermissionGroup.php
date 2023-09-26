@@ -7,10 +7,9 @@ use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Permission extends Model
+class PermissionGroup extends Model
 {
     use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
 
@@ -18,7 +17,6 @@ class Permission extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'key',
         'name',
         'description',
     ];
@@ -28,13 +26,8 @@ class Permission extends Model
         'description',
     ];
 
-    public function roles(): BelongsToMany
+    public function permissions(): HasMany
     {
-        return $this->belongsToMany(Role::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(PermissionGroup::class);
+        return $this->hasMany(Permission::class);
     }
 }

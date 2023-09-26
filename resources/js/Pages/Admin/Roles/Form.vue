@@ -10,6 +10,7 @@
             field-key="admin.roles.form.fields.name"
             :languages="languages"
             :errors="form.errors"
+            required
         ></TranslatableFormInput>
 
         <!-- Input: Description -->
@@ -26,35 +27,45 @@
             <div>
                 <FormLabel field-key="admin.roles.form.fields.permissions"></FormLabel>
             </div>
-            <ul>
-                <li v-for="(permission, index) in permissions" :key="permission.id">
-                    <div class="flex">
-                        <div class="flex items-center h-5">
-                            <input
-                                :id="`permission-checkbox-${index}`"
-                                v-model="form.permissions"
-                                :value="permission.id"
-                                :aria-describedby="`permission-checkbox-text-${index}`"
-                                type="checkbox"
-                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                            />
-                        </div>
-                        <div class="ml-2 text-sm">
-                            <label
-                                :for="`permission-checkbox-${index}`"
-                                class="font-medium text-gray-900 dark:text-gray-300"
-                                >{{ translate(permission.name) }}</label
-                            >
-                            <p
-                                :id="`permission-checkbox-text-${index}`"
-                                class="text-xs font-normal text-gray-500 dark:text-gray-300"
-                            >
-                                {{ translate(permission.description) }}
-                            </p>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+
+            {{ form.permissions }}
+
+            <div
+                v-for="group in [...groups].sort((a, b) => translate(a.name).localeCompare(translate(b.name)))"
+                :key="group.id"
+            >
+                <p>{{ translate(group.name) }}</p>
+
+                <ul>
+                    <li
+                        v-for="(permission, index) in permissions.filter((x) => x.group_id === group.id)"
+                        :key="permission.id"
+                    >
+                        <PermissionCheckbox
+                            :permission="permission"
+                            :index="index"
+                            :checked="form.permissions.includes(permission.id)"
+                            @update-checked="updatePermissions($event)"
+                        ></PermissionCheckbox>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <!-- Fixme -->
+                <p>Others</p>
+
+                <ul>
+                    <li v-for="(permission, index) in permissions.filter((x) => !x.group_id)" :key="permission.id">
+                        <PermissionCheckbox
+                            :permission="permission"
+                            :index="index"
+                            :checked="form.permissions.includes(permission.id)"
+                            @update-checked="updatePermissions($event)"
+                        ></PermissionCheckbox>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="mb-6">
@@ -69,6 +80,7 @@
     </form>
 </template>
 <script setup>
+import PermissionCheckbox from "@/Components/Admin/PermissionCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
@@ -86,6 +98,10 @@ const props = defineProps({
         default: () => ({}),
     },
     permissions: {
+        type: Array,
+        default: () => [],
+    },
+    groups: {
         type: Array,
         default: () => [],
     },
@@ -121,5 +137,13 @@ const submitForm = () => {
     }
 
     isProcessing.value = false;
+};
+
+const updatePermissions = ({ permissionId, checked }) => {
+    form.permissions = form.permissions.filter((x) => x !== permissionId);
+
+    if (checked) {
+        form.permissions.push(permissionId);
+    }
 };
 </script>

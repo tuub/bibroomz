@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\PermissionGroup;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
@@ -32,6 +33,7 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($models as $model) {
+            $this->createPermissionGroup($model);
             $this->createPermissions($verbs, $model);
         }
 
@@ -62,10 +64,23 @@ class PermissionSeeder extends Seeder
 
     private function createPermission(String $verb, String $model)
     {
-        Permission::create([
+        $permission = Permission::create([
             'key' => implode('_', [$verb, str_replace(' ', '_', $model)]),
             'name' => [
                 'en' => implode(' ', [ucfirst($verb), $model]),
+            ],
+        ]);
+
+        $group = PermissionGroup::where('key', '=', $model)->first();
+        $permission->group()->associate($group)->save();
+    }
+
+    private function createPermissionGroup(String $model)
+    {
+        PermissionGroup::create([
+            'key' => $model,
+            'name' => [
+                'en' => ucfirst($model),
             ],
         ]);
     }

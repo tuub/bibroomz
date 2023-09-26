@@ -38,8 +38,8 @@
                     <td class="px-6 py-4 text-center">
                         {{
                             role.permissions
-                                .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((permission) => permission.name)
+                                .sort((a, b) => translate(a.name).localeCompare(translate(b.name)))
+                                .map((permission) => translate(permission.name))
                                 .join(", ")
                         }}
                     </td>

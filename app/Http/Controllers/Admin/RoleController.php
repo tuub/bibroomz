@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Permission;
+use App\Models\PermissionGroup;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ class RoleController extends Controller
 
         return Inertia::render('Admin/Roles/Form', [
             'permissions' => Permission::orderBy('name')->get(),
+            'groups' => PermissionGroup::orderBy('name')->get(),
             'languages' => config('app.supported_locales'),
         ]);
     }
@@ -48,6 +50,7 @@ class RoleController extends Controller
         return Inertia::render('Admin/Roles/Form', [
             'role' => $role->load('permissions'),
             'permissions' => Permission::orderBy('name')->get(),
+            'groups' => PermissionGroup::orderBy('name')->get(),
             'languages' => config('app.supported_locales'),
         ]);
     }
