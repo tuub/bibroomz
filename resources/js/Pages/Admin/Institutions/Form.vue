@@ -10,6 +10,7 @@
             field-key="admin.institutions.form.fields.title"
             :languages="languages"
             :errors="form.errors"
+            required
         ></TranslatableFormInput>
 
         <!-- Input: Short title -->
@@ -175,7 +176,7 @@ const processing = ref(false);
 
 const form = useForm({
     id: props.institution?.id ?? "",
-    title: props.institution?.title ?? "",
+    title: props.institution?.title ?? {},
     short_title: props.institution?.short_title ?? "",
     slug: props.institution?.slug ?? "",
     location: props.institution?.location ?? "",
