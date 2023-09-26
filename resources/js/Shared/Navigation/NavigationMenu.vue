@@ -25,6 +25,10 @@
 
         <div id="mobile-menu" class="w-90p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
             <slot></slot>
+            <button
+                @click="toggle"
+                class="mobile-menu-background" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'" >
+            </button>
         </div>
     </div>
 </template>
@@ -55,11 +59,6 @@ const toggle = () => {
 .mt-3px {
     margin-top: -3px;
 }
-
-/* .navigation-menu-wrapper { */
-
-/* } */
-
 .mobile-menu-button {
     display: block;
 }
@@ -88,7 +87,7 @@ const toggle = () => {
         width: 190px;
         top: 25px;
         right: 0px;
-        background: #FFFFFF;
+        background: #fdfdfd;
         padding: 8px;
         z-index: 25;
     }
@@ -108,12 +107,19 @@ const toggle = () => {
         top: 185px;
     }
     #mobile-menu > ul > li:nth-child(6){
-        top: 225px;    
+        top: 225px;
     }
     #mobile-menu > ul > li:nth-child(7){
-        top: 265px;    
+        top: 265px;
     }
-    
+    .mobile-menu-background{
+        position: fixed;
+        background-color: rgba(0,0,0,.5);
+        top: 122px;
+        right: 0px;
+        width: 200vh;
+        height: 100vh;
+    }
     .mobile-menu-hidden {
         display: none;
     }
