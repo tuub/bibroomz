@@ -41,6 +41,10 @@ onBeforeMount(() => {
     float: right;
 }
 
+.locale-active {
+    font-weight: bold;
+}
+
 .language-button-wrapper {
     position: absolute;
     right: 115px;
