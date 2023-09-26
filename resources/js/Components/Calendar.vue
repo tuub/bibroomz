@@ -195,9 +195,17 @@ div.fc-timegrid-slots tr {
 }
 
 .fc .fc-toolbar-title {
-    font-size: 0.9rem;
+    font-size: 0.9em;
     margin-right: 0.5em;
 }
+
+@-moz-document url-prefix() {
+    .fc .fc-toolbar-title {
+        font-size: 0.8em;
+        margin-right: 0.5em;
+    }
+}
+
 
 .fc .fc-toolbar.fc-header-toolbar {
     float: left;
@@ -214,15 +222,23 @@ div.fc-timegrid-slots tr {
     right: -5px;
 }
 
+@-moz-document url-prefix() {
+    .page-change-wrapper {
+        position: absolute;
+        top: -12px;
+        right: -5px;
+    }
+}
+
 .calendar > div:nth-child(1) > div:nth-child(1){
     position: absolute;
-    left: 0;
+    left: 60px;
     top: -7px;
 }
 
 .calendar > div:nth-child(1) > div:nth-child(3){
     position: absolute;
-    left: 160px;
+    left: 0;
     top: -10px;
 }
 

@@ -96,7 +96,7 @@ onMounted(() => {
 
 <style scoped>
 #sidebar {
-    margin-top: 50px;
+    margin-top: 24px;
     margin-bottom: 30px;
     width: 26%;
     float: right;
