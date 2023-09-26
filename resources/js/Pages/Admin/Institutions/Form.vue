@@ -151,7 +151,7 @@ import { onMounted, ref } from "vue";
 const props = defineProps({
     institution: {
         type: Object,
-        default: () => ({}),
+        default: () => null,
     },
     daysOfWeek: {
         type: Array,
