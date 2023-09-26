@@ -30,4 +30,5 @@ return [
         'weekly_hours' => 'Weekly hours quota limit exceeded: :remaining hours remaining',
         'daily_hours' => 'Daily hours quota limit exceeded: :remaining hours remaining',
     ],
+    'concurrent_happening' => 'Only one booking at a time is allowed!',
 ];

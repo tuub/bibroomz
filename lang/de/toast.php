@@ -30,4 +30,5 @@ return [
         'weekly_hours' => 'Wöchentliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
         'daily_hours' => 'Tägliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
     ],
+    'concurrent_happening' => 'Es ist nur eine Buchung zur gleichen Zeit möglich!',
 ];
