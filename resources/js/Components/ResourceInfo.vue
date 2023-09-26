@@ -12,18 +12,18 @@
         </a>
         <div v-if="isVisible">
             <div class="font-bold">{{ $t("modal.resource_info.resource_capacity") }}</div>
-            <div class="mb-2">{{ capacity }}</div>
+            <div class="mb-2">{{ resource.capacity }}</div>
             <div class="font-bold">{{ $t("modal.resource_info.resource_description") }}</div>
-            <div class="mb-2">{{ description }}</div>
+            <div class="mb-2">{{ resource.description }}</div>
             <div class="font-bold">{{ $t("modal.resource_info.resource_location") }}</div>
             <div class="mb-2">
-                <template v-if="locationUri">
-                    <a class="underline" :href="locationUri" target="_blank">
-                        {{ location }}
+                <template v-if="resource.locationUri">
+                    <a class="underline" :href="resource.locationUri" target="_blank">
+                        {{ resource.location }}
                     </a>
                 </template>
                 <template v-else>
-                    {{ location }}
+                    {{ resource.location }}
                 </template>
             </div>
         </div>
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -48,12 +48,9 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const isVisible = ref(props.isInitiallyVisible);
+const translate = inject("translate");
 
-const capacity = props.resource.capacity ?? props.resource.extendedProps?.capacity;
-const description = props.resource.description ?? props.resource.extendedProps?.description;
-const location = props.resource.location ?? props.resource.extendedProps?.location;
-const locationUri = props.resource.location_uri ?? props.resource.extendedProps?.location_uri;
+const isVisible = ref(props.isInitiallyVisible);
 
 const toggleVisibility = () => {
     isVisible.value = !isVisible.value;

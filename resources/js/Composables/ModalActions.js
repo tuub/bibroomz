@@ -150,16 +150,16 @@ export function useHappeningInfoModal(happening) {
     });
 }
 
-export function useResourceInfoModal(resourceInfo) {
+export function useResourceInfoModal(resource) {
     const modal = useModal();
 
     return {
         view: ResourceInfoModal,
         content: {
-            title: trans("modal.resource_info.title", { resource_title: resourceInfo.resource.title }),
+            title: trans("modal.resource_info.title", { resource_title: resource.title }),
             description: trans("modal.resource_info.description"),
         },
-        payload: { ...resourceInfo },
+        payload: { resource },
         actions: [
             {
                 label: trans("modal.resource_info.action.ok"),

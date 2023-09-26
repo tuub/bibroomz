@@ -66,7 +66,7 @@ dayjs.extend(duration);
 // Variables
 // ------------------------------------------------
 const happeningResource = computed(() => {
-    return props.happening.resource.title;
+    return props.happening.resource.title.toString();
 });
 
 const happeningDate = computed(() => {

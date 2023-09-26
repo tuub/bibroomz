@@ -43,9 +43,12 @@ class ResourceController extends Controller
                 'businessHours' => $business_hours,
                 'isVerificationRequired' => $resource->is_verification_required,
                 'capacity' => $resource->capacity,
-                'description' => $resource->description,
-                'location' => $resource->location,
                 'location_uri' => $resource->location_uri,
+                'translations' => [
+                    'title' => $resource->getTranslations('title'),
+                    'description' => $resource->getTranslations('description'),
+                    'location' => $resource->getTranslations('location'),
+                ],
             ];
         }
 

@@ -27,7 +27,7 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isBetween);
 dayjs.extend(utc);
 
-export function useCalendar({ emit, pagination, calendarOptions = {} }) {
+export function useCalendar({ emit, pagination, translate, calendarOptions = {} }) {
     const appStore = useAppStore();
     const institution = appStore.institution;
 
@@ -128,11 +128,11 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
                 isSelected: true,
                 resource: {
                     id: eventInfo.resource.id,
-                    title: eventInfo.resource.title,
-                    location: eventInfo.resource.extendedProps.location,
+                    title: translate(eventInfo.resource.extendedProps.translations.title),
+                    location: translate(eventInfo.resource.extendedProps.translations.location),
                     location_uri: eventInfo.resource.extendedProps.location_uri,
                     capacity: eventInfo.resource.extendedProps.capacity,
-                    description: eventInfo.resource.extendedProps.description,
+                    description: translate(eventInfo.resource.extendedProps.translations.description),
                 },
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
@@ -147,37 +147,23 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
         const happening = {};
         const isBgEvent = eventInfo.el.classList.contains("fc-bg-event");
 
-        if (eventInfo.resource) {
-            /* This is a new selection */
-            const dataPath = eventInfo;
+        const resource = eventInfo.event.getResources()[0]._resource;
 
-            happening.resource = {
-                id: dataPath.resource._resource.id,
-                title: dataPath.resource._resource.title,
-                location: dataPath.resource._resource.extendedProps.location,
-                location_uri: dataPath.resource._resource.extendedProps.location_uri,
-                capacity: dataPath.resource._resource.extendedProps.capacity,
-                description: dataPath.resource._resource.extendedProps.description,
-            };
-        } else {
-            /* This is an event */
-            const dataPath = eventInfo.event;
+        happening.resource = {
+            id: resource.id,
+            title: translate(resource.extendedProps.translations.title),
+            location: translate(resource.extendedProps.translations.location),
+            location_uri: resource.extendedProps.location_uri,
+            capacity: resource.extendedProps.capacity,
+            description: translate(resource.extendedProps.translations.description),
+        };
 
-            happening.resource = {
-                id: dataPath.getResources()[0]._resource.id,
-                title: dataPath.getResources()[0]._resource.title,
-                location: dataPath.getResources()[0]._resource.extendedProps.location,
-                location_uri: dataPath.getResources()[0]._resource.extendedProps.location_uri,
-                capacity: dataPath.getResources()[0]._resource.extendedProps.capacity,
-                description: dataPath.getResources()[0]._resource.extendedProps.description,
-            };
-            happening.id = dataPath.id;
-            happening.user_02 = dataPath.extendedProps.status?.user?.verification;
-            happening.start = dayjs.utc(dataPath._instance.range.start);
-            happening.end = dayjs.utc(dataPath._instance.range.end);
-            happening.isVerificationRequired = dataPath.extendedProps.isVerificationRequired;
-            happening.can = dataPath.extendedProps.can;
-        }
+        happening.id = eventInfo.event.id;
+        happening.user_02 = eventInfo.event.extendedProps.status?.user?.verification;
+        happening.start = dayjs.utc(eventInfo.event._instance.range.start);
+        happening.end = dayjs.utc(eventInfo.event._instance.range.end);
+        happening.isVerificationRequired = eventInfo.event.extendedProps.isVerificationRequired;
+        happening.can = eventInfo.event.extendedProps.can;
 
         if (!isBgEvent) {
             if (happening.can?.verify) {
@@ -207,11 +193,20 @@ export function useCalendar({ emit, pagination, calendarOptions = {} }) {
 
         link.innerHTML = '<i class="ri-information-line"></i>';
         link.onclick = function () {
-            emit("open-modal-component", useResourceInfoModal(resourceInfo));
+            emit(
+                "open-modal-component",
+                useResourceInfoModal({
+                    title: translate(resourceInfo.resource.extendedProps.translations.title),
+                    description: translate(resourceInfo.resource.extendedProps.translations.description),
+                    location: translate(resourceInfo.resource.extendedProps.translations.location),
+                    location_uri: resourceInfo.resource.extendedProps.location_uri,
+                    capacity: resourceInfo.resource.extendedProps.capacity,
+                }),
+            );
         };
 
         const title = document.createElement("span");
-        title.innerHTML = resourceInfo.resource.title;
+        title.innerHTML = translate(resourceInfo.resource.extendedProps.translations.title);
 
         return { domNodes: [title, link] };
     }

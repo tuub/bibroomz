@@ -40,7 +40,14 @@ class HappeningController extends Controller
         });
 
         return Inertia::render('Admin/Happenings/Form', [
-            'resources' => $resources->map->only(['id', 'title', 'institution_id', 'is_verification_required']),
+            'resources' => $resources->map(function ($resource) {
+                return [
+                    'id' => $resource->id,
+                    'title' => $resource->getTranslations('title'),
+                    'institution_id' => $resource->institution_id,
+                    'is_verification_required' => $resource->is_verification_required,
+                ];
+            }),
             'users' => $users->map->only(['id', 'name', 'permissions']),
         ]);
     }
@@ -89,7 +96,14 @@ class HappeningController extends Controller
                 'end_date',
                 'end_time',
             ]),
-            'resources' => $resources->map->only(['id', 'title', 'institution_id', 'is_verification_required']),
+            'resources' => $resources->map(function ($resource) {
+                return [
+                    'id' => $resource->id,
+                    'title' => $resource->getTranslations('title'),
+                    'institution_id' => $resource->institution_id,
+                    'is_verification_required' => $resource->is_verification_required,
+                ];
+            }),
             'users' => $users->map->only(['id', 'name', 'permissions']),
         ]);
     }

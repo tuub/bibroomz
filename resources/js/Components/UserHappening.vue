@@ -101,7 +101,7 @@ import useModal from "@/Stores/Modal";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { computed } from "vue";
+import { computed, inject } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -125,6 +125,17 @@ dayjs.extend(utc);
 // Variables
 // ------------------------------------------------
 const modal = useModal();
+const translate = inject("translate");
+
+const happening = computed(() => ({
+    ...props.happening,
+    resource: {
+        ...props.happening.resource,
+        title: translate(props.happening.resource.title),
+        location: translate(props.happening.resource.location),
+        description: translate(props.happening.resource.description),
+    },
+}));
 
 // ------------------------------------------------
 // Computed

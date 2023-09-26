@@ -70,7 +70,7 @@
             >
                 <option value="-1">Choose</option>
                 <option v-for="resource in resources" :key="resource.id" :value="resource.id">
-                    {{ resource.title }}
+                    {{ translate(resource.title) }}
                 </option>
             </select>
             <FormValidationError :message="form.errors.resource_id"></FormValidationError>
@@ -171,7 +171,7 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { computed, ref, watch } from "vue";
+import { computed, inject, ref, watch } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -194,6 +194,8 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = inject("translate");
+
 const processing = ref(false);
 
 const form = useForm({

@@ -53,7 +53,7 @@
                         {{ formatDate(happening.start) }}
                     </th>
                     <td class="px-6 py-4">
-                        {{ happening.resource.title }}
+                        {{ translate(happening.resource.title) }}
                     </td>
                     <td class="px-6 py-4">
                         {{ formatTime(happening.start) }}
@@ -158,6 +158,7 @@ const authStore = useAuthStore();
 const { hasPermission } = authStore;
 
 const route = inject("route");
+const translate = inject("translate");
 
 // ------------------------------------------------
 // Methods

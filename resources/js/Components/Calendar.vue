@@ -20,7 +20,7 @@
             <template #eventContent="arg">
                 <div class="text-center">
                     <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
-                        {{ arg.event.extendedProps.description }}
+                        {{ translate(arg.event.extendedProps.description) }}
                     </div>
                     <b>{{ arg.timeText }}</b>
                     <i>{{ arg.event.title }}</i>
@@ -40,7 +40,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
+import { computed, inject, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -69,7 +69,9 @@ const pagination = reactive({
     previousPage: null,
 });
 
-const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination });
+const translate = inject("translate");
+
+const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination, translate });
 
 const { isAuthenticated } = storeToRefs(authStore);
 const refCalendar = ref(null);
@@ -185,7 +187,7 @@ a.fc-event:hover {
 }
 
 div.fc-timegrid-slots tr {
-    background-color: #ffffff;
+    background-color: #FFFFFF;
 }
 
 .fc .fc-timegrid-axis-frame {
