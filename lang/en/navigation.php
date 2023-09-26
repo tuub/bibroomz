@@ -19,6 +19,7 @@ return [
         'resources' => 'Rooms',
         'users' => 'Users',
         'roles' => 'Roles',
+        'permissions' => 'Permissions',
         'stats' => 'Statistics',
         'exit' => 'Leave Administration',
     ],

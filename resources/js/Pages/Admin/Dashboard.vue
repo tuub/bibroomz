@@ -38,6 +38,13 @@
             icon="ri-group-line"
         ></DashboardCard>
         <DashboardCard
+            v-if="hasPermission('view_permissions')"
+            :title="$t('admin.permissions.index.title')"
+            :description="$t('admin.permissions.index.description')"
+            :link="route('admin.permission.index')"
+            icon="ri-shield-keyhole-fill"
+        ></DashboardCard>
+        <DashboardCard
             v-if="hasPermission('view_statistics')"
             :title="$t('admin.stats.title')"
             :description="$t('admin.stats.description')"
@@ -58,7 +65,7 @@ const { hasPermission, canViewInstitutions } = authStore;
 <style>
 
 .dashboard-card-wrapper > div {
-    margin: 20px 40px 20px 0px ;
+    margin: 20px 40px 20px 0;
     float: left;
     height: 200px;
     width: 200px;
