@@ -25,38 +25,24 @@
 
 <script setup>
 import { useAppStore } from "@/Stores/AppStore";
-import { useAuthStore } from "@/Stores/AuthStore";
 import NavLink from "@/Shared/NavLink.vue";
-import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import { usePage } from "@inertiajs/vue3";
-import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const appStore = useAppStore();
-const authStore = useAuthStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const appName = appStore.appName;
 const inertiaPage = usePage();
-const { institutionShortTitle, institutionSlug, isMultiTenancy } = storeToRefs(appStore);
-const { isPrivileged } = storeToRefs(authStore);
 
 // ------------------------------------------------
 // Computed
 // ------------------------------------------------
-const isPageStart = computed(() => {
-    return inertiaPage.component === "Start";
-});
-
-const isPageHome = computed(() => {
-    return inertiaPage.component === "Home";
-});
-
 const isPrivacyStatement = computed(() => {
     return inertiaPage.component === "PrivacyStatement";
 });
@@ -68,12 +54,13 @@ const isSiteCredits = computed(() => {
 </script>
 <style>
 .content-wrapper {
-    margin: 8.5em 2em 0 2em;
+    margin: 10em 2em 0 2em;
     min-height: 80vh;
     position: relative;
 }
+
 .footer{
-    padding: 20px 0px 20px 0px;
+    padding: 20px 0 20px 0;
     background-color: black;
     color: white;
     position: absolute;
@@ -82,6 +69,7 @@ const isSiteCredits = computed(() => {
     width: 130%;
     height: 0.5rem;
 }
+
 .footer > ul > li:nth-child(1) > a{
     position: absolute;
     right: 160px;

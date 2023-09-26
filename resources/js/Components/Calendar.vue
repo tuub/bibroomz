@@ -210,19 +210,22 @@ div.fc-timegrid-slots tr {
 
 .page-change-wrapper {
     position: absolute;
-    top: 5px;
+    top: -7px;
     right: -5px;
 }
-.calendar div > div:nth-child(3){
+
+.calendar > div:nth-child(1) > div:nth-child(1){
+    position: absolute;
+    left: 0;
+    top: -7px;
+}
+
+.calendar > div:nth-child(1) > div:nth-child(3){
     position: absolute;
     left: 160px;
-    top: 5px;
+    top: -10px;
 }
-.calendar div > div:nth-child(3){
-    position: absolute;
-    left: 160px;
-    top: 5px;
-}
+
 @media only screen and (max-width: 1150px) {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 30%;
