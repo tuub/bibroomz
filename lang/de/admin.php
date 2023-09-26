@@ -505,7 +505,7 @@ return [
     'permissions' => [
         'index' => [
             'title' => 'Berechtigungen',
-            'description' => 'Berechtigungen erstellen, bearbeiten, löschen',
+            'description' => 'Berechtigungen bearbeiten',
             'table' => [
                 'header' => [
                     'name' => 'Name',

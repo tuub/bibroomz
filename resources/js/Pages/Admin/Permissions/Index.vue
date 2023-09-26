@@ -4,10 +4,6 @@
 
     <PopupModal />
 
-    <div>
-        <Link :href="route('admin.permission.create')">{{ $t("admin.permissions.index.table.actions.create") }}</Link>
-    </div>
-
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -42,16 +38,6 @@
                         >
                             {{ $t("admin.permissions.index.table.actions.edit") }}
                         </Link>
-                        |
-                        <a
-                            :href="route('admin.permission.delete', { id: permission.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            @click.prevent="
-                                modal.open({}, { message: $t('popup.content.delete.permission') }, permission, actions)
-                            "
-                        >
-                            {{ $t("admin.permissions.index.table.actions.delete") }}
-                        </a>
                     </td>
                 </tr>
             </tbody>

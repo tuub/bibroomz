@@ -505,7 +505,7 @@ return [
     'permissions' => [
         'index' => [
             'title' => 'Permissions',
-            'description' => 'Create, edit, delete permissions',
+            'description' => 'Edit permissions',
             'table' => [
                 'header' => [
                     'name' => 'Name',

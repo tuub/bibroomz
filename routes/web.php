@@ -168,16 +168,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/admin/permissions', [PermissionController::class, 'getPermissions'])
         ->name('admin.permission.index');
-    Route::get('/admin/permission/create', [PermissionController::class, 'createPermission'])
-        ->name('admin.permission.create');
-    Route::post('/admin/permission/store', [PermissionController::class, 'storePermission'])
-        ->name('admin.permission.store');
     Route::get('/admin/permission/edit/{permission}', [PermissionController::class, 'editPermission'])
         ->name('admin.permission.edit');
     Route::post('/admin/permission/update/{permission}', [PermissionController::class, 'updatePermission'])
         ->name('admin.permission.update');
-    Route::post('/admin/permission/delete/{permission}', [PermissionController::class, 'deletePermission'])
-        ->name('admin.permission.delete');
 });
 
 // Institution Home
