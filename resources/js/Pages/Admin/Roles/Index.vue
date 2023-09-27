@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.roles.index.title')" :description="$t('admin.roles.index.description')" />
 
     <PopupModal />
-    <CreateButton model="role"></CreateButton>
+    <CreateAction model="role"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -71,7 +71,7 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
+import CreateAction from "@/Components/Admin/CreateAction.vue";
 
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";

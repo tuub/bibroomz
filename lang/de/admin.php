@@ -7,6 +7,8 @@ return [
         ],
         'form' => [
             'choose' => 'Bitte auswählen',
+            'submit' => 'Speichern',
+            'cancel' => 'Abbrechen',
         ],
         'table' => [
             'actions' => 'Aktionen',
@@ -120,9 +122,6 @@ return [
                     'hint' => 'Bestätigt ja/nein',
                 ],
             ],
-            'actions' => [
-                'submit' => 'Speichern',
-            ],
         ],
     ],
     'institutions' => [
@@ -208,9 +207,6 @@ return [
                     'label' => 'Aktiv?',
                     'hint' => 'Aktiv ja/nein',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],
@@ -301,7 +297,6 @@ return [
             ],
             'actions' => [
                 'add_business_hours' => 'Geschäftszeiten hinzufügen',
-                'submit' => 'Speichern',
             ],
         ],
     ],
@@ -345,9 +340,6 @@ return [
                     'label' => 'Rollen',
                     'hint' => ' ',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],
@@ -402,9 +394,6 @@ return [
                     'placeholder' => 'Die Beschreibung',
                     'hint' => 'Über die Beschreibung',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],
@@ -508,9 +497,6 @@ return [
                     'hint' => ' ',
                 ],
             ],
-            'actions' => [
-                'submit' => 'Speichern',
-            ],
         ],
     ],
     'permissions' => [
@@ -541,9 +527,6 @@ return [
                     'label' => 'Beschreibung',
                     'hint' => ' ',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],
@@ -625,9 +608,6 @@ return [
                     'label' => 'Aktiv',
                     'hint' => 'Ist die Mail aktiv?',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],

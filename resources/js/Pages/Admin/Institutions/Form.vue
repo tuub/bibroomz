@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.institutions.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.institutions.form.title')" :description="$t('admin.institutions.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -136,15 +136,7 @@
             </label>
         </div>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="form.processing"
-            >
-                {{ $t("admin.institutions.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="institution" cancel-route="admin.institution.index"></FormAction>
     </form>
 </template>
 <script setup>
@@ -152,12 +144,13 @@ import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue"
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
-import { useForm } from "@inertiajs/vue3";
+import {useForm} from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { onMounted, ref } from "vue";
+import {inject, onMounted, ref} from "vue";
 
 // ------------------------------------------------
 // Props
@@ -182,10 +175,12 @@ const props = defineProps({
 // ------------------------------------------------
 dayjs.extend(utc);
 
+const route = inject("route");
+
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const processing = ref(false);
+const isProcessing = ref(false);
 
 const form = useForm({
     id: props.institution?.id ?? "",
@@ -200,18 +195,6 @@ const form = useForm({
     teaser_uri: props.institution?.teaser_uri ?? "",
     is_active: props.institution?.is_active ?? false,
 });
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    processing.value = true;
-    if (form.id) {
-        form.post("/admin/institution/update");
-    } else {
-        form.post("/admin/institution/store");
-    }
-};
 
 // ------------------------------------------------
 // Mount

@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.institutions.index.title')" :description="$t('admin.institutions.index.description')" />
 
     <PopupModal />
-    <CreateButton model="institution"></CreateButton>
+    <CreateAction model="institution"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -140,7 +140,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
+import CreateAction from "@/Components/Admin/CreateAction.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";

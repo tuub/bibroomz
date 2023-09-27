@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.permissions.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.permissions.form.title')" :description="$t('admin.permissions.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Input: Name -->
         <TranslatableFormInput
             v-model="form.name"
@@ -21,19 +21,12 @@
             :errors="form.errors"
         ></TranslatableFormInput>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                {{ $t("admin.permissions.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="permission" cancel-route="admin.permission.index"></FormAction>
     </form>
 </template>
 <script setup>
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
@@ -64,19 +57,4 @@ const form = useForm({
     name: props.permission.name ?? {},
     description: props.permission.description ?? {},
 });
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    isProcessing.value = true;
-
-    if (form.id) {
-        form.post("/admin/permission/update/" + form.id);
-    } else {
-        form.post("/admin/permission/store");
-    }
-
-    isProcessing.value = false;
-};
 </script>

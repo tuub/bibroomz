@@ -7,6 +7,8 @@ return [
         ],
         'form' => [
             'choose' => 'Please choose',
+            'submit' => 'Save',
+            'cancel' => 'Cancel',
         ],
         'table' => [
             'actions' => 'Actions',
@@ -120,9 +122,6 @@ return [
                     'hint' => 'About verification',
                 ],
             ],
-            'actions' => [
-                'submit' => 'Save',
-            ],
         ],
     ],
     'institutions' => [
@@ -209,9 +208,6 @@ return [
                     'hint' => 'About the is active',
                 ],
             ],
-            'actions' => [
-                'submit' => 'Save',
-            ],
         ],
     ],
     'resources' => [
@@ -296,7 +292,6 @@ return [
             ],
             'actions' => [
                 'add_business_hours' => 'Add Business Hours',
-                'submit' => 'Save',
             ],
         ],
     ],
@@ -340,9 +335,6 @@ return [
                     'label' => 'Roles',
                     'hint' => ' ',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Save',
             ],
         ],
     ],
@@ -397,9 +389,6 @@ return [
                     'placeholder' => 'The description',
                     'hint' => 'About the description',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Save',
             ],
         ],
     ],
@@ -503,9 +492,6 @@ return [
                     'hint' => ' ',
                 ],
             ],
-            'actions' => [
-                'submit' => 'Save',
-            ],
         ],
     ],
     'permissions' => [
@@ -536,9 +522,6 @@ return [
                     'label' => 'Description',
                     'hint' => ' ',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Save',
             ],
         ],
     ],
@@ -620,9 +603,6 @@ return [
                     'label' => 'Aktiv',
                     'hint' => 'Ist die Mail aktiv?',
                 ],
-            ],
-            'actions' => [
-                'submit' => 'Speichern',
             ],
         ],
     ],

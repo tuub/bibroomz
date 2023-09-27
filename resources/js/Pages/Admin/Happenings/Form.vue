@@ -153,20 +153,13 @@
             </label>
         </div>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="form.processing"
-            >
-                {{ $t("admin.happenings.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="happening" cancel-route="admin.happening.index"></FormAction>
     </form>
 </template>
 <script setup>
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
@@ -233,16 +226,6 @@ const updateUser2 = (event) => {
         form.user_id_02 = user2.id;
     } else {
         form.user_id_02 = "";
-    }
-};
-
-const submitForm = () => {
-    processing.value = true;
-
-    if (form.id) {
-        form.post("/admin/happening/update");
-    } else {
-        form.post("/admin/happening/store");
     }
 };
 

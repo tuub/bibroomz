@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.resources.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Select: Institution -->
         <div class="mb-6">
             <FormLabel field="institution_id" field-key="admin.resources.form.fields.institution"></FormLabel>
@@ -169,20 +169,13 @@
             ></FormValidationError>
         </div>
 
-        <div id="submitButton" class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                {{ $t("admin.resources.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="resource" cancel-route="admin.resource.index"></FormAction>
     </form>
 </template>
 <script setup>
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
@@ -265,18 +258,6 @@ const updateWeekDays = ({ id, checkedWeekDays }) => {
 
 const generateUid = () => {
     return Date.now().toString();
-};
-
-const submitForm = () => {
-    isProcessing.value = true;
-
-    if (form.id) {
-        form.post("/admin/resource/update");
-    } else {
-        form.post("/admin/resource/store");
-    }
-
-    isProcessing.value = false;
 };
 
 const getBusinessHourErrors = (index) => {

@@ -183,7 +183,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.permission.index');
     Route::get('/admin/permission/edit/{permission}', [PermissionController::class, 'editPermission'])
         ->name('admin.permission.edit');
-    Route::post('/admin/permission/update/{permission}', [PermissionController::class, 'updatePermission'])
+    Route::post('/admin/permission/update/', [PermissionController::class, 'updatePermission'])
         ->name('admin.permission.update');
 });
 

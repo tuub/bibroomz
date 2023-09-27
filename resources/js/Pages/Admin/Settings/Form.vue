@@ -3,9 +3,7 @@
 
     <h1 class="text-3xl">Setting Form</h1>
 
-    {{ form.id }}
-
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Input: Key -->
         <div class="mb-6">
             <label for="name" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase"> Key </label>
@@ -36,18 +34,11 @@
             <FormValidationError :message="form.errors.value"></FormValidationError>
         </div>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                Submit
-            </button>
-        </div>
+        <FormAction :form="form" model="setting" cancel-route="admin.setting.index"></FormAction>
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 

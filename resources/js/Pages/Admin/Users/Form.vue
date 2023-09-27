@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.users.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.users.form.title')" :description="$t('admin.users.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Input: Name -->
         <div class="mb-6">
             <FormLabel field="name" field-key="admin.users.form.fields.name"></FormLabel>
@@ -92,20 +92,13 @@
             <FormValidationError :message="form.errors.roles"></FormValidationError>
         </div>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                {{ $t("admin.resources.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="user" cancel-route="admin.user.index"></FormAction>
     </form>
 </template>
 <script setup>
 import { inject, ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
@@ -143,15 +136,3 @@ const form = useForm({
     banned_at: props.user.banned_at ?? "",
     roles: props.user.roles ?? [],
 });
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    isProcessing.value = true;
-    if (form.id) {
-        form.post("/admin/user/update");
-    }
-    isProcessing.value = false;
-};
-</script>

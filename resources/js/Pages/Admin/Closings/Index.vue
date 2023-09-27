@@ -9,7 +9,7 @@
     />
 
     <PopupModal />
-    <CreateButton model="closing" :params="{closable_type: closable_type, closable_id: closable.id}"></CreateButton>
+    <CreateAction model="closing" :params="{closable_type: closable_type, closable_id: closable.id}"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -89,7 +89,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
+import CreateAction from "@/Components/Admin/CreateAction.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";

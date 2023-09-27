@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.roles.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.roles.form.title')" :description="$t('admin.roles.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Input: Name -->
         <TranslatableFormInput
             v-model="form.name"
@@ -86,20 +86,13 @@
             </div>
         </div>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                {{ $t("admin.roles.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="role" cancel-route="admin.role.index"></FormAction>
     </form>
 </template>
 <script setup>
 import LabeledCheckbox from "@/Components/Admin/LabeledCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import PageHead from "@/Shared/PageHead.vue";
@@ -153,18 +146,6 @@ const form = useForm({
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const submitForm = () => {
-    isProcessing.value = true;
-
-    if (form.id) {
-        form.post("/admin/role/update/" + form.id);
-    } else {
-        form.post("/admin/role/store");
-    }
-
-    isProcessing.value = false;
-};
-
 const updatePermission = ({ value, checked }) => {
     form.permissions = form.permissions.filter((x) => x !== value);
 
@@ -175,7 +156,7 @@ const updatePermission = ({ value, checked }) => {
 
 const isGroupChecked = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id == groupId) {
+        if (permission.group_id === groupId) {
             if (!form.permissions.includes(permission.id)) {
                 return false;
             }
@@ -187,7 +168,7 @@ const isGroupChecked = (groupId) => {
 
 const isGroupUnchecked = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id == groupId) {
+        if (permission.group_id === groupId) {
             if (form.permissions.includes(permission.id)) {
                 return false;
             }
@@ -211,7 +192,7 @@ const updateCheckedPermissions = (groupId) => {
 
 const checkPermissionGroup = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id == groupId && !form.permissions.includes(permission.id)) {
+        if (permission.group_id === groupId && !form.permissions.includes(permission.id)) {
             form.permissions.push(permission.id);
         }
     }
@@ -219,7 +200,7 @@ const checkPermissionGroup = (groupId) => {
 
 const uncheckPermissionGroup = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id == groupId) {
+        if (permission.group_id === groupId) {
             form.permissions = form.permissions.filter((x) => x !== permission.id);
         }
     }

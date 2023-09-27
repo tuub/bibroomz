@@ -53,7 +53,7 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
+import CreateAction from "@/Components/Admin/CreateAction.vue";
 
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";

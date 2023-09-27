@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.happenings.index.title')" :description="$t('admin.happenings.index.description')" />
 
     <PopupModal />
-    <CreateButton model="happening"></CreateButton>
+    <CreateAction model="happening"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -120,7 +120,7 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
+import CreateAction from "@/Components/Admin/CreateAction.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -128,6 +128,7 @@ import utc from "dayjs/plugin/utc";
 import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, onBeforeMount, onMounted } from "vue";
+import {useAuthStore} from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
@@ -148,7 +149,8 @@ dayjs.extend(utc);
 // Stores
 // ------------------------------------------------
 const modal = useModal();
-
+const authStore = useAuthStore();
+const { hasPermission } = authStore;
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------

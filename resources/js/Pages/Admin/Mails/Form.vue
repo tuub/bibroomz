@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.mails.form.title')" page-type="admin" />
     <BodyHead :title="$t('admin.mails.form.title')" :description="$t('admin.mails.form.description')" />
 
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <form class="max-w mx-auto mt-8">
         <!-- Select: Mail Type -->
         <div v-if="!mail.id" class="mb-6">
             <FormLabel field="mail_type_id" field-key="admin.mails.form.fields.mail_type"></FormLabel>
@@ -155,20 +155,13 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <div id="submitButton" class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="isProcessing"
-            >
-                {{ $t("admin.mails.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="mail" cancel-route="admin.mail.index"></FormAction>
     </form>
 </template>
 <script setup>
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
@@ -220,19 +213,4 @@ const form = useForm({
     farewell: props.mail?.farewell ?? {},
     is_active: props.mail?.is_active ?? false,
 });
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    isProcessing.value = true;
-
-    if (form.id) {
-        form.post("/admin/mail/update");
-    } else {
-        form.post("/admin/mail/store");
-    }
-
-    isProcessing.value = false;
-};
 </script>

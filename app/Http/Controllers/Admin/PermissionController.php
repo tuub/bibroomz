@@ -30,9 +30,10 @@ class PermissionController extends Controller
         ]);
     }
 
-    public function updatePermission(Permission $permission, PermissionRequest $request): RedirectResponse
+    public function updatePermission(PermissionRequest $request): RedirectResponse
     {
-        $this->authorize('edit', $permission);
+        $permission = Permission::find($request->id);
+        $this->authorize('edit', $permission->id);
 
         $permission->update($request->validated());
 
