@@ -28,41 +28,60 @@
                 <FormLabel field-key="admin.roles.form.fields.permissions"></FormLabel>
             </div>
 
-            {{ form.permissions }}
-
             <div
                 v-for="group in [...groups].sort((a, b) => translate(a.name).localeCompare(translate(b.name)))"
                 :key="group.id"
             >
-                <p>{{ translate(group.name) }}</p>
+                <div>
+                    <input
+                        :id="`group-checkbox-${group.id}`"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        type="checkbox"
+                        :checked="isGroupChecked(group.id)"
+                        :indeterminate="isGroupIndeterminate(group.id)"
+                        @change="updateCheckedPermissions(group.id)"
+                    />
+                    <span class="pl-2 text-gray-600">{{ translate(group.name) }}</span>
+                </div>
 
-                <ul>
-                    <li
-                        v-for="(permission, index) in permissions.filter((x) => x.group_id === group.id)"
-                        :key="permission.id"
-                    >
-                        <PermissionCheckbox
-                            :permission="permission"
-                            :index="index"
+                <ul class="ml-6 mb-2">
+                    <li v-for="permission in permissions.filter((x) => x.group_id === group.id)" :key="permission.id">
+                        <LabeledCheckbox
+                            :value="permission.id"
                             :checked="form.permissions.includes(permission.id)"
-                            @update-checked="updatePermissions($event)"
-                        ></PermissionCheckbox>
+                            :label="translate(permission.name)"
+                            :description="translate(permission.description)"
+                            name="permission"
+                            @update-checked="updatePermission($event)"
+                        ></LabeledCheckbox>
                     </li>
                 </ul>
             </div>
 
             <div>
                 <!-- Fixme -->
-                <p>Others</p>
+                <div>
+                    <input
+                        id="no-group-checkbox"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        type="checkbox"
+                        :checked="isGroupChecked()"
+                        :indeterminate="isGroupIndeterminate()"
+                        @change="updateCheckedPermissions()"
+                    />
+                    <span class="pl-2 text-gray-600">Other Permissions</span>
+                </div>
 
-                <ul>
-                    <li v-for="(permission, index) in permissions.filter((x) => !x.group_id)" :key="permission.id">
-                        <PermissionCheckbox
-                            :permission="permission"
-                            :index="index"
+                <ul class="ml-6 mb-2">
+                    <li v-for="permission in permissions.filter((x) => !x.group_id)" :key="permission.id">
+                        <LabeledCheckbox
+                            :value="permission.id"
                             :checked="form.permissions.includes(permission.id)"
-                            @update-checked="updatePermissions($event)"
-                        ></PermissionCheckbox>
+                            :label="translate(permission.name)"
+                            :description="translate(permission.description)"
+                            name="permission"
+                            @update-checked="updatePermission($event)"
+                        ></LabeledCheckbox>
                     </li>
                 </ul>
             </div>
@@ -80,7 +99,7 @@
     </form>
 </template>
 <script setup>
-import PermissionCheckbox from "@/Components/Admin/PermissionCheckbox.vue";
+import LabeledCheckbox from "@/Components/Admin/LabeledCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
@@ -108,6 +127,14 @@ const props = defineProps({
     languages: {
         type: Array,
         required: true,
+    },
+    errors: {
+        type: Object,
+        default: () => ({}),
+    },
+    auth: {
+        type: Object,
+        default: () => ({}),
     },
 });
 
@@ -139,11 +166,69 @@ const submitForm = () => {
     isProcessing.value = false;
 };
 
-const updatePermissions = ({ permissionId, checked }) => {
-    form.permissions = form.permissions.filter((x) => x !== permissionId);
+const updatePermission = ({ value, checked }) => {
+    form.permissions = form.permissions.filter((x) => x !== value);
 
     if (checked) {
-        form.permissions.push(permissionId);
+        form.permissions.push(value);
+    }
+};
+
+const isGroupChecked = (groupId) => {
+    for (const permission of props.permissions) {
+        if (permission.group_id == groupId) {
+            if (!form.permissions.includes(permission.id)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+const isGroupUnchecked = (groupId) => {
+    for (const permission of props.permissions) {
+        if (permission.group_id == groupId) {
+            if (form.permissions.includes(permission.id)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+const isGroupIndeterminate = (groupId) => {
+    return !isGroupChecked(groupId) && !isGroupUnchecked(groupId);
+};
+
+const updateCheckedPermissions = (groupId) => {
+    if (isGroupChecked(groupId)) {
+        uncheckPermissionGroup(groupId);
+    } else {
+        checkPermissionGroup(groupId);
+    }
+};
+
+const checkPermissionGroup = (groupId) => {
+    for (const permission of props.permissions) {
+        if (permission.group_id == groupId && !form.permissions.includes(permission.id)) {
+            form.permissions.push(permission.id);
+        }
+    }
+};
+
+const uncheckPermissionGroup = (groupId) => {
+    for (const permission of props.permissions) {
+        if (permission.group_id == groupId) {
+            form.permissions = form.permissions.filter((x) => x !== permission.id);
+        }
     }
 };
 </script>
+
+<style>
+[type="checkbox"]:indeterminate {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
+</style>
