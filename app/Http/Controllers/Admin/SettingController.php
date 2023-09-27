@@ -17,7 +17,7 @@ class SettingController extends Controller
     {
         $institution = Institution::with('settings')->findOrFail($request->id);
 
-        $this->authorize('view', $institution);
+        $this->authorize('viewAny', [Setting::class, $institution]);
 
         return Inertia::render('Admin/Settings/Index', [
             'institution' => $institution,
@@ -28,7 +28,7 @@ class SettingController extends Controller
     {
         $setting = Setting::findOrFail($request->id);
 
-        $this->authorize('edit', $setting->institution);
+        $this->authorize('edit', $setting);
 
         return Inertia::render('Admin/Settings/Form', [
             'setting' => $setting->only(['id', 'key', 'value'])
@@ -39,7 +39,7 @@ class SettingController extends Controller
     {
         $setting = Setting::findOrFail($request->id);
 
-        $this->authorize('edit', $setting->institution);
+        $this->authorize('edit', $setting);
 
         $validated = $request->validated();
         $setting->update($validated);

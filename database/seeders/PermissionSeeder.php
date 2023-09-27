@@ -70,6 +70,10 @@ class PermissionSeeder extends Seeder
                 'en' => 'Mails',
                 'de' => 'Mails',
             ],
+            'settings' => [
+                'en' => 'Settings',
+                'de' => 'Einstellungen',
+            ],
         ]);
     }
 
@@ -113,6 +117,13 @@ class PermissionSeeder extends Seeder
             'delete',
         ], [
             'admin_users',
+        ]);
+
+        $this->createPermissions([
+            'view',
+            'edit',
+        ], [
+            'settings',
         ]);
 
         Permission::create([
