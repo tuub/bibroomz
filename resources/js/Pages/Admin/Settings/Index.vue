@@ -1,7 +1,7 @@
 <template>
-    <PageHead :title="$t('admin.settings.index.title', { title: institution.title })" page-type="admin" />
+    <PageHead :title="$t('admin.settings.index.title', { title: translate(institution.title) })" page-type="admin" />
     <BodyHead
-        :title="$t('admin.settings.index.title', { title: institution.title })"
+        :title="$t('admin.settings.index.title', { title: translate(institution.title) })"
         :description="$t('admin.settings.index.description')"
     />
 
@@ -53,8 +53,10 @@
 </template>
 
 <script setup>
-import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
+import PageHead from "@/Shared/PageHead.vue";
+
+import { inject } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -65,4 +67,9 @@ defineProps({
         required: true,
     },
 });
+
+// ------------------------------------------------
+// Injected
+// ------------------------------------------------
+const translate = inject("translate");
 </script>

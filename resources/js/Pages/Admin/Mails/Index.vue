@@ -1,9 +1,12 @@
 <template>
-    <PageHead :title="$t('admin.mails.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.mails.index.title')" :description="$t('admin.mails.index.description')" />
+    <PageHead :title="$t('admin.mails.index.title', { title: translate(institution.title) })" page-type="admin" />
+    <BodyHead
+        :title="$t('admin.mails.index.title', { title: translate(institution.title) })"
+        :description="$t('admin.mails.index.description')"
+    />
 
     <PopupModal />
-    <CreateButton model="mail" :params="{id: institution.id}"></CreateButton>
+    <CreateButton model="mail" :params="{ id: institution.id }"></CreateButton>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -33,7 +36,7 @@
                         scope="row"
                         class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     >
-                        {{ $t('admin.mails.mail_types.' + mail.mail_type.name) }}
+                        {{ $t("admin.mails.mail_types." + mail.mail_type.name) }}
                     </th>
                     <td class="px-6 py-4 align-top">
                         {{ translate(mail.subject) }}
@@ -61,12 +64,7 @@
                                 :href="route('admin.mail.delete', { id: mail.id })"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 @click.prevent="
-                                    modal.open(
-                                        {},
-                                        { message: $t('popup.content.delete.mail') },
-                                        mail,
-                                        actions
-                                    )
+                                    modal.open({}, { message: $t('popup.content.delete.mail') }, mail, actions)
                                 "
                             >
                                 {{ $t("admin.mails.index.table.actions.delete") }}
@@ -80,12 +78,12 @@
 </template>
 
 <script setup>
+import CreateButton from "@/Components/Admin/CreateButton.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
-import CreateButton from "@/Components/Admin/CreateButton.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -99,7 +97,7 @@ import { computed, inject, onBeforeMount, onMounted } from "vue";
 // ------------------------------------------------
 defineProps({
     institution: {
-        Type: Object,
+        type: Object,
         default: () => ({}),
     },
     mails: {
@@ -123,13 +121,6 @@ const { hasPermission } = authStore;
 
 const route = inject("route");
 const translate = inject("translate");
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const formatTime = (time) => {
-    return dayjs(time, "HH:mm:ss").format("HH:mm");
-};
 
 // ------------------------------------------------
 // Variables
