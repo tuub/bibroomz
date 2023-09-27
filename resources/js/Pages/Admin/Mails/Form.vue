@@ -3,9 +3,8 @@
     <BodyHead :title="$t('admin.mails.form.title')" :description="$t('admin.mails.form.description')" />
 
     <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
-
         <!-- Select: Mail Type -->
-        <div class="mb-6" v-if="!mail.id">
+        <div v-if="!mail.id" class="mb-6">
             <FormLabel field="mail_type_id" field-key="admin.mails.form.fields.mail_type"></FormLabel>
             <select
                 id="mail_type_id"
@@ -18,7 +17,7 @@
                 </option>
 
                 <option v-for="mail_type in mail_types" :key="mail_type.id" :value="mail_type.id">
-                    {{ $t('admin.mails.mail_types.' + mail_type.name) }}
+                    {{ $t("admin.mails.mail_types." + mail_type.name) }}
                 </option>
             </select>
             <FormValidationError
@@ -176,22 +175,25 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { inject, ref } from "vue";
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 const props = defineProps({
+    // eslint-disable-next-line vue/prop-name-casing
     institution_id: {
-        type: String
+        type: String,
+        required: true,
     },
     mail: {
         type: Object,
         default: () => ({}),
     },
+    // eslint-disable-next-line vue/prop-name-casing
     mail_types: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({}),
     },
     languages: {
         type: Array,
@@ -202,20 +204,19 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = inject("translate");
 const isProcessing = ref(false);
 
 const form = useForm({
-    id: props.mail?.id ?? '',
+    id: props.mail?.id ?? "",
     institution_id: props.institution_id,
-    mail_type_id: props.mail?.mail_type_id ?? '',
+    mail_type_id: props.mail?.mail_type_id ?? "",
     subject: props.mail?.subject ?? {},
     title: props.mail?.title ?? {},
     salutation: props.mail?.salutation ?? {},
     intro: props.mail?.intro ?? {},
     outro: props.mail?.outro ?? {},
-    action_uri: props.mail?.action_uri ?? '',
-    action_uri_label: props.mail?.action_uri_label ?? '',
+    action_uri: props.mail?.action_uri ?? "",
+    action_uri_label: props.mail?.action_uri_label ?? "",
     farewell: props.mail?.farewell ?? {},
     is_active: props.mail?.is_active ?? false,
 });

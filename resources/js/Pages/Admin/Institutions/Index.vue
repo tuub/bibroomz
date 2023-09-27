@@ -97,7 +97,7 @@
                                 {{ $t("admin.institutions.index.table.actions.settings") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('edit_institution', institution.id)">
+                        <span v-if="hasPermission('view_mails', institution.id)">
                             |
                             <Link
                                 :href="

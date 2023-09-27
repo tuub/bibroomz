@@ -9,7 +9,6 @@ use App\Models\MailContent;
 use App\Models\MailType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,6 +17,8 @@ class MailController extends Controller
     public function getMails(Request $request)
     {
         $institution = Institution::findOrFail($request->id);
+
+        $this->authorize('viewAny', [MailContent::class, $institution]);
 
         $mails = MailContent::with(['mail_type', 'institution'])->where('institution_id', $institution->id)->get()
             ->filter->isViewableByUser(auth()->user());
@@ -30,15 +31,13 @@ class MailController extends Controller
 
     public function createMail(Request $request)
     {
-        // Get only mail types that are not already present
-        $mail_types = MailType::orderBy('name')->get()->filter(function($mail_type) use ($request) {
-            return MailContent::where('institution_id', $request->id)
-                ->pluck('mail_type_id')
-                ->contains($mail_type->id) === false;
-        });
+        $institution = Institution::findOrFail($request->id);
+        $this->authorize('create', [MailContent::class, $institution]);
+
+        $mail_types = $this->getMissingMailTypes($institution->id);
 
         return Inertia::render('Admin/Mails/Form', [
-            'institution_id' => $request->id,
+            'institution_id' => $institution->id,
             'mail_types' => $mail_types,
             'languages' => config('app.supported_locales'),
         ]);
@@ -46,27 +45,24 @@ class MailController extends Controller
 
     public function storeMail(MailContentRequest $request): RedirectResponse
     {
+        $institution = Institution::findOrFail($request->institution_id);
+        $this->authorize('create', [MailContent::class, $institution]);
+
         $validated = $request->validated();
         MailContent::create($validated);
 
         return redirect()->route('admin.mail.index', [
-            'id' => $request->institution_id,
+            'id' => $institution->id,
         ]);
-   }
+    }
 
     public function editMail(Request $request): Response
     {
-        $mail = MailContent::where('id', $request->id)->with([
-            'mail_type',
-            'institution',
-        ])->firstOrFail();
+        $mail = MailContent::where('id', $request->id)->with(['mail_type', 'institution'])->firstOrFail();
 
-        // Get only mail types that are not already present
-        $mail_types = MailType::orderBy('name')->get()->filter(function($mail_type) use ($mail) {
-            return MailContent::where('institution_id', $mail->institution_id)
-                ->pluck('mail_type_id')
-                ->contains($mail_type->id) === false;
-        });
+        $this->authorize('edit', $mail);
+
+        $mail_types = $this->getMissingMailTypes($mail->institution_id);
 
         return Inertia::render('Admin/Mails/Form', [
             'mail' => $mail,
@@ -79,6 +75,9 @@ class MailController extends Controller
     public function updateMail(MailContentRequest $request): RedirectResponse
     {
         $mail = MailContent::find($request->id);
+
+        $this->authorize('edit', $mail);
+
         $validated = $request->validated();
         $mail->update($validated);
 
@@ -89,14 +88,23 @@ class MailController extends Controller
 
     public function deleteMail(Request $request): RedirectResponse
     {
-        $mail = MailContent::findORFail($request->id);
-        $institution_id = $mail->institution_id;
+        $mail = MailContent::findOrFail($request->id);
 
         $this->authorize('delete', $mail);
         $mail->delete();
 
         return redirect()->route('admin.mail.index', [
-            'id' => $institution_id,
+            'id' => $mail->institution_id,
         ]);
+    }
+
+
+    private function getMissingMailTypes(String $institution_id)
+    {
+        return MailType::orderBy('name')->get()->filter(function ($mail_type) use ($institution_id) {
+            return MailContent::where('institution_id', $institution_id)
+                ->pluck('mail_type_id')
+                ->contains($mail_type->id) === false;
+        });
     }
 }

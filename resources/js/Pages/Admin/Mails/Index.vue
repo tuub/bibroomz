@@ -55,7 +55,7 @@
                                 {{ $t("admin.mails.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete_mails', mail.id)">
+                        <span v-if="hasPermission('delete_mails', mail.institution_id)">
                             |
                             <a
                                 :href="route('admin.mail.delete', { id: mail.id })"

@@ -22,7 +22,7 @@ class MailContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'institution_id' => ['required', 'uuid'],
+            'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
             'mail_type_id' => ['required'],
             'subject' => ['required'],
             'title' => [],
