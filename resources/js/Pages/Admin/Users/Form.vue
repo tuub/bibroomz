@@ -75,13 +75,13 @@
                                 <label
                                     :for="`role-checkbox-${institutionIndex}-${roleIndex}`"
                                     class="font-medium text-gray-900 dark:text-gray-300"
-                                    >{{ role.name }}</label
+                                    >{{ translate(role.name) }}</label
                                 >
                                 <p
                                     :id="`role-checkbox-text-${institutionIndex}-${roleIndex}`"
                                     class="text-xs font-normal text-gray-500 dark:text-gray-300"
                                 >
-                                    {{ role.description }}
+                                    {{ translate(role.description) }}
                                 </p>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
     </form>
 </template>
 <script setup>
-import { ref } from "vue";
+import { inject, ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
@@ -114,7 +114,6 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
     user: {
         type: Object,
@@ -133,6 +132,7 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = inject("translate");
 const isProcessing = ref(false);
 
 const form = useForm({
