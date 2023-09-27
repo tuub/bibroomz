@@ -59,7 +59,7 @@
                                         id: institution.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.institutions.index.table.actions.edit") }}
                             </Link>
@@ -73,7 +73,7 @@
                                         closable_id: institution.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.institutions.index.table.actions.closings") }}
                             </Link>
@@ -86,7 +86,7 @@
                                         id: institution.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.institutions.index.table.actions.settings") }}
                             </Link>
@@ -108,7 +108,7 @@
                             |
                             <a
                                 :href="route('admin.institution.delete', { id: institution.id })"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                                 @click.prevent="
                                     modal.open(
                                         {},

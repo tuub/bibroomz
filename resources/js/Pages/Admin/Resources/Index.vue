@@ -82,7 +82,7 @@
                                         id: resource.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.resources.index.table.actions.edit") }}
                             </Link>
@@ -97,7 +97,7 @@
                                 "
                                 method="post"
                                 as="button"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.resources.index.table.actions.clone") }}
                             </Link>
@@ -111,7 +111,7 @@
                                         closable_id: resource.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.resources.index.table.actions.closings") }}
                             </Link>
@@ -120,7 +120,7 @@
                             |
                             <a
                                 :href="route('admin.resource.delete', { id: resource.id })"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                                 @click.prevent="
                                     modal.open({}, { message: $t('popup.content.delete.resource') }, resource, actions)
                                 "

@@ -59,7 +59,7 @@
                                         id: closing.id,
                                     })
                                 "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             >
                                 {{ $t("admin.closings.index.table.actions.edit") }}
                             </Link>
@@ -68,7 +68,7 @@
                             |
                             <a
                                 :href="route('admin.closing.delete', { id: closing.id })"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
                                 @click.prevent="
                                     modal.open({}, { message: $t('popup.content.delete.closing') }, closing, actions)
                                 "

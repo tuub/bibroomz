@@ -46,14 +46,14 @@
                     <td class="px-6 py-4 text-right">
                         <Link
                             :href="route('admin.role.edit', { id: role.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
                         >
                             {{ $t("admin.roles.index.table.actions.edit") }}
                         </Link>
                         |
                         <a
                             :href="route('admin.role.delete', { id: role.id })"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
                             @click.prevent="modal.open({}, { message: $t('popup.content.delete.role') }, role, actions)"
                         >
                             {{ $t("admin.roles.index.table.actions.delete") }}
