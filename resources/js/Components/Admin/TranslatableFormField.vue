@@ -2,6 +2,7 @@
     <div v-for="language in languages" :key="language" class="mb-6">
         <FormLabel :field="`${field}-${language}`" :field-key="fieldKey" :language="language"></FormLabel>
         <slot :language="language"></slot>
+        <FormValidationError :message="errors[`${field}`]"></FormValidationError>
         <FormValidationError :message="errors[`${field}.${language}`]"></FormValidationError>
     </div>
 </template>
