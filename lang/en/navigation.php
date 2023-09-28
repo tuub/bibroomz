@@ -16,7 +16,7 @@ return [
         'dashboard' => 'Dashboard',
         'happenings' => 'Bookings',
         'institutions' => 'Institutions',
-        'resources' => 'Rooms',
+        'resource_groups' => 'Resources',
         'users' => 'Users',
         'roles' => 'Roles',
         'permissions' => 'Permissions',

@@ -16,6 +16,6 @@ class StoreHappeningRequest extends HappeningRequest
     {
         $resource = Resource::findOrFail($this->resource_id);
 
-        return $this->user()->can('adminCreate', [Happening::class, $resource->institution]);
+        return $this->user()->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
     }
 }

@@ -15,7 +15,7 @@ abstract class ResourceRequest extends FormRequest
     public function rules()
     {
         return [
-            'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
+            'resource_group_id' => ['required', 'uuid', 'exists:resource_groups,id'],
             'title' => [new RequiredWithTranslationRule],
             'location' => [new RequiredWithTranslationRule],
             'location_uri' => ['url', 'nullable'],

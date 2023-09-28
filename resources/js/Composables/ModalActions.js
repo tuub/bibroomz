@@ -1,6 +1,7 @@
 import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import LoginModal from "@/Components/Modals/LoginModal.vue";
 import ResourceInfoModal from "@/Components/Modals/ResourceInfoModal.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
@@ -152,11 +153,16 @@ export function useHappeningInfoModal(happening) {
 
 export function useResourceInfoModal(resource) {
     const modal = useModal();
+    const appStore = useAppStore();
+    const translate = appStore.translate;
 
     return {
         view: ResourceInfoModal,
         content: {
-            title: trans("modal.resource_info.title", { resource_title: resource.title }),
+            title: trans("modal.resource_info.title", {
+                resource_group: translate(appStore.resourceGroup.term_singular),
+                resource_title: resource.title,
+            }),
             description: trans("modal.resource_info.description"),
         },
         payload: { resource },

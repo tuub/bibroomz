@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 
 class UpdateResourceRequest extends ResourceRequest
 {
@@ -15,13 +16,13 @@ class UpdateResourceRequest extends ResourceRequest
     public function authorize()
     {
         $resource = Resource::findOrFail($this->id);
+        $resource_group = ResourceGroup::findOrFail($this->resource_group_id);
 
-        if ($resource->institution_id === $this->institution_id) {
+
+        if ($resource->resource_group_id === $resource_group->id) {
             return $this->user()->can('edit', $resource);
         }
 
-        $institution = Institution::findOrFail($this->institution_id);
-
-        return $this->user()->can('create', [Resource::class, $institution]);
+        return $this->user()->can('create', [Resource::class, $resource_group->institution]);
     }
 }

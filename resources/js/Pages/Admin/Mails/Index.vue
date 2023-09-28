@@ -83,6 +83,7 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import {useAppStore} from "@/Stores/AppStore";
 import useModal from "@/Stores/Modal";
 
 import { router } from "@inertiajs/vue3";
@@ -91,6 +92,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, onBeforeMount, onMounted } from "vue";
+
 
 // ------------------------------------------------
 // Props
@@ -115,12 +117,13 @@ dayjs.extend(customParseFormat);
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const modal = useModal();
 
 const { hasPermission } = authStore;
 
 const route = inject("route");
-const translate = inject("translate");
+const translate = appStore.translate;
 
 // ------------------------------------------------
 // Variables

@@ -1,31 +1,28 @@
 <template>
-    <PageHead :title="$t('admin.resources.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.resources.index.title')" :description="$t('admin.resources.index.description')" />
+    <PageHead :title="$t('admin.resource_groups.index.title')" page-type="admin" />
+    <BodyHead :title="$t('admin.resource_groups.index.title')" :description="$t('admin.resource_groups.index.description')" />
 
     <PopupModal />
-    <CreateAction model="resource"></CreateAction>
+    <CreateAction model="resource_group"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.title") }}
+                        {{ $t("admin.resource_groups.index.table.header.name") }}
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.location") }}
+                        {{ $t("admin.resource_groups.index.table.header.slug") }}
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.business_hours") }}
+                        {{ $t("admin.resource_groups.index.table.header.institution") }}
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        {{ $t("admin.resource_groups.index.table.header.description") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.capacity") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.is_active") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.is_verification_required") }}
+                        {{ $t("admin.resource_groups.index.table.header.is_active") }}
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <span class="sr-only">{{ $t("admin.general.table.actions") }}</span>
@@ -34,98 +31,65 @@
             </thead>
             <tbody>
                 <tr
-                    v-for="resource in resources"
-                    :key="resource.id"
+                    v-for="resource_group in resource_groups"
+                    :key="resource_group.id"
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <th
                         scope="row"
                         class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     >
-                        {{ translate(resource.title) }}
+                        {{ translate(resource_group.name) }}
                     </th>
                     <td class="px-6 py-4 align-top">
-                        {{ translate(resource.location) }}
-                        <template v-if="resource.location_uri">
-                            <a :href="resource.location_uri" target="_blank">
-                                <i class="inline ri-external-link-line"></i>
-                            </a>
-                        </template>
+                        {{ resource_group.slug }}
                     </td>
                     <td class="px-6 py-4 align-top">
-                        <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
-                            {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }} ({{
-                                business_hour.week_days
-                                    .map((week_day) =>
-                                        trans("admin.general.week_days." + week_day.key + ".short_label"),
-                                    )
-                                    .join(", ")
-                            }})
-                        </p>
+                        {{ translate(resource_group.institution.title) }}
+                    </td>
+                    <td class="px-6 py-4 align-top">
+                        {{ translate(resource_group.description) }}
                     </td>
                     <td class="px-6 py-4 align-top text-center">
-                        {{ resource.capacity }}
-                    </td>
-                    <td class="px-6 py-4 align-top text-center">
-                        <i v-if="resource.is_active" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-if="!resource.is_active" class="ri-close-circle-line text-red-500"></i>
-                    </td>
-                    <td class="px-6 py-4 align-top text-center">
-                        <i v-if="resource.is_verification_required" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-if="!resource.is_verification_required" class="ri-close-circle-line text-red-500"></i>
+                        <i v-if="resource_group.is_active" class="ri-checkbox-circle-line text-green-500"></i>
+                        <i v-if="!resource_group.is_active" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <span v-if="hasPermission('edit_resources', resource.institution_id)">
+                        <span v-if="hasPermission('edit_resource_groups', resource_group.institution_id)">
                             <Link
                                 :href="
-                                    route('admin.resource.edit', {
-                                        id: resource.id,
+                                    route('admin.resource_group.edit', {
+                                        id: resource_group.id,
                                     })
                                 "
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                             >
-                                {{ $t("admin.resources.index.table.actions.edit") }}
+                                {{ $t("admin.resource_groups.index.table.actions.edit") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('create_resources', resource.institution_id)">
+                        <span v-if="hasPermission('view_resources', resource_group.institution_id)">
                             |
                             <Link
                                 :href="
-                                    route('admin.resource.clone', {
-                                        id: resource.id,
-                                    })
-                                "
-                                method="post"
-                                as="button"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >
-                                {{ $t("admin.resources.index.table.actions.clone") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('view_closings', resource.institution_id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.closing.index', {
-                                        closable_type: 'resource',
-                                        closable_id: resource.id,
+                                    route('admin.resource.index', {
+                                        id: resource_group.id,
                                     })
                                 "
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                             >
-                                {{ $t("admin.resources.index.table.actions.closings") }}
+                                {{ $t("admin.resource_groups.index.table.actions.resources") }}
                             </Link>
                         </span>
-                        <span v-if="hasPermission('delete_resources', resource.institution_id)">
+                        <span v-if="hasPermission('delete_resource_groups', resource_group.institution_id)">
                             |
                             <a
-                                :href="route('admin.resource.delete', { id: resource.id })"
+                                :href="route('admin.resource_group.delete', { id: resource_group.id })"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                 @click.prevent="
-                                    modal.open({}, { message: $t('popup.content.delete.resource') }, resource, actions)
+                                    modal.open({}, { message: $t('popup.content.delete.resource') }, resource_group, actions)
                                 "
                             >
-                                {{ $t("admin.resources.index.table.actions.delete") }}
+                                {{ $t("admin.resource_groups.index.table.actions.delete") }}
                             </a>
                         </span>
                     </td>
@@ -140,7 +104,7 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
-import {useAppStore} from "@/Stores/AppStore";
+import { useAppStore } from "@/Stores/AppStore";
 import useModal from "@/Stores/Modal";
 import CreateAction from "@/Components/Admin/CreateAction.vue";
 
@@ -155,7 +119,7 @@ import { computed, inject, onBeforeMount, onMounted } from "vue";
 // Props
 // ------------------------------------------------
 defineProps({
-    resources: {
+    resource_groups: {
         type: Object,
         default: () => ({}),
     },
@@ -173,10 +137,8 @@ const authStore = useAuthStore();
 const appStore = useAppStore();
 const modal = useModal();
 
-// ------------------------------------------------
-// Variables
-// ------------------------------------------------
 const { hasPermission } = authStore;
+
 const route = inject("route");
 const translate = appStore.translate;
 
@@ -196,19 +158,19 @@ const actions = [];
 // Lifecycle
 // ------------------------------------------------
 onBeforeMount(() => {
-    const deleteResourceLabel = computed(() => trans("popup.actions.delete"));
+    const deleteResourceGroupLabel = computed(() => trans("popup.actions.delete"));
 
-    const deleteResourceAction = {
-        label: deleteResourceLabel,
-        callback: (resource) => {
-            router.visit(route("admin.resource.delete", { id: resource.id }), {
+    const deleteResourceGroupAction = {
+        label: deleteResourceGroupLabel,
+        callback: (resource_group) => {
+            router.visit(route("admin.resource_group.delete", { id: resource_group.id }), {
                 method: "post",
                 preserveScroll: true,
             });
         },
     };
 
-    actions.push(deleteResourceAction);
+    actions.push(deleteResourceGroupAction);
 });
 
 onMounted(() => {

@@ -30,7 +30,7 @@ class HappeningController extends Controller
 
     public function createHappening()
     {
-        $resources = Resource::active()->orderBy('title')->without('closings')->get()
+        $resources = Resource::with('resource_group')->active()->orderBy('title')->without('closings')->get()
             ->filter->isUserAbleToCreateHappening(auth()->user())->values();
 
         $users = User::all()->map(function ($user) {
@@ -44,7 +44,7 @@ class HappeningController extends Controller
                 return [
                     'id' => $resource->id,
                     'title' => $resource->getTranslations('title'),
-                    'institution_id' => $resource->institution_id,
+                    'institution_id' => $resource->resource_group->institution->id,
                     'is_verification_required' => $resource->is_verification_required,
                 ];
             }),
@@ -74,7 +74,7 @@ class HappeningController extends Controller
         $happening->end_date = Carbon::parse($happening->end)->format('d.m.Y');
         $happening->end_time = Carbon::parse($happening->end)->format('H:i');
 
-        $resources = $happening->resource->institution->resources()
+        $resources = $happening->resource->resource_group->resources()
             ->active()->orderBy('title')->without('closings')->get();
 
         $users = User::all()->map(function ($user) {
@@ -100,7 +100,7 @@ class HappeningController extends Controller
                 return [
                     'id' => $resource->id,
                     'title' => $resource->getTranslations('title'),
-                    'institution_id' => $resource->institution_id,
+                    'resource_group_id' => $resource->resource_group->id,
                     'is_verification_required' => $resource->is_verification_required,
                 ];
             }),

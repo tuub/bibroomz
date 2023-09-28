@@ -17,6 +17,13 @@
             icon="ri-home-smile-fill"
         ></DashboardCard>
         <DashboardCard
+            v-if="hasPermission('view_resource_groups')"
+            :title="$t('admin.resource_groups.index.title')"
+            :description="$t('admin.resource_groups.index.description')"
+            :link="route('admin.resource_group.index')"
+            icon="ri-user-fill"
+        ></DashboardCard>
+        <DashboardCard
             v-if="hasPermission('view_resources')"
             :title="$t('admin.resources.index.title')"
             :description="$t('admin.resources.index.description')"

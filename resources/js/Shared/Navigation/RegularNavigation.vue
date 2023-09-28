@@ -46,7 +46,7 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const inertiaPage = usePage();
-const { institutionShortTitle, institutionSlug, isMultiTenancy } = storeToRefs(appStore);
+const { institutionShortTitle, institutionSlug, resourceGroupSlug, isMultiTenancy } = storeToRefs(appStore);
 const { isPrivileged } = storeToRefs(authStore);
 
 // ------------------------------------------------

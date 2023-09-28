@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 
 class StoreResourceRequest extends ResourceRequest
 {
@@ -14,8 +15,8 @@ class StoreResourceRequest extends ResourceRequest
      */
     public function authorize()
     {
-        $institution = Institution::findOrFail($this->institution_id);
+        $resource_group = ResourceGroup::findOrFail($this->resource_group_id);
 
-        return $this->user()->can('create', [Resource::class, $institution]);
+        return $this->user()->can('create', [Resource::class, $resource_group->institution]);
     }
 }

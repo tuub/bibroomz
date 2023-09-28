@@ -53,13 +53,16 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import {useAppStore} from "@/Stores/AppStore";
 
 import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, onBeforeMount, onMounted } from "vue";
 
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 defineProps({
     permissions: {
         type: Object,
@@ -67,11 +70,18 @@ defineProps({
     },
 });
 
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
 const modal = useModal();
-const route = inject("route");
-const translate = inject("translate");
-
+const appStore = useAppStore();
 const actions = [];
+
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const route = inject("route");
+const translate = appStore.translate;
 
 onBeforeMount(() => {
     const deletePermissionLabel = computed(() => trans("popup.actions.delete"));

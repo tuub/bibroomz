@@ -88,9 +88,9 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { useAppStore } from "@/Stores/AppStore";
 import useModal from "@/Stores/Modal";
 import CreateAction from "@/Components/Admin/CreateAction.vue";
-
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -128,12 +128,13 @@ dayjs.extend(utc);
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const modal = useModal();
 
 const { hasPermission } = authStore;
 
 const route = inject("route");
-const translate = inject("translate");
+const translate = appStore.translate;
 
 // ------------------------------------------------
 // Variables

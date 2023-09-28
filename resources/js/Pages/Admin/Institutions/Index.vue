@@ -21,9 +21,6 @@
                     <th scope="col" class="px-6 py-3">
                         {{ $t("admin.institutions.index.table.header.location") }}
                     </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.institutions.index.table.header.resources") }}
-                    </th>
                     <th scope="col" class="px-6 py-3 text-center">
                         {{ $t("admin.institutions.index.table.header.is_active") }}
                     </th>
@@ -49,9 +46,6 @@
                     </td>
                     <td class="px-6 py-4">
                         {{ institution.location }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ institution.resources.length }}
                     </td>
                     <td class="px-6 py-4 text-center">
                         <i v-if="institution.is_active" class="ri-checkbox-circle-line text-green-500"></i>
@@ -138,6 +132,7 @@
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
 import CreateAction from "@/Components/Admin/CreateAction.vue";
@@ -168,6 +163,7 @@ dayjs.extend(customParseFormat);
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const modal = useModal();
 
 const { hasPermission } = authStore;
@@ -176,8 +172,7 @@ const { hasPermission } = authStore;
 // Variables
 // ------------------------------------------------
 const route = inject("route");
-const translate = inject("translate");
-
+const translate = appStore.translate;
 const actions = [];
 
 // ------------------------------------------------

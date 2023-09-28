@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -109,10 +110,22 @@ class User extends Authenticatable
         Happening $happening = null,
     ): bool
     {
-        return $this->getHappenings()
-            ->whereNotIn('id', [$happening?->id])
+        return $this->getOtherUserHappeningsForResourceGroup($happening?->resource->resource_group, $happening)
             ->filter->isConcurrent($start, $end)
             ->isNotEmpty();
+    }
+
+    public function getOtherUserHappeningsForResourceGroup(
+        ResourceGroup $resource_group = null, Happening $happening = null): Collection
+    {
+        return Happening::whereHas(
+            'resource',
+            fn (Builder $query) => $query->where('resource_group_id', $resource_group?->getKey()),
+        )
+            ->whereNot('id', $happening?->id)
+            ->where(fn (Builder $query) => $query->where('user_id_01', $this->getKey())
+                ->orWhere('user_id_02', $this->getKey()))
+            ->get();
     }
 
     public function getPermissions(array $filter = null): Collection

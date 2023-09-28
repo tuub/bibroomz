@@ -24,9 +24,9 @@
                     {{ $t("navigation.admin.institutions") }}
                 </NavLink>
             </li>
-            <li v-if="hasPermission('view_resources')">
-                <NavLink icon="ri-map-pin-fill" :href="route('admin.resource.index')" :is-active="isPageResources">
-                    {{ $t("navigation.admin.resources") }}
+            <li v-if="hasPermission('view_resource_groups')">
+                <NavLink icon="ri-map-pin-fill" :href="route('admin.resource_group.index')" :is-active="isPageResourceGroups">
+                    {{ $t("navigation.admin.resource_groups") }}
                 </NavLink>
             </li>
             <li v-if="hasPermission('view_users')">
@@ -106,9 +106,9 @@ const isPageInstitutions = computed(() => {
     );
 });
 
-const isPageResources = computed(() => {
-    const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
-    return inertiaPage.component.startsWith("Admin/Resources") || isClosingsPage;
+const isPageResourceGroups = computed(() => {
+    //const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
+    return inertiaPage.component.startsWith("Admin/ResourceGroups");
 });
 
 const isPageUsers = computed(() => {

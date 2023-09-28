@@ -64,8 +64,8 @@ return [
         ],
     ],
     'resource_info' => [
-        'title' => 'Informationen zum Raum/zur Workbay :resource_title',
-        'description' => 'Hier finden Sie Informationen zu diesem Raum/dieser Workbay:',
+        'title' => 'Informationen zu :resource_group :resource_title',
+        'description' => ' ',
         'resource_capacity' => 'Kapazität',
         'resource_description' => 'Beschreibung',
         'resource_location' => 'Standort',

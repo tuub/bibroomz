@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institution;
+use App\Models\ResourceGroup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -14,7 +15,7 @@ class HomeController extends Controller
     public function getStart(): Response|RedirectResponse
     {
         // FIXME: output
-        $institutions = Institution::active()->get();
+        $institutions = Institution::with('resource_groups')->active()->get();
 
         if ($institutions->count() == 1) {
             return redirect()->route('home', $institutions->first()->slug);
@@ -25,25 +26,25 @@ class HomeController extends Controller
         ]);
     }
 
-    public function getInstitutionalHome(string $slug): Response|RedirectResponse
+    public function getInstitutionalHome(Request $request): Response|RedirectResponse
     {
-        $institution = Institution::where('slug', $slug)->first();
+        $resource_group = ResourceGroup::whereHas('institution',
+            fn ($query) => $query->where('slug', $request->institution_slug)
+        )->where('slug', $request->resource_group_slug)->firstOrFail();
 
-        if (!$institution) {
+        if (!$resource_group) {
             return redirect()->route('start');
         }
 
         $settings = [];
-        foreach ($institution->settings as $setting) {
+        foreach ($resource_group->institution->settings as $setting) {
             $settings[$setting->key] = $setting->value;
         }
 
-        $output = $institution->toArray();
-        $output['settings'] = $settings;
-        $output['hiddenDays'] = $institution->getHiddenDays();
-
         return Inertia::render('Home', [
-            'institution' => $output,
+            'resourceGroup' => $resource_group,
+            'settings' => $settings,
+            'hiddenDays' => $resource_group->institution->getHiddenDays(),
             'isMultiTenancy' => Institution::active()->count() > 1,
         ]);
     }
@@ -58,21 +59,21 @@ class HomeController extends Controller
         return Inertia::render('SiteCredits');
     }
 
-    public function getTerminalView(string $slug): Response
+    public function getTerminalView(Request $request): Response
     {
-        $institution = Institution::where('slug', $slug)->first();
+        $resource_group = ResourceGroup::whereHas('institution',
+            fn ($query) => $query->where('slug', $request->institution_slug)
+        )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $settings = [];
-        foreach ($institution->settings as $setting) {
+        foreach ($resource_group->institution->settings as $setting) {
             $settings[$setting->key] = $setting->value;
         }
 
-        $output = $institution->withoutRelations()->toArray();
-        $output['settings'] = $settings;
-        $output['hiddenDays'] = $institution->getHiddenDays();
-
         return Inertia::render('TerminalView', [
-            'institution' => $output,
+            'resourceGroup' => $resource_group,
+            'settings' => $settings,
+            'hiddenDays' => $resource_group->institution->getHiddenDays(),
         ]);
     }
 

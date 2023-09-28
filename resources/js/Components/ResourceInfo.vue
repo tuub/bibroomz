@@ -31,7 +31,8 @@
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
+import { ref } from "vue";
+import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -46,10 +47,14 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = inject("translate");
-
+const translate = appStore.translate;
 const isVisible = ref(props.isInitiallyVisible);
 
 const toggleVisibility = () => {

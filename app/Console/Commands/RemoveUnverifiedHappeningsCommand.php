@@ -51,6 +51,7 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         if ($institution) {
             $this->info('Restricting to institution ' . $institution->id . '...');
 
+            // FIXME: resource groups
             $query->whereRelation('resource', 'institution_id', $institution->id);
         }
 

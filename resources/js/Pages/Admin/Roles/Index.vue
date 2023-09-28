@@ -77,6 +77,7 @@ import { router } from "@inertiajs/vue3";
 import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, onBeforeMount, onMounted } from "vue";
+import {useAppStore} from "@/Stores/AppStore";
 
 // PROPS
 defineProps({
@@ -88,10 +89,11 @@ defineProps({
 
 // STORES
 const modal = useModal();
+const appStore = useAppStore();
 
 // INJECT
 const route = inject("route");
-const translate = inject("translate");
+const translate = appStore.translate;
 
 // STATE
 const actions = [];

@@ -14,6 +14,7 @@ use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -25,7 +26,9 @@ class HappeningController extends Controller
     public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
-        $institution = Institution::where('slug', $request->slug)->firstOrFail();
+        $resource_group = ResourceGroup::whereHas('institution',
+            fn ($query) => $query->where('slug', $request->institution_slug)
+        )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
@@ -33,12 +36,12 @@ class HappeningController extends Controller
         // LOG
         $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to], JSON_PRETTY_PRINT);
 
-        $institution_resources = $institution->resources()->pluck('id')->all();
+        $resource_ids = $resource_group->resources()->pluck('id')->all();
 
         $happenings = Happening::with('resource', 'user1', 'user2')
             ->whereDate('start', '>=', $from)
             ->whereDate('end', '<=', $to)
-            ->whereIn('resource_id', $institution_resources)
+            ->whereIn('resource_id', $resource_ids)
             ->get()
             ->map(function ($happening) {
                 $start = CarbonImmutable::parse($happening->start);
@@ -75,12 +78,11 @@ class HappeningController extends Controller
         // Since FullCalendar does not support closings as entities we have to include them
         // as happenings (sic!). We do it here for now until we find a better solution or
         // do it in the frontend.
-        $institution_closings = $institution->closings;
-        $institution_resources = $institution->resources;
+        $institution_closings = $resource_group->institution->closings;
 
         foreach ($institution_closings as $closing) {
             if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
-                foreach ($institution_resources as $resource) {
+                foreach ($resource_group->resources as $resource) {
                     $output[] = [
                         'id' => $closing->id,
                         'status' => NULL,
@@ -96,7 +98,7 @@ class HappeningController extends Controller
             }
         }
 
-        foreach ($institution_resources as $resource) {
+        foreach ($resource_group->resources as $resource) {
             foreach ($resource->closings as $closing) {
                 if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
                     $output[] = [
@@ -139,7 +141,7 @@ class HappeningController extends Controller
 
         $this->isHappeningValid($user, $resource, $start, $end);
 
-        $is_admin = $user->hasPermission('no_verifier', $resource->institution);
+        $is_admin = $user->hasPermission('no_verifier', $resource->resource_group->institution);
         $is_verified = !$resource->isVerificationRequired() || $is_admin;
 
         // Compile happening payload
@@ -303,7 +305,7 @@ class HappeningController extends Controller
 
         // check if user has concurrent happening
         if (
-            !$user->can('edit', $resource->institution)
+            !$user->can('edit', $resource->resource_group->institution)
             && $user->isHavingConcurrentHappening($start, $end, $happening)
         ) {
             abort(400, 'You can only have one happening at the same time!');

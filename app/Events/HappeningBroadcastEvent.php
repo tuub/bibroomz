@@ -10,7 +10,6 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 abstract class HappeningBroadcastEvent implements ShouldBroadcast
 {
@@ -43,7 +42,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcast
         /** @var User */
         $user1 = User::find($happening->user_id_01);
 
-        $is_admin = $user1->hasPermission('no_verifier', $resource->institution);
+        $is_admin = $user1->hasPermission('no_verifier', $resource->resource_group->institution);
         $is_verification_required = $resource->is_verification_required && !$is_admin;
 
         return [
@@ -61,7 +60,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcast
                     'location' => $resource->getTranslations('location'),
                     'locationUri' => $resource->location_uri,
                     'description' => $resource->getTranslations('description'),
-                    'institutionId' => $resource->institution_id,
+                    'resourceGroupId' => $resource->resource_group_id,
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),

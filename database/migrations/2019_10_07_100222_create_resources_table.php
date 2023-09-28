@@ -17,8 +17,8 @@ return new class extends Migration
         Schema::create('resources', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
-            $table->uuid('institution_id');
-            $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
+            $table->uuid('resource_group_id');
+            $table->foreign('resource_group_id')->references('id')->on('resource_groups')->onDelete('cascade');
             $table->string('title');
             $table->text('location')->nullable();
             $table->text('location_uri')->nullable();

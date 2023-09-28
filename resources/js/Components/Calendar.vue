@@ -40,7 +40,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
-import { computed, inject, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -59,9 +59,9 @@ const resourceCount = ref(0);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const institution = appStore.institution;
+const resourceGroup = appStore.resourceGroup;
 
-const initialPage = computed(() => `/${institution.slug}/resources?count=${resourceCount.value}&page=1`);
+const initialPage = computed(() => `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`);
 
 const pagination = reactive({
     currentPage: unref(initialPage),
@@ -69,8 +69,7 @@ const pagination = reactive({
     previousPage: null,
 });
 
-const translate = inject("translate");
-
+const translate = appStore.translate;
 const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination, translate });
 
 const { isAuthenticated } = storeToRefs(authStore);

@@ -64,8 +64,8 @@ return [
         ],
     ],
     'resource_info' => [
-        'title' => 'Information about the room/the workbay :resource_title',
-        'description' => 'Here you find information about the room/the workbay',
+        'title' => 'Information about :resource_group :resource_title',
+        'description' => ' ',
         'resource_capacity' => 'Capacity',
         'resource_description' => 'Description',
         'resource_location' => 'Location',

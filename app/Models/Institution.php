@@ -48,9 +48,17 @@ class Institution extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    // FIXME: DEPRECATED
+    /*
     public function resources(): HasMany
     {
         return $this->hasMany(Resource::class);
+    }
+    */
+
+    public function resource_groups(): HasMany
+    {
+        return $this->hasMany(ResourceGroup::class);
     }
 
     public function settings(): HasMany
@@ -66,6 +74,11 @@ class Institution extends Model
     public function closings(): MorphMany
     {
         return $this->morphMany(Closing::class, 'closable');
+    }
+
+    public function resources(): HasManyThrough
+    {
+        return $this->hasManyThrough(Resource::class, ResourceGroup::class);
     }
 
     public function happenings(): HasManyThrough

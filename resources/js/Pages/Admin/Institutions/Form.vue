@@ -150,7 +150,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import {useForm} from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {inject, onMounted, ref} from "vue";
+import {inject, onMounted} from "vue";
 
 // ------------------------------------------------
 // Props
@@ -180,8 +180,6 @@ const route = inject("route");
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const isProcessing = ref(false);
-
 const form = useForm({
     id: props.institution?.id ?? "",
     title: props.institution?.title ?? {},

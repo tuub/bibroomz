@@ -19,24 +19,8 @@ import "vue-toastification/dist/index.css";
 import { ZiggyVue } from "ziggy";
 import 'remixicon/fonts/remixicon.css';
 
-const emitter = mitt();
-
-const translate = (translatable, locale) => {
-    if (!translatable) {
-        return;
-    }
-
-    if (!locale) {
-        const appStore = useAppStore();
-        locale = appStore.locale;
-    }
-
-    return translatable[locale] ?? translatable["de"] ?? translatable["en"];
-};
-
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
-pinia.use(() => ({ translate }));
 
 createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
@@ -65,8 +49,7 @@ createInertiaApp({
 
         const app = createApp({ render: () => h(App, props) });
 
-        app.provide("emitter", emitter)
-            .use(pinia)
+        app.use(pinia)
             .component("Head", Head)
             .component("Link", Link)
             .use(plugin)
@@ -103,8 +86,6 @@ createInertiaApp({
         app.provide("route", (name, params, absolute, config = Ziggy) => {
             return route(name, params, absolute, config);
         });
-
-        app.provide("translate", translate);
 
         app.mount(el);
     },

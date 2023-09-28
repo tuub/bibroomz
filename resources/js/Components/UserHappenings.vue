@@ -45,7 +45,6 @@
 
 <script setup>
 import { useAuthStore } from "@/Stores/AuthStore";
-
 import HappeningCount from "./HappeningCount.vue";
 import HappeningQuotas from "./HappeningQuotas.vue";
 import UserHappening from "./UserHappening.vue";

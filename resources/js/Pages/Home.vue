@@ -1,13 +1,12 @@
 <template>
     <div>
-        <PageHead :title="institutionTitle" />
+        <PageHead :title="translate(appStore.institution.title)" />
 
-        <div v-if="statusMessage" class="border bg-green-500" v-text="statusMessage" />
         <XModal />
 
         <div id="calendar_sidebar_wrapper" class="">
             <div id="calendar" class="basis-4/5 md:basis-4/5">
-                <Calendar @show-status="showStatus" @open-modal-component="getModal"> </Calendar>
+                <Calendar @open-modal-component="getModal"> </Calendar>
             </div>
             <div id="sidebar" class="basis-1/5 md:basis-1/5">
                 <div v-if="isAuthenticated">
@@ -29,14 +28,22 @@ import useModal from "@/Stores/Modal";
 
 import { Modal as FlowbiteModal } from "flowbite";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onMounted, ref } from "vue";
+import {onBeforeMount, onMounted} from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 const props = defineProps({
-    institution: {
+    resourceGroup: {
         type: Object,
+        required: true,
+    },
+    settings: {
+        type: Object,
+        required: true,
+    },
+    hiddenDays: {
+        type: Array,
         required: true,
     },
     isMultiTenancy: {
@@ -55,17 +62,12 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const modal = useModal();
-const statusMessage = ref("");
-const { institutionTitle } = storeToRefs(appStore);
 const { isAuthenticated, userHappenings } = storeToRefs(authStore);
+const translate = appStore.translate;
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const showStatus = (status) => {
-    statusMessage.value = status;
-};
-
 const getModal = (data) => {
     modal.open(data.view, data.content, data.payload, data.actions);
 };
@@ -74,7 +76,7 @@ const getModal = (data) => {
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
-    appStore.setCurrentInstitution(props.institution, props.isMultiTenancy);
+    appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, props.isMultiTenancy);
 });
 
 onMounted(() => {

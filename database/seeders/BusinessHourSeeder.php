@@ -20,17 +20,21 @@ class BusinessHourSeeder extends Seeder
         $week_days = WeekDay::get();
 
         foreach ($institutions as $institution) {
-            $resources = $institution->resources;
+            $resource_groups = $institution->resource_groups;
 
-            foreach ($resources as $resource) {
-                $bh = BusinessHour::create([
-                    'resource_id' => $resource->id,
-                    'start' => '09:00:00',
-                    'end' => '23:00:00',
-                ]);
 
-                foreach ($week_days as $week_day) {
-                    $bh->week_days()->attach($week_day->id);
+            foreach ($resource_groups as $resource_group) {
+                $resources = $resource_group->resources;
+                foreach ($resources as $resource) {
+                    $bh = BusinessHour::create([
+                        'resource_id' => $resource->id,
+                        'start' => '09:00:00',
+                        'end' => '23:00:00',
+                    ]);
+
+                    foreach ($week_days as $week_day) {
+                        $bh->week_days()->attach($week_day->id);
+                    }
                 }
             }
         }

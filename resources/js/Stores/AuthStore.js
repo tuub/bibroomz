@@ -92,16 +92,16 @@ export const useAuthStore = defineStore({
             }
 
             const appStore = useAppStore();
-            const institution = appStore.institution;
+            const resourceGroup = appStore.resourceGroup;
 
-            if (!institution) {
+            if (!resourceGroup) {
                 return;
             }
 
             try {
                 const response = await axios.get(`${baseUrl}/my/happenings`, {
                     params: {
-                        institution_id: institution.id,
+                        resource_group_id: resourceGroup.id,
                     },
                 });
 
@@ -146,10 +146,10 @@ export const useAuthStore = defineStore({
 
         updateUserHappenings(happening, callback, message) {
             const appStore = useAppStore();
-            const institution = appStore.institution;
+            const resourceGroup = appStore.resourceGroup;
 
             // filter happenings from other institutions
-            if (happening.resource.institutionId !== institution.id) {
+            if (happening.resource.resourceGroupId !== resourceGroup.id) {
                 return;
             }
 
@@ -266,12 +266,12 @@ export const useAuthStore = defineStore({
         },
 
         isExceedingQuotas(start, end) {
-            const institution = useAppStore().institution;
+            const settings = useAppStore().settings;
 
-            const quota_happening_block_hours = institution.settings.quota_happening_block_hours;
-            const quota_weekly_happenings = institution.settings.quota_weekly_happenings;
-            const quota_weekly_hours = institution.settings.quota_weekly_hours;
-            const quota_daily_hours = institution.settings.quota_daily_hours;
+            const quota_happening_block_hours = settings.quota_happening_block_hours;
+            const quota_weekly_happenings = settings.quota_weekly_happenings;
+            const quota_weekly_hours = settings.quota_weekly_hours;
+            const quota_daily_hours = settings.quota_daily_hours;
 
             if (this.can("unlimited_quotas")) {
                 return false;

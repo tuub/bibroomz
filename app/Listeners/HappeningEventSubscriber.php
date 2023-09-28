@@ -75,7 +75,7 @@ class HappeningEventSubscriber
 
     private function getMailContentForEvent($event, string $mail_type)
     {
-        return MailContent::where('institution_id', $event->happening->resource->institution->id)
+        return MailContent::where('institution_id', $event->happening->resource->resource_group->institution->id)
             ->whereHas('mail_type', function ($query) use($mail_type) {
                 $query->where('name', $mail_type);
             })

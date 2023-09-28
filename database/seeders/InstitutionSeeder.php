@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
@@ -16,12 +17,14 @@ class InstitutionSeeder extends Seeder
      */
     public function run()
     {
+        /*
         // Add random example institutions with random example resources
         if (config('roomz.database.is_seed_example_institutions')) {
             Institution::factory(1)
                 ->has(Resource::factory()->count(5))
                 ->create();
         }
+        */
 
         // Add real example institutions with random example resources
         if (config('roomz.database.is_seed_tub_institutions')) {
@@ -51,9 +54,13 @@ class InstitutionSeeder extends Seeder
             ]);
 
             foreach ($institutions as $institution) {
-                $resources = Resource::factory()->count(5)->make();
-                foreach ($resources as $resource) {
-                    $institution->resources()->save($resource);
+                $resource_groups = ResourceGroup::factory()->count(2)->make();
+                foreach ($resource_groups as $resource_group) {
+                    $institution->resource_groups()->save($resource_group);
+                    $resources = Resource::factory()->count(5)->make();
+                    foreach ($resources as $resource) {
+                        $resource_group->resources()->save($resource);
+                    }
                 }
             }
         }

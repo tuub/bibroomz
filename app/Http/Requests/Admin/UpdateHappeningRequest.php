@@ -17,10 +17,10 @@ class UpdateHappeningRequest extends HappeningRequest
         $happening = Happening::findOrFail($this->id);
         $resource = Resource::findOrFail($this->resource_id);
 
-        if ($happening->resource->institution_id === $resource->institution_id) {
+        if ($happening->resource->resource_group_id === $resource->resource_group_id) {
             return $this->user()->can('adminUpdate', $happening);
         }
 
-        return $this->user()->can('adminCreate', [Happening::class, $resource->institution]);
+        return $this->user()->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
     }
 }

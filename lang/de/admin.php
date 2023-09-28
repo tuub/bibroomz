@@ -56,6 +56,8 @@ return [
             'table' => [
                 'header' => [
                     'date' => 'Datum',
+                    'institution' => 'Einrichtung',
+                    'resource_group' => 'Gruppe',
                     'resource' => 'Ressource',
                     'start_time' => 'Startzeit',
                     'end_time' => 'Endzeit',
@@ -210,6 +212,93 @@ return [
             ],
         ],
     ],
+    'resource_groups' => [
+        'index' => [
+            'title' => 'Ressource-Gruppen',
+            'description' => 'Ressource-Gruppen und ihre Geschäftszeiten & Schließungen erstellen, bearbeiten, löschen',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'institution' => 'Einrichtung',
+                    'description' => 'Beschreibung',
+                    'is_active' => 'Aktiv?',
+                ],
+                'actions' => [
+                    'create' => 'Ressource-Gruppe erstellen',
+                    'edit' => 'Bearbeiten',
+                    'resources' => 'Ressourcen',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Ressource-Gruppen',
+            'description' => 'Ressource-Gruppe erstellen / bearbeiten',
+            'fields' => [
+                'institution' => [
+                    'label' => 'Einrichtung',
+                    'placeholder' => 'Die Einrichtung',
+                    'hint' => 'Über die Einrichtung',
+                ],
+                'title' => [
+                    'label' => 'Titel',
+                    'placeholder' => 'Der Ressourcentitel',
+                    'hint' => 'Über den Ressourcentitel',
+                ],
+                'location' => [
+                    'label' => 'Standort',
+                    'placeholder' => 'Der Standort',
+                    'hint' => 'Über den Standort',
+                ],
+                'location_uri' => [
+                    'label' => 'Standort URI',
+                    'placeholder' => 'Der Standort Link',
+                    'hint' => 'Ein Link zu weiteren Informationen zum Standort',
+                ],
+                'description' => [
+                    'label' => 'Beschreibung',
+                    'placeholder' => 'Die Beschreibung',
+                    'hint' => 'Über die Beschreibung',
+                ],
+                'capacity' => [
+                    'label' => 'Kapazität',
+                    'hint' => 'Über die Kapazität',
+                ],
+                'is_active' => [
+                    'label' => 'Aktiv?',
+                    'hint' => 'Aktiv ja/nein',
+                ],
+                'is_verification_required' => [
+                    'label' => 'Bestätigung erforderlich?',
+                    'hint' => 'Bestätigung erforderlich ja/nein',
+                ],
+                'business_hours' => [
+                    'label' => 'Geschäftszeiten Nr. :index',
+                    'hint' => 'Über die Geschäftszeiten',
+                    'subfields' => [
+                        'week_days' => [
+                            'label' => 'Wochentage',
+                            'hint' => 'Über die Wochentage',
+                        ],
+                        'start' => [
+                            'label' => 'Start',
+                            'placeholder' => 'Die Startzeit',
+                            'hint' => 'Über die Startzeit',
+                        ],
+                        'end' => [
+                            'label' => 'Ende',
+                            'placeholder' => 'Die Endzeit',
+                            'hint' => 'Über die Endzeit',
+                        ],
+                    ]
+                ],
+            ],
+            'actions' => [
+                'add_business_hours' => 'Geschäftszeiten hinzufügen',
+            ],
+        ],
+    ],
+
     'resources' => [
         'index' => [
             'title' => 'Ressourcen',

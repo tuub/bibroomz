@@ -20,7 +20,7 @@ import { useCalendar } from "@/Composables/Calendar";
 import { useAppStore } from "@/Stores/AppStore";
 import TerminalLayout from '@/Layouts/TerminalLayout.vue';
 
-import { inject, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
 defineOptions({ layout: TerminalLayout })
 
@@ -28,30 +28,40 @@ defineOptions({ layout: TerminalLayout })
 // Props
 // ------------------------------------------------
 const props = defineProps({
-    institution: {
+    resourceGroup: {
         type: Object,
-        default: () => ({}),
+        required: true,
+    },
+    settings: {
+        type: Object,
+        required: true,
+    },
+    hiddenDays: {
+        type: Array,
+        required: true,
     },
 });
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 let calendarOptions, refetchHappenings;
-
-const translate = inject("translate");
-
+const translate = appStore.translate;
 const refCalendar = ref(null);
 
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
-    const appStore = useAppStore();
-    appStore.setCurrentInstitution(props.institution, false);
+    appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, false);
 
     const pagination = {
-        currentPage: `/${props.institution.slug}/resources`,
+        currentPage: `/${props.resourceGroup.institution.slug}/${props.resourceGroup.slug}/resources`,
         nextPage: null,
         previousPage: null,
     };

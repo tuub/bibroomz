@@ -35,7 +35,7 @@ class Resource extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'institution_id',
+        'resource_group_id',
         'title',
         'location',
         'location_uri',
@@ -67,9 +67,17 @@ class Resource extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    // FIXME: DEPRECATED
+    /*
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
+    }
+    */
+
+    public function resource_group(): BelongsTo
+    {
+        return $this->belongsTo(ResourceGroup::class);
     }
 
     public function happenings(): HasMany
@@ -111,7 +119,7 @@ class Resource extends Model
     public function findClosed(CarbonImmutable $start, CarbonImmutable $end)
     {
         $closed = false;
-        $closings = $this->closings->merge($this->institution->closings);
+        $closings = $this->closings->merge($this->resource_group->institution->closings);
 
         foreach ($closings as $closing) {
             if ($start >= $closing->start && $end <= $closing->end) {
@@ -215,7 +223,7 @@ class Resource extends Model
      * @return array
      * @throws InvalidArgumentException
      */
-    public function getFormBusinessHours(
+    public function getTimeSlots(
         CarbonImmutable $start,
         CarbonImmutable $end,
         Happening $happening = null,
@@ -232,7 +240,8 @@ class Resource extends Model
      */
     private function initTimePeriod(CarbonImmutable $date): CarbonPeriod
     {
-        $time_slot_length = $this->institution->settings->where('key', 'time_slot_length')->first()->value;
+        $time_slot_length = $this->resource_group->institution->settings
+            ->where('key', 'time_slot_length')->first()->value;
         $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
         $start = $date->startOfDay();
@@ -261,7 +270,7 @@ class Resource extends Model
         return collect($time_slots)->map(function ($time_slot) use ($selected) {
             $time_slot = new CarbonImmutable($time_slot);
 
-            $time_format = $this->institution->settings->where('key', 'time_format')->first()->value;
+            $time_format = $this->resource_group->institution->settings->where('key', 'time_format')->first()->value;
 
             return [
                 'time' => $time_slot,
@@ -427,7 +436,8 @@ class Resource extends Model
             }
 
             // keep current time slot
-            $time_slot_length = $this->institution->settings->where('key', 'time_slot_length')->first()->value;
+            $time_slot_length = $this->resource_group->institution->settings
+                ->where('key', 'time_slot_length')->first()->value;
             $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
             if ($time_slot['time']->diffInMinutes($now) < $interval['minute'] + 60 * $interval['hour']) {
@@ -462,7 +472,7 @@ class Resource extends Model
      */
     private function isTimeSlotInClosing($time_slot, bool $is_end = false): bool
     {
-        $closings = $this->closings->merge($this->institution->closings);
+        $closings = $this->closings->merge($this->resource_group->institution->closings);
         foreach ($closings as $closing) {
             if ($is_end) {
                 if ($time_slot['time'] > $closing->start && $time_slot['time'] < $closing->end) {
@@ -600,13 +610,13 @@ class Resource extends Model
      */
     public function isExceedingQuotas(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
     {
-        /** @var User */
+        /** @var User $user */
         $user = auth()->user();
-        if ($user->can('unlimited_quotas', $this->institution)) {
+        if ($user->can('unlimited_quotas', $this->resource_group->institution)) {
             return false;
         }
 
-        $settings = $this->institution->settings;
+        $settings = $this->resource_group->institution->settings;
 
         $quota_happening_block_hours = $settings->where('key', 'quota_happening_block_hours')->pluck('value')->first();
         $quota_weekly_happenings = $settings->where('key', 'quota_weekly_happenings')->pluck('value')->first();
@@ -622,14 +632,8 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        $happenings = Happening::whereHas(
-            'resource',
-            fn (Builder $query) => $query->where('institution_id', $this->institution->getKey()),
-        )
-            ->whereNot('id', $happening?->id)
-            ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
-                ->orWhere('user_id_02', $user->getKey()))
-            ->get();
+        // FIXME: quotas per resource_group!
+        $happenings = $user->getOtherUserHappeningsForResourceGroup($this->resource_group, $happening);
 
         foreach ($happenings as $_happening) {
             $_start = new CarbonImmutable($_happening->start);
@@ -675,13 +679,13 @@ class Resource extends Model
         Happening $happening = null,
         bool $is_end = false,
     ): bool {
-        /** @var User */
+        /** @var User $user */
         $user = auth()->user();
-        if ($user->can('edit', $this->institution)) {
+        if ($user->can('edit', $this->resource_group->institution)) {
             return false;
         }
 
-        $happenings = $user->getHappenings()->whereNotIn('id', $happening?->id);
+        $happenings = $user->getOtherUserHappeningsForResourceGroup($this->resource_group, $happening);
 
         foreach ($happenings as $_happening) {
             if ($is_end) {
@@ -708,6 +712,6 @@ class Resource extends Model
 
     public function isUserAbleToCreateHappening(User $user): bool
     {
-        return $user->can('adminCreate', [Happening::class, $this->institution]);
+        return $user->can('adminCreate', [Happening::class, $this->resource_group->institution]);
     }
 }

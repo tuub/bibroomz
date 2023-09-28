@@ -55,8 +55,7 @@
 <script setup>
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-
-import { inject } from "vue";
+import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -69,7 +68,12 @@ defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Injected
 // ------------------------------------------------
-const translate = inject("translate");
+const translate = appStore.translate;
 </script>

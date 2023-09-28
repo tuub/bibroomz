@@ -18,10 +18,11 @@ use Inertia\Response;
 
 class ResourceController extends Controller
 {
-    public function getResources(): Response
+    public function getResources(Request $request): Response
     {
-        $resources = Resource::with(['institution', 'business_hours', 'business_hours.week_days', 'closings'])
-            ->orderBy('institution_id')->orderBy('title')->get()
+        $resources = Resource::with(['resource_group', 'business_hours', 'business_hours.week_days', 'closings'])
+            ->where('resource_group_id', $request->id)
+            ->orderBy('title')->get()
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/Resources/Index', [
@@ -29,21 +30,9 @@ class ResourceController extends Controller
         ]);
     }
 
-    public function getFormResources()
-    {
-        $resources = Resource::active()->get()->filter->isEditableByUser(auth()->user())
-            ->map->only(['id', 'title', 'institution_id', 'is_verification_required']);
-
-        return $resources->values();
-    }
-
     public function createResource(): Response
     {
-        $institutions = Institution::active()->orderBy('title')->without('closings')->get()
-            ->filter->isUserAbleToCreateResource(auth()->user());
-
         return Inertia::render('Admin/Resources/Form', [
-            'institutions' => $institutions,
             'weekDays' => WeekDay::get(),
             'languages' => config('app.supported_locales'),
         ]);
@@ -68,14 +57,11 @@ class ResourceController extends Controller
 
         $this->authorize('edit', $resource);
 
-        $institutions = Institution::active()->orderBy('title')->without('closings')->get()
-            ->filter->isUserAbleToCreateResource(auth()->user());
-
         return Inertia::render('Admin/Resources/Form', [
             'resource' => [
                 ...$resource->only([
                     'id',
-                    'institution_id',
+                    'resource_group_id',
                     'location_uri',
                     'capacity',
                     'is_active',
@@ -91,7 +77,6 @@ class ResourceController extends Controller
                     'week_days' => $business_hour->week_days->map->id,
                 ]),
             ],
-            'institutions' => $institutions,
             'weekDays' => WeekDay::get(),
             'languages' => config('app.supported_locales'),
         ]);

@@ -15,16 +15,9 @@ class InstitutionController extends Controller
     public function getInstitutions()
     {
         return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => Institution::with(['resources', 'closings'])->get()
+            'institutions' => Institution::with(['closings'])->get()
                 ->filter->isViewableByUser(auth()->user()),
         ]);
-    }
-
-    public  function getFormInstitutions()
-    {
-        return Institution::get(['id', 'title'])
-            ->filter->isEditableByUser(auth()->user())
-            ->values();
     }
 
     public function createInstitution()

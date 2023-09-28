@@ -9,14 +9,18 @@ export const useAppStore = defineStore({
     state: () => {
         return {
             appName: import.meta.env.VITE_APP_NAME,
-            institution: null,
+            resourceGroup: null,
+            settings: null,
+            hiddenDays: null,
             isMultiTenancy: false,
             locale: getActiveLanguage(),
         };
     },
     actions: {
-        setCurrentInstitution(institution, isMultiTenancy) {
-            this.institution = institution;
+        setCurrent(resourceGroup, settings, hiddenDays, isMultiTenancy) {
+            this.resourceGroup = resourceGroup;
+            this.settings = settings;
+            this.hiddenDays = hiddenDays;
             this.isMultiTenancy = isMultiTenancy;
         },
         setCurrentLocale(locale) {
@@ -29,8 +33,22 @@ export const useAppStore = defineStore({
                     this.locale = locale;
                 });
         },
+        translate (translatable, locale) {
+            if (!translatable) {
+                return;
+            }
+
+            if (!locale) {
+                const appStore = useAppStore();
+                locale = appStore.locale;
+            }
+
+            return translatable[locale] ?? translatable["de"] ?? translatable["en"];
+        },
     },
     getters: {
+        institution: (state) => state.resourceGroup.institution,
+        /*
         institutionTitle: (state) => state.translate(state.institution?.title),
         institutionShortTitle: (state) => state.institution?.short_title,
         institutionSlug: (state) => state.institution?.slug,
@@ -38,5 +56,6 @@ export const useAppStore = defineStore({
         institutionLogoUri: (state) => state.institution?.logo_uri,
         institutionTeaserUri: (state) => state.institution?.teaser_uri,
         institutionSettings: (state) => state.institution?.settings,
+         */
     },
 });

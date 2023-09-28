@@ -96,13 +96,13 @@
     </form>
 </template>
 <script setup>
-import { inject, ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import FormAction from "@/Components/Admin/FormAction.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -123,10 +123,14 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = inject("translate");
-const isProcessing = ref(false);
+const translate = appStore.translate;
 
 const form = useForm({
     id: props.user.id ?? "",

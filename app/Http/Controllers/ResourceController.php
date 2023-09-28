@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,14 +16,12 @@ class ResourceController extends Controller
     {
         $output = [];
 
-        $institution = Institution::where('slug', $request->slug)->first();
-
-        if (!$institution) {
-            abort(404);
-        }
+        $resource_group = ResourceGroup::whereHas('institution',
+            fn ($query) => $query->where('slug', $request->institution_slug)
+        )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $resources = Resource::active()
-            ->where('institution_id', $institution->id)
+            ->where('resource_group_id', $resource_group->id)
             ->paginate($request->count)
             ->withPath('/' . $request->path() . '?count=' . $request->count);
 
@@ -62,7 +61,7 @@ class ResourceController extends Controller
         );
     }
 
-    public function getFormBusinessHours(Request $request)
+    public function getTimeSlots(Request $request)
     {
         $resource = Resource::find($request->id);
         $happening = Happening::find($request?->happening_id);
@@ -70,6 +69,6 @@ class ResourceController extends Controller
         $start = CarbonImmutable::parse($request->start);
         $end = CarbonImmutable::parse($request->end);
 
-        return $resource->getFormBusinessHours($start, $end, $happening);
+        return $resource->getTimeSlots($start, $end, $happening);
     }
 }

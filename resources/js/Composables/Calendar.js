@@ -30,6 +30,9 @@ dayjs.extend(utc);
 export function useCalendar({ emit, pagination, translate, calendarOptions = {} }) {
     const appStore = useAppStore();
     const institution = appStore.institution;
+    const resourceGroup = appStore.resourceGroup;
+    const settings = appStore.settings;
+    const hiddenDays = appStore.hiddenDays;
 
     const authStore = useAuthStore();
     const { isAuthenticated } = storeToRefs(authStore);
@@ -55,9 +58,6 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function fetchHappenings(fetchInfo, successCallback, failureCallback) {
-        const appStore = useAppStore();
-        const institution = appStore.institution;
-
         const payload = {
             start: fetchInfo.start,
             end: fetchInfo.end,
@@ -65,7 +65,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
 
         axios({
             method: "GET",
-            url: "/" + institution.slug + "/happenings",
+            url: "/" + institution.slug + "/" + resourceGroup.slug + "/happenings",
             params: payload,
         })
             .then((response) => {
@@ -82,7 +82,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function getValidRange() {
-        const weeksInAdvance = institution.settings["weeks_in_advance"];
+        const weeksInAdvance = settings["weeks_in_advance"];
 
         const startDate = dayjs();
         const endDate = startDate.add(weeksInAdvance, "week");
@@ -102,7 +102,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         const tsStart = dayjs(event.startStr);
         const tsEnd = dayjs(event.endStr);
 
-        const tsLenConfig = institution.settings["time_slot_length"].split(":");
+        const tsLenConfig = settings["time_slot_length"].split(":");
         const tsLen = {
             hours: parseInt(tsLenConfig[0]),
             minutes: parseInt(tsLenConfig[1]),
@@ -220,7 +220,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function getHiddenDays() {
-        return appStore.institution.hiddenDays;
+        return hiddenDays;
     }
 
     const defaultCalendarOptions = {
@@ -243,8 +243,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         validRange: getValidRange(),
         resources: fetchResources,
         events: fetchHappenings,
-        slotMinTime: institution.settings["start_time_slot"],
-        slotMaxTime: institution.settings["end_time_slot"],
+        slotMinTime: settings["start_time_slot"],
+        slotMaxTime: settings["end_time_slot"],
         resourceOrder: "title",
         height: "auto",
         contentHeight: "auto",
@@ -257,8 +257,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         longPressDelay: 0,
         unselectAuto: true,
         selectMirror: true,
-        slotDuration: institution.settings["time_slot_length"] + ":00",
-        slotLabelInterval: institution.settings["time_slot_length"] + ":00",
+        slotDuration: settings["time_slot_length"] + ":00",
+        slotLabelInterval: settings["time_slot_length"] + ":00",
         selectOverlap: false,
         selectConstraint: "businessHours",
         selectable: isSelectable,

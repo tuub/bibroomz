@@ -101,9 +101,9 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
-import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -129,10 +129,14 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = inject("translate");
-const processing = ref(false);
+const translate = appStore.translate;
 
 const form = useForm({
     id: props.closing.id ?? "",
@@ -149,7 +153,6 @@ const form = useForm({
 // Methods
 // ------------------------------------------------
 const submitForm = () => {
-    processing.value = true;
     if (form.id) {
         form.post("/admin/closing/update");
     } else {

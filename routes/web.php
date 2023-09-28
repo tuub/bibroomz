@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 
 use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
+use App\Http\Controllers\Admin\ResourceGroupController as AdminResourceGroupController;
 use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
+use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
@@ -62,8 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('happening.delete');
 
     // API calls
-    Route::post('/{slug}/resource/{id}/time_slots', [ResourceController::class, 'getFormBusinessHours'])
-        ->name('resource.business_hours.form');
+    Route::post('/{institution_slug}/{resource_group_slug}/resource/{id}/time_slots',
+        [ResourceController::class, 'getTimeSlots'])
+        ->name('resource.time_slots');
 
     /* Admins */
 
@@ -98,6 +100,20 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.institution.update');
     Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])
         ->name('admin.institution.delete');
+
+    /* Resource Groups */
+    Route::get('/admin/resource_groups', [AdminResourceGroupController::class, 'getResourceGroups'])
+        ->name('admin.resource_group.index');
+    Route::get('/admin/resource_group/create', [AdminResourceGroupController::class, 'createResourceGroup'])
+        ->name('admin.resource_group.create');
+    Route::get('/admin/resource_group/{id}/edit', [AdminResourceGroupController::class, 'editResourceGroup'])
+        ->name('admin.resource_group.edit');
+    Route::post('/admin/resource_group/store', [AdminResourceGroupController::class, 'storeResourceGroup'])
+        ->name('admin.resource_group.store');
+    Route::post('/admin/resource_group/update', [AdminResourceGroupController::class, 'updateResourceGroup'])
+        ->name('admin.resource_group.update');
+    Route::post('/admin/resource_group/delete', [AdminResourceGroupController::class, 'deleteResourceGroup'])
+        ->name('admin.resource_group.delete');
 
     /* Resources */
     Route::get('/admin/resources', [AdminResourceController::class, 'getResources'])
@@ -166,37 +182,37 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.user.update');
 
     /* Roles and Permissions */
-    Route::get('/admin/roles', [RoleController::class, 'getRoles'])
+    Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])
         ->name('admin.role.index');
-    Route::get('/admin/role/create', [RoleController::class, 'createRole'])
+    Route::get('/admin/role/create', [AdminRoleController::class, 'createRole'])
         ->name('admin.role.create');
-    Route::post('/admin/role/store', [RoleController::class, 'storeRole'])
+    Route::post('/admin/role/store', [AdminRoleController::class, 'storeRole'])
         ->name('admin.role.store');
-    Route::get('/admin/role/edit/{role}', [RoleController::class, 'editRole'])
+    Route::get('/admin/role/edit/{role}', [AdminRoleController::class, 'editRole'])
         ->name('admin.role.edit');
-    Route::post('/admin/role/update/{role}', [RoleController::class, 'updateRole'])
+    Route::post('/admin/role/update/{role}', [AdminRoleController::class, 'updateRole'])
         ->name('admin.role.update');
-    Route::post('/admin/role/delete/{role}', [RoleController::class, 'deleteRole'])
+    Route::post('/admin/role/delete/{role}', [AdminRoleController::class, 'deleteRole'])
         ->name('admin.role.delete');
 
-    Route::get('/admin/permissions', [PermissionController::class, 'getPermissions'])
+    Route::get('/admin/permissions', [AdminPermissionController::class, 'getPermissions'])
         ->name('admin.permission.index');
-    Route::get('/admin/permission/edit/{permission}', [PermissionController::class, 'editPermission'])
+    Route::get('/admin/permission/edit/{permission}', [AdminPermissionController::class, 'editPermission'])
         ->name('admin.permission.edit');
-    Route::post('/admin/permission/update/', [PermissionController::class, 'updatePermission'])
+    Route::post('/admin/permission/update/', [AdminPermissionController::class, 'updatePermission'])
         ->name('admin.permission.update');
 });
 
 // Institution Home
-Route::get('/{slug}', [HomeController::class, 'getInstitutionalHome'])
+Route::get('/{institution_slug}/{resource_group_slug}/home', [HomeController::class, 'getInstitutionalHome'])
     ->name('home');
 
 // Institution Terminal View
-Route::get('/{slug}/terminal-view', [HomeController::class, 'getTerminalView'])
+Route::get('/{institution_slug}/{resource_group_slug}/terminal-view', [HomeController::class, 'getTerminalView'])
     ->name('terminal_view');
 
 // API calls
-Route::get('/{slug}/resources', [ResourceController::class, 'getResources'])
+Route::get('/{institution_slug}/{resource_group_slug}/resources', [ResourceController::class, 'getResources'])
     ->name('resources.get');
-Route::get('/{slug}/happenings', [HappeningController::class, 'getHappenings'])
+Route::get('/{institution_slug}/{resource_group_slug}/happenings', [HappeningController::class, 'getHappenings'])
     ->name('happenings.get');

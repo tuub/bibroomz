@@ -13,6 +13,12 @@
                         {{ $t("admin.happenings.index.table.header.date") }}
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        {{ $t("admin.happenings.index.table.header.institution") }}
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        {{ $t("admin.happenings.index.table.header.resource_group") }}
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         {{ $t("admin.happenings.index.table.header.resource") }}
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -47,6 +53,12 @@
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{ formatDate(happening.start) }}
                     </th>
+                    <td class="px-6 py-4">
+                        {{ translate(happening.resource.resource_group.institution.title) }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ translate(happening.resource.resource_group.name) }}
+                    </td>
                     <td class="px-6 py-4">
                         {{ translate(happening.resource.title) }}
                     </td>
@@ -129,6 +141,7 @@ import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, onBeforeMount, onMounted } from "vue";
 import {useAuthStore} from "@/Stores/AuthStore";
+import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -149,6 +162,7 @@ dayjs.extend(utc);
 // Stores
 // ------------------------------------------------
 const modal = useModal();
+const appStore = useAppStore();
 const authStore = useAuthStore();
 const { hasPermission } = authStore;
 // ------------------------------------------------
@@ -171,7 +185,7 @@ const isPastHappening = (happening) => {
 // ------------------------------------------------
 const actions = [];
 const route = inject("route");
-const translate = inject("translate");
+const translate = appStore.translate;
 
 // ------------------------------------------------
 // Lifecycle

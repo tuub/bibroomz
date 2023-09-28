@@ -78,7 +78,7 @@ import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, reactive, ref } from "vue";
+import {computed, inject, onBeforeMount, reactive, ref} from "vue";
 
 // ------------------------------------------------
 // Props
@@ -106,12 +106,14 @@ const modal = useModal();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const route = inject('route');
 const happening = reactive(props.happening);
 
 const error = storeToRefs(happeningStore).error;
 const errorMessage = computed(() => error.value?.data?.message);
 
-const slug = appStore.institution.slug;
+const institutionSlug = appStore.institution.slug;
+const resourceGroupSlug = appStore.resourceGroup.slug;
 
 const isInitial = ref(true);
 const isLoading = ref(false);
@@ -132,9 +134,14 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
     isLoading.value = true;
 
     try {
-        const response = await axios.post(`/${slug}/resource/${resource_id}/time_slots`, {
+        const url = route('resource.time_slots', {
+            institution_slug: institutionSlug,
+            resource_group_slug: resourceGroupSlug,
+            id: resource_id
+        });
+
+        const response = await axios.post(url, {
             happening_id: happening?.id,
-            resource_id: resource_id,
             start: start,
             end: end,
             event: event,
@@ -152,6 +159,8 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
         isLoading.value = false;
         isInitial.value = false;
     } catch (error) {
+        console.log(error)
+
         modal.close();
         authStore.check();
     }

@@ -7,12 +7,7 @@
         <InstitutionCard
             v-for="institution in institutions"
             :key="institution.id"
-            :title="translate(institution.title)"
-            :location="institution.location"
-            :home_uri="institution.home_uri"
-            :logo_uri="institution.logo_uri"
-            :teaser_uri="institution.teaser_uri"
-            :link="route('home', { slug: institution.slug })"
+            :institution="institution"
         >
         </InstitutionCard>
     </div>
@@ -26,7 +21,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import useModal from "@/Stores/Modal";
 
 import { Modal as FlowbiteModal } from "flowbite";
-import { inject, onBeforeMount, onMounted } from "vue";
+import { onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -44,13 +39,13 @@ defineProps({
 const appStore = useAppStore();
 const modal = useModal();
 
-const translate = inject("translate");
-
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
-    appStore.institution = null;
+    appStore.resourceGroup = null;
+    appStore.settings = null;
+    appStore.hiddenDays = null;
 });
 
 onMounted(() => {

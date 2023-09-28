@@ -97,11 +97,12 @@
 
 <script setup>
 import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
-import useModal from "@/Stores/Modal";
+import {useModal} from "@/Stores/Modal";
+import {useAppStore} from "@/Stores/AppStore";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { computed, inject } from "vue";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -122,11 +123,19 @@ const props = defineProps({
 dayjs.extend(utc);
 
 // ------------------------------------------------
-// Variables
+// Stores
 // ------------------------------------------------
 const modal = useModal();
-const translate = inject("translate");
+const appStore = useAppStore();
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
+const translate = appStore.translate;
+
+// ------------------------------------------------
+// Computed
+// ------------------------------------------------
 const happening = computed(() => ({
     ...props.happening,
     resource: {
@@ -137,9 +146,6 @@ const happening = computed(() => ({
     },
 }));
 
-// ------------------------------------------------
-// Computed
-// ------------------------------------------------
 const happeningDate = computed(() => {
     return dayjs.utc(props.happening.start).format("DD.MM.YYYY");
 });
