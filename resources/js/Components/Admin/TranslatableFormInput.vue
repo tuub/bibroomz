@@ -53,5 +53,5 @@ const props = defineProps({
 
 defineEmits(["update:model-value"]);
 
-const input = ref(props.modelValue);
+const input = Array.isArray(props.modelValue) ? {} : ref(props.modelValue);
 </script>
