@@ -2,8 +2,8 @@
     <FullCalendar id="terminal-view-calendar" ref="refCalendar" class="calendar" :options="calendarOptions">
         <template #eventContent="arg">
             <div class="text-center">
-                <div v-if="arg.event.display == 'background'" class="border-b-2 pt-5 text-xl">
-                    {{ arg.event.extendedProps.description }}
+                <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
+                    {{ translate(arg.event.extendedProps.description) }}
                 </div>
                 <b>{{ arg.timeText }}</b>
                 <i>{{ arg.event.title }}</i>
@@ -20,8 +20,7 @@ import { useCalendar } from "@/Composables/Calendar";
 import { useAppStore } from "@/Stores/AppStore";
 import TerminalLayout from '@/Layouts/TerminalLayout.vue';
 
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-
+import { inject, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
 defineOptions({ layout: TerminalLayout })
 
@@ -39,6 +38,8 @@ const props = defineProps({
 // Variables
 // ------------------------------------------------
 let calendarOptions, refetchHappenings;
+
+const translate = inject("translate");
 
 const refCalendar = ref(null);
 
@@ -68,6 +69,7 @@ onBeforeMount(() => {
             eventClick: false,
         },
         pagination,
+        translate,
     }));
 });
 
@@ -103,7 +105,7 @@ a.fc-event:hover {
 */
 
 div.fc-timegrid-slots tr {
-    background-color: #ffffff;
+    background-color: #FFFFFF;
 }
 
 </style>
