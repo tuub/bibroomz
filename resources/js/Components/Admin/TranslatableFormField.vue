@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-nowrap space-x-2">
-        <div v-for="language in languages" :key="language" class="mb-6 w-1/2">
+        <div v-for="language in languages" :key="language" class="mb-6 flex-auto">
             <FormLabel :field="`${field}-${language}`" :field-key="fieldKey" :language="language"></FormLabel>
             <slot :language="language" class="w-1/2"></slot>
             <FormValidationError :message="errors[`${field}`]"></FormValidationError>
