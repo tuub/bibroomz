@@ -57,26 +57,4 @@ class Utility
 
         return $date->hour(str($time_arr[0]))->minute(str($time_arr[1]));
     }
-
-    /**
-     * Make the given rule keys translatable.
-     *
-     * @param array $rules
-     * @param array $translatables
-     * @return array
-     */
-    public static function makeRulesTranslatable(array &$rules, array $translatables): array
-    {
-        $languages = config('app.supported_locales');
-
-        foreach ($translatables as $translatable) {
-            foreach ($languages as $language) {
-                $rules[$translatable . '.' . $language] = $rules[$translatable];
-            }
-
-            unset($rules[$translatable]);
-        }
-
-        return $rules;
-    }
 }

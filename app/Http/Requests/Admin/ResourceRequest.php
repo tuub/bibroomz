@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Library\Utility;
+use App\Rules\RequiredWithTranslationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 abstract class ResourceRequest extends FormRequest
@@ -14,12 +14,12 @@ abstract class ResourceRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        return [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
-            'title' => ['required'],
-            'location' => ['required'],
+            'title' => [new RequiredWithTranslationRule],
+            'location' => [new RequiredWithTranslationRule],
             'location_uri' => ['url', 'nullable'],
-            'description' => ['required'],
+            'description' => [new RequiredWithTranslationRule],
             'capacity' => ['numeric', 'gt:0'],
             'is_active' => ['required', 'boolean'],
             'is_verification_required' => ['required', 'boolean'],
@@ -29,9 +29,5 @@ abstract class ResourceRequest extends FormRequest
             'business_hours.*.end' => ['required_with:business_hours', 'date_format:H:i'],
             'business_hours.*.week_days' => ['required_with:business_hours'],
         ];
-
-        Utility::makeRulesTranslatable($rules, ['title', 'location', 'description']);
-
-        return $rules;
     }
 }

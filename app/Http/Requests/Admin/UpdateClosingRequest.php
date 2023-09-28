@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateClosingRequest extends FormRequest
@@ -14,7 +13,7 @@ class UpdateClosingRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        return [
             'id' => ['required', 'uuid'],
             'start_date' => ['required', 'date_format:d.m.Y'],
             'start_time' => ['required', 'date_format:H:i'],
@@ -22,9 +21,5 @@ class UpdateClosingRequest extends FormRequest
             'end_time' => ['required', 'date_format:H:i'],
             'description' => [''],
         ];
-
-        Utility::makeRulesTranslatable($rules, ['description']);
-
-        return $rules;
     }
 }

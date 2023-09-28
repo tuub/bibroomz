@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Library\Utility;
+use App\Rules\RequiredWithTranslationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RoleRequest extends FormRequest
@@ -14,13 +14,9 @@ class RoleRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'name' => ['required', 'string'],
+        return [
+            'name' => [new RequiredWithTranslationRule],
             'description' => [''],
         ];
-
-        Utility::makeRulesTranslatable($rules, ['name', 'description']);
-
-        return $rules;
     }
 }

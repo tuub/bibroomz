@@ -10,7 +10,6 @@
             field-key="admin.institutions.form.fields.title"
             :languages="languages"
             :errors="form.errors"
-            required
         ></TranslatableFormInput>
 
         <!-- Input: Short title -->

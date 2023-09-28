@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Library\Utility;
+use App\Rules\RequiredWithTranslationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class InstitutionRequest extends FormRequest
@@ -14,8 +14,8 @@ class InstitutionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'title' => ['required'],
+        return [
+            'title' => [new RequiredWithTranslationRule],
             'short_title' => ['required'],
             'slug' => ['required'],
             'location' => [],
@@ -25,9 +25,5 @@ class InstitutionRequest extends FormRequest
             'teaser_uri' => ['url'],
             'is_active' => ['required'],
         ];
-
-        Utility::makeRulesTranslatable($rules, ['title']);
-
-        return $rules;
     }
 }

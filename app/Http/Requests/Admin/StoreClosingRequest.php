@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClosingRequest extends FormRequest
@@ -14,7 +13,7 @@ class StoreClosingRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        return [
             'closable_id' => ['required', 'uuid'],
             'closable_type' => ['required'],
             'start_date' => ['required', 'date_format:d.m.Y'],
@@ -23,9 +22,5 @@ class StoreClosingRequest extends FormRequest
             'end_time' => ['required', 'date_format:H:i'],
             'description' => [''],
         ];
-
-        Utility::makeRulesTranslatable($rules, ['description']);
-
-        return $rules;
     }
 }

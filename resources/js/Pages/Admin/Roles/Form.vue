@@ -10,7 +10,6 @@
             field-key="admin.roles.form.fields.name"
             :languages="languages"
             :errors="form.errors"
-            required
         ></TranslatableFormInput>
 
         <!-- Input: Description -->

@@ -3,7 +3,6 @@
         <FormLabel :field="`${field}-${language}`" :field-key="fieldKey" :language="language"></FormLabel>
         <slot :language="language"></slot>
         <FormValidationError :message="errors[`${field}`]"></FormValidationError>
-        <FormValidationError :message="errors[`${field}.${language}`]"></FormValidationError>
     </div>
 </template>
 
