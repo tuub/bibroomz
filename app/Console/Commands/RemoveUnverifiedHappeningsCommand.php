@@ -8,6 +8,7 @@ use App\Models\Institution;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
 {
@@ -42,7 +43,9 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         $hours = $this->option('hours');
         $days = $this->option('days');
 
-        $institution = Institution::find($this->option('institution'));
+        // get institution by id or slug
+        $institution = Institution::find($this->option('institution'))
+            ?? Institution::where('slug', $this->option('institution'))->first();
 
         /** @var Builder */
         $query = Happening::where('is_verified', false);
@@ -51,20 +54,17 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         if ($institution) {
             $this->info('Restricting to institution ' . $institution->id . '...');
 
-            // FIXME: resource groups
-            $query->whereRelation('resource', 'institution_id', $institution->id);
+            $query = $this->restrictQueryToInstitution($query, $institution);
         }
 
         if (isset($minutes) || isset($hours) || isset($days) || !$this->option('settings')) {
             $time = $this->getIntervalByValues($minutes, $hours, $days);
-
             $query->where('created_at', '<', $time);
 
             $this->info('Removing unverified happenings created more than '
                 . $time->locale('en')->diffForHumans(short: true, parts: 3) . '...');
         } elseif ($institution) {
             $time = $this->getIntervalByInstitution($institution);
-
             $query->where('created_at', '<', $time);
 
             $this->info('Removing unverified happenings created more than '
@@ -72,30 +72,16 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         } else {
             $query->where(function (Builder $query) {
                 $institutions = Institution::all();
-                $institution = $institutions->shift();
-
-                $time = $this->getIntervalByInstitution($institution);
-
-                $query->where(fn (Builder $q) => $q
-                    ->whereRelation('resource', 'institution_id', $institution->id)
-                    ->where('created_at', '<', $time));
-
-                $this->info('Removing unverified happenings created more than '
-                    . $time->locale('en')->diffForHumans(short: true, parts: 3)
-                    . ' for institution ' . $institution->id . '...');
-
-                foreach ($institutions as $institution) {
-                    $time = $this->getIntervalByInstitution($institution);
-
-                    $query->orWhere(fn (Builder $q) => $q
-                        ->whereRelation('resource', 'institution_id', $institution->id)
-                        ->where('created_at', '<', $time));
-
-                    $this->info('Removing unverified happenings created more than '
-                        . $time->locale('en')->diffForHumans(short: true, parts: 3)
-                        . ' for institution ' . $institution->id . '...');
-                }
+                $this->applySettingsPerInstitution($query, $institutions);
             });
+        }
+
+        if ($this->output->isVerbose()) {
+            // print sql with bindings
+            $this->line($query->toRawSql());
+
+            // print happenings to be removed
+            $this->prettyPrintHappenings($query);
         }
 
         // print count
@@ -105,11 +91,6 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         if ($query->count() === 0) {
             $this->info('Nothing to do.');
             return Command::SUCCESS;
-        }
-
-        if ($this->output->isVerbose()) {
-            // print happenings to be removed
-            $this->prettyPrintHappenings($query);
         }
 
         // ask for confirmation
@@ -178,5 +159,46 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         }
 
         return $time;
+    }
+
+    private function restrictQueryToInstitution(Builder $query, Institution $institution): Builder
+    {
+        return $query->whereHas(
+            'resource',
+            fn (Builder $q) => $q->whereHas(
+                'resource_group',
+                fn (Builder $q) => $q->where('institution_id', $institution->id)
+            )
+        );
+    }
+
+    private function applySettingsPerInstitution(Builder $query, Collection $institutions): Builder
+    {
+        // get first institution
+        $institution = $institutions->shift();
+        $time = $this->getIntervalByInstitution($institution);
+
+        // use where instead of orWhere for the first institution
+        $query->where(fn (Builder $q) => $this->restrictQueryToInstitution($q, $institution)
+            ->where('created_at', '<', $time));
+
+        $this->info('Removing unverified happenings created more than '
+            . $time->locale('en')->diffForHumans(short: true, parts: 3)
+            . ' for institution ' . $institution->id . '...');
+
+        // loop over remaining institutions
+        foreach ($institutions as $institution) {
+            $time = $this->getIntervalByInstitution($institution);
+
+            // use orWhere instead of where
+            $query->orWhere(fn (Builder $q) => $this->restrictQueryToInstitution($q, $institution)
+                ->where('created_at', '<', $time));
+
+            $this->info('Removing unverified happenings created more than '
+                . $time->locale('en')->diffForHumans(short: true, parts: 3)
+                . ' for institution ' . $institution->id . '...');
+        }
+
+        return $query;
     }
 }
