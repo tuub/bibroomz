@@ -3,7 +3,7 @@ use App\Models\Institution;
 use App\Models\Resource;
 
 $closable = $closing->closable;
-$institution = $closable instanceof Institution ? $closable : $closable->institution;
+$institution = $closable instanceof Institution ? $closable : $closable->resource_group->institution;
 @endphp
 
 <ul>

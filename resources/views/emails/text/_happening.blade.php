@@ -5,8 +5,8 @@
 
 - @lang('email.happening.data.start.label'): {{ \Carbon\Carbon::parse($happening->start)->format('d.m.Y H:i') }}
 - @lang('email.happening.data.end.label'): {{ \Carbon\Carbon::parse($happening->end)->format('d.m.Y H:i') }}
-- @lang('email.happening.data.institution.label'): {{ $happening->resource->institution->title }}
-- @lang('email.happening.data.resource.label'): {{ $happening->resource->title }}
+- @lang('email.happening.data.institution.label'): {{ $happening->resource->resource_group->institution->title }}
+- {{ $happening->resource->resource_group->term_singular }}: {{ $happening->resource->title }}
 - @lang('email.happening.data.user.label'): {{ $happening->user1->name }}
 @if ($verifier)
 - @lang('email.happening.data.verifier.label'): {{ $verifier }}

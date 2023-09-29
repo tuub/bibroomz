@@ -101,7 +101,7 @@ class MailController extends Controller
 
     private function getMissingMailTypes(String $institution_id)
     {
-        return MailType::orderBy('name')->get()->filter(function ($mail_type) use ($institution_id) {
+        return MailType::orderBy('key')->get()->filter(function ($mail_type) use ($institution_id) {
             return MailContent::where('institution_id', $institution_id)
                 ->pluck('mail_type_id')
                 ->contains($mail_type->id) === false;

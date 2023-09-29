@@ -42,7 +42,7 @@ class ClosingCreatedMail extends Mailable implements ShouldQueue
         if ($closable instanceof Institution) {
             $from_email = $closable->email;
         } else {
-            $from_email = $closable->institution->email;
+            $from_email = $closable->resource_group->institution->email;
         }
 
         return new Envelope(

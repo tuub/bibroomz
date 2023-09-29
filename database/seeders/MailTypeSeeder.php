@@ -15,12 +15,12 @@ class MailTypeSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('mail_types')->insert(['name' => 'happening_created', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'happening_created_with_verification', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'happening_updated', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'happening_deleted', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'happening_verified', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'closing_created', 'description' => '']);
-        DB::table('mail_types')->insert(['name' => 'closing_updated', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'happening_created', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'happening_created_with_verification', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'happening_updated', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'happening_deleted', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'happening_verified', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'closing_created', 'description' => '']);
+        DB::table('mail_types')->insert(['key' => 'closing_updated', 'description' => '']);
     }
 }

@@ -36,12 +36,17 @@ class HappeningCreatedMail extends Mailable implements ShouldQueue
      */
     public function envelope()
     {
+        // FIXME: compile
+
+
         return new Envelope(
             from: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $this->happening->resource->resource_group->institution->email,
+                $this->happening->resource->resource_group->institution->email
             ),
             replyTo: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $this->happening->resource->resource_group->institution->email,
+                $this->happening->resource->resource_group->institution->email
             ),
             subject: $this->content->subject,
         );

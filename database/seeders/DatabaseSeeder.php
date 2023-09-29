@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ActiveDaySeeder::class,
             PermissionSeeder::class,
             MailTypeSeeder::class,
+            MailContentSeeder::class,
         ]);
     }
 }

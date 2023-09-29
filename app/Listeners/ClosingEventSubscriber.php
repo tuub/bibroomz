@@ -50,7 +50,7 @@ class ClosingEventSubscriber
 
         return MailContent::where('institution_id', $institution->id)
             ->whereHas('mail_type', function ($query) use($mail_type) {
-                $query->where('name', $mail_type);
+                $query->where('key', $mail_type);
             })
             ->first();
     }

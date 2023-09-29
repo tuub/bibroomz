@@ -38,10 +38,12 @@ class HappeningDeletedMail extends Mailable implements ShouldQueue
     {
         return new Envelope(
             from: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $this->happening->resource->resource_group->institution->email,
+                $this->happening->resource->resource_group->institution->email
             ),
             replyTo: new Address(
-                $this->happening->resource->institution->email, $this->happening->resource->institution->email
+                $this->happening->resource->resource_group->institution->email,
+                $this->happening->resource->resource_group->institution->email
             ),
             //subject: trans('email.happening.created.subject'),
             subject: $this->content->subject,

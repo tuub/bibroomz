@@ -17,6 +17,7 @@ class InstitutionSeeder extends Seeder
      */
     public function run()
     {
+        // https://www.laravelia.com/post/laravel-9-factory-seed-data-with-nested-relationship
         /*
         // Add random example institutions with random example resources
         if (config('roomz.database.is_seed_example_institutions')) {

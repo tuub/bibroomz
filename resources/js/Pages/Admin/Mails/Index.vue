@@ -36,7 +36,7 @@
                         scope="row"
                         class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white"
                     >
-                        {{ $t("admin.mails.mail_types." + mail.mail_type.name) }}
+                        {{ $t("admin.mails.mail_types." + mail.mail_type.key) }}
                     </th>
                     <td class="px-6 py-4 align-top">
                         {{ translate(mail.subject) }}

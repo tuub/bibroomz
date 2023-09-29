@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('mail_types', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id('id')->index();
-            $table->string('name');
+            $table->string('key');
             $table->text('description')->nullable();
         });
     }

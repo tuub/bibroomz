@@ -21,7 +21,7 @@ class MailType extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name',
+        'key',
         'description',
     ];
 
