@@ -29,6 +29,10 @@
                 @click="toggle"
                 class="mobile-menu-background" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'" >
             </button>
+            <button
+                @click="toggle"
+                class="mobile-menu-background-red" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'" >
+            </button>
         </div>
     </div>
 </template>
@@ -81,41 +85,59 @@ const toggle = () => {
     #mobile-menu > ul > li {
         position: absolute;
         height: 40px;
-        width: 190px;
+        width: 280px;
         top: 25px;
-        right: 0px;
+        right: 0;
         background: #FDFDFD;
         padding: 8px;
         z-index: 25;
     }
 
+    .mobile-menu-background-red{
+        position: fixed;
+        background-color: #C40D1E;
+        top: 0px;
+        right: 0px;
+        width: 20em;
+        height: 100%;
+    }
+
     #mobile-menu > ul > li:nth-child(1){
-        top: 25px;
+        top: -50px;
     }
 
     #mobile-menu > ul > li:nth-child(2){
-        top: 65px;
+        top: 0px;
     }
 
     #mobile-menu > ul > li:nth-child(3){
-        top: 105px;
+        top: 50px;
     }
 
     #mobile-menu > ul > li:nth-child(4){
-        top: 145px;
+        top: 100px;
     }
 
     #mobile-menu > ul > li:nth-child(5){
-        top: 185px;
+        top: 150px;
     }
 
     #mobile-menu > ul > li:nth-child(6){
-        top: 225px;
+        top: 200px;
     }
 
     #mobile-menu > ul > li:nth-child(7){
-        top: 265px;
+        top: 250px;
     }
+
+    #mobile-menu > ul > li:nth-child(8){
+        top: 300px;
+    }
+
+    #mobile-menu > ul > li:nth-child(9){
+        top: 350px;
+    }
+
 
     .mobile-button {
         position: absolute;
@@ -125,10 +147,10 @@ const toggle = () => {
     .mobile-menu-background{
         position: fixed;
         background-color: rgba(0,0,0,50%);
-        top: 122px;
+        top: 0px;
         right: 0px;
-        width: 200vh;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
     }
 
     .mobile-menu-hidden {

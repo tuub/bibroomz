@@ -244,7 +244,7 @@ div.fc-timegrid-slots tr {
 
 .page-change-wrapper > label{
     width: 200px;
-    position: absolute;
+    margin-right: 20px;
     top: 0;
     right: 0;
 }
