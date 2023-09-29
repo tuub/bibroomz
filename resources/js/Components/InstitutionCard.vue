@@ -44,7 +44,7 @@ const translate = appStore.translate;
 
 </script>
 <style>
-    .institution-card-wapper{
+    .institution-card-wapper {
         margin: auto;
         margin-top: 30px;
         margin-right: 30px;
@@ -52,6 +52,11 @@ const translate = appStore.translate;
         box-shadow: 0 3px 3px rgb(204, 203, 203);
         float: left;
     }
+
+    .institution-card-wapper:last-child {
+        margin-right: 0;
+    }
+
     .teaser-img{
         margin: auto;
     }

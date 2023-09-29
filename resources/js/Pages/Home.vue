@@ -4,8 +4,8 @@
 
         <XModal />
 
-        <div id="calendar_sidebar_wrapper" class="">
-            <div id="calendar" class="basis-4/5 md:basis-4/5">
+        <div id="calendar-sidebar-wrapper" class="">
+            <div id="calendar" class="calendar-wrapper basis-4/5 md:basis-4/5" :class="{ 'calendar-if-not-logged-in': !isAuthenticated}" >
                 <Calendar @open-modal-component="getModal"> </Calendar>
             </div>
             <div id="sidebar" class="basis-1/5 md:basis-1/5">
@@ -102,6 +102,16 @@ onMounted(() => {
     float: right;
 }
 
+#calendar-sidebar-wrapper {
+    display: block;
+    width: 100%;
+}
+
+.calendar-wrapper {
+    display: inline-block;
+    width: 72%;
+}
+
 @media only screen and (max-width: 1150px) {
     #sidebar {
         margin-top: 30px;
@@ -110,5 +120,12 @@ onMounted(() => {
         width: 100%;
         float: left;
     }
+
+    .calendar-wrapper {
+        display: block;
+        width: 100%;
+    }
+
+
 }
 </style>

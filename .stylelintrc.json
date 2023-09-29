@@ -7,6 +7,10 @@
         "media-feature-range-notation": "prefix",
         "color-hex-length": "long",
         "shorthand-property-no-redundant-values": null,
-        "color-hex-case": "upper"
+        "color-hex-case": "upper",
+        "scss/at-rule-no-unknown": null,
+        "declaration-block-no-shorthand-property-overrides": null,
+        "length-zero-no-unit": null,
+        "color-function-notation": "legacy"
     }
 }

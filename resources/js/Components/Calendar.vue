@@ -16,7 +16,7 @@
             </button>
         </div>
 
-        <FullCalendar ref="refCalendar" class="calendar" :options="calendarOptions">
+        <FullCalendar ref="refCalendar" class="full-calendar" :options="calendarOptions">
             <template #eventContent="arg">
                 <div class="text-center">
                     <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
@@ -216,10 +216,60 @@ div.fc-timegrid-slots tr {
     padding-right: 1em;
 }
 
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child){
+    width: 21px;
+    height: 25px;
+    font-size: 0.85em;
+}
+
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child){
+    width: 21px;
+    height: 25px;
+    font-size: 0.85em;
+}
+
 .page-change-wrapper {
     position: absolute;
-    top: -7px;
-    right: -5px;
+    top: -13px;
+    right: 0;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.page-change-wrapper > button > i{
+    font-size: 1.4em;
+    line-height: 0.9666em;
+    vertical-align: -0.16em;
+}
+
+.page-change-wrapper > label{
+    width: 200px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+@-moz-document url-prefix() {
+    .page-change-wrapper {
+        position: absolute;
+        top: -15px;
+        right: 0;
+        font-size: small;
+    }
+
+    .page-change-wrapper > label{
+        right: 20px;
+    }
+}
+
+.page-change-wrapper > button:nth-child(2){
+    background-color: #2C3E50;
+    color: white;
+}
+
+.page-change-wrapper > button:nth-child(3){
+    background-color: #2C3E50;
+    color: white;
 }
 
 @-moz-document url-prefix() {
@@ -230,22 +280,28 @@ div.fc-timegrid-slots tr {
     }
 }
 
-.calendar > div:nth-child(1) > div:nth-child(1){
+.full-calendar > div:nth-child(1) > div:nth-child(1){
     position: absolute;
-    left: 60px;
-    top: -7px;
+    left: 65px;
+    top: -13px;
 }
 
-.calendar > div:nth-child(1) > div:nth-child(3){
+.full-calendar > div:nth-child(1) > div:nth-child(3){
     position: absolute;
     left: 0;
-    top: -10px;
+    top: -16px;
+}
+
+
+.calendar-if-not-logged-in{
+    width: 100% !important;
 }
 
 @media only screen and (max-width: 1150px) {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 30%;
     }
+
 }
 
 @media only screen and (max-width: 600px) {
@@ -254,9 +310,57 @@ div.fc-timegrid-slots tr {
     }
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 530px) {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 50%;
+    }
+
+    .content-wrapper{
+        margin: 12em 2em 0 2em;
+        min-height: 80vh;
+        position: relative;
+    }
+
+    .page-change-wrapper > label{
+        position: absolute;
+        top: 4px;
+        left: 65px;
+    }
+
+    .page-change-wrapper > button:nth-child(2){
+        position: absolute;
+        top: 3px;
+        left: 0px;
+        background-color: #2C3E50;
+        color: white;
+    }
+
+    .page-change-wrapper > button:nth-child(3){
+        position: absolute;
+        top: 3px;
+        left: 20px;
+        background-color: #2C3E50;
+        color: white;
+    }
+
+    .page-change-wrapper{
+        position: absolute;
+        top: -13px;
+        left: 0;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    .full-calendar > div:nth-child(1) > div:nth-child(1){
+        position: absolute;
+        left: 65px;
+        top: -50px;
+    }
+
+    .full-calendar > div:nth-child(1) > div:nth-child(3){
+        position: absolute;
+        left: 0;
+        top: -53px;
     }
 }
 

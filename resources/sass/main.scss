@@ -1,4 +1,4 @@
-@import "./_variables";
+@import "variables";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +9,7 @@
 
 body {
     font-family: "Open Sans", sans-serif;
+    background-color: #F8F8F8;
 }
 
 /* Calender header */
@@ -21,7 +22,7 @@ body {
 
 /* Today */
 .fc-unthemed td.fc-today {
-    background-color: #ffffff !important;
+    background-color: #FFFFFF !important;
 }
 
 /* Past Days */
@@ -39,17 +40,16 @@ body {
 /* Background Events: Closings */
 // https://css-tricks.com/stripes-css/
 .fc-bg-event {
-    //background-color: $status-closing !important;
     color: black;
     cursor: not-allowed;
-    background-color: #ffffff;
+    background-color: #FFFFFF;
     opacity: 1 !important;
     background: repeating-linear-gradient(
         45deg,
-        rgb(245 245 245),
-        rgb(245 245 245) 10px,
-        rgb(235 235 235) 10px,
-        rgb(235 235 235) 20px
+        rgba(245,245,245),
+        rgba(245,245,245) 10px,
+        rgba(235,235,235) 10px,
+        rgba(235,235,235) 20px
     ) !important;
 }
 
@@ -64,38 +64,38 @@ body {
 
 a.fc-event {
     &.past-event {
-        background-color: #cccccc;
+        background-color: #CCCCCC;
         opacity: 0.4;
     }
 
     &.reservation {
         background-color: $status-reservation;
-        color: #ffffff;
+        color: #FFFFFF;
     }
 
     &.booking {
         background-color: $status-booking;
-        color: #ffffff;
+        color: #FFFFFF;
     }
 
     &.user-reservation {
         background-color: $status-user-reservation;
-        color: #ffffff;
+        color: #FFFFFF;
     }
 
     &.user-to-verify {
         background-color: $status-user-to-verify;
-        color: #ffffff;
+        color: #FFFFFF;
     }
 
     &.user-booking {
         background-color: $status-user-booking;
-        color: #ffffff;
+        color: #FFFFFF;
     }
 
     &.block {
         background-color: $status-block;
-        color: #ffffff;
+        color: #FFFFFF;
         pointer-events: none;
     }
 }
@@ -109,32 +109,32 @@ div#status-legend {
 
         &.reservation {
             background-color: $status-reservation;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.booking {
             background-color: $status-booking;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.user-reservation {
             background-color: $status-user-reservation;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.user-to-verify {
             background-color: $status-user-to-verify;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.user-booking {
             background-color: $status-user-booking;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.closing {
             background-color: $status-closing;
-            color: #ffffff;
+            color: #FFFFFF;
         }
 
         &.block {
@@ -144,114 +144,38 @@ div#status-legend {
 }
 
 .fc-timegrid-slots tr:nth-child(odd) {
-    background-color: #ffffff;
+    background-color: #FFFFFF;
 }
 
 .fc-timegrid-slots tr:nth-child(even) {
-    background-color: #f6f6f6;
+    background-color: #F6F6F6;
 }
 
 .fc-direction-ltr .fc-button-group > .fc-button:not(:last-child){
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
+
 .fc-direction-ltr .fc-button-group > .fc-button:not(:first-child){
-    margin: 0px;
-    padding: 0px;
-}
-#calendar_sidebar_wrapper {
-    display: block;
-    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-/* calendar */
-#calendar {
-    display: inline-block;
-    width: 72%;
+.fc-next-button .fc-button .fc-button-primary{
+    width: 30px;
+    height: 18px;
+    vertical-align: middle;
+    font-size: 0.4em;
 }
 
-nav {
-    z-index: 9999;
-    box-shadow: 0 3px 3px rgb(204 203 203);
-    font-size: 17px;
-}
-
-body {
-    background-color: #f8f8f8;
-}
-
-
-
-
-.w-20p{
-    width: 20%;
-}
-
-.w-40p{
-    width: 40%;
-}
-
-.w-60p{
-    width: 60%;
-}
-
-.w-70p{
-    width: 70%;
-}
-
-.w-80p{
-    width: 80%;
-}
 
 .mt-3px{
     margin-top: -3px;
 }
-#mobile-menu{
-    position: absolute;
-    top: 85px;
-    right: 30px;
-}
 
-#nav-footer-wrapper > button{
-    float: right;
-    display: none;
-}
+/* nav */
 
-nav{
-    background-color: white;
-    color: #C40D20;
-    padding: 30px;
-    height: 7em;
-}
 
-.LangSwitch-CurrentLogin-wapper{
-    display: inline-block;
-    height: 2em;
-}
 
-@media only screen and (max-width: 600px) {
-    .LangSwitch-CurrentLogin-wapper{
-        width: 50%;
-    }
-}
 
-@media only screen and (max-width: 1150px) {
-    #nav-footer-wrapper > button{
-        display: block;
-    }
 
-    nav{
-        background-color: white;
-        color: #C40D20;
-        padding: 30px;
-        height: 7em;
-    }
-
-    .LangSwitch-CurrentLogin-wapper{
-        width: 40%;
-    }
-    #calendar {
-        display: block;
-        width: 100%;
-    }
-}
