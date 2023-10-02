@@ -14,11 +14,15 @@ class HomeController extends Controller
 {
     public function getStart(): Response|RedirectResponse
     {
-        // FIXME: output
         $institutions = Institution::with('resource_groups')->active()->get();
+        $resource_groups = ResourceGroup::active()->get();
 
-        if ($institutions->count() == 1) {
-            return redirect()->route('home', $institutions->first()->slug);
+        if ($resource_groups->count() == 1) {
+            return redirect()->route('home', [
+                'institution_slug' => $resource_groups->first()->institution->slug,
+                'resource_group_slug' => $resource_groups->first()->slug,
+            ]
+            );
         }
 
         return Inertia::render('Start', [
