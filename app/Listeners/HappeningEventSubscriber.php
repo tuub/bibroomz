@@ -6,10 +6,7 @@ use App\Events\HappeningVerifiedEvent;
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningUpdatedEvent;
-use App\Mail\HappeningVerifiedMail;
-use App\Mail\HappeningCreatedMail;
-use App\Mail\HappeningDeletedMail;
-use App\Mail\HappeningUpdatedMail;
+use App\Mail\HappeningMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\MailContent;
 use ReflectionClass;
@@ -29,7 +26,7 @@ class HappeningEventSubscriber
 
         if ($mail_content && $mail_content->is_active) {
             Mail::to($event->user)
-                ->queue(new HappeningCreatedMail($event->happening, $mail_class, $mail_content));
+                ->queue(new HappeningMail($event->happening, $mail_class, $mail_content));
         }
     }
 
@@ -39,7 +36,7 @@ class HappeningEventSubscriber
         $mail_content = $this->getMailContentForEvent($event, 'happening_updated');
         if ($mail_content && $mail_content->is_active) {
             Mail::to($event->user)
-                ->queue(new HappeningUpdatedMail($event->happening, $mail_class, $mail_content));
+                ->queue(new HappeningMail($event->happening, $mail_class, $mail_content));
         }
     }
 
@@ -49,7 +46,7 @@ class HappeningEventSubscriber
         $mail_content = $this->getMailContentForEvent($event, 'happening_deleted');
         if ($mail_content && $mail_content->is_active) {
             Mail::to($event->user)
-                ->queue(new HappeningDeletedMail($event->happening, $mail_class, $mail_content));
+                ->queue(new HappeningMail($event->happening, $mail_class, $mail_content));
         }
     }
 
@@ -59,7 +56,7 @@ class HappeningEventSubscriber
         $mail_content = $this->getMailContentForEvent($event, 'happening_verified');
         if ($mail_content && $mail_content->is_active) {
             Mail::to($event->user)
-                ->queue(new HappeningVerifiedMail($event->happening, $mail_class, $mail_content));
+                ->queue(new HappeningMail($event->happening, $mail_class, $mail_content));
         }
     }
 
@@ -76,7 +73,7 @@ class HappeningEventSubscriber
     private function getMailContentForEvent($event, string $mail_type)
     {
         return MailContent::where('institution_id', $event->happening->resource->resource_group->institution->id)
-            ->whereHas('mail_type', function ($query) use($mail_type) {
+            ->whereHas('mail_type', function ($query) use ($mail_type) {
                 $query->where('key', $mail_type);
             })
             ->first();
