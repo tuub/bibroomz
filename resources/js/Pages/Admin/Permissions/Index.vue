@@ -32,12 +32,9 @@
                         {{ translate(permission.description) }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="route('admin.permission.edit', { id: permission.id })"
-                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                        >
-                            {{ $t("admin.permissions.index.table.actions.edit") }}
-                        </Link>
+                        <ActionLink action="edit"
+                                    model="permission"
+                                    :params="{id: permission.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -46,19 +43,12 @@
 </template>
 
 <script setup>
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
+import { useAppStore } from "@/Stores/AppStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import useModal from "@/Stores/Modal";
-import {useAppStore} from "@/Stores/AppStore";
-
-import { router } from "@inertiajs/vue3";
-import { Modal as FlowbiteModal } from "flowbite";
-import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 
 // ------------------------------------------------
 // Props
@@ -73,43 +63,10 @@ defineProps({
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const modal = useModal();
 const appStore = useAppStore();
-const actions = [];
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("route");
 const translate = appStore.translate;
-
-onBeforeMount(() => {
-    const deletePermissionLabel = computed(() => trans("popup.actions.delete"));
-
-    const deletePermissionAction = {
-        label: deletePermissionLabel,
-        callback: (permission) => {
-            router.visit(route("admin.permission.delete", { id: permission.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deletePermissionAction);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
 </script>

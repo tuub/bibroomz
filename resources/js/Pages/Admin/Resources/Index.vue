@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.resources.index.title')" :description="$t('admin.resources.index.description')" />
 
     <PopupModal />
-    <CreateAction model="resource" :params="{ resource_group_id: resourceGroup.id }"></CreateAction>
+    <CreateLink model="resource" :params="{ resource_group_id: resourceGroup.id }"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -75,59 +75,28 @@
                         <i v-if="!resource.is_verification_required" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <span v-if="hasPermission('edit_resources', resource.institution_id)">
-                            <Link
-                                :href="
-                                    route('admin.resource.edit', {
-                                        id: resource.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.resources.index.table.actions.edit") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('create_resources', resource.institution_id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.resource.clone', {
-                                        id: resource.id,
-                                    })
-                                "
-                                method="post"
-                                as="button"
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.resources.index.table.actions.clone") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('view_closings', resource.institution_id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.closing.index', {
-                                        closable_type: 'resource',
-                                        closable_id: resource.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.resources.index.table.actions.closings") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('delete_resources', resource.institution_id)">
-                            |
-                            <a
-                                :href="route('admin.resource.delete', { id: resource.id })"
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                                @click.prevent="
-                                    modal.open({}, { message: $t('popup.content.delete.resource') }, resource, actions)
-                                "
-                            >
-                                {{ $t("admin.resources.index.table.actions.delete") }}
-                            </a>
-                        </span>
+                        <!-- FIXME: resource.resource_group.institution.id? -->
+                        <ActionLink v-if="hasPermission('edit_resources', resource.institution_id)"
+                                    action="edit"
+                                    model="resource"
+                                    :params="{id: resource.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('create_resources', resource.institution_id)"
+                                    action="clone"
+                                    model="resource"
+                                    method="post"
+                                    as="button"
+                                    :params="{id: resource.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('view_closings', resource.institution_id)"
+                                    action="index"
+                                    model="closing"
+                                    :params="{closable_type: 'resource',closable_id: resource.id}" />
+                        |
+                        <DeleteLink v-if="hasPermission('delete_resources', resource.institution_id)"
+                                    model="resource"
+                                    :entity="resource"
+                                    :params="{id: resource.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -136,20 +105,19 @@
 </template>
 
 <script setup>
+import { useAuthStore } from "@/Stores/AuthStore";
+import { useAppStore } from "@/Stores/AppStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import { useAuthStore } from "@/Stores/AuthStore";
-import {useAppStore} from "@/Stores/AppStore";
-import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 
-import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -175,14 +143,6 @@ dayjs.extend(customParseFormat);
 // ------------------------------------------------
 const authStore = useAuthStore();
 const appStore = useAppStore();
-const modal = useModal();
-
-// ------------------------------------------------
-// Variables
-// ------------------------------------------------
-const { hasPermission } = authStore;
-const route = inject("route");
-const translate = appStore.translate;
 
 // ------------------------------------------------
 // Methods
@@ -194,38 +154,6 @@ const formatTime = (time) => {
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const actions = [];
-
-// ------------------------------------------------
-// Lifecycle
-// ------------------------------------------------
-onBeforeMount(() => {
-    const deleteResourceLabel = computed(() => trans("popup.actions.delete"));
-
-    const deleteResourceAction = {
-        label: deleteResourceLabel,
-        callback: (resource) => {
-            router.visit(route("admin.resource.delete", { id: resource.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deleteResourceAction);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
+const translate = appStore.translate;
+const { hasPermission } = authStore;
 </script>

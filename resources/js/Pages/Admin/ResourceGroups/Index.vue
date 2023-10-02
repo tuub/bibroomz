@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.resource_groups.index.title')" :description="$t('admin.resource_groups.index.description')" />
 
     <PopupModal />
-    <CreateAction model="resource_group"></CreateAction>
+    <CreateLink model="resource_group"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -55,43 +55,20 @@
                         <i v-if="!resource_group.is_active" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <span v-if="hasPermission('edit_resource_groups', resource_group.institution_id)">
-                            <Link
-                                :href="
-                                    route('admin.resource_group.edit', {
-                                        id: resource_group.id,
-                                    })
-                                "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >
-                                {{ $t("admin.resource_groups.index.table.actions.edit") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('view_resources', resource_group.institution_id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.resource.index', {
-                                        resource_group_id: resource_group.id,
-                                    })
-                                "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >
-                                {{ $t("admin.resource_groups.index.table.actions.resources") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('delete_resource_groups', resource_group.institution_id)">
-                            |
-                            <a
-                                :href="route('admin.resource_group.delete', { id: resource_group.id })"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                @click.prevent="
-                                    modal.open({}, { message: $t('popup.content.delete.resource') }, resource_group, actions)
-                                "
-                            >
-                                {{ $t("admin.resource_groups.index.table.actions.delete") }}
-                            </a>
-                        </span>
+                        <ActionLink v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
+                                    action="edit"
+                                    model="resource_group"
+                                    :params="{id: resource_group.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('view_resources', resource_group.institution_id)"
+                                    action="index"
+                                    model="resource"
+                                    :params="{id: resource_group.id}" />
+                        |
+                        <DeleteLink v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
+                                    model="resource_group"
+                                    :entity="resource_group"
+                                    :params="{id: resource_group.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -100,20 +77,18 @@
 </template>
 
 <script setup>
+import { useAuthStore } from "@/Stores/AuthStore";
+import { useAppStore } from "@/Stores/AppStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import { useAuthStore } from "@/Stores/AuthStore";
-import { useAppStore } from "@/Stores/AppStore";
-import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 
-import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Modal as FlowbiteModal } from "flowbite";
-import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -135,12 +110,6 @@ dayjs.extend(customParseFormat);
 // ------------------------------------------------
 const authStore = useAuthStore();
 const appStore = useAppStore();
-const modal = useModal();
-
-const { hasPermission } = authStore;
-
-const route = inject("route");
-const translate = appStore.translate;
 
 // ------------------------------------------------
 // Methods
@@ -152,38 +121,6 @@ const formatTime = (time) => {
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const actions = [];
-
-// ------------------------------------------------
-// Lifecycle
-// ------------------------------------------------
-onBeforeMount(() => {
-    const deleteResourceGroupLabel = computed(() => trans("popup.actions.delete"));
-
-    const deleteResourceGroupAction = {
-        label: deleteResourceGroupLabel,
-        callback: (resource_group) => {
-            router.visit(route("admin.resource_group.delete", { id: resource_group.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deleteResourceGroupAction);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
+const translate = appStore.translate;
+const { hasPermission } = authStore;
 </script>

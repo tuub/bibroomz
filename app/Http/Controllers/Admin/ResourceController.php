@@ -124,7 +124,7 @@ class ResourceController extends Controller
 
     public function cloneResource(CloneResourceRequest $request)
     {
-        $resource_original = Resource::with('institution', 'closings', 'business_hours', 'business_hours.week_days')
+        $resource_original = Resource::with('resource_group', 'closings', 'business_hours', 'business_hours.week_days')
             ->findOrFail($request->id);
 
         $resource_copy = $resource_original->replicate();

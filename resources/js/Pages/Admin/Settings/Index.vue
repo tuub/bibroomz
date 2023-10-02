@@ -39,12 +39,9 @@
                         {{ setting.value }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="route('admin.setting.edit', { id: setting.id })"
-                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                        >
-                            {{ $t("admin.settings.index.table.actions.edit") }}
-                        </Link>
+                        <ActionLink action="edit"
+                                    model="setting"
+                                    :params="{id: setting.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -53,9 +50,11 @@
 </template>
 
 <script setup>
+import {useAppStore} from "@/Stores/AppStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import {useAppStore} from "@/Stores/AppStore";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 
 // ------------------------------------------------
 // Props

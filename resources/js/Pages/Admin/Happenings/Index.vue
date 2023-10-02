@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.happenings.index.title')" :description="$t('admin.happenings.index.description')" />
 
     <PopupModal />
-    <CreateAction model="happening"></CreateAction>
+    <CreateLink model="happening"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -91,35 +91,15 @@
                         <i v-else class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <span v-if="hasPermission('edit_happenings', happening.resource.institution_id)">
-                            <Link
-                                :href="
-                                    route('admin.happening.edit', {
-                                        id: happening.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.happenings.index.table.actions.edit") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('delete_happenings', happening.resource.institution_id)">
-                            |
-                            <a
-                                :href="route('admin.happening.delete', { id: happening.id })"
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                                @click.prevent="
-                                    modal.open(
-                                        {},
-                                        { message: $t('popup.content.delete.happening') },
-                                        happening,
-                                        actions,
-                                    )
-                                "
-                            >
-                                {{ $t("admin.happenings.index.table.actions.delete") }}
-                            </a>
-                        </span>
+                        <ActionLink v-if="hasPermission('edit_happenings', happening.resource.institution_id)"
+                                    action="edit"
+                                    model="happening"
+                                    :params="{id: happening.id}" />
+                        |
+                        <DeleteLink v-if="hasPermission('delete_happenings', happening.resource.institution_id)"
+                                    model="happening"
+                                    :entity="happening"
+                                    :params="{id: happening.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -128,20 +108,18 @@
 </template>
 
 <script setup>
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 
-import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Modal as FlowbiteModal } from "flowbite";
-import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
-import {useAuthStore} from "@/Stores/AuthStore";
-import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -161,10 +139,9 @@ dayjs.extend(utc);
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const modal = useModal();
 const appStore = useAppStore();
 const authStore = useAuthStore();
-const { hasPermission } = authStore;
+
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
@@ -183,40 +160,6 @@ const isPastHappening = (happening) => {
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const actions = [];
-const route = inject("route");
 const translate = appStore.translate;
-
-// ------------------------------------------------
-// Lifecycle
-// ------------------------------------------------
-onBeforeMount(() => {
-    const deleteHappeningLabel = computed(() => trans("popup.actions.delete"));
-
-    const deleteHappeningAction = {
-        label: deleteHappeningLabel,
-        callback: (happening) => {
-            router.visit(route("admin.happening.delete", { id: happening.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deleteHappeningAction);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
+const { hasPermission } = authStore;
 </script>

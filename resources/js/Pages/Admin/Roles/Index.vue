@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.roles.index.title')" :description="$t('admin.roles.index.description')" />
 
     <PopupModal />
-    <CreateAction model="role"></CreateAction>
+    <CreateLink model="role"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -44,20 +44,13 @@
                         }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <Link
-                            :href="route('admin.role.edit', { id: role.id })"
-                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                        >
-                            {{ $t("admin.roles.index.table.actions.edit") }}
-                        </Link>
+                        <ActionLink action="edit"
+                                    model="role"
+                                    :params="{id: role.id}" />
                         |
-                        <a
-                            :href="route('admin.role.delete', { id: role.id })"
-                            class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            @click.prevent="modal.open({}, { message: $t('popup.content.delete.role') }, role, actions)"
-                        >
-                            {{ $t("admin.roles.index.table.actions.delete") }}
-                        </a>
+                        <DeleteLink model="role"
+                                    :entity="role"
+                                    :params="{id: role.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -66,20 +59,18 @@
 </template>
 
 <script setup>
-// IMPORTS
+import { useAppStore } from "@/Stores/AppStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 
-import { router } from "@inertiajs/vue3";
-import { Modal as FlowbiteModal } from "flowbite";
-import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
-import {useAppStore} from "@/Stores/AppStore";
-
-// PROPS
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
 defineProps({
     roles: {
         type: Object,
@@ -87,45 +78,13 @@ defineProps({
     },
 });
 
-// STORES
-const modal = useModal();
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
 const appStore = useAppStore();
 
-// INJECT
-const route = inject("route");
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const translate = appStore.translate;
-
-// STATE
-const actions = [];
-
-// LIFE CYCLE
-onBeforeMount(() => {
-    const deleteRoleLabel = computed(() => trans("popup.actions.delete"));
-
-    const deleteRoleAction = {
-        label: deleteRoleLabel,
-        callback: (role) => {
-            router.visit(route("admin.role.delete", { id: role.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deleteRoleAction);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
 </script>

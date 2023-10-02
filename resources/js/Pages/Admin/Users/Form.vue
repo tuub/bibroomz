@@ -140,3 +140,4 @@ const form = useForm({
     banned_at: props.user.banned_at ?? "",
     roles: props.user.roles ?? [],
 });
+</script>

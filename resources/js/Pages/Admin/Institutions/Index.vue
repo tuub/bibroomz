@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.institutions.index.title')" :description="$t('admin.institutions.index.description')" />
 
     <PopupModal />
-    <CreateAction model="institution"></CreateAction>
+    <CreateLink model="institution"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -52,75 +52,30 @@
                         <i v-if="!institution.is_active" class="ri-close-circle-line text-red-500"></i>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <span v-if="hasPermission('edit_institution', institution.id)">
-                            <Link
-                                :href="
-                                    route('admin.institution.edit', {
-                                        id: institution.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.institutions.index.table.actions.edit") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('view_closings', institution.id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.closing.index', {
-                                        closable_type: 'institution',
-                                        closable_id: institution.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.institutions.index.table.actions.closings") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('edit_institution', institution.id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.setting.index', {
-                                        institution_id: institution.id,
-                                    })
-                                "
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >
-                                {{ $t("admin.institutions.index.table.actions.settings") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('view_mails', institution.id)">
-                            |
-                            <Link
-                                :href="
-                                    route('admin.mail.index', {
-                                        institution_id: institution.id,
-                                    })
-                                "
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >
-                                {{ $t("admin.institutions.index.table.actions.mails") }}
-                            </Link>
-                        </span>
-                        <span v-if="hasPermission('delete_institution', institution.id)">
-                            |
-                            <a
-                                :href="route('admin.institution.delete', { id: institution.id })"
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                                @click.prevent="
-                                    modal.open(
-                                        {},
-                                        { message: $t('popup.content.delete.institution') },
-                                        institution,
-                                        actions,
-                                    )
-                                "
-                            >
-                                {{ $t("admin.institutions.index.table.actions.delete") }}
-                            </a>
-                        </span>
+                        <ActionLink v-if="hasPermission('edit_institution', institution.id)"
+                                     action="edit"
+                                     model="institution"
+                                     :params="{id: institution.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('view_closings', institution.id)"
+                                    action="index"
+                                    model="closing"
+                                    :params="{closable_type: 'institution',closable_id: institution.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('edit_institution', institution.id)"
+                                    action="index"
+                                    model="setting"
+                                    :params="{institution_id: institution.id}" />
+                        |
+                        <ActionLink v-if="hasPermission('view_mails', institution.id)"
+                                    action="index"
+                                    model="mail"
+                                    :params="{institution_id: institution.id}" />
+                        |
+                        <DeleteLink v-if="hasPermission('delete_institution', institution.id)"
+                                    model="institution"
+                                    :entity="institution"
+                                    :params="{id: institution.id}" />
                     </td>
                 </tr>
             </tbody>
@@ -129,13 +84,15 @@
 </template>
 
 <script setup>
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import { useAppStore } from "@/Stores/AppStore";
-import { useAuthStore } from "@/Stores/AuthStore";
-import useModal from "@/Stores/Modal";
-import CreateAction from "@/Components/Admin/CreateAction.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -164,46 +121,10 @@ dayjs.extend(customParseFormat);
 // ------------------------------------------------
 const authStore = useAuthStore();
 const appStore = useAppStore();
-const modal = useModal();
-
-const { hasPermission } = authStore;
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("route");
 const translate = appStore.translate;
-const actions = [];
-
-// ------------------------------------------------
-// Lifecycle
-// ------------------------------------------------
-onBeforeMount(() => {
-    const deleteInstitutionLabel = computed(() => trans("popup.actions.delete"));
-
-    const deleteInstitutionAction = {
-        label: deleteInstitutionLabel,
-        callback: (institution) => {
-            router.visit(route("admin.institution.delete", { id: institution.id }), {
-                method: "post",
-                preserveScroll: true,
-            });
-        },
-    };
-
-    actions.push(deleteInstitutionAction);
-});
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
-});
+const { hasPermission } = authStore;
 </script>
