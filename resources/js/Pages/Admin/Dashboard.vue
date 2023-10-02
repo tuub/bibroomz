@@ -24,13 +24,6 @@
             icon="ri-user-fill"
         ></DashboardCard>
         <DashboardCard
-            v-if="hasPermission('view_resources')"
-            :title="$t('admin.resources.index.title')"
-            :description="$t('admin.resources.index.description')"
-            :link="route('admin.resource.index')"
-            icon="ri-map-pin-fill"
-        ></DashboardCard>
-        <DashboardCard
             v-if="hasPermission('view_users')"
             :title="$t('admin.users.index.title')"
             :description="$t('admin.users.index.description')"

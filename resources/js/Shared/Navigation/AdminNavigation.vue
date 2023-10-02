@@ -107,8 +107,10 @@ const isPageInstitutions = computed(() => {
 });
 
 const isPageResourceGroups = computed(() => {
-    //const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
-    return inertiaPage.component.startsWith("Admin/ResourceGroups");
+    const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
+    return inertiaPage.component.startsWith("Admin/ResourceGroups") ||
+        inertiaPage.component.startsWith("Admin/Resources") ||
+        isClosingsPage;
 });
 
 const isPageUsers = computed(() => {

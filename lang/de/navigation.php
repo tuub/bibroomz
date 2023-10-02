@@ -16,7 +16,7 @@ return [
         'dashboard' => 'Dashboard',
         'happenings' => 'Buchungen',
         'institutions' => 'Einrichtungen',
-        'resource_groups' => 'Ressourcen',
+        'resource_groups' => 'Ressource-Gruppen',
         'users' => 'Benutzer:innen',
         'roles' => 'Rollen',
         'permissions' => 'Berechtigungen',

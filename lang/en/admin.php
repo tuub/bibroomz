@@ -212,6 +212,67 @@ return [
             ],
         ],
     ],
+    'resource_groups' => [
+        'index' => [
+            'title' => 'Ressource Groups',
+            'description' => 'Ressource groups create, edit delete',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'slug' => 'Slug',
+                    'institution' => 'Institution',
+                    'description' => 'Description',
+                    'is_active' => 'Active?',
+                ],
+                'actions' => [
+                    'create' => 'Ressource-Gruppe erstellen',
+                    'edit' => 'Bearbeiten',
+                    'resources' => 'Ressourcen',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Ressource-Gruppen',
+            'description' => 'Ressource-Gruppe erstellen / bearbeiten',
+            'fields' => [
+                'institution' => [
+                    'label' => 'Einrichtung',
+                    'placeholder' => 'Die Einrichtung',
+                    'hint' => 'Über die Einrichtung',
+                ],
+                'name' => [
+                    'label' => 'Name',
+                    'placeholder' => 'Name der Gruppe',
+                    'hint' => 'Über den Namen der Ressoure-Gruppe',
+                ],
+                'slug' => [
+                    'label' => 'Slug',
+                    'placeholder' => 'URI-Slug of the resource group',
+                    'hint' => 'About the URI-Slug of the resource group',
+                ],
+                'term_singular' => [
+                    'label' => 'Singular',
+                    'placeholder' => 'Bezeichnung im Singular',
+                    'hint' => 'Über die Bezeichnung im Singular',
+                ],
+                'term_plural' => [
+                    'label' => 'Plural',
+                    'placeholder' => 'Bezeichnung im Plural',
+                    'hint' => 'Über die Bezeichnung im Plural',
+                ],
+                'description' => [
+                    'label' => 'Beschreibung',
+                    'placeholder' => 'Die Beschreibung',
+                    'hint' => 'Über die Beschreibung',
+                ],
+                'is_active' => [
+                    'label' => 'Aktiv?',
+                    'hint' => 'Aktiv ja/nein',
+                ],
+            ],
+        ],
+    ],
     'resources' => [
         'index' => [
             'title' => 'Resources',
