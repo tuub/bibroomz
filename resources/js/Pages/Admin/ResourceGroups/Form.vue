@@ -37,6 +37,22 @@
             :errors="form.errors"
         ></TranslatableFormInput>
 
+        {{ form }}
+
+        <!-- Input: Slug -->
+        <div class="mb-6">
+            <FormLabel field="slug" field-key="admin.resource_groups.form.fields.slug"></FormLabel>
+            <input
+                id="slug"
+                v-model="form.slug"
+                type="text"
+                name="slug"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                :placeholder="$t('admin.resource_groups.form.fields.slug.placeholder')"
+            />
+            <FormValidationError :message="form.errors.slug"></FormValidationError>
+        </div>
+
         <!-- Input: Term singular -->
         <TranslatableFormInput
             v-model="form.term_singular"
@@ -135,7 +151,7 @@ const form = useForm({
     id: props.resource_group?.id ?? "",
     institution_id: props.resource_group?.institution_id ?? "",
     name: props.resource_group?.name ?? {},
-    slug: props.resource_group?.slug ?? {},
+    slug: props.resource_group?.slug ?? "",
     term_singular: props.resource_group?.term_singular ?? {},
     term_plural: props.resource_group?.term_plural ?? {},
     description: props.resource_group?.description ?? {},
