@@ -12,7 +12,6 @@ use App\Http\Requests\UpdateHappeningRequest;
 use App\Http\Requests\VerifyHappeningRequest;
 use App\Library\Utility;
 use App\Models\Happening;
-use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
@@ -284,23 +283,32 @@ class HappeningController extends Controller
         // check if resource is closed
         [$closed] = $resource->findClosed($start, $end);
         if ($closed) {
-            abort(400, 'Resource is closed.');
+            abort(400, __('happening.errors.closing', [
+                'resource_type' => $resource->resource_group->term_singular,
+                'resource_title' => $resource->title,
+            ]));
         }
 
         // check if resource is open
         [$open] = $resource->findOpen($start, $end);
         if (!$open) {
-            abort(400, 'Resource is not open.');
+            abort(400, __('happening.errors.business_hours', [
+                'resource_type' => $resource->resource_group->term_singular,
+                'resource_title' => $resource->title,
+            ]));
         }
 
         // check if something is already happening
         if ($resource->isHappening($start, $end, $happening)) {
-            abort(400, 'Something is already happening.');
+            abort(400, __('happening.errors.reserved', [
+                'resource_type' => $resource->resource_group->term_singular,
+                'resource_title' => $resource->title,
+            ]));
         }
 
         // check if user is exceeding quotas
         if ($resource->isExceedingQuotas($start, $end, $happening)) {
-            abort(400, 'Exceeding quotas.');
+            abort(400, __('happening.errors.quotas'));
         }
 
         // check if user has concurrent happening
@@ -308,7 +316,7 @@ class HappeningController extends Controller
             !$user->can('edit', $resource->resource_group->institution)
             && $user->isHavingConcurrentHappening($start, $end, $happening)
         ) {
-            abort(400, 'You can only have one happening at the same time!');
+            abort(400, __('happening.errors.concurrent'));
         }
     }
 }
