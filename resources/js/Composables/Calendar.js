@@ -211,16 +211,17 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         return { domNodes: [title, link] };
     }
 
-    function getSlotLabel(slotInfo) {
-        if (appStore.locale === "de") {
-            return dayjs(slotInfo.date).utc().format("HH:mm");
-        } else {
-            return dayjs(slotInfo.date).utc().format("hh:mm a");
-        }
-    }
-
     function getHiddenDays() {
         return hiddenDays;
+    }
+
+    function getTimeFormat() {
+        return {
+            hour: "numeric",
+            minute: "2-digit",
+            meridiem: false,
+            hour12: false,
+        };
     }
 
     const defaultCalendarOptions = {
@@ -267,12 +268,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         eventClick: onEventClick,
         datesSet: onDatesSet,
         resourceLabelContent: getResourceInfoLabel,
-        slotLabelContent: getSlotLabel,
-        eventTimeFormat: {
-            hour: "numeric",
-            minute: "2-digit",
-            meridiem: "short",
-        },
+        slotLabelFormat: getTimeFormat(),
+        eventTimeFormat: getTimeFormat(),
     };
 
     return {
