@@ -13,7 +13,6 @@ use Carbon\Exceptions\InvalidTimeZoneException;
 use Carbon\Exceptions\InvalidTypeException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -67,14 +66,6 @@ class Resource extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-    // FIXME: DEPRECATED
-    /*
-    public function institution(): BelongsTo
-    {
-        return $this->belongsTo(Institution::class);
-    }
-    */
-
     public function resource_group(): BelongsTo
     {
         return $this->belongsTo(ResourceGroup::class);
@@ -713,5 +704,10 @@ class Resource extends Model
     public function isUserAbleToCreateHappening(User $user): bool
     {
         return $user->can('adminCreate', [Happening::class, $this->resource_group->institution]);
+    }
+
+    public function getHappenings()
+    {
+        return $this->happenings;
     }
 }

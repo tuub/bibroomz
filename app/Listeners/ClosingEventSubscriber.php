@@ -8,6 +8,7 @@ use App\Mail\ClosingCreatedMail;
 use App\Mail\ClosingUpdatedMail;
 use App\Models\Institution;
 use App\Models\MailContent;
+use App\Models\Resource;
 use Illuminate\Support\Facades\Mail;
 use ReflectionClass;
 
@@ -46,10 +47,10 @@ class ClosingEventSubscriber
     private function getMailContentForEvent($event, string $mail_type)
     {
         $closable = $event->closing->closable;
-        $institution = $closable instanceof Institution ? $closable : $closable->institution;
+        $institution = $closable instanceof Institution ? $closable : $closable->resource_group->institution;
 
         return MailContent::where('institution_id', $institution->id)
-            ->whereHas('mail_type', function ($query) use($mail_type) {
+            ->whereHas('mail_type', function ($query) use ($mail_type) {
                 $query->where('key', $mail_type);
             })
             ->first();

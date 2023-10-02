@@ -65,7 +65,7 @@ class Closing extends Model
 
     public function getHappeningsAffected()
     {
-        return $this->closable->happenings
+        return $this->closable->getHappenings()
             ->where('end', '>', $this->start)
             ->where('start', '<', $this->end);
     }

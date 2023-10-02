@@ -3,7 +3,7 @@
     use App\Models\Resource;
 
     $closable = $closing->closable;
-    $institution = $closable instanceof Institution ? $closable : $closable->institution;
+    $institution = $closable instanceof Institution ? $closable : $closable->resource_group->institution;
 @endphp
 
 - @lang('email.closing.data.start.label'): {{ \Carbon\Carbon::parse($closing->start)->format('d.m.Y H:i') }}

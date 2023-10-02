@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -48,14 +49,6 @@ class Institution extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-    // FIXME: DEPRECATED
-    /*
-    public function resources(): HasMany
-    {
-        return $this->hasMany(Resource::class);
-    }
-    */
-
     public function resource_groups(): HasMany
     {
         return $this->hasMany(ResourceGroup::class);
@@ -79,11 +72,6 @@ class Institution extends Model
     public function resources(): HasManyThrough
     {
         return $this->hasManyThrough(Resource::class, ResourceGroup::class);
-    }
-
-    public function happenings(): HasManyThrough
-    {
-        return $this->hasManyThrough(Happening::class, Resource::class);
     }
 
     public function users(): BelongsToMany
@@ -126,5 +114,16 @@ class Institution extends Model
             ->map(function ($week_day) {
                 return $week_day->day_of_week;
             });
+    }
+
+    public function getHappenings()
+    {
+        return Happening::whereHas(
+            'resource',
+            fn (Builder $q) => $q->whereHas(
+                'resource_group',
+                fn (Builder $q) => $q->where('institution_id', $this->id)
+            )
+        )->get();
     }
 }
