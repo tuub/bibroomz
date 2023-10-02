@@ -37,8 +37,6 @@
             :errors="form.errors"
         ></TranslatableFormInput>
 
-        {{ form }}
-
         <!-- Input: Slug -->
         <div class="mb-6">
             <FormLabel field="slug" field-key="admin.resource_groups.form.fields.slug"></FormLabel>
