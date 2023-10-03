@@ -3,7 +3,7 @@
     <BodyHead :title="$t('admin.resources.index.title')" :description="$t('admin.resources.index.description')" />
 
     <PopupModal />
-    <CreateAction model="resource"></CreateAction>
+    <CreateAction model="resource" :params="{ resource_group_id: resourceGroup.id }"></CreateAction>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -155,6 +155,10 @@ import { computed, inject, onBeforeMount, onMounted } from "vue";
 // Props
 // ------------------------------------------------
 defineProps({
+    resourceGroup: {
+        type: Object,
+        required: true,
+    },
     resources: {
         type: Object,
         default: () => ({}),

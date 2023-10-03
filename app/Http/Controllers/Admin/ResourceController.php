@@ -7,8 +7,8 @@ use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Http\Requests\Admin\UpdateResourceRequest;
 use App\Http\Requests\Admin\CloneResourceRequest;
 use App\Models\BusinessHour;
-use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 use App\Models\WeekDay;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -21,18 +21,20 @@ class ResourceController extends Controller
     public function getResources(Request $request): Response
     {
         $resources = Resource::with(['resource_group', 'business_hours', 'business_hours.week_days', 'closings'])
-            ->where('resource_group_id', $request->id)
+            ->where('resource_group_id', $request->resource_group_id)
             ->orderBy('title')->get()
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/Resources/Index', [
+            'resourceGroup' => ResourceGroup::findOrFail($request->resource_group_id),
             'resources' => $resources,
         ]);
     }
 
-    public function createResource(): Response
+    public function createResource(Request $request): Response
     {
         return Inertia::render('Admin/Resources/Form', [
+            'resourceGroup' => ResourceGroup::findOrFail($request->resource_group_id),
             'weekDays' => WeekDay::get(),
             'languages' => config('app.supported_locales'),
         ]);
@@ -45,7 +47,7 @@ class ResourceController extends Controller
         $resource = Resource::create($validated->except('business_hours'));
         $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
 
-        return redirect()->route('admin.resource.index');
+        return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
 
     public function editResource(Request $request): Response
@@ -58,6 +60,7 @@ class ResourceController extends Controller
         $this->authorize('edit', $resource);
 
         return Inertia::render('Admin/Resources/Form', [
+            'resourceGroup' => $resource->resource_group,
             'resource' => [
                 ...$resource->only([
                     'id',
@@ -94,7 +97,7 @@ class ResourceController extends Controller
 
         $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
 
-        return redirect()->route('admin.resource.index');
+        return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
 
     public function deleteResource(Request $request): RedirectResponse
@@ -103,7 +106,7 @@ class ResourceController extends Controller
         $this->authorize('delete', $resource);
         $resource->delete();
 
-        return redirect()->route('admin.resource.index');
+        return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
 
     private function updateOrCreateBusinessHours($business_hours, $resource)

@@ -72,7 +72,7 @@
                             <Link
                                 :href="
                                     route('admin.resource.index', {
-                                        id: resource_group.id,
+                                        resource_group_id: resource_group.id,
                                     })
                                 "
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"

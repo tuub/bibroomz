@@ -3,30 +3,6 @@
     <BodyHead :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')" />
 
     <form class="max-w mx-auto mt-8">
-        <!-- Select: Institution -->
-        <div class="mb-6">
-            <FormLabel field="institution_id" field-key="admin.resources.form.fields.institution"></FormLabel>
-            <select
-                id="institution_id"
-                v-model="form.institution_id"
-                name="institution_id"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                required
-            >
-                <option value="">
-                    {{ $t("admin.general.form.choose") }}
-                </option>
-
-                <option v-for="institution in institutions" :key="institution.id" :value="institution.id">
-                    {{ translate(institution.title) }}
-                </option>
-            </select>
-            <FormValidationError
-                v-if="form.errors.institution_id"
-                :message="form.errors.institution_id"
-            ></FormValidationError>
-        </div>
-
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -173,16 +149,14 @@
     </form>
 </template>
 <script setup>
+import BusinessHourField from "@/Components/Admin/BusinessHourField.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import {useAppStore} from "@/Stores/AppStore";
-
-import BusinessHourField from "../../../Components/Admin/BusinessHourField.vue";
 
 import { useForm } from "@inertiajs/vue3";
 
@@ -190,13 +164,13 @@ import { useForm } from "@inertiajs/vue3";
 // Props
 // ------------------------------------------------
 const props = defineProps({
+    resourceGroup: {
+        type: Object,
+        required: true,
+    },
     resource: {
         type: Object,
         default: () => ({}),
-    },
-    institutions: {
-        type: Array,
-        default: () => [],
     },
     weekDays: {
         type: Array,
@@ -209,18 +183,10 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const appStore = useAppStore();
-
-// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = appStore.translate;
-
 const form = useForm({
     id: props.resource?.id ?? "",
-    institution_id: props.resource?.institution_id ?? "",
     title: props.resource?.title ?? {},
     location: props.resource?.location ?? {},
     location_uri: props.resource?.location_uri ?? "",
@@ -229,6 +195,7 @@ const form = useForm({
     is_active: props.resource?.is_active ?? false,
     is_verification_required: props.resource?.is_verification_required ?? true,
     business_hours: props.resource?.business_hours ?? [],
+    resource_group_id: props.resourceGroup.id,
 });
 
 // ------------------------------------------------
