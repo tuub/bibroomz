@@ -83,12 +83,10 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <i v-if="happening.is_verified" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-else class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="happening.is_verified" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <i v-if="isPastHappening(happening)" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-else class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="isPastHappening(happening)" />
                     </td>
                     <td class="px-6 py-4 text-right">
                         <ActionLink v-if="hasPermission('edit_happenings', happening.resource.institution_id)"
@@ -117,6 +115,7 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";

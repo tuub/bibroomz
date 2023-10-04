@@ -51,8 +51,7 @@
                         {{ translate(resource_group.description) }}
                     </td>
                     <td class="px-6 py-4 align-top text-center">
-                        <i v-if="resource_group.is_active" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-if="!resource_group.is_active" class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="resource_group.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
                         <ActionLink v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
@@ -86,6 +85,7 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";

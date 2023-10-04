@@ -38,8 +38,7 @@
                         {{ translate(mail.subject) }}
                     </td>
                     <td class="px-6 py-4 align-top text-center">
-                        <i v-if="mail.is_active" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-if="!mail.is_active" class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="mail.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
                         <ActionLink v-if="hasPermission('edit_mails', mail.institution_id)"
@@ -68,6 +67,7 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";

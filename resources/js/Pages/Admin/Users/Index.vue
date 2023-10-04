@@ -44,15 +44,13 @@
                         {{ user.email }}
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <i v-if="user.is_admin" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-else class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="user.is_admin" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <i v-if="user.roles?.length > 0" class="ri-checkbox-circle-line text-green-500"></i>
+                        <BooleanField :is-true="user.roles?.length > 0" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <i v-if="user.banned_at === ''" class="ri-checkbox-circle-line text-green-500"></i>
-                        <i v-if="user.banned_at !== ''" class="ri-close-circle-line text-red-500"></i>
+                        <BooleanField :is-true="user.banned_at === ''" />
                     </td>
                     <td class="px-6 py-4 text-center">
                         {{ user.happenings.length }}
@@ -75,9 +73,10 @@
 <script setup>
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import PopupModal from "@/Shared/PopupModal.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 // ------------------------------------------------
 // Props
