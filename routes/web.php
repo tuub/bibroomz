@@ -135,7 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Closings */
     Route::get('/admin/{closable_type}/{closable_id}/closings', [AdminClosingController::class, 'getClosings'])
         ->name('admin.closing.index');
-    Route::get('/admin/closing/{closable_type}/{closable_id}/create', [AdminClosingController::class, 'createClosing'])
+    Route::get('/admin/{closable_type}/{closable_id}/closing/create', [AdminClosingController::class, 'createClosing'])
         ->name('admin.closing.create');
     Route::get('/admin/closing/edit/{id}', [AdminClosingController::class, 'editClosing'])
         ->name('admin.closing.edit');
