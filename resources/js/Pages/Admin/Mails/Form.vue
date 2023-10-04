@@ -17,7 +17,7 @@
                 </option>
 
                 <option v-for="mail_type in mail_types" :key="mail_type.id" :value="mail_type.id">
-                    {{ $t("admin.mails.mail_types." + mail_type.name) }}
+                    {{ $t("admin.mails.mail_types." + mail_type.key) }}
                 </option>
             </select>
             <FormValidationError
