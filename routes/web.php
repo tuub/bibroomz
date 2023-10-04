@@ -5,10 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\AdminController;
-
 use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
 use App\Http\Controllers\Admin\ResourceGroupController as AdminResourceGroupController;
 use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
@@ -20,6 +17,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
 use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,9 +61,10 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('happening.delete');
 
     // API calls
-    Route::post('/{institution_slug}/{resource_group_slug}/resource/{id}/time_slots',
-        [ResourceController::class, 'getTimeSlots'])
-        ->name('resource.time_slots');
+    Route::post(
+        '/{institution_slug}/{resource_group_slug}/resource/{id}/time_slots',
+        [ResourceController::class, 'getTimeSlots']
+    )->name('resource.time_slots');
 
     /* Admins */
 

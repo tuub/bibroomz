@@ -99,7 +99,7 @@ class MailController extends Controller
     }
 
 
-    private function getMissingMailTypes(String $institution_id)
+    private function getMissingMailTypes(string $institution_id)
     {
         return MailType::orderBy('key')->get()->filter(function ($mail_type) use ($institution_id) {
             return MailContent::where('institution_id', $institution_id)
