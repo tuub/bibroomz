@@ -14,9 +14,9 @@ use Inertia\Response;
 
 class MailController extends Controller
 {
-    public function getMails(Request $request)
+    public function getMails(Request $request): Response
     {
-        $institution = Institution::findOrFail($request->id);
+        $institution = Institution::findOrFail($request->institution_id);
 
         $this->authorize('viewAny', [MailContent::class, $institution]);
 
@@ -29,9 +29,10 @@ class MailController extends Controller
         ]);
     }
 
-    public function createMail(Request $request)
+    public function createMail(Request $request): Response
     {
-        $institution = Institution::findOrFail($request->id);
+        $institution = Institution::findOrFail($request->institution_id);
+
         $this->authorize('create', [MailContent::class, $institution]);
 
         $mail_types = $this->getMissingMailTypes($institution->id);
@@ -52,7 +53,7 @@ class MailController extends Controller
         MailContent::create($validated);
 
         return redirect()->route('admin.mail.index', [
-            'id' => $institution->id,
+            'institution_id' => $institution->id,
         ]);
     }
 
@@ -82,7 +83,7 @@ class MailController extends Controller
         $mail->update($validated);
 
         return redirect()->route('admin.mail.index', [
-            'id' => $request->institution_id,
+            'institution_id' => $request->institution_id,
         ]);
     }
 
@@ -94,7 +95,7 @@ class MailController extends Controller
         $mail->delete();
 
         return redirect()->route('admin.mail.index', [
-            'id' => $mail->institution_id,
+            'institution_id' => $mail->institution_id,
         ]);
     }
 

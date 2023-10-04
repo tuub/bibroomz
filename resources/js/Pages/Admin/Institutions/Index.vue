@@ -83,7 +83,7 @@
                             <Link
                                 :href="
                                     route('admin.setting.index', {
-                                        id: institution.id,
+                                        institution_id: institution.id,
                                     })
                                 "
                                 class="font-medium text-red-600 dark:text-red-500 hover:underline"
@@ -96,7 +96,7 @@
                             <Link
                                 :href="
                                     route('admin.mail.index', {
-                                        id: institution.id,
+                                        institution_id: institution.id,
                                     })
                                 "
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"

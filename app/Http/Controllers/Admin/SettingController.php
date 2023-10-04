@@ -15,7 +15,7 @@ class SettingController extends Controller
 {
     public function getSettings(Request $request): Response
     {
-        $institution = Institution::with('settings')->findOrFail($request->id);
+        $institution = Institution::with('settings')->findOrFail($request->institution_id);
 
         $this->authorize('viewAny', [Setting::class, $institution]);
 
@@ -44,6 +44,8 @@ class SettingController extends Controller
         $validated = $request->validated();
         $setting->update($validated);
 
-        return redirect()->route('admin.setting.index', ['id' => $setting->institution_id]);
+        return redirect()->route('admin.setting.index', [
+            'institution_id' => $setting->institution_id,
+        ]);
     }
 }

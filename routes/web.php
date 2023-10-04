@@ -147,7 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.closing.delete');
 
     /* Settings */
-    Route::get('/admin/institution/{id}/settings', [AdminSettingController::class, 'getSettings'])
+    Route::get('/admin/institution/{institution_id}/settings', [AdminSettingController::class, 'getSettings'])
         ->name('admin.setting.index');
     Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])
         ->name('admin.setting.edit');
@@ -155,9 +155,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.setting.update');
 
     /* Mails */
-    Route::get('/admin/institution/{id}/mails', [AdminMailController::class, 'getMails'])
+    Route::get('/admin/institution/{institution_id}/mails', [AdminMailController::class, 'getMails'])
         ->name('admin.mail.index');
-    Route::get('/admin/institution/{id}/mail/create', [AdminMailController::class, 'createMail'])
+    Route::get('/admin/institution/{institution_id}/mail/create', [AdminMailController::class, 'createMail'])
         ->name('admin.mail.create');
     Route::post('/admin/mail/store', [AdminMailController::class, 'storeMail'])
         ->name('admin.mail.store');
