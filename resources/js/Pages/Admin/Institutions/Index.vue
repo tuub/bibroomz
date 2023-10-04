@@ -56,19 +56,19 @@
                                      model="institution"
                                      :params="{id: institution.id}" />
                         |
-                        <ActionLink v-if="hasPermission('view_closings', institution.id)"
-                                    action="index"
-                                    model="closing"
+                        <RelationLink v-if="hasPermission('view_closings', institution.id)"
+                                    current="institution"
+                                    relation="closing"
                                     :params="{closable_type: 'institution',closable_id: institution.id}" />
                         |
-                        <ActionLink v-if="hasPermission('edit_institution', institution.id)"
-                                    action="index"
-                                    model="setting"
+                        <RelationLink v-if="hasPermission('edit_institution', institution.id)"
+                                    current="institution"
+                                    relation="setting"
                                     :params="{institution_id: institution.id}" />
                         |
-                        <ActionLink v-if="hasPermission('view_mails', institution.id)"
-                                    action="index"
-                                    model="mail"
+                        <RelationLink v-if="hasPermission('view_mails', institution.id)"
+                                    current="institution"
+                                    relation="mail"
                                     :params="{institution_id: institution.id}" />
                         |
                         <DeleteLink v-if="hasPermission('delete_institution', institution.id)"
@@ -92,14 +92,11 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
-import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Modal as FlowbiteModal } from "flowbite";
-import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props

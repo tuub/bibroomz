@@ -59,9 +59,9 @@
                                     model="resource_group"
                                     :params="{id: resource_group.id}" />
                         |
-                        <ActionLink v-if="hasPermission('view_resources', resource_group.institution_id)"
-                                    action="index"
-                                    model="resource"
+                        <RelationLink v-if="hasPermission('view_resources', resource_group.institution_id)"
+                                    current="resource_group"
+                                    relation="resource"
                                     :params="{id: resource_group.id}" />
                         |
                         <DeleteLink v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
@@ -85,6 +85,7 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 import dayjs from "dayjs";

@@ -86,9 +86,9 @@
                                     as="button"
                                     :params="{id: resource.id}" />
                         |
-                        <ActionLink v-if="hasPermission('view_closings', resource.institution_id)"
-                                    action="index"
-                                    model="closing"
+                        <RelationLink v-if="hasPermission('view_closings', resource.institution_id)"
+                                    current="resource"
+                                    relation="closing"
                                     :params="{closable_type: 'resource',closable_id: resource.id}" />
                         |
                         <DeleteLink v-if="hasPermission('delete_resources', resource.institution_id)"
@@ -112,6 +112,7 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 import dayjs from "dayjs";
