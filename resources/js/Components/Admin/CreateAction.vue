@@ -1,8 +1,7 @@
 <template>
-    <Link v-if="hasPermission('create_' + model + 's')"
-          :href="route('admin.' + model + '.create', params)">
+    <Link v-if="hasPermission('create_' + model + 's')" :href="route('admin.' + model + '.create', params)">
         <i class="ri-add-circle-line"></i>
-        {{ $t('admin.' + model + 's.index.table.actions.create') }}
+        {{ $t("admin." + model + "s.index.table.actions.create") }}
     </Link>
 </template>
 
@@ -12,14 +11,14 @@ import { useAuthStore } from "@/Stores/AuthStore";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
+defineProps({
     model: {
         type: String,
-        default: '',
+        default: "",
     },
     params: {
         type: Object,
-        default: {},
+        default: () => ({}),
     },
 });
 
@@ -32,5 +31,4 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const { hasPermission } = authStore;
-
 </script>
