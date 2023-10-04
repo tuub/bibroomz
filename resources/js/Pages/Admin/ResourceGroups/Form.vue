@@ -104,7 +104,8 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <FormAction :form="form" model="resource_group" cancel-route="admin.resource_group.index"></FormAction>
+        <FormAction :form="form" model="resource_group"
+                    cancel-route="admin.resource_group.index" />
     </form>
 </template>
 <script setup>

@@ -153,7 +153,7 @@
             </label>
         </div>
 
-        <FormAction :form="form" model="happening" cancel-route="admin.happening.index"></FormAction>
+        <FormAction :form="form" model="happening" cancel-route="admin.happening.index" />
     </form>
 </template>
 <script setup>

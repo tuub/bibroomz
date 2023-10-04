@@ -136,7 +136,7 @@
             </label>
         </div>
 
-        <FormAction :form="form" model="institution" cancel-route="admin.institution.index"></FormAction>
+        <FormAction :form="form" model="institution" cancel-route="admin.institution.index" />
     </form>
 </template>
 <script setup>

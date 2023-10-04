@@ -155,7 +155,9 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <FormAction :form="form" model="mail" cancel-route="admin.mail.index"></FormAction>
+        <FormAction :form="form" model="mail"
+                    cancel-route="admin.mail.index"
+                    :cancel-route-params="{institution_id:institution_id}" />
     </form>
 </template>
 <script setup>

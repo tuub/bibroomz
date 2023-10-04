@@ -84,21 +84,16 @@
             </template>
         </TranslatableFormField>
 
-        <div class="mb-6">
-            <button
-                type="submit"
-                class="bg-blue-400 text-white rounded py-2 px-4 hover:bg-blue-500"
-                :disabled="form.processing"
-            >
-                {{ $t("admin.closings.form.actions.submit") }}
-            </button>
-        </div>
+        <FormAction :form="form" model="closing"
+                    cancel-route="admin.closing.index"
+                    :cancel-route-params="{closable_id:closable.id,closable_type:closable_type}" />
     </form>
 </template>
 <script setup>
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormAction from "@/Components/Admin/FormAction.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";

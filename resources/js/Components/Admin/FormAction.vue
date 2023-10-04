@@ -37,6 +37,10 @@ const props = defineProps({
     cancelRoute: {
         type: String,
         default: null,
+    },
+    cancelRouteParams: {
+        type: Object,
+        default: () => ({}),
     }
 });
 
@@ -51,6 +55,6 @@ const submitForm = () => {
 };
 
 const cancelForm = () => {
-    router.visit(route(props.cancelRoute));
+    router.visit(route(props.cancelRoute, props.cancelRouteParams));
 };
 </script>

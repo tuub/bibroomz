@@ -34,7 +34,11 @@
             <FormValidationError :message="form.errors.value"></FormValidationError>
         </div>
 
-        <FormAction :form="form" model="setting" cancel-route="admin.setting.index"></FormAction>
+        {{ setting }}
+        <FormAction :form="form"
+                    model="setting"
+                    cancel-route="admin.setting.index"
+                    :cancel-route-params="{institution_id:setting.institution_id}" />
     </form>
 </template>
 <script setup>
