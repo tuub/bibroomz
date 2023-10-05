@@ -33,6 +33,7 @@ class Institution extends Model
         'home_uri',
         'logo_uri',
         'teaser_uri',
+        'email',
         'is_active',
     ];
 

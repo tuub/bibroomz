@@ -15,7 +15,7 @@ class InstitutionRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => [new RequiredWithTranslationRule],
+            'title' => [new RequiredWithTranslationRule()],
             'short_title' => ['required'],
             'slug' => ['required'],
             'location' => [],
@@ -23,6 +23,7 @@ class InstitutionRequest extends FormRequest
             'home_uri' => ['url'],
             'logo_uri' => ['url'],
             'teaser_uri' => ['url'],
+            'email' => ['email'],
             'is_active' => ['required'],
         ];
     }
