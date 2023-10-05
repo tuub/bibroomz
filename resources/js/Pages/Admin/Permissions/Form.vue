@@ -25,13 +25,12 @@
     </form>
 </template>
 <script setup>
-import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormAction from "@/Components/Admin/FormAction.vue";
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -50,8 +49,6 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const isProcessing = ref(false);
-
 const form = useForm({
     id: props.permission.id ?? "",
     name: props.permission.name ?? {},

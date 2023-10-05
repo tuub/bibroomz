@@ -4,7 +4,6 @@
 </template>
 
 <script setup>
-
 defineProps({
     isTrue: {
         type: Boolean,

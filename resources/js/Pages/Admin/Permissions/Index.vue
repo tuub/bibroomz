@@ -32,9 +32,7 @@
                         {{ translate(permission.description) }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit"
-                                    model="permission"
-                                    :params="{id: permission.id}" />
+                        <ActionLink action="edit" model="permission" :params="{ id: permission.id }" />
                     </td>
                 </tr>
             </tbody>
@@ -43,12 +41,11 @@
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props

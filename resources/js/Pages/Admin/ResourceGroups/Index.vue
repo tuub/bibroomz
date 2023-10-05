@@ -1,6 +1,9 @@
 <template>
     <PageHead :title="$t('admin.resource_groups.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.resource_groups.index.title')" :description="$t('admin.resource_groups.index.description')" />
+    <BodyHead
+        :title="$t('admin.resource_groups.index.title')"
+        :description="$t('admin.resource_groups.index.description')"
+    />
 
     <PopupModal />
     <CreateLink model="resource_group"></CreateLink>
@@ -54,20 +57,26 @@
                         <BooleanField :is-true="resource_group.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <ActionLink v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
-                                    action="edit"
-                                    model="resource_group"
-                                    :params="{id: resource_group.id}" />
+                        <ActionLink
+                            v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
+                            action="edit"
+                            model="resource_group"
+                            :params="{ id: resource_group.id }"
+                        />
                         |
-                        <RelationLink v-if="hasPermission('view_resources', resource_group.institution_id)"
-                                    current="resource_group"
-                                    relation="resource"
-                                    :params="{id: resource_group.id}" />
+                        <RelationLink
+                            v-if="hasPermission('view_resources', resource_group.institution_id)"
+                            current="resource_group"
+                            relation="resource"
+                            :params="{ id: resource_group.id }"
+                        />
                         |
-                        <DeleteLink v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
-                                    model="resource_group"
-                                    :entity="resource_group"
-                                    :params="{id: resource_group.id}" />
+                        <DeleteLink
+                            v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
+                            model="resource_group"
+                            :entity="resource_group"
+                            :params="{ id: resource_group.id }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -76,17 +85,16 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -95,6 +103,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 // Props
 // ------------------------------------------------
 defineProps({
+    // eslint-disable-next-line vue/prop-name-casing
     resource_groups: {
         type: Object,
         default: () => ({}),
@@ -111,13 +120,6 @@ dayjs.extend(customParseFormat);
 // ------------------------------------------------
 const authStore = useAuthStore();
 const appStore = useAppStore();
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const formatTime = (time) => {
-    return dayjs(time, "HH:mm:ss").format("HH:mm");
-};
 
 // ------------------------------------------------
 // Variables

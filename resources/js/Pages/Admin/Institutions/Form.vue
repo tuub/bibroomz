@@ -140,17 +140,17 @@
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
-import {useForm} from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {onMounted} from "vue";
+import { onMounted } from "vue";
 
 // ------------------------------------------------
 // Props

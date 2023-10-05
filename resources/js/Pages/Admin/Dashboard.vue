@@ -63,7 +63,6 @@ const authStore = useAuthStore();
 const { hasPermission, canViewInstitutions } = authStore;
 </script>
 <style>
-
 .dashboard-card-wrapper > div {
     margin: 0px 10px 20px 10px;
     float: left;
@@ -73,4 +72,3 @@ const { hasPermission, canViewInstitutions } = authStore;
     text-align: center;
 }
 </style>
-

@@ -98,8 +98,8 @@
 
 <script setup>
 import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
-import {useModal} from "@/Stores/Modal";
-import {useAppStore} from "@/Stores/AppStore";
+import { useAppStore } from "@/Stores/AppStore";
+import { useModal } from "@/Stores/Modal";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";

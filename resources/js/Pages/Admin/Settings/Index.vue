@@ -39,9 +39,7 @@
                         {{ setting.value }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit"
-                                    model="setting"
-                                    :params="{id: setting.id}" />
+                        <ActionLink action="edit" model="setting" :params="{ id: setting.id }" />
                     </td>
                 </tr>
             </tbody>
@@ -50,11 +48,10 @@
 </template>
 
 <script setup>
-import {useAppStore} from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props

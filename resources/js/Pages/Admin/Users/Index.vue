@@ -56,13 +56,9 @@
                         {{ user.happenings.length }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit"
-                                    model="user"
-                                    :params="{id: user.id}" />
+                        <ActionLink action="edit" model="user" :params="{ id: user.id }" />
                         |
-                        <DeleteLink model="user"
-                                    :entity="user"
-                                    :params="{id: user.id}" />
+                        <DeleteLink model="user" :entity="user" :params="{ id: user.id }" />
                     </td>
                 </tr>
             </tbody>
@@ -71,12 +67,12 @@
 </template>
 
 <script setup>
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 
 // ------------------------------------------------
 // Props

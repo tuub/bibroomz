@@ -8,7 +8,11 @@
         <footer class="footer">
             <ul>
                 <li>
-                    <NavLink icon="ri-government-fill" :href="route('privacy_statement')" :is-active="isPrivacyStatement">
+                    <NavLink
+                        icon="ri-government-fill"
+                        :href="route('privacy_statement')"
+                        :is-active="isPrivacyStatement"
+                    >
                         {{ $t("navigation.regular.privacy_statement") }}
                     </NavLink>
                 </li>
@@ -20,12 +24,12 @@
             </ul>
         </footer>
     </section>
-
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
 import NavLink from "@/Shared/NavLink.vue";
+import { useAppStore } from "@/Stores/AppStore";
+
 import { usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 
@@ -50,7 +54,6 @@ const isPrivacyStatement = computed(() => {
 const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
-
 </script>
 <style>
 .content-wrapper {
@@ -59,7 +62,7 @@ const isSiteCredits = computed(() => {
     position: relative;
 }
 
-.footer{
+.footer {
     padding: 20px 0 20px 0;
     background-color: black;
     color: white;
@@ -70,16 +73,15 @@ const isSiteCredits = computed(() => {
     height: 0.5rem;
 }
 
-.footer > ul > li:nth-child(1) > a{
+.footer > ul > li:nth-child(1) > a {
     position: absolute;
     right: 160px;
     top: 8px;
 }
 
-.footer > ul > li:nth-child(2) > a{
+.footer > ul > li:nth-child(2) > a {
     position: absolute;
     right: 40px;
     top: 8px;
 }
-
 </style>

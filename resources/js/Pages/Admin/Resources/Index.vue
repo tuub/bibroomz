@@ -74,27 +74,35 @@
                     </td>
                     <td class="px-6 py-4 align-top text-right">
                         <!-- FIXME: resource.resource_group.institution.id? -->
-                        <ActionLink v-if="hasPermission('edit_resources', resource.institution_id)"
-                                    action="edit"
-                                    model="resource"
-                                    :params="{id: resource.id}" />
+                        <ActionLink
+                            v-if="hasPermission('edit_resources', resource.institution_id)"
+                            action="edit"
+                            model="resource"
+                            :params="{ id: resource.id }"
+                        />
                         |
-                        <ActionLink v-if="hasPermission('create_resources', resource.institution_id)"
-                                    action="clone"
-                                    model="resource"
-                                    method="post"
-                                    as="button"
-                                    :params="{id: resource.id}" />
+                        <ActionLink
+                            v-if="hasPermission('create_resources', resource.institution_id)"
+                            action="clone"
+                            model="resource"
+                            method="post"
+                            as="button"
+                            :params="{ id: resource.id }"
+                        />
                         |
-                        <RelationLink v-if="hasPermission('view_closings', resource.institution_id)"
-                                    current="resource"
-                                    relation="closing"
-                                    :params="{closable_type: 'resource',closable_id: resource.id}" />
+                        <RelationLink
+                            v-if="hasPermission('view_closings', resource.institution_id)"
+                            current="resource"
+                            relation="closing"
+                            :params="{ closable_type: 'resource', closable_id: resource.id }"
+                        />
                         |
-                        <DeleteLink v-if="hasPermission('delete_resources', resource.institution_id)"
-                                    model="resource"
-                                    :entity="resource"
-                                    :params="{id: resource.id}" />
+                        <DeleteLink
+                            v-if="hasPermission('delete_resources', resource.institution_id)"
+                            model="resource"
+                            :entity="resource"
+                            :params="{ id: resource.id }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -103,17 +111,16 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";

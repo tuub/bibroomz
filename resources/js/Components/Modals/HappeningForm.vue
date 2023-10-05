@@ -11,7 +11,7 @@
                     name="start"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
-                    @input="$emit('update:happening', happening)"
+                    @input="$emit('update-happening', happening)"
                 >
                     <option
                         v-for="start_time_slot in start_time_slots"
@@ -78,7 +78,7 @@ import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";
-import {computed, inject, onBeforeMount, reactive, ref} from "vue";
+import { computed, inject, onBeforeMount, reactive, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -106,7 +106,7 @@ const modal = useModal();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject('ziggyRoute');
+const route = inject("ziggyRoute");
 const happening = reactive(props.happening);
 
 const error = storeToRefs(happeningStore).error;
@@ -134,10 +134,10 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
     isLoading.value = true;
 
     try {
-        const url = route('resource.time_slots', {
+        const url = route("resource.time_slots", {
             institution_slug: institutionSlug,
             resource_group_slug: resourceGroupSlug,
-            id: resource_id
+            id: resource_id,
         });
 
         const response = await axios.post(url, {
@@ -159,7 +159,7 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
         isLoading.value = false;
         isInitial.value = false;
     } catch (error) {
-        console.log(error)
+        console.log(error);
 
         modal.close();
         authStore.check();

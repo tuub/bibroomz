@@ -9,9 +9,11 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
 import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+
 import HappeningQuota from "./HappeningQuota.vue";
+
 import { computed } from "vue";
 
 const authStore = useAuthStore();
@@ -24,6 +26,6 @@ const getQuotaSetting = (type) => {
 };
 
 const quotas = computed(() =>
-    Object.fromEntries(Object.entries({ ...authStore.quotas }).filter(([key]) => getQuotaSetting(key) > 0))
+    Object.fromEntries(Object.entries({ ...authStore.quotas }).filter(([key]) => getQuotaSetting(key) > 0)),
 );
 </script>

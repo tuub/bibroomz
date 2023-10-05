@@ -89,15 +89,19 @@
                         <BooleanField :is-true="isPastHappening(happening)" />
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink v-if="hasPermission('edit_happenings', happening.resource.institution_id)"
-                                    action="edit"
-                                    model="happening"
-                                    :params="{id: happening.id}" />
+                        <ActionLink
+                            v-if="hasPermission('edit_happenings', happening.resource.institution_id)"
+                            action="edit"
+                            model="happening"
+                            :params="{ id: happening.id }"
+                        />
                         |
-                        <DeleteLink v-if="hasPermission('delete_happenings', happening.resource.institution_id)"
-                                    model="happening"
-                                    :entity="happening"
-                                    :params="{id: happening.id}" />
+                        <DeleteLink
+                            v-if="hasPermission('delete_happenings', happening.resource.institution_id)"
+                            model="happening"
+                            :entity="happening"
+                            :params="{ id: happening.id }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -106,16 +110,15 @@
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
-import { useAuthStore } from "@/Stores/AuthStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";

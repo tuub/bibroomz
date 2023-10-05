@@ -45,6 +45,7 @@
 
 <script setup>
 import { useAuthStore } from "@/Stores/AuthStore";
+
 import HappeningCount from "./HappeningCount.vue";
 import HappeningQuotas from "./HappeningQuotas.vue";
 import UserHappening from "./UserHappening.vue";
@@ -124,5 +125,4 @@ const can = authStore.can;
 .list-leave-active {
     position: absolute;
 }
-
 </style>

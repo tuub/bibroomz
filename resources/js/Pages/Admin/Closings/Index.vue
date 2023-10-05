@@ -9,7 +9,7 @@
     />
 
     <PopupModal />
-    <CreateLink model="closing" :params="{closable_type: closable_type, closable_id: closable.id}"></CreateLink>
+    <CreateLink model="closing" :params="{ closable_type: closable_type, closable_id: closable.id }"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -51,20 +51,24 @@
                         <BooleanField :is-true="isPastClosing(closing)" />
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink v-if="hasPermission('edit_closings', institutionId)"
-                                    action="edit"
-                                    model="closing"
-                                    :params="{id: closing.id}" />
+                        <ActionLink
+                            v-if="hasPermission('edit_closings', institutionId)"
+                            action="edit"
+                            model="closing"
+                            :params="{ id: closing.id }"
+                        />
                         |
-                        <DeleteLink v-if="hasPermission('delete_closings', institutionId)"
-                                    action="delete"
-                                    model="closing"
-                                    :entity="closing"
-                                    :params="{
-                                        id: closing.id,
-                                        closable_id: closing.closable_id,
-                                        closable_type: closing.closable_type
-                                    }" />
+                        <DeleteLink
+                            v-if="hasPermission('delete_closings', institutionId)"
+                            action="delete"
+                            model="closing"
+                            :entity="closing"
+                            :params="{
+                                id: closing.id,
+                                closable_id: closing.closable_id,
+                                closable_type: closing.closable_type,
+                            }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -73,22 +77,20 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import { computed } from "vue";
-
 
 // ------------------------------------------------
 // Props

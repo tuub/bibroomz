@@ -4,11 +4,7 @@
     <XModal />
 
     <div class="institution-cards-wapper">
-        <InstitutionCard
-            v-for="institution in institutions"
-            :key="institution.id"
-            :institution="institution"
-        >
+        <InstitutionCard v-for="institution in institutions" :key="institution.id" :institution="institution">
         </InstitutionCard>
     </div>
 </template>
@@ -63,8 +59,7 @@ onMounted(() => {
 });
 </script>
 <style>
-    .institution-cards-wapper{
-        display: flow-root;
-    }
-
+.institution-cards-wapper {
+    display: flow-root;
+}
 </style>

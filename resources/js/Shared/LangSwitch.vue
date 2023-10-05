@@ -58,5 +58,4 @@ onBeforeMount(() => {
         font-size: 11px;
     }
 }
-
 </style>

@@ -8,19 +8,15 @@
         >
             {{ $t("admin.general.form.submit") }}
         </button>
-        <button
-            type="button"
-            class="bg-gray-400 text-black rounded py-2 px-4 hover:bg-gray-700"
-            @click="cancelForm"
-        >
+        <button type="button" class="bg-gray-400 text-black rounded py-2 px-4 hover:bg-gray-700" @click="cancelForm">
             {{ $t("admin.general.form.cancel") }}
         </button>
     </div>
 </template>
 
 <script setup>
-import {router} from "@inertiajs/vue3";
-import {inject} from "vue";
+import { router } from "@inertiajs/vue3";
+import { inject } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -41,16 +37,16 @@ const props = defineProps({
     cancelRouteParams: {
         type: Object,
         default: () => ({}),
-    }
+    },
 });
 
-const route = inject('ziggyRoute');
+const route = inject("ziggyRoute");
 
 const submitForm = () => {
     if (props.form.id) {
-        props.form.post(route('admin.' + props.model + '.update'));
+        props.form.post(route("admin." + props.model + ".update"));
     } else {
-        props.form.post(route('admin.' + props.model + '.store'));
+        props.form.post(route("admin." + props.model + ".store"));
     }
 };
 

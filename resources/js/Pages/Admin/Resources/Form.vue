@@ -145,10 +145,12 @@
             ></FormValidationError>
         </div>
 
-        <FormAction :form="form"
-                    model="resource"
-                    cancel-route="admin.resource.index"
-                    :cancel-route-params="{resource_group_id:resourceGroup.id}" />
+        <FormAction
+            :form="form"
+            model="resource"
+            cancel-route="admin.resource.index"
+            :cancel-route-params="{ resource_group_id: resourceGroup.id }"
+        />
     </form>
 </template>
 <script setup>

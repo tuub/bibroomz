@@ -4,36 +4,36 @@
             {{ appName }}
         </a>
         <div class="login-lang-wrapper">
-                <LangSwitch />
-                <CurrentLogin />
-                
+            <LangSwitch />
+            <CurrentLogin />
         </div>
     </div>
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
-import { storeToRefs } from "pinia";
 import CurrentLogin from "@/Shared/CurrentLogin.vue";
 import LangSwitch from "@/Shared/LangSwitch.vue";
+import { useAppStore } from "@/Stores/AppStore";
+
+import { storeToRefs } from "pinia";
 
 const appStore = useAppStore();
-const { appName, institutionHomeUri, institutionLogoUri, institutionTitle } = storeToRefs(appStore);
+const { appName } = storeToRefs(appStore);
 </script>
 <style>
 .brand-name {
     font-size: x-large;
     font-weight: 800;
 }
+
 .login-lang-wrapper {
-    display: inline-block;
     height: 2em;
     float: right;
     margin-top: 8px;
     width: 240px;
 }
+
 .login-lang-wrapper > div:nth-child(2) {
     float: right;
 }
-
 </style>

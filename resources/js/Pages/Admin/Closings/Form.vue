@@ -84,16 +84,19 @@
             </template>
         </TranslatableFormField>
 
-        <FormAction :form="form" model="closing"
-                    cancel-route="admin.closing.index"
-                    :cancel-route-params="{closable_id:closable.id,closable_type:closable_type}" />
+        <FormAction
+            :form="form"
+            model="closing"
+            cancel-route="admin.closing.index"
+            :cancel-route-params="{ closable_id: closable.id, closable_type: closable_type }"
+        />
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";

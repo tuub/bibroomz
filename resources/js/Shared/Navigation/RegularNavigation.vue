@@ -6,9 +6,18 @@
                     {{ $t("navigation.regular.institutions") }}
                 </NavLink>
             </li>
-            <li v-if="institutionSlug">
-                <NavLink icon="ri-home-fill" :href="route('home', { slug: institutionSlug })" :is-active="isPageHome">
-                    {{ $t("navigation.regular.home", { short_title: institutionShortTitle }) }}
+            <li v-if="institution?.slug && resourceGroup?.slug">
+                <NavLink
+                    icon="ri-home-fill"
+                    :href="
+                        route('home', {
+                            institution_slug: institution.slug,
+                            resource_group_slug: resourceGroup.slug,
+                        })
+                    "
+                    :is-active="isPageHome"
+                >
+                    {{ $t("navigation.regular.home", { short_title: institution?.short_title }) }}
                 </NavLink>
             </li>
             <li v-if="isPrivileged">
@@ -46,8 +55,12 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const inertiaPage = usePage();
-const { institutionShortTitle, institutionSlug, resourceGroupSlug, isMultiTenancy } = storeToRefs(appStore);
+
+const { isMultiTenancy } = storeToRefs(appStore);
 const { isPrivileged } = storeToRefs(authStore);
+
+const institution = appStore.institution;
+const resourceGroup = appStore.resourceGroup;
 
 // ------------------------------------------------
 // Computed
@@ -58,13 +71,5 @@ const isPageStart = computed(() => {
 
 const isPageHome = computed(() => {
     return inertiaPage.component === "Home";
-});
-
-const isPrivacyStatement = computed(() => {
-    return inertiaPage.component === "PrivacyStatement";
-});
-
-const isSiteCredits = computed(() => {
-    return inertiaPage.component === "SiteCredits";
 });
 </script>

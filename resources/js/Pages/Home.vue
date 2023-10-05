@@ -5,7 +5,11 @@
         <XModal />
 
         <div id="calendar-sidebar-wrapper" class="">
-            <div id="calendar" class="calendar-wrapper basis-4/5 md:basis-4/5" :class="{ 'calendar-if-not-logged-in': !isAuthenticated}" >
+            <div
+                id="calendar"
+                class="calendar-wrapper basis-4/5 md:basis-4/5"
+                :class="{ 'calendar-if-not-logged-in': !isAuthenticated }"
+            >
                 <Calendar @open-modal-component="getModal"> </Calendar>
             </div>
             <div id="sidebar" class="basis-1/5 md:basis-1/5">
@@ -28,7 +32,7 @@ import useModal from "@/Stores/Modal";
 
 import { Modal as FlowbiteModal } from "flowbite";
 import { storeToRefs } from "pinia";
-import {onBeforeMount, onMounted} from "vue";
+import { onBeforeMount, onMounted } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -125,7 +129,5 @@ onMounted(() => {
         display: block;
         width: 100%;
     }
-
-
 }
 </style>

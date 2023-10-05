@@ -1,6 +1,9 @@
 <template>
     <PageHead :title="$t('admin.resource_groups.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.resource_groups.form.title')" :description="$t('admin.resource_groups.form.description')" />
+    <BodyHead
+        :title="$t('admin.resource_groups.form.title')"
+        :description="$t('admin.resource_groups.form.description')"
+    />
 
     <form class="max-w mx-auto mt-8">
         <!-- Select: Institution -->
@@ -104,25 +107,26 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <FormAction :form="form" model="resource_group"
-                    cancel-route="admin.resource_group.index" />
+        <FormAction :form="form" model="resource_group" cancel-route="admin.resource_group.index" />
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import {useAppStore} from "@/Stores/AppStore";
+import { useAppStore } from "@/Stores/AppStore";
+
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 const props = defineProps({
+    // eslint-disable-next-line vue/prop-name-casing
     resource_group: {
         type: Object,
         default: () => ({}),

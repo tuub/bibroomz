@@ -34,11 +34,12 @@
             <FormValidationError :message="form.errors.value"></FormValidationError>
         </div>
 
-        {{ setting }}
-        <FormAction :form="form"
-                    model="setting"
-                    cancel-route="admin.setting.index"
-                    :cancel-route-params="{institution_id:setting.institution_id}" />
+        <FormAction
+            :form="form"
+            model="setting"
+            cancel-route="admin.setting.index"
+            :cancel-route-params="{ institution_id: setting.institution_id }"
+        />
     </form>
 </template>
 <script setup>
@@ -47,7 +48,6 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -62,22 +62,9 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const isProcessing = ref(false);
-
 const form = useForm({
     id: props.setting.id ?? "",
     key: props.setting.key ?? "",
     value: props.setting.value ?? "",
 });
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    isProcessing.value = true;
-    if (form.id) {
-        form.post("/admin/setting/update");
-    }
-    isProcessing.value = false;
-};
 </script>

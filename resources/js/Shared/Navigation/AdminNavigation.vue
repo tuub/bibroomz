@@ -25,7 +25,11 @@
                 </NavLink>
             </li>
             <li v-if="hasPermission('view_resource_groups')">
-                <NavLink icon="ri-map-pin-fill" :href="route('admin.resource_group.index')" :is-active="isPageResourceGroups">
+                <NavLink
+                    icon="ri-map-pin-fill"
+                    :href="route('admin.resource_group.index')"
+                    :is-active="isPageResourceGroups"
+                >
                     {{ $t("navigation.admin.resource_groups") }}
                 </NavLink>
             </li>
@@ -81,7 +85,8 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const inertiaPage = usePage();
-const institutionSlug = appStore.institutionSlug;
+const institution = appStore.institution;
+const resourceGroup = appStore.resourceGroup;
 
 const { hasPermission, canViewInstitutions } = authStore;
 
@@ -108,9 +113,11 @@ const isPageInstitutions = computed(() => {
 
 const isPageResourceGroups = computed(() => {
     const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
-    return inertiaPage.component.startsWith("Admin/ResourceGroups") ||
+    return (
+        inertiaPage.component.startsWith("Admin/ResourceGroups") ||
         inertiaPage.component.startsWith("Admin/Resources") ||
-        isClosingsPage;
+        isClosingsPage
+    );
 });
 
 const isPageUsers = computed(() => {
@@ -130,9 +137,10 @@ const isPageStats = computed(() => {
 });
 
 const getExitUri = computed(() => {
-    if (institutionSlug) {
-        return "/" + institutionSlug;
+    if (institution?.slug && resourceGroup?.slug) {
+        return "/" + institution?.slug + "/" + resourceGroup?.slug + "/home";
     }
+
     return "/";
 });
 </script>

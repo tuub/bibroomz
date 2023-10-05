@@ -11,11 +11,11 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-
 import NavLink from "@/Shared/NavLink.vue";
 import NavigationMenu from "@/Shared/Navigation/NavigationMenu.vue";
-import {storeToRefs} from "pinia";
+import { useAuthStore } from "@/Stores/AuthStore";
+
+import { storeToRefs } from "pinia";
 
 // ------------------------------------------------
 // Stores

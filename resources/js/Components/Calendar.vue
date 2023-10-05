@@ -61,7 +61,9 @@ const resourceCount = ref(0);
 // ------------------------------------------------
 const resourceGroup = appStore.resourceGroup;
 
-const initialPage = computed(() => `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`);
+const initialPage = computed(
+    () => `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
+);
 
 const pagination = reactive({
     currentPage: unref(initialPage),
@@ -206,7 +208,6 @@ div.fc-timegrid-slots tr {
     }
 }
 
-
 .fc .fc-toolbar.fc-header-toolbar {
     float: left;
     width: 27%;
@@ -216,13 +217,13 @@ div.fc-timegrid-slots tr {
     padding-right: 1em;
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child){
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
     width: 21px;
     height: 25px;
     font-size: 0.85em;
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child){
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
     width: 21px;
     height: 25px;
     font-size: 0.85em;
@@ -236,13 +237,13 @@ div.fc-timegrid-slots tr {
     font-weight: bold;
 }
 
-.page-change-wrapper > button > i{
+.page-change-wrapper > button > i {
     font-size: 1.4em;
     line-height: 0.9666em;
     vertical-align: -0.16em;
 }
 
-.page-change-wrapper > label{
+.page-change-wrapper > label {
     width: 200px;
     margin-right: 20px;
     top: 0;
@@ -257,17 +258,17 @@ div.fc-timegrid-slots tr {
         font-size: small;
     }
 
-    .page-change-wrapper > label{
+    .page-change-wrapper > label {
         right: 20px;
     }
 }
 
-.page-change-wrapper > button:nth-child(2){
+.page-change-wrapper > button:nth-child(2) {
     background-color: #2C3E50;
     color: white;
 }
 
-.page-change-wrapper > button:nth-child(3){
+.page-change-wrapper > button:nth-child(3) {
     background-color: #2C3E50;
     color: white;
 }
@@ -280,20 +281,19 @@ div.fc-timegrid-slots tr {
     }
 }
 
-.full-calendar > div:nth-child(1) > div:nth-child(1){
+.full-calendar > div:nth-child(1) > div:nth-child(1) {
     position: absolute;
     left: 65px;
     top: -13px;
 }
 
-.full-calendar > div:nth-child(1) > div:nth-child(3){
+.full-calendar > div:nth-child(1) > div:nth-child(3) {
     position: absolute;
     left: 0;
     top: -16px;
 }
 
-
-.calendar-if-not-logged-in{
+.calendar-if-not-logged-in {
     width: 100% !important;
 }
 
@@ -301,7 +301,6 @@ div.fc-timegrid-slots tr {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 30%;
     }
-
 }
 
 @media only screen and (max-width: 600px) {
@@ -315,19 +314,19 @@ div.fc-timegrid-slots tr {
         width: 50%;
     }
 
-    .content-wrapper{
+    .content-wrapper {
         margin: 12em 2em 0 2em;
         min-height: 80vh;
         position: relative;
     }
 
-    .page-change-wrapper > label{
+    .page-change-wrapper > label {
         position: absolute;
         top: 4px;
         left: 65px;
     }
 
-    .page-change-wrapper > button:nth-child(2){
+    .page-change-wrapper > button:nth-child(2) {
         position: absolute;
         top: 3px;
         left: 0px;
@@ -335,7 +334,7 @@ div.fc-timegrid-slots tr {
         color: white;
     }
 
-    .page-change-wrapper > button:nth-child(3){
+    .page-change-wrapper > button:nth-child(3) {
         position: absolute;
         top: 3px;
         left: 20px;
@@ -343,7 +342,7 @@ div.fc-timegrid-slots tr {
         color: white;
     }
 
-    .page-change-wrapper{
+    .page-change-wrapper {
         position: absolute;
         top: -13px;
         left: 0;
@@ -351,17 +350,16 @@ div.fc-timegrid-slots tr {
         font-weight: bold;
     }
 
-    .full-calendar > div:nth-child(1) > div:nth-child(1){
+    .full-calendar > div:nth-child(1) > div:nth-child(1) {
         position: absolute;
         left: 65px;
         top: -50px;
     }
 
-    .full-calendar > div:nth-child(1) > div:nth-child(3){
+    .full-calendar > div:nth-child(1) > div:nth-child(3) {
         position: absolute;
         left: 0;
         top: -53px;
     }
 }
-
 </style>

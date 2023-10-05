@@ -23,16 +23,22 @@
             </svg>
         </button>
 
-        <div id="mobile-menu" class="w-90p mt-3px float-right" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'">
+        <div
+            id="mobile-menu"
+            class="w-90p mt-3px float-right"
+            :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'"
+        >
             <slot></slot>
             <button
+                class="mobile-menu-background"
+                :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'"
                 @click="toggle"
-                class="mobile-menu-background" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'" >
-            </button>
+            ></button>
             <button
+                class="mobile-menu-background-red"
+                :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'"
                 @click="toggle"
-                class="mobile-menu-background-red" :class="isVisible ? 'mobile-menu-visible' : 'mobile-menu-hidden'" >
-            </button>
+            ></button>
         </div>
     </div>
 </template>
@@ -53,19 +59,18 @@ const toggle = () => {
 </script>
 
 <style>
-
 .mobile-menu-button {
     display: block;
 }
 
-#mobile-menu{
+#mobile-menu {
     position: absolute;
     top: 85px;
     right: 30px;
     width: 90%;
 }
 
-#mobile-menu > ul{
+#mobile-menu > ul {
     float: right;
 }
 
@@ -74,7 +79,7 @@ const toggle = () => {
     margin-left: 20px;
 }
 
-.mobile-button{
+.mobile-button {
     position: absolute;
     top: 77px;
     right: 27px;
@@ -93,7 +98,7 @@ const toggle = () => {
         z-index: 25;
     }
 
-    .mobile-menu-background-red{
+    .mobile-menu-background-red {
         position: fixed;
         background-color: #C40D1E;
         top: 0px;
@@ -102,51 +107,50 @@ const toggle = () => {
         height: 100%;
     }
 
-    #mobile-menu > ul > li:nth-child(1){
+    #mobile-menu > ul > li:nth-child(1) {
         top: -50px;
     }
 
-    #mobile-menu > ul > li:nth-child(2){
+    #mobile-menu > ul > li:nth-child(2) {
         top: 0px;
     }
 
-    #mobile-menu > ul > li:nth-child(3){
+    #mobile-menu > ul > li:nth-child(3) {
         top: 50px;
     }
 
-    #mobile-menu > ul > li:nth-child(4){
+    #mobile-menu > ul > li:nth-child(4) {
         top: 100px;
     }
 
-    #mobile-menu > ul > li:nth-child(5){
+    #mobile-menu > ul > li:nth-child(5) {
         top: 150px;
     }
 
-    #mobile-menu > ul > li:nth-child(6){
+    #mobile-menu > ul > li:nth-child(6) {
         top: 200px;
     }
 
-    #mobile-menu > ul > li:nth-child(7){
+    #mobile-menu > ul > li:nth-child(7) {
         top: 250px;
     }
 
-    #mobile-menu > ul > li:nth-child(8){
+    #mobile-menu > ul > li:nth-child(8) {
         top: 300px;
     }
 
-    #mobile-menu > ul > li:nth-child(9){
+    #mobile-menu > ul > li:nth-child(9) {
         top: 350px;
     }
-
 
     .mobile-button {
         position: absolute;
         display: block;
     }
 
-    .mobile-menu-background{
+    .mobile-menu-background {
         position: fixed;
-        background-color: rgba(0,0,0,50%);
+        background-color: rgba(0, 0, 0, 50%);
         top: 0px;
         right: 0px;
         width: 100%;

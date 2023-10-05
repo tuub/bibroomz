@@ -90,13 +90,14 @@
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import LabeledCheckbox from "@/Components/Admin/LabeledCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import {useAppStore} from "@/Stores/AppStore";
+import { useAppStore } from "@/Stores/AppStore";
+
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------

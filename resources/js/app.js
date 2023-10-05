@@ -1,5 +1,4 @@
 import MainLayout from "@/Layouts/MainLayout.vue";
-import { useAppStore } from "@/Stores/AppStore";
 
 // FIXME
 import route from "../../vendor/tightenco/ziggy/src/js";
@@ -10,14 +9,13 @@ import { Ziggy } from "./ziggy";
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
-import mitt from "mitt";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import "remixicon/fonts/remixicon.css";
 import { createApp, h } from "vue";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import { ZiggyVue } from "ziggy";
-import 'remixicon/fonts/remixicon.css';
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -26,7 +24,7 @@ createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
         const page = await resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob("./Pages/**/*.vue"));
-        page.default.layout = page.default.layout || MainLayout
+        page.default.layout = page.default.layout || MainLayout;
 
         return page;
     },
@@ -83,7 +81,7 @@ createInertiaApp({
                 },
             });
 
-        app.provide('ziggyRoute', (name, params, absolute, config = Ziggy) => {
+        app.provide("ziggyRoute", (name, params, absolute, config = Ziggy) => {
             return route(name, params, absolute, config);
         });
 

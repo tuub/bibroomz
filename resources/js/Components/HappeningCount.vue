@@ -8,7 +8,10 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-let props = defineProps({
-    count: Number,
+defineProps({
+    count: {
+        type: Number,
+        required: true,
+    },
 });
 </script>

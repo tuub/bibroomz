@@ -44,13 +44,9 @@
                         }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit"
-                                    model="role"
-                                    :params="{id: role.id}" />
+                        <ActionLink action="edit" model="role" :params="{ id: role.id }" />
                         |
-                        <DeleteLink model="role"
-                                    :entity="role"
-                                    :params="{id: role.id}" />
+                        <DeleteLink model="role" :entity="role" :params="{ id: role.id }" />
                     </td>
                 </tr>
             </tbody>
@@ -59,14 +55,13 @@
 </template>
 
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props

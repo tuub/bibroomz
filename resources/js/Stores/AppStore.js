@@ -33,7 +33,7 @@ export const useAppStore = defineStore({
                     this.locale = locale;
                 });
         },
-        translate (translatable, locale) {
+        translate(translatable, locale) {
             if (!translatable) {
                 return;
             }
@@ -47,15 +47,6 @@ export const useAppStore = defineStore({
         },
     },
     getters: {
-        institution: (state) => state.resourceGroup.institution,
-        /*
-        institutionTitle: (state) => state.translate(state.institution?.title),
-        institutionShortTitle: (state) => state.institution?.short_title,
-        institutionSlug: (state) => state.institution?.slug,
-        institutionHomeUri: (state) => state.institution?.home_uri,
-        institutionLogoUri: (state) => state.institution?.logo_uri,
-        institutionTeaserUri: (state) => state.institution?.teaser_uri,
-        institutionSettings: (state) => state.institution?.settings,
-         */
+        institution: (state) => state.resourceGroup?.institution,
     },
 });

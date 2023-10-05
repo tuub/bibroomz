@@ -155,22 +155,24 @@
             <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <FormAction :form="form" model="mail"
-                    cancel-route="admin.mail.index"
-                    :cancel-route-params="{institution_id:institution_id}" />
+        <FormAction
+            :form="form"
+            model="mail"
+            cancel-route="admin.mail.index"
+            :cancel-route-params="{ institution_id: institution_id }"
+        />
     </form>
 </template>
 <script setup>
+import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import FormAction from "@/Components/Admin/FormAction.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -199,8 +201,6 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const isProcessing = ref(false);
-
 const form = useForm({
     id: props.mail?.id ?? "",
     institution_id: props.institution_id,

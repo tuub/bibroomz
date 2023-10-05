@@ -27,11 +27,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="mail in mails"
+                <tr
+                    v-for="mail in mails"
                     :key="mail.id"
-                    class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <th scope="row"
-                        class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                    <th
+                        scope="row"
+                        class="px-6 py-4 align-top font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
                         {{ $t("admin.mails.mail_types." + mail.mail_type.key) }}
                     </th>
                     <td class="px-6 py-4 align-top">
@@ -41,15 +45,19 @@
                         <BooleanField :is-true="mail.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <ActionLink v-if="hasPermission('edit_mails', mail.institution_id)"
-                                    action="edit"
-                                    model="mail"
-                                    :params="{id: mail.id}" />
+                        <ActionLink
+                            v-if="hasPermission('edit_mails', mail.institution_id)"
+                            action="edit"
+                            model="mail"
+                            :params="{ id: mail.id }"
+                        />
                         |
-                        <DeleteLink v-if="hasPermission('delete_mails', mail.institution_id)"
-                                    model="mail"
-                                    :entity="mail"
-                                    :params="{id: mail.id}" />
+                        <DeleteLink
+                            v-if="hasPermission('delete_mails', mail.institution_id)"
+                            model="mail"
+                            :entity="mail"
+                            :params="{ id: mail.id }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -58,16 +66,15 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-import { useAppStore } from "@/Stores/AppStore";
-
+import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
-import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";

@@ -32,7 +32,6 @@
 
 <script setup>
 import { ref } from "vue";
-import {useAppStore} from "@/Stores/AppStore";
 
 // ------------------------------------------------
 // Props
@@ -47,14 +46,8 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const appStore = useAppStore();
-
-// ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = appStore.translate;
 const isVisible = ref(props.isInitiallyVisible);
 
 const toggleVisibility = () => {

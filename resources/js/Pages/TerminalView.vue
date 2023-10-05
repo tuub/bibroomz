@@ -17,12 +17,12 @@ import "@fullcalendar/core/vdom";
 import FullCalendar from "@fullcalendar/vue3";
 
 import { useCalendar } from "@/Composables/Calendar";
+import TerminalLayout from "@/Layouts/TerminalLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
-import TerminalLayout from '@/Layouts/TerminalLayout.vue';
 
 import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
-defineOptions({ layout: TerminalLayout })
+defineOptions({ layout: TerminalLayout });
 
 // ------------------------------------------------
 // Props
@@ -117,5 +117,4 @@ a.fc-event:hover {
 div.fc-timegrid-slots tr {
     background-color: #FFFFFF;
 }
-
 </style>

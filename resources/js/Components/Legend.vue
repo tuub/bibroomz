@@ -60,7 +60,7 @@ const toggle = () => {
     position: fixed;
     top: 235px;
     z-index: 9;
-    background: rgba(0 0 0 / 0%);
+    background: rgba(0, 0, 0, 0%);
     right: 0;
     height: 168px;
     width: 195px;
@@ -86,15 +86,16 @@ const toggle = () => {
     width: 40px;
     z-index: 9;
     background: white;
-    /* border: 0.0625rem solid #aaa; */
-    color: #c40d1e;
+    color: #C40D1E;
     font-family: Muli, sans-serif, Arial;
     font-size: 1.5rem;
     font-weight: 400;
     min-width: 2rem;
     text-align: center;
     text-decoration: none;
-    transition: background 0.25s, color 0.25s;
+    transition:
+        background 0.25s,
+        color 0.25s;
     box-shadow: 0 3px 3px rgb(204, 203, 203);
 }
 
