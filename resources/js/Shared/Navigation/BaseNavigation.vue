@@ -3,7 +3,6 @@
         <Brand />
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
-
             <a :href="institutionHomeUri" class="float-left" target="_blank">
             <img :src="institutionLogoUri" class="float-left h-7" :alt="institutionTitle" />
             </a>
