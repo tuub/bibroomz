@@ -56,7 +56,7 @@ export const useAppStore = defineStore({
             return date.format(this.dateFormat);
         },
         formatTime(dateTimeStr, isUTC=false, dateTimeStrFormat=null) {
-            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat);
+            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || '');
             return time.format(this.timeFormat);
         },
         formatDateTime(datetimeStr, isUTC=false) {
@@ -65,9 +65,9 @@ export const useAppStore = defineStore({
         },
         getDateTimeFromString(datetimeStr, isUTC=false, dateTimeStrFormat=null) {
             if (isUTC) {
-                return dayjs.utc(datetimeStr, dateTimeStrFormat ?? '')
+                return dayjs.utc(datetimeStr, dateTimeStrFormat || null)
             }
-            return dayjs(datetimeStr, dateTimeStrFormat ?? '')
+            return dayjs(datetimeStr, dateTimeStrFormat || null)
         },
         translate(translatable, locale) {
             if (!translatable) {

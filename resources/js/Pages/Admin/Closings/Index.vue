@@ -88,7 +88,6 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import { computed } from "vue";
 
@@ -114,7 +113,6 @@ const props = defineProps({
 // ------------------------------------------------
 // DayJS
 // ------------------------------------------------
-dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 
 // ------------------------------------------------
