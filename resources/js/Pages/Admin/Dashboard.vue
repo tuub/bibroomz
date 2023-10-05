@@ -45,6 +45,13 @@
             icon="ri-shield-keyhole-fill"
         ></DashboardCard>
         <DashboardCard
+            v-if="hasPermission('view_permission_groups')"
+            :title="$t('admin.permission_groups.index.title')"
+            :description="$t('admin.permission_groups.index.description')"
+            :link="route('admin.permission_group.index')"
+            icon="ri-shield-keyhole-fill"
+        ></DashboardCard>
+        <DashboardCard
             v-if="hasPermission('view_statistics')"
             :title="$t('admin.stats.title')"
             :description="$t('admin.stats.description')"

@@ -572,15 +572,42 @@ return [
                     'description' => 'Beschreibung',
                 ],
                 'actions' => [
-                    'create' => 'Berechtigung erstellen',
                     'edit' => 'Bearbeiten',
-                    'delete' => 'Löschen',
                 ],
             ],
         ],
         'form' => [
             'title' => 'Formular für Berechtigungen',
-            'description' => 'Berechtigung erstellen / bearbeiten',
+            'description' => 'Berechtigung bearbeiten',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Beschreibung',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
+    'permission_groups' => [
+        'index' => [
+            'title' => 'Berechtigungsgruppen',
+            'description' => 'Berechtigungsgruppen bearbeiten',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Beschreibung',
+                ],
+                'actions' => [
+                    'edit' => 'Bearbeiten',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Berechtigungsgruppen',
+            'description' => 'Berechtigungsgruppe bearbeiten',
             'fields' => [
                 'name' => [
                     'label' => 'Name',

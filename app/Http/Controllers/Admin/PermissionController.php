@@ -11,7 +11,7 @@ use Inertia\Response;
 
 class PermissionController extends Controller
 {
-    public function getPermissions()
+    public function getPermissions(): Response
     {
         $this->authorize('viewAny', Permission::class);
 
@@ -20,7 +20,7 @@ class PermissionController extends Controller
         ]);
     }
 
-    public function editPermission(Permission $permission)
+    public function editPermission(Permission $permission): Response
     {
         $this->authorize('edit', $permission);
 

@@ -572,15 +572,42 @@ return [
                     'description' => 'Description',
                 ],
                 'actions' => [
-                    'create' => 'Create permission',
                     'edit' => 'Edit',
-                    'delete' => 'Delete',
                 ],
             ],
         ],
         'form' => [
             'title' => 'Permission Form',
-            'description' => 'Create / edit a permission',
+            'description' => 'Edit a permission',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'hint' => ' ',
+                ],
+                'description' => [
+                    'label' => 'Description',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
+    'permission_groups' => [
+        'index' => [
+            'title' => 'Permission Groups',
+            'description' => 'Edit permission groups',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'description' => 'Description',
+                ],
+                'actions' => [
+                    'edit' => 'Edit',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Permission Group Form',
+            'description' => 'Edit a permission group',
             'fields' => [
                 'name' => [
                     'label' => 'Name',

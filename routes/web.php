@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
 use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
+use App\Http\Controllers\Admin\PermissionGroupController as AdminPermissionGroupController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
@@ -182,7 +183,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
         ->name('admin.user.update');
 
-    /* Roles and Permissions */
+    /* Roles */
     Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])
         ->name('admin.role.index');
     Route::get('/admin/role/create', [AdminRoleController::class, 'createRole'])
@@ -196,12 +197,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/role/delete/{role}', [AdminRoleController::class, 'deleteRole'])
         ->name('admin.role.delete');
 
+    /* Permissions */
     Route::get('/admin/permissions', [AdminPermissionController::class, 'getPermissions'])
         ->name('admin.permission.index');
     Route::get('/admin/permission/edit/{permission}', [AdminPermissionController::class, 'editPermission'])
         ->name('admin.permission.edit');
     Route::post('/admin/permission/update/', [AdminPermissionController::class, 'updatePermission'])
         ->name('admin.permission.update');
+
+    /* Permission Groups */
+    Route::get('/admin/permission_groups', [AdminPermissionGroupController::class, 'getPermissionGroups'])
+        ->name('admin.permission_group.index');
+    Route::get(
+        '/admin/permission_group/edit/{permission_group}',
+        [AdminPermissionGroupController::class, 'editPermissionGroup'],
+    )->name('admin.permission_group.edit');
+    Route::post('/admin/permission_group/update/', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
+        ->name('admin.permission_group.update');
 });
 
 // Institution Home
