@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import dayjs from "dayjs";
+import { useAppStore } from "@/Stores/AppStore";
 import { trans } from "laravel-vue-i18n";
 
 const props = defineProps({
@@ -24,6 +24,8 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+
+const appStore = useAppStore();
 
 const happeningStart = appStore.getDateTimeFromString(props.happening.start)
 const happeningEnd = appStore.getDateTimeFromString(props.happening.end)
