@@ -106,7 +106,7 @@ const modal = useModal();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject('route');
+const route = inject('ziggyRoute');
 const happening = reactive(props.happening);
 
 const error = storeToRefs(happeningStore).error;

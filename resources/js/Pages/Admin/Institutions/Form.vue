@@ -150,7 +150,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import {useForm} from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {inject, onMounted} from "vue";
+import {onMounted} from "vue";
 
 // ------------------------------------------------
 // Props
@@ -174,8 +174,6 @@ const props = defineProps({
 // DayJS
 // ------------------------------------------------
 dayjs.extend(utc);
-
-const route = inject("route");
 
 // ------------------------------------------------
 // Variables

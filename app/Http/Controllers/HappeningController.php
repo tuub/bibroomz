@@ -89,6 +89,7 @@ class HappeningController extends Controller
                         'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                         'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
                         'description' => $closing->getTranslations('description'),
+                        'resource_group' => $resource_group->getTranslations('term_singular'),
                         'user' => NULL,
                         'classNames' => 'closed',
                         'display' => 'background',

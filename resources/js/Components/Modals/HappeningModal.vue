@@ -45,6 +45,7 @@ defineEmits(["update:payload", "submit"]);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+console.log(props.payload);
 const happening = {
     id: props.payload.id,
     resource: toRaw(props.payload.resource),

@@ -13,7 +13,7 @@ import {Modal as FlowbiteModal} from "flowbite";
 import useModal from "@/Stores/Modal";
 
 const modal = useModal();
-const route = inject("route");
+const route = inject('ziggyRoute');
 
 const props = defineProps({
     model: {

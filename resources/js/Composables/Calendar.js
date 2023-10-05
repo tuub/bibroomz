@@ -156,6 +156,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
             location_uri: resource.extendedProps.location_uri,
             capacity: resource.extendedProps.capacity,
             description: translate(resource.extendedProps.translations.description),
+            resource_group: translate(resource.extendedProps.translations.resource_group),
         };
 
         happening.id = eventInfo.event.id;

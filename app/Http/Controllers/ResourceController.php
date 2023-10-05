@@ -47,6 +47,7 @@ class ResourceController extends Controller
                     'title' => $resource->getTranslations('title'),
                     'description' => $resource->getTranslations('description'),
                     'location' => $resource->getTranslations('location'),
+                    'resource_group' => $resource_group->getTranslations('term_singular'),
                 ],
             ];
         }

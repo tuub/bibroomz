@@ -7,7 +7,7 @@
         <div class="italic mt-4 mb-4">
             {{ content.description }}
         </div>
-        <ResourceInfo :resource="payload.resource" :is-expandable="false" :is-initially-visible="true"></ResourceInfo>
+        <ResourceInfo :resource="payload.resource" :is-expandable="false" :is-initially-visible="true" />
     </div>
 </template>
 

@@ -83,7 +83,7 @@ createInertiaApp({
                 },
             });
 
-        app.provide("route", (name, params, absolute, config = Ziggy) => {
+        app.provide('ziggyRoute', (name, params, absolute, config = Ziggy) => {
             return route(name, params, absolute, config);
         });
 

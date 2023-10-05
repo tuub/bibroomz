@@ -20,7 +20,8 @@
                 {{ happeningStart }} - {{ happeningEnd }}
             </p>
             <p class="text-sm font-medium pb-1">
-                <i class="ri-home-line" :title="$t('user_happening.resource')"></i>
+                <i class="ri-home-line" :title="translate(happening.resource.resourceGroup)"></i>
+                {{ translate(happening.resource.resourceGroup) }}
                 {{ happening.resource.title }}
             </p>
             <p class="text-sm font-medium truncate pb-1">

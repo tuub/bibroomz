@@ -315,6 +315,11 @@ return [
                     'placeholder' => 'The location',
                     'hint' => 'About the location',
                 ],
+                'location_uri' => [
+                    'label' => 'Location URI',
+                    'placeholder' => 'The lcoation link',
+                    'hint' => 'A link with further information for location',
+                ],
                 'description' => [
                     'label' => 'Description',
                     'placeholder' => 'The description',

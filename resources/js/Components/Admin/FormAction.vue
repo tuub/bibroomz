@@ -44,7 +44,7 @@ const props = defineProps({
     }
 });
 
-const route = inject("route");
+const route = inject('ziggyRoute');
 
 const submitForm = () => {
     if (props.form.id) {

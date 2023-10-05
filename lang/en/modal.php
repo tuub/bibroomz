@@ -31,21 +31,21 @@ return [
         'title' => 'Create Booking',
         'description' => 'Create new booking',
         'action' => [
-            'create' => 'Create ',
+            'create' => 'Create',
         ],
     ],
     'edit' => [
         'title' => 'Edit Booking',
         'description' => 'Edit your booking',
         'action' => [
-            'update' => 'Save.',
+            'update' => 'Save',
         ],
     ],
     'delete' => [
         'title' => 'Delete Booking',
         'description' => 'Delete your booking.',
         'action' => [
-            'delete' => 'Delete ',
+            'delete' => 'Delete',
         ],
     ],
     'edit_delete' => [
@@ -53,14 +53,14 @@ return [
         'description' => 'Adjust your booking.',
         'action' => [
             'update' => 'Save.',
-            'delete' => 'Delete ',
+            'delete' => 'Delete',
         ],
     ],
     'verify' => [
         'title' => 'Verify Booking',
         'description' => 'Verify your booking',
         'action' => [
-            'verify' => 'Verify ',
+            'verify' => 'Verify',
         ],
     ],
     'resource_info' => [
