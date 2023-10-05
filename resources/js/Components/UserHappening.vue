@@ -149,15 +149,15 @@ const happening = computed(() => ({
 }));
 
 const happeningDate = computed(() => {
-    return dayjs.utc(props.happening.start).format("DD.MM.YYYY");
+    return appStore.formatDate(props.happening.start, true);
 });
 
 const happeningStart = computed(() => {
-    return dayjs.utc(props.happening.start).format("HH:mm");
+    return appStore.formatTime(props.happening.start, true);
 });
 
 const happeningEnd = computed(() => {
-    return dayjs.utc(props.happening.end).format("HH:mm");
+    return appStore.formatTime(props.happening.end, true);
 });
 
 const isPresent = computed(() => {

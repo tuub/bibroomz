@@ -51,7 +51,7 @@
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ formatDate(happening.start) }}
+                        {{ getHappeningDate(happening.start) }}
                     </th>
                     <td class="px-6 py-4">
                         {{ translate(happening.resource.resource_group.institution.title) }}
@@ -63,10 +63,10 @@
                         {{ translate(happening.resource.title) }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ formatTime(happening.start) }}
+                        {{ getHappeningTime(happening.start) }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ formatTime(happening.end) }}
+                        {{ getHappeningTime(happening.end) }}
                     </td>
                     <td class="px-6 py-4">
                         {{ happening.user1.name }}
@@ -147,12 +147,12 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const formatDate = (dataTime) => {
-    return dayjs.utc(dataTime).format("DD.MM.YYYY");
+const getHappeningDate = (datetime) => {
+    return appStore.formatDate(datetime, true);
 };
 
-const formatTime = (time) => {
-    return dayjs.utc(time).format("HH:mm");
+const getHappeningTime = (datetime) => {
+    return appStore.formatTime(datetime, true);
 };
 
 const isPastHappening = (happening) => {

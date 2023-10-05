@@ -38,12 +38,13 @@
 </template>
 
 <script setup>
+import {useAppStore} from "@/Stores/AppStore";
+
 import ResourceInfo from "@/Components/ResourceInfo.vue";
 import Label from "@/Shared/Label.vue";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import utc from "dayjs/plugin/utc";
 import { computed } from "vue";
 
 // ------------------------------------------------
@@ -59,8 +60,12 @@ const props = defineProps({
 // ------------------------------------------------
 // DayJS
 // ------------------------------------------------
-dayjs.extend(utc);
 dayjs.extend(duration);
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
@@ -70,19 +75,21 @@ const happeningResource = computed(() => {
 });
 
 const happeningDate = computed(() => {
-    return dayjs.utc(props.happening.start).format("DD.MM.YYYY");
+    return appStore.formatDate(props.happening.start, true);
 });
 
 const happeningStartDisplay = computed(() => {
-    return dayjs.utc(props.happening.start).format("HH:mm");
+    return appStore.formatTime(props.happening.start, true);
 });
 
 const happeningEndDisplay = computed(() => {
-    return dayjs.utc(props.happening.end).format("HH:mm");
+    return appStore.formatTime(props.happening.end, true);
 });
 
 const happeningLength = computed(() => {
-    const length = dayjs.duration(dayjs(props.happening.end).diff(dayjs(props.happening.start)));
+    const happeningStart = appStore.getDateTimeFromString(props.happening.start);
+    const happeningEnd = appStore.getDateTimeFromString(props.happening.end);
+    const length = dayjs.duration(happeningEnd.diff(happeningStart));
 
     const lengthValues =
         length.asMinutes() > 90

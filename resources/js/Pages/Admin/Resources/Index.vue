@@ -54,7 +54,7 @@
                     </td>
                     <td class="px-6 py-4 align-top">
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
-                            {{ formatTime(business_hour.start) }} - {{ formatTime(business_hour.end) }} ({{
+                            {{ getBusinessHourTime(business_hour.start) }} - {{ getBusinessHourTime(business_hour.end) }} ({{
                                 business_hour.week_days
                                     .map((week_day) =>
                                         trans("admin.general.week_days." + week_day.key + ".short_label"),
@@ -143,6 +143,7 @@ defineProps({
 // ------------------------------------------------
 // DayJS
 // ------------------------------------------------
+// FIXME: Why do we still need this?
 dayjs.extend(customParseFormat);
 
 // ------------------------------------------------
@@ -154,8 +155,8 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const formatTime = (time) => {
-    return dayjs(time, "HH:mm:ss").format("HH:mm");
+const getBusinessHourTime = (datetime) => {
+    return appStore.formatTime(datetime, false, 'HH:mm:ss');
 };
 
 // ------------------------------------------------

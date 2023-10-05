@@ -39,10 +39,10 @@
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                     <td class="px-6 py-4">
-                        {{ formatDateTime(closing.start) }}
+                        {{ getClosingDateTime(closing.start) }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ formatDateTime(closing.end) }}
+                        {{ getClosingDateTime(closing.end) }}
                     </td>
                     <td class="px-6 py-4">
                         {{ translate(closing.description) }}
@@ -139,8 +139,11 @@ const institutionId = computed(() => {
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const formatDateTime = (dataTime) => {
-    return dayjs.utc(dataTime).format("DD.MM.YYYY HH:mm");
+const getClosingDateTime = (dateTime) => {
+    return [
+        appStore.formatDate(dateTime, true),
+        appStore.formatTime(dateTime, true),
+    ].join(' ');
 };
 
 const isPastClosing = (closing) => {

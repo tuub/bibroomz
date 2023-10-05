@@ -1,5 +1,6 @@
 import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
+import dayjs from "dayjs";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
@@ -14,6 +15,9 @@ export const useAppStore = defineStore({
             hiddenDays: null,
             isMultiTenancy: false,
             locale: getActiveLanguage(),
+            dateFormat: null,
+            timeFormat: null,
+            dateTimeFormat: null,
         };
     },
     actions: {
@@ -31,7 +35,39 @@ export const useAppStore = defineStore({
                 .then(() => {
                     loadLanguageAsync(locale);
                     this.locale = locale;
+                    this.setTemporalFormats(locale);
                 });
+        },
+        setTemporalFormats(locale) {
+            switch(locale) {
+                case 'en':
+                    this.dateFormat = 'YYYY/MM/DD';
+                    this.timeFormat = 'HH:mm';
+                    this.dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+                    break;
+                default:
+                    this.dateFormat = 'DD.MM.YYYY';
+                    this.timeFormat = 'HH:mm';
+                    this.dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+            }
+        },
+        formatDate(dateTimeStr, isUTC=false) {
+            let date = this.getDateTimeFromString(dateTimeStr, isUTC);
+            return date.format(this.dateFormat);
+        },
+        formatTime(dateTimeStr, isUTC=false, dateTimeStrFormat=null) {
+            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat);
+            return time.format(this.timeFormat);
+        },
+        formatDateTime(datetimeStr, isUTC=false) {
+            let dateTime = this.getDateTimeFromString(datetimeStr, isUTC);
+            return dateTime.format(this.dateTimeFormat);
+        },
+        getDateTimeFromString(datetimeStr, isUTC=false, dateTimeStrFormat=null) {
+            if (isUTC) {
+                return dayjs.utc(datetimeStr, dateTimeStrFormat ?? '')
+            }
+            return dayjs(datetimeStr, dateTimeStrFormat ?? '')
         },
         translate(translatable, locale) {
             if (!translatable) {

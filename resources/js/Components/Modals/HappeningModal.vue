@@ -17,10 +17,11 @@
 </template>
 
 <script setup>
+import {useAppStore} from "@/Stores/AppStore";
+
 import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 
-import dayjs from "dayjs";
 import { toRaw } from "vue";
 
 // ------------------------------------------------
@@ -38,6 +39,11 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Emits
 // ------------------------------------------------
 defineEmits(["update:payload", "submit"]);
@@ -45,12 +51,11 @@ defineEmits(["update:payload", "submit"]);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-console.log(props.payload);
 const happening = {
     id: props.payload.id,
     resource: toRaw(props.payload.resource),
-    start: dayjs.utc(props.payload.start).format("YYYY-MM-DDTHH:mm:ss"),
-    end: dayjs.utc(props.payload.end).format("YYYY-MM-DDTHH:mm:ss"),
+    start: appStore.formatDateTime(props.payload.start, true),
+    end: appStore.formatDateTime(props.payload.end, true),
     isVerificationRequired: props.payload.isVerificationRequired,
     verifier: props.payload.user_02,
 };

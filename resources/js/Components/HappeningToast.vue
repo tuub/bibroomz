@@ -25,7 +25,10 @@ const props = defineProps({
     },
 });
 
-const date = dayjs(props.happening.start).format("DD.MM.YYYY");
-const start = dayjs(props.happening.start).format("H:mm");
-const end = dayjs(props.happening.end).format("H:mm");
+const happeningStart = appStore.getDateTimeFromString(props.happening.start)
+const happeningEnd = appStore.getDateTimeFromString(props.happening.end)
+
+const date = appStore.formatDate(happeningStart);
+const start = appStore.formatTime(happeningStart);
+const end = appStore.formatTime(happeningEnd);
 </script>

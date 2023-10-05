@@ -104,9 +104,6 @@ import PopupModal from "@/Shared/PopupModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
@@ -116,11 +113,6 @@ defineProps({
         default: () => ({}),
     },
 });
-
-// ------------------------------------------------
-// DayJS
-// ------------------------------------------------
-dayjs.extend(customParseFormat);
 
 // ------------------------------------------------
 // Stores
