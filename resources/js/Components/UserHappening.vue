@@ -21,7 +21,7 @@
             </p>
             <p class="text-sm font-medium pb-1">
                 <i class="ri-home-line" :title="translate(happening.resource.resourceGroup)"></i>
-                {{ translate(happening.resource.resourceGroup) }}
+                {{ happening.resource.resourceGroup }}
                 {{ happening.resource.title }}
             </p>
             <p class="text-sm font-medium truncate pb-1">
@@ -144,6 +144,7 @@ const happening = computed(() => ({
         title: translate(props.happening.resource.title),
         location: translate(props.happening.resource.location),
         description: translate(props.happening.resource.description),
+        resourceGroup: translate(props.happening.resource.resourceGroup),
     },
 }));
 

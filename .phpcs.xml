@@ -19,6 +19,7 @@
     <rule ref="PSR12">
         <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
         <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
+        <exclude name="PSR12.Traits.UseDeclaration.MultipleImport"/>
     </rule>
 
     <!-- Allow snake cased method names for tests -->

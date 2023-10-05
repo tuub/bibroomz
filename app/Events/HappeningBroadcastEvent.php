@@ -60,6 +60,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcast
                     'location' => $resource->getTranslations('location'),
                     'locationUri' => $resource->location_uri,
                     'description' => $resource->getTranslations('description'),
+                    'resourceGroup' => $resource->resource_group->getTranslations('term_singular'),
                     'resourceGroupId' => $resource->resource_group_id,
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),

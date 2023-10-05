@@ -19,7 +19,10 @@ class UserController extends Controller
         $resource_group_id = $request->resource_group_id;
 
         $happenings = Happening::with('resource')
-            ->whereHas('resource', fn (Builder $query) => $query->where('resource_group_id', $resource_group_id)->active())
+            ->whereHas(
+                'resource',
+                fn (Builder $query) => $query->where('resource_group_id', $resource_group_id)->active(),
+            )
             ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
                 ->orWhere('user_id_02', $user->getKey())
                 ->orWhere('verifier', $user->name))

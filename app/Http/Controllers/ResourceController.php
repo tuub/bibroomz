@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Happening;
-use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use Carbon\CarbonImmutable;
@@ -16,8 +15,9 @@ class ResourceController extends Controller
     {
         $output = [];
 
-        $resource_group = ResourceGroup::whereHas('institution',
-            fn ($query) => $query->where('slug', $request->institution_slug)
+        $resource_group = ResourceGroup::whereHas(
+            'institution',
+            fn ($query) => $query->where('slug', $request->institution_slug),
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $resources = Resource::active()
@@ -47,7 +47,7 @@ class ResourceController extends Controller
                     'title' => $resource->getTranslations('title'),
                     'description' => $resource->getTranslations('description'),
                     'location' => $resource->getTranslations('location'),
-                    'resource_group' => $resource_group->getTranslations('term_singular'),
+                    'resourceGroup' => $resource_group->getTranslations('term_singular'),
                 ],
             ];
         }

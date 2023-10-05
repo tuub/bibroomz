@@ -25,8 +25,10 @@ class HappeningController extends Controller
     public function getHappenings(Request $request): JsonResponse
     {
         $output = [];
-        $resource_group = ResourceGroup::whereHas('institution',
-            fn ($query) => $query->where('slug', $request->institution_slug)
+
+        $resource_group = ResourceGroup::whereHas(
+            'institution',
+            fn ($query) => $query->where('slug', $request->institution_slug),
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $from = Carbon::parse($request->start);
@@ -71,6 +73,9 @@ class HappeningController extends Controller
                 'classNames' => $status['type'],
                 'can' => $happening->getPermissions(auth()->user()),
                 'isVerificationRequired' => $happening->resource->is_verification_required,
+                'resource' => [
+                    'resourceGroup' => $happening->resource->resource_group->getTranslations('term_singular'),
+                ],
             ];
         }
 
@@ -84,13 +89,13 @@ class HappeningController extends Controller
                 foreach ($resource_group->resources as $resource) {
                     $output[] = [
                         'id' => $closing->id,
-                        'status' => NULL,
+                        'status' => null,
                         'resourceId' => $resource->id,
                         'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                         'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
                         'description' => $closing->getTranslations('description'),
                         'resource_group' => $resource_group->getTranslations('term_singular'),
-                        'user' => NULL,
+                        'user' => null,
                         'classNames' => 'closed',
                         'display' => 'background',
                     ];
@@ -103,12 +108,12 @@ class HappeningController extends Controller
                 if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
                     $output[] = [
                         'id' => $closing->id,
-                        'status' => NULL,
+                        'status' => null,
                         'resourceId' => $resource->id,
                         'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                         'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
                         'description' => $closing->getTranslations('description'),
-                        'user' => NULL,
+                        'user' => null,
                         'classNames' => 'closed',
                         'display' => 'background',
                     ];
