@@ -6,6 +6,7 @@ return [
         'delete' => [
             'user' => 'Are you sure you want to delete this user?',
             'institution' => 'Are you sure you want to delete this institution?',
+            'resource_group' => 'Are you sure you want to delete this resource group?',
             'resource' => 'Are you sure you want to delete this resource?',
             'happening' => 'Are you sure you want to delete this happening?',
             'closing' => 'Are you sure you want to delete this closing?',
