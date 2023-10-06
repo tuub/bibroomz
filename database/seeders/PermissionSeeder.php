@@ -34,13 +34,9 @@ class PermissionSeeder extends Seeder
         ]);
 
         $this->groups = collect([
-            'institutions' => [
-                'en' => 'Institutions',
-                'de' => 'Einrichtungen',
-            ],
-            'resources' => [
-                'en' => 'Rooms',
-                'de' => 'Räume',
+            'admin_users' => [
+                'en' => 'Administrators',
+                'de' => 'Administratoren',
             ],
             'closings' => [
                 'en' => 'Closings',
@@ -50,29 +46,45 @@ class PermissionSeeder extends Seeder
                 'en' => 'Bookings',
                 'de' => 'Buchungen',
             ],
-            'users' => [
-                'en' => 'Users',
-                'de' => 'Benutzer',
-            ],
-            'roles' => [
-                'en' => 'Roles',
-                'de' => 'Rollen',
-            ],
             'institution' => [
                 'en' => 'Institution',
                 'de' => 'Einrichtung',
             ],
-            'admin_users' => [
-                'en' => 'Administrators',
-                'de' => 'Administratoren',
+            'institutions' => [
+                'en' => 'Institutions',
+                'de' => 'Einrichtungen',
             ],
             'mails' => [
                 'en' => 'Mails',
                 'de' => 'Mails',
             ],
+            'permission_groups' => [
+                'en' => 'Permission Groups',
+                'de' => 'Berechtigungsgruppen',
+            ],
+            'permissions' => [
+                'en' => 'Permissions',
+                'de' => 'Berechtigungen',
+            ],
+            'resource_groups' => [
+                'en' => 'Resource Groups',
+                'de' => 'Ressourcengruppen',
+            ],
+            'resources' => [
+                'en' => 'Resources',
+                'de' => 'Ressourcen',
+            ],
+            'roles' => [
+                'en' => 'Roles',
+                'de' => 'Rollen',
+            ],
             'settings' => [
                 'en' => 'Settings',
                 'de' => 'Einstellungen',
+            ],
+            'users' => [
+                'en' => 'Users',
+                'de' => 'Benutzer',
             ],
         ]);
     }
@@ -94,21 +106,14 @@ class PermissionSeeder extends Seeder
             'edit',
             'delete',
         ], [
-            'institutions',
-            'resources',
             'closings',
             'happenings',
-            'users',
-            'roles',
+            'institutions',
             'mails',
-        ]);
-
-        $this->createPermissions([
-            'view',
-            'edit',
-            'delete',
-        ], [
-            'institution',
+            'resource_groups',
+            'resources',
+            'roles',
+            'users',
         ]);
 
         $this->createPermissions([
@@ -117,12 +122,15 @@ class PermissionSeeder extends Seeder
             'delete',
         ], [
             'admin_users',
+            'institution',
         ]);
 
         $this->createPermissions([
             'view',
             'edit',
         ], [
+            'permission_groups',
+            'permissions',
             'settings',
         ]);
 
