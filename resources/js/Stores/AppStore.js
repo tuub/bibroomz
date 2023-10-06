@@ -56,18 +56,18 @@ export const useAppStore = defineStore({
             return date.format(this.dateFormat);
         },
         formatTime(dateTimeStr, isUTC=false, dateTimeStrFormat=null) {
-            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || '');
+            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || null);
             return time.format(this.timeFormat);
         },
         formatDateTime(datetimeStr, isUTC=false) {
             let dateTime = this.getDateTimeFromString(datetimeStr, isUTC);
             return dateTime.format(this.dateTimeFormat);
         },
-        getDateTimeFromString(datetimeStr, isUTC=false, dateTimeStrFormat=null) {
+        getDateTimeFromString(datetimeStr, isUTC=false, dateTimeStrFormat) {
             if (isUTC) {
-                return dayjs.utc(datetimeStr, dateTimeStrFormat || null)
+                return dayjs.utc(datetimeStr, dateTimeStrFormat)
             }
-            return dayjs(datetimeStr, dateTimeStrFormat || null)
+            return dayjs(datetimeStr, dateTimeStrFormat)
         },
         translate(translatable, locale) {
             if (!translatable) {
