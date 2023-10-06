@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
 use App\Models\Role;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,8 +44,9 @@ class RoleController extends Controller
         return redirect()->route('admin.role.index');
     }
 
-    public function editRole(Role $role)
+    public function editRole(Request $request)
     {
+        $role = Role::findOrFail($request->id);
         $this->authorize('edit', $role);
 
         return Inertia::render('Admin/Roles/Form', [
@@ -55,8 +57,9 @@ class RoleController extends Controller
         ]);
     }
 
-    public function updateRole(Role $role, RoleRequest $request): RedirectResponse
+    public function updateRole(RoleRequest $request): RedirectResponse
     {
+        $role = Role::findOrFail($request->id);
         $this->authorize('edit', $role);
 
         $role->update($request->validated());
@@ -65,8 +68,9 @@ class RoleController extends Controller
         return redirect()->route('admin.role.index');
     }
 
-    public function deleteRole(Role $role): RedirectResponse
+    public function deleteRole(Request $request): RedirectResponse
     {
+        $role = Role::findOrFail($request->id);
         $this->authorize('delete', $role);
 
         $role->delete();

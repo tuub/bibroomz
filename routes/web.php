@@ -78,7 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.happening.index');
     Route::get('/admin/happening/create', [AdminHappeningController::class, 'createHappening'])
         ->name('admin.happening.create');
-    Route::get('/admin/happening/{id}/edit', [AdminHappeningController::class, 'editHappening'])
+    Route::get('/admin/happening/edit/{id}', [AdminHappeningController::class, 'editHappening'])
         ->name('admin.happening.edit');
     Route::post('/admin/happening/store', [AdminHappeningController::class, 'storeHappening'])
         ->name('admin.happening.store');
@@ -138,7 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.closing.index');
     Route::get('/admin/{closable_type}/{closable_id}/closing/create', [AdminClosingController::class, 'createClosing'])
         ->name('admin.closing.create');
-    Route::get('/admin/closing/edit/{id}', [AdminClosingController::class, 'editClosing'])
+    Route::get('/admin/closing/{id}/edit', [AdminClosingController::class, 'editClosing'])
         ->name('admin.closing.edit');
     Route::post('/admin/closing/store', [AdminClosingController::class, 'storeClosing'])
         ->name('admin.closing.store');
@@ -150,7 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Settings */
     Route::get('/admin/institution/{institution_id}/settings', [AdminSettingController::class, 'getSettings'])
         ->name('admin.setting.index');
-    Route::get('/admin/setting/edit/{id}', [AdminSettingController::class, 'editSetting'])
+    Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
         ->name('admin.setting.edit');
     Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])
         ->name('admin.setting.update');
@@ -162,7 +162,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.mail.create');
     Route::post('/admin/mail/store', [AdminMailController::class, 'storeMail'])
         ->name('admin.mail.store');
-    Route::get('/admin/mail/edit/{id}', [AdminMailController::class, 'editMail'])
+    Route::get('/admin/mail/{id}/edit', [AdminMailController::class, 'editMail'])
         ->name('admin.mail.edit');
     Route::post('/admin/mail/update', [AdminMailController::class, 'updateMail'])
         ->name('admin.mail.update');
@@ -176,9 +176,9 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Users */
     Route::get('/admin/users', [AdminUserController::class, 'getUsers'])
         ->name('admin.user.index');
-    Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'editUser'])
+    Route::get('/admin/user/{id}/edit', [AdminUserController::class, 'editUser'])
         ->name('admin.user.edit');
-    Route::post('/admin/user/delete/{id}', [AdminUserController::class, 'deleteUser'])
+    Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
         ->name('admin.user.delete');
     Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
         ->name('admin.user.update');
@@ -190,29 +190,27 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('admin.role.create');
     Route::post('/admin/role/store', [AdminRoleController::class, 'storeRole'])
         ->name('admin.role.store');
-    Route::get('/admin/role/edit/{role}', [AdminRoleController::class, 'editRole'])
+    Route::get('/admin/role/{id}/edit', [AdminRoleController::class, 'editRole'])
         ->name('admin.role.edit');
-    Route::post('/admin/role/update/{role}', [AdminRoleController::class, 'updateRole'])
+    Route::post('/admin/role/update', [AdminRoleController::class, 'updateRole'])
         ->name('admin.role.update');
-    Route::post('/admin/role/delete/{role}', [AdminRoleController::class, 'deleteRole'])
+    Route::post('/admin/role/delete', [AdminRoleController::class, 'deleteRole'])
         ->name('admin.role.delete');
 
     /* Permissions */
     Route::get('/admin/permissions', [AdminPermissionController::class, 'getPermissions'])
         ->name('admin.permission.index');
-    Route::get('/admin/permission/edit/{permission}', [AdminPermissionController::class, 'editPermission'])
+    Route::get('/admin/permission/{id}/edit', [AdminPermissionController::class, 'editPermission'])
         ->name('admin.permission.edit');
-    Route::post('/admin/permission/update/', [AdminPermissionController::class, 'updatePermission'])
+    Route::post('/admin/permission/update', [AdminPermissionController::class, 'updatePermission'])
         ->name('admin.permission.update');
 
     /* Permission Groups */
     Route::get('/admin/permission_groups', [AdminPermissionGroupController::class, 'getPermissionGroups'])
         ->name('admin.permission_group.index');
-    Route::get(
-        '/admin/permission_group/edit/{permission_group}',
-        [AdminPermissionGroupController::class, 'editPermissionGroup'],
-    )->name('admin.permission_group.edit');
-    Route::post('/admin/permission_group/update/', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
+    Route::get('/admin/permission_group/{id}/edit', [AdminPermissionGroupController::class, 'editPermissionGroup'])
+        ->name('admin.permission_group.edit');
+    Route::post('/admin/permission_group/update', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
         ->name('admin.permission_group.update');
 });
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PermissionRequest;
 use App\Models\Permission;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,8 +21,9 @@ class PermissionController extends Controller
         ]);
     }
 
-    public function editPermission(Permission $permission): Response
+    public function editPermission(Request $request): Response
     {
+        $permission = Permission::findOrFail($request->id);
         $this->authorize('edit', $permission);
 
         return Inertia::render('Admin/Permissions/Form', [

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PermissionGroupRequest;
 use App\Models\PermissionGroup;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,8 +21,9 @@ class PermissionGroupController extends Controller
         ]);
     }
 
-    public function editPermissionGroup(PermissionGroup $permission_group): Response
+    public function editPermissionGroup(Request $request): Response
     {
+        $permission_group = PermissionGroup::findOrFail($request->id);
         $this->authorize('edit', $permission_group);
 
         return Inertia::render('Admin/PermissionGroups/Form', [
