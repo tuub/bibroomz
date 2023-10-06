@@ -21,7 +21,7 @@
             :title="$t('admin.resource_groups.index.title')"
             :description="$t('admin.resource_groups.index.description')"
             :link="route('admin.resource_group.index')"
-            icon="ri-user-fill"
+            icon="ri-map-pin-fill"
         ></DashboardCard>
         <DashboardCard
             v-if="hasPermission('view_users')"
@@ -42,7 +42,7 @@
             :title="$t('admin.permissions.index.title')"
             :description="$t('admin.permissions.index.description')"
             :link="route('admin.permission.index')"
-            icon="ri-shield-keyhole-fill"
+            icon="ri-door-lock-fill"
         ></DashboardCard>
         <DashboardCard
             v-if="hasPermission('view_permission_groups')"

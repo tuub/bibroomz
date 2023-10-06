@@ -45,7 +45,7 @@
             </li>
             <li v-if="hasPermission('view_permissions')">
                 <NavLink
-                    icon="ri-shield-keyhole-fill"
+                    icon="ri-door-lock-fill"
                     :href="route('admin.permission.index')"
                     :is-active="isPagePermissions"
                 >
