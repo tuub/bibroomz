@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('institutions', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
-            $table->string('title');
+            $table->text('title');
             $table->string('short_title');
             $table->string('slug');
             $table->string('location')->nullable();

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('resource_group_id');
             $table->foreign('resource_group_id')->references('id')->on('resource_groups')->onDelete('cascade');
-            $table->string('title');
+            $table->text('title');
             $table->text('location')->nullable();
             $table->text('location_uri')->nullable();
             $table->text('description')->nullable();

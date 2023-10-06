@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('name')->unique()->change();
             $table->string('email')->nullable()->change();
             $table->boolean('is_admin')->default(false)->after('email');
-            $table->timestamp('banned_at')->nullable()->after('is_admin');
+            $table->timestamp('last_login')->nullable()->after('is_admin');
+            $table->boolean('is_logged_in')->default(false)->after('last_login');
         });
     }
 
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-
+        $table->dropColumn(['is_admin', 'last_login', 'is_logged_in']);
     }
 };
