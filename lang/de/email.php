@@ -15,7 +15,10 @@ return [
             'label' => 'Raum',
         ],
         'user' => [
-            'label' => 'Benutzer*in',
+            'label' => '1. Person',
+        ],
+        'verifier' => [
+            'label' => '2. Person',
         ],
         'status' => [
             'label' => 'Status',

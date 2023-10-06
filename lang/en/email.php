@@ -17,6 +17,9 @@ return [
         'user' => [
             'label' => 'User',
         ],
+        'verifier' => [
+            'label' => 'Verifier',
+        ],
         'status' => [
             'label' => 'Status',
             'value' => [
