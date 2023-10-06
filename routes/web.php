@@ -68,150 +68,155 @@ Route::middleware('auth:sanctum')->group(function () {
     )->name('resource.time_slots');
 
     /* Admins */
+    Route::middleware('can:view-admin-panel')->group(function () {
+        /* Dashboard */
+        Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])
+            ->name('admin.dashboard');
 
-    /* Dashboard */
-    Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])
-        ->name('admin.dashboard');
+        /* Happenings */
+        Route::get('/admin/happenings', [AdminHappeningController::class, 'getHappenings'])
+            ->name('admin.happening.index');
+        Route::get('/admin/happening/create', [AdminHappeningController::class, 'createHappening'])
+            ->name('admin.happening.create');
+        Route::get('/admin/happening/edit/{id}', [AdminHappeningController::class, 'editHappening'])
+            ->name('admin.happening.edit');
+        Route::post('/admin/happening/store', [AdminHappeningController::class, 'storeHappening'])
+            ->name('admin.happening.store');
+        Route::post('/admin/happening/update', [AdminHappeningController::class, 'updateHappening'])
+            ->name('admin.happening.update');
+        Route::post('/admin/happening/delete', [AdminHappeningController::class, 'deleteHappening'])
+            ->name('admin.happening.delete');
 
-    /* Happenings */
-    Route::get('/admin/happenings', [AdminHappeningController::class, 'getHappenings'])
-        ->name('admin.happening.index');
-    Route::get('/admin/happening/create', [AdminHappeningController::class, 'createHappening'])
-        ->name('admin.happening.create');
-    Route::get('/admin/happening/edit/{id}', [AdminHappeningController::class, 'editHappening'])
-        ->name('admin.happening.edit');
-    Route::post('/admin/happening/store', [AdminHappeningController::class, 'storeHappening'])
-        ->name('admin.happening.store');
-    Route::post('/admin/happening/update', [AdminHappeningController::class, 'updateHappening'])
-        ->name('admin.happening.update');
-    Route::post('/admin/happening/delete', [AdminHappeningController::class, 'deleteHappening'])
-        ->name('admin.happening.delete');
+        /* Institutions */
+        Route::get('/admin/institutions', [AdminInstitutionController::class, 'getInstitutions'])
+            ->name('admin.institution.index');
+        Route::get('/admin/institution/create', [AdminInstitutionController::class, 'createInstitution'])
+            ->name('admin.institution.create');
+        Route::get('/admin/institution/{id}/edit', [AdminInstitutionController::class, 'editInstitution'])
+            ->name('admin.institution.edit');
+        Route::post('/admin/institution/store', [AdminInstitutionController::class, 'storeInstitution'])
+            ->name('admin.institution.store');
+        Route::post('/admin/institution/update', [AdminInstitutionController::class, 'updateInstitution'])
+            ->name('admin.institution.update');
+        Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])
+            ->name('admin.institution.delete');
 
-    /* Institutions */
-    Route::get('/admin/institutions', [AdminInstitutionController::class, 'getInstitutions'])
-        ->name('admin.institution.index');
-    Route::get('/admin/institution/create', [AdminInstitutionController::class, 'createInstitution'])
-        ->name('admin.institution.create');
-    Route::get('/admin/institution/{id}/edit', [AdminInstitutionController::class, 'editInstitution'])
-        ->name('admin.institution.edit');
-    Route::post('/admin/institution/store', [AdminInstitutionController::class, 'storeInstitution'])
-        ->name('admin.institution.store');
-    Route::post('/admin/institution/update', [AdminInstitutionController::class, 'updateInstitution'])
-        ->name('admin.institution.update');
-    Route::post('/admin/institution/delete', [AdminInstitutionController::class, 'deleteInstitution'])
-        ->name('admin.institution.delete');
+        /* Resource Groups */
+        Route::get('/admin/resource_groups', [AdminResourceGroupController::class, 'getResourceGroups'])
+            ->name('admin.resource_group.index');
+        Route::get('/admin/resource_group/create', [AdminResourceGroupController::class, 'createResourceGroup'])
+            ->name('admin.resource_group.create');
+        Route::get('/admin/resource_group/{id}/edit', [AdminResourceGroupController::class, 'editResourceGroup'])
+            ->name('admin.resource_group.edit');
+        Route::post('/admin/resource_group/store', [AdminResourceGroupController::class, 'storeResourceGroup'])
+            ->name('admin.resource_group.store');
+        Route::post('/admin/resource_group/update', [AdminResourceGroupController::class, 'updateResourceGroup'])
+            ->name('admin.resource_group.update');
+        Route::post('/admin/resource_group/delete', [AdminResourceGroupController::class, 'deleteResourceGroup'])
+            ->name('admin.resource_group.delete');
 
-    /* Resource Groups */
-    Route::get('/admin/resource_groups', [AdminResourceGroupController::class, 'getResourceGroups'])
-        ->name('admin.resource_group.index');
-    Route::get('/admin/resource_group/create', [AdminResourceGroupController::class, 'createResourceGroup'])
-        ->name('admin.resource_group.create');
-    Route::get('/admin/resource_group/{id}/edit', [AdminResourceGroupController::class, 'editResourceGroup'])
-        ->name('admin.resource_group.edit');
-    Route::post('/admin/resource_group/store', [AdminResourceGroupController::class, 'storeResourceGroup'])
-        ->name('admin.resource_group.store');
-    Route::post('/admin/resource_group/update', [AdminResourceGroupController::class, 'updateResourceGroup'])
-        ->name('admin.resource_group.update');
-    Route::post('/admin/resource_group/delete', [AdminResourceGroupController::class, 'deleteResourceGroup'])
-        ->name('admin.resource_group.delete');
+        /* Resources */
+        Route::get(
+            '/admin/resource_group/{resource_group_id}/resources',
+            [AdminResourceController::class, 'getResources'],
+        )->name('admin.resource.index');
+        Route::get(
+            '/admin/resource_group/{resource_group_id}/resource/create',
+            [AdminResourceController::class, 'createResource'],
+        )->name('admin.resource.create');
+        Route::get('/admin/resource/{id}/edit', [AdminResourceController::class, 'editResource'])
+            ->name('admin.resource.edit');
+        Route::post('/admin/resource/store', [AdminResourceController::class, 'storeResource'])
+            ->name('admin.resource.store');
+        Route::post('/admin/resource/update', [AdminResourceController::class, 'updateResource'])
+            ->name('admin.resource.update');
+        Route::post('/admin/resource/delete', [AdminResourceController::class, 'deleteResource'])
+            ->name('admin.resource.delete');
+        Route::post('/admin/resource/clone', [AdminResourceController::class, 'cloneResource'])
+            ->name('admin.resource.clone');
 
-    /* Resources */
-    Route::get('/admin/resource_group/{resource_group_id}/resources', [AdminResourceController::class, 'getResources'])
-        ->name('admin.resource.index');
-    Route::get(
-        '/admin/resource_group/{resource_group_id}/resource/create',
-        [AdminResourceController::class, 'createResource'],
-    )->name('admin.resource.create');
-    Route::get('/admin/resource/{id}/edit', [AdminResourceController::class, 'editResource'])
-        ->name('admin.resource.edit');
-    Route::post('/admin/resource/store', [AdminResourceController::class, 'storeResource'])
-        ->name('admin.resource.store');
-    Route::post('/admin/resource/update', [AdminResourceController::class, 'updateResource'])
-        ->name('admin.resource.update');
-    Route::post('/admin/resource/delete', [AdminResourceController::class, 'deleteResource'])
-        ->name('admin.resource.delete');
-    Route::post('/admin/resource/clone', [AdminResourceController::class, 'cloneResource'])
-        ->name('admin.resource.clone');
+        /* Closings */
+        Route::get('/admin/{closable_type}/{closable_id}/closings', [AdminClosingController::class, 'getClosings'])
+            ->name('admin.closing.index');
+        Route::get(
+            '/admin/{closable_type}/{closable_id}/closing/create',
+            [AdminClosingController::class, 'createClosing'],
+        )->name('admin.closing.create');
+        Route::get('/admin/closing/{id}/edit', [AdminClosingController::class, 'editClosing'])
+            ->name('admin.closing.edit');
+        Route::post('/admin/closing/store', [AdminClosingController::class, 'storeClosing'])
+            ->name('admin.closing.store');
+        Route::post('/admin/closing/update', [AdminClosingController::class, 'updateClosing'])
+            ->name('admin.closing.update');
+        Route::post('/admin/closing/delete', [AdminClosingController::class, 'deleteClosing'])
+            ->name('admin.closing.delete');
 
-    /* Closings */
-    Route::get('/admin/{closable_type}/{closable_id}/closings', [AdminClosingController::class, 'getClosings'])
-        ->name('admin.closing.index');
-    Route::get('/admin/{closable_type}/{closable_id}/closing/create', [AdminClosingController::class, 'createClosing'])
-        ->name('admin.closing.create');
-    Route::get('/admin/closing/{id}/edit', [AdminClosingController::class, 'editClosing'])
-        ->name('admin.closing.edit');
-    Route::post('/admin/closing/store', [AdminClosingController::class, 'storeClosing'])
-        ->name('admin.closing.store');
-    Route::post('/admin/closing/update', [AdminClosingController::class, 'updateClosing'])
-        ->name('admin.closing.update');
-    Route::post('/admin/closing/delete', [AdminClosingController::class, 'deleteClosing'])
-        ->name('admin.closing.delete');
+        /* Settings */
+        Route::get('/admin/institution/{institution_id}/settings', [AdminSettingController::class, 'getSettings'])
+            ->name('admin.setting.index');
+        Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
+            ->name('admin.setting.edit');
+        Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])
+            ->name('admin.setting.update');
 
-    /* Settings */
-    Route::get('/admin/institution/{institution_id}/settings', [AdminSettingController::class, 'getSettings'])
-        ->name('admin.setting.index');
-    Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
-        ->name('admin.setting.edit');
-    Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])
-        ->name('admin.setting.update');
+        /* Mails */
+        Route::get('/admin/institution/{institution_id}/mails', [AdminMailController::class, 'getMails'])
+            ->name('admin.mail.index');
+        Route::get('/admin/institution/{institution_id}/mail/create', [AdminMailController::class, 'createMail'])
+            ->name('admin.mail.create');
+        Route::post('/admin/mail/store', [AdminMailController::class, 'storeMail'])
+            ->name('admin.mail.store');
+        Route::get('/admin/mail/{id}/edit', [AdminMailController::class, 'editMail'])
+            ->name('admin.mail.edit');
+        Route::post('/admin/mail/update', [AdminMailController::class, 'updateMail'])
+            ->name('admin.mail.update');
+        Route::post('/admin/mail/delete', [AdminMailController::class, 'deleteMail'])
+            ->name('admin.mail.delete');
 
-    /* Mails */
-    Route::get('/admin/institution/{institution_id}/mails', [AdminMailController::class, 'getMails'])
-        ->name('admin.mail.index');
-    Route::get('/admin/institution/{institution_id}/mail/create', [AdminMailController::class, 'createMail'])
-        ->name('admin.mail.create');
-    Route::post('/admin/mail/store', [AdminMailController::class, 'storeMail'])
-        ->name('admin.mail.store');
-    Route::get('/admin/mail/{id}/edit', [AdminMailController::class, 'editMail'])
-        ->name('admin.mail.edit');
-    Route::post('/admin/mail/update', [AdminMailController::class, 'updateMail'])
-        ->name('admin.mail.update');
-    Route::post('/admin/mail/delete', [AdminMailController::class, 'deleteMail'])
-        ->name('admin.mail.delete');
+        /* Stats */
+        Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])
+            ->name('admin.statistic.index');
 
-    /* Stats */
-    Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])
-        ->name('admin.statistic.index');
+        /* Users */
+        Route::get('/admin/users', [AdminUserController::class, 'getUsers'])
+            ->name('admin.user.index');
+        Route::get('/admin/user/{id}/edit', [AdminUserController::class, 'editUser'])
+            ->name('admin.user.edit');
+        Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
+            ->name('admin.user.delete');
+        Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
+            ->name('admin.user.update');
 
-    /* Users */
-    Route::get('/admin/users', [AdminUserController::class, 'getUsers'])
-        ->name('admin.user.index');
-    Route::get('/admin/user/{id}/edit', [AdminUserController::class, 'editUser'])
-        ->name('admin.user.edit');
-    Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
-        ->name('admin.user.delete');
-    Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
-        ->name('admin.user.update');
+        /* Roles */
+        Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])
+            ->name('admin.role.index');
+        Route::get('/admin/role/create', [AdminRoleController::class, 'createRole'])
+            ->name('admin.role.create');
+        Route::post('/admin/role/store', [AdminRoleController::class, 'storeRole'])
+            ->name('admin.role.store');
+        Route::get('/admin/role/{id}/edit', [AdminRoleController::class, 'editRole'])
+            ->name('admin.role.edit');
+        Route::post('/admin/role/update', [AdminRoleController::class, 'updateRole'])
+            ->name('admin.role.update');
+        Route::post('/admin/role/delete', [AdminRoleController::class, 'deleteRole'])
+            ->name('admin.role.delete');
 
-    /* Roles */
-    Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])
-        ->name('admin.role.index');
-    Route::get('/admin/role/create', [AdminRoleController::class, 'createRole'])
-        ->name('admin.role.create');
-    Route::post('/admin/role/store', [AdminRoleController::class, 'storeRole'])
-        ->name('admin.role.store');
-    Route::get('/admin/role/{id}/edit', [AdminRoleController::class, 'editRole'])
-        ->name('admin.role.edit');
-    Route::post('/admin/role/update', [AdminRoleController::class, 'updateRole'])
-        ->name('admin.role.update');
-    Route::post('/admin/role/delete', [AdminRoleController::class, 'deleteRole'])
-        ->name('admin.role.delete');
+        /* Permissions */
+        Route::get('/admin/permissions', [AdminPermissionController::class, 'getPermissions'])
+            ->name('admin.permission.index');
+        Route::get('/admin/permission/{id}/edit', [AdminPermissionController::class, 'editPermission'])
+            ->name('admin.permission.edit');
+        Route::post('/admin/permission/update', [AdminPermissionController::class, 'updatePermission'])
+            ->name('admin.permission.update');
 
-    /* Permissions */
-    Route::get('/admin/permissions', [AdminPermissionController::class, 'getPermissions'])
-        ->name('admin.permission.index');
-    Route::get('/admin/permission/{id}/edit', [AdminPermissionController::class, 'editPermission'])
-        ->name('admin.permission.edit');
-    Route::post('/admin/permission/update', [AdminPermissionController::class, 'updatePermission'])
-        ->name('admin.permission.update');
-
-    /* Permission Groups */
-    Route::get('/admin/permission_groups', [AdminPermissionGroupController::class, 'getPermissionGroups'])
-        ->name('admin.permission_group.index');
-    Route::get('/admin/permission_group/{id}/edit', [AdminPermissionGroupController::class, 'editPermissionGroup'])
-        ->name('admin.permission_group.edit');
-    Route::post('/admin/permission_group/update', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
-        ->name('admin.permission_group.update');
+        /* Permission Groups */
+        Route::get('/admin/permission_groups', [AdminPermissionGroupController::class, 'getPermissionGroups'])
+            ->name('admin.permission_group.index');
+        Route::get('/admin/permission_group/{id}/edit', [AdminPermissionGroupController::class, 'editPermissionGroup'])
+            ->name('admin.permission_group.edit');
+        Route::post('/admin/permission_group/update', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
+            ->name('admin.permission_group.update');
+    });
 });
 
 // Institution Home
