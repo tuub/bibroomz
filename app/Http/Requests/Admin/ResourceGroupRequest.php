@@ -4,8 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\ResourceGroup;
 use App\Rules\RequiredWithTranslationRule;
+use App\Rules\UniqueResourceGroupAttributeRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ResourceGroupRequest extends FormRequest
 {
@@ -21,7 +21,7 @@ class ResourceGroupRequest extends FormRequest
         return [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
             'name' => [new RequiredWithTranslationRule()],
-            'slug' => ['required', Rule::unique('resource_groups')->ignore($resource_group?->id)],
+            'slug' => ['required', new UniqueResourceGroupAttributeRule($this->institution_id, $resource_group?->id)],
             'term_singular' => [new RequiredWithTranslationRule()],
             'term_plural' => [new RequiredWithTranslationRule()],
             'description' => [new RequiredWithTranslationRule()],
