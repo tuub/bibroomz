@@ -14,7 +14,7 @@ class RemoveUsersCommand extends Command implements Isolatable
      *
      * @var string
      */
-    protected $signature = 'users:remove
+    protected $signature = 'roomz:remove-users
         {--D|days= : Remove users with no happenings more recent than this many days}
         {--dry-run : Do not remove users}
         {--force : Do not ask for confirmation}';

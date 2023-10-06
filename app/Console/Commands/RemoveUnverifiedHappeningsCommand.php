@@ -17,7 +17,7 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
      *
      * @var string
      */
-    protected $signature = 'happenings:remove-unverified
+    protected $signature = 'roomz:remove-unverified-happenings
                             {--M|minutes= : Remove unverified happenings older than this many minutes}
                             {--H|hours= : Remove unverified happenings older than this many hours}
                             {--D|days= : Remove unverified happenings older than this many days}

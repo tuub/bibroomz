@@ -22,7 +22,7 @@ class CreateInstitutionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'institution:create
+    protected $signature = 'roomz:create-institution
         {--title= : The title of the institution}
         {--short-title= : The short title of the institution}
         {--slug= : The slug of the institution}
