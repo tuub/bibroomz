@@ -20,6 +20,7 @@ return [
         'users' => 'Benutzer:innen',
         'roles' => 'Rollen',
         'permissions' => 'Berechtigungen',
+        'permission_groups' => 'Berechtigungsgruppen',
         'stats' => 'Statistiken',
         'exit' => 'Administration verlassen',
     ],

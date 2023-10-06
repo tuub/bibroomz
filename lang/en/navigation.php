@@ -20,6 +20,7 @@ return [
         'users' => 'Users',
         'roles' => 'Roles',
         'permissions' => 'Permissions',
+        'permission_groups' => 'Permission Groups',
         'stats' => 'Statistics',
         'exit' => 'Leave Administration',
     ],
