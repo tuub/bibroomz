@@ -560,6 +560,7 @@ return [
                     'hint' => ' ',
                 ],
             ],
+            'no_group' => 'Other Permissions',
         ],
     ],
     'permissions' => [

@@ -58,7 +58,6 @@
             </div>
 
             <div>
-                <!-- Fixme -->
                 <div>
                     <input
                         id="no-group-checkbox"
@@ -68,7 +67,7 @@
                         :indeterminate="isGroupIndeterminate()"
                         @change="updateCheckedPermissions()"
                     />
-                    <span class="pl-2 text-gray-600">Other Permissions</span>
+                    <span class="pl-2 text-gray-600">{{ $t("admin.roles.form.no_group") }}</span>
                 </div>
 
                 <ul class="ml-6 mb-2">
@@ -160,7 +159,7 @@ const updatePermission = ({ value, checked }) => {
 
 const isGroupChecked = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id === groupId) {
+        if (permission.group_id == groupId) {
             if (!form.permissions.includes(permission.id)) {
                 return false;
             }
@@ -172,7 +171,7 @@ const isGroupChecked = (groupId) => {
 
 const isGroupUnchecked = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id === groupId) {
+        if (permission.group_id == groupId) {
             if (form.permissions.includes(permission.id)) {
                 return false;
             }
@@ -196,7 +195,7 @@ const updateCheckedPermissions = (groupId) => {
 
 const checkPermissionGroup = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id === groupId && !form.permissions.includes(permission.id)) {
+        if (permission.group_id == groupId && !form.permissions.includes(permission.id)) {
             form.permissions.push(permission.id);
         }
     }
@@ -204,7 +203,7 @@ const checkPermissionGroup = (groupId) => {
 
 const uncheckPermissionGroup = (groupId) => {
     for (const permission of props.permissions) {
-        if (permission.group_id === groupId) {
+        if (permission.group_id == groupId) {
             form.permissions = form.permissions.filter((x) => x !== permission.id);
         }
     }
