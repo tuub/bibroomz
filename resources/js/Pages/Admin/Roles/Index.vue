@@ -35,7 +35,7 @@
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{ translate(role.description) }}
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4 text-left">
                         {{
                             role.permissions
                                 .sort((a, b) => translate(a.name).localeCompare(translate(b.name)))
