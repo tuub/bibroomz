@@ -30,7 +30,7 @@ class ResourceGroupController extends Controller
     public function createResourceGroup(): Response
     {
         $institutions = Institution::active()->orderBy('title')->without('closings')->get()
-            ->filter->isUserAbleToCreateResource(auth()->user());
+            ->filter->isUserAbleToCreateResourceGroup(auth()->user());
 
         return Inertia::render('Admin/ResourceGroups/Form', [
             'institutions' => $institutions,
