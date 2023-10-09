@@ -13,7 +13,7 @@ return [
         'success' => 'Erfolgreich ausgeloggt.',
     ],
     'errors' => [
-        'user_not_found' => 'Nutzer*in existiert nicht.',
+        'user_not_found' => 'Benutzer:in existiert nicht.',
         'no_auth' => 'Nicht eingeloggt.',
     ],
 ];

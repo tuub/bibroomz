@@ -1,6 +1,6 @@
 <template>
     <Link class="float-left" :class="{ 'font-extrabold': isActive }">
-        <i :class="icon" class="pr-1"></i>
+        <i v-if="icon" :class="icon" class="pr-1"></i>
         <slot />
     </Link>
 </template>
@@ -14,7 +14,7 @@ import { Link } from "@inertiajs/vue3";
 defineProps({
     icon: {
         type: String,
-        required: true,
+        required: false,
     },
     isActive: {
         type: Boolean,

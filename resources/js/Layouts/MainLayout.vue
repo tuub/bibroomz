@@ -8,16 +8,12 @@
         <footer class="footer">
             <ul>
                 <li>
-                    <NavLink
-                        icon="ri-government-fill"
-                        :href="route('privacy_statement')"
-                        :is-active="isPrivacyStatement"
-                    >
+                    <a href="https://www.tu.berlin/datenschutz" target="_blank">
                         {{ $t("navigation.regular.privacy_statement") }}
-                    </NavLink>
+                    </a>
                 </li>
                 <li>
-                    <NavLink icon="ri-copyright-fill" :href="route('site_credits')" :is-active="isSiteCredits">
+                    <NavLink :href="route('site_credits')" :is-active="isSiteCredits">
                         {{ $t("navigation.regular.site_credits") }}
                     </NavLink>
                 </li>
