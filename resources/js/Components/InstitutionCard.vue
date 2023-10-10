@@ -8,9 +8,8 @@
         </h1>
         <img class="teaser-img" :src="institution.teaser_uri" />
         <p class="py-2"><i class="ri-map-pin-fill pr-1"></i> {{ institution.location }}</p>
-        <p v-for="resource_group in institution.resource_groups" :key="resource_group.id">
-            <Link
-                :href="
+        <button v-for="resource_group in institution.resource_groups" class="institution-resource-groups-button" :key="resource_group.id">
+            <Link :href="
                     route('home', {
                         institution_slug: institution.slug,
                         resource_group_slug: resource_group.slug,
@@ -19,7 +18,7 @@
             >
                 {{ translate(resource_group.name) }}
             </Link>
-        </p>
+        </button>
         <p class="py-2">
             <i class="ri-external-link-line pr-1"></i>
             <a :href="institution.home_uri" target="_blank">
@@ -49,12 +48,11 @@ const translate = appStore.translate;
 </script>
 <style>
 .institution-card-wapper {
-    margin: auto;
-    margin-top: 30px;
-    margin-right: 30px;
-    width: 30%;
+    margin: 30px 30px auto auto;
+    width: 48.8%;
     box-shadow: 0 3px 3px rgb(204, 203, 203);
     float: left;
+    border-radius: 0px;
 }
 
 .institution-card-wapper:last-child {
@@ -65,9 +63,33 @@ const translate = appStore.translate;
     margin: auto;
 }
 
-@media only screen and (max-width: 1150px) {
+.institution-resource-groups-button{
+    margin: 0.4em;
+    padding: 0.4em;
+    rotate: unset;
+    height: 50px;
+    width: 96%;
+    z-index: 9;
+    background: #C40D1E;
+    color: #FFFFFF;
+    font-family: Muli, sans-serif, Arial;
+    font-size: 1.2rem;
+    font-weight: 400;
+    min-width: 2rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.25s, color 0.25s;
+    box-shadow: 0 1px 1px rgb(204, 203, 203);
+}
+
+
+@media only screen and (max-width: 1250px) {
     .institution-card-wapper {
         width: 100%;
+    }
+
+    .institution-resource-groups-button{
+        width: 90%;
     }
 }
 </style>
