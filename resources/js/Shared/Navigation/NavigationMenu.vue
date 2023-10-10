@@ -143,6 +143,26 @@ const toggle = () => {
         top: 350px;
     }
 
+    #mobile-menu > ul > li:nth-child(10) {
+        top: 400px;
+    }
+
+    #mobile-menu > ul > li:nth-child(11) {
+        top: 450px;
+    }
+
+    #mobile-menu > ul > li:nth-child(12) {
+        top: 500px;
+    }
+
+    #mobile-menu > ul > li:nth-child(13) {
+        top: 550px;
+    }
+
+    #mobile-menu > ul > li:nth-child(14) {
+        top: 600px;
+    }
+
     .mobile-button {
         position: absolute;
         display: block;
