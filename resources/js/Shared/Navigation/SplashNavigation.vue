@@ -1,7 +1,7 @@
 <template>
-    <NavigationMenu>
+    <NavigationMenu v-if="isPrivileged">
         <ul>
-            <li v-if="isPrivileged">
+            <li>
                 <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
                     {{ $t("navigation.regular.admin") }}
                 </NavLink>

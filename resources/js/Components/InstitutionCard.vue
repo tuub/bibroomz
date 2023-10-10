@@ -2,14 +2,19 @@
     <div
         class="institution-card-wapper text-center p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     >
-        <img :src="institution.logo_uri" class="h-14 mx-auto" />
+        <img :src="institution.logo_uri" class="institution-logo" />
         <h1 class="mt-2 mb-2 text-medium font-normal tracking-tight text-gray-900 dark:text-white uppercase">
             {{ translate(institution.title) }}
         </h1>
         <img class="teaser-img" :src="institution.teaser_uri" />
         <p class="py-2"><i class="ri-map-pin-fill pr-1"></i> {{ institution.location }}</p>
-        <button v-for="resource_group in institution.resource_groups" class="institution-resource-groups-button" :key="resource_group.id">
-            <Link :href="
+        <button
+            v-for="resource_group in institution.resource_groups"
+            :key="resource_group.id"
+            class="institution-resource-groups-button"
+        >
+            <Link
+                :href="
                     route('home', {
                         institution_slug: institution.slug,
                         resource_group_slug: resource_group.slug,
@@ -48,27 +53,39 @@ const translate = appStore.translate;
 </script>
 <style>
 .institution-card-wapper {
-    margin: 30px 30px auto auto;
-    width: 48.8%;
+    margin: -5px 30px 35px auto;
+    padding: 40px;
+    width: 47.8%;
     box-shadow: 0 3px 3px rgb(204, 203, 203);
     float: left;
     border-radius: 0px;
 }
 
-.institution-card-wapper:last-child {
-    margin-right: 0;
+.institution-card-wapper:nth-child(2) {
+    margin: -5px 0px 35px auto;
+    padding: 40px;
+}
+
+.institution-card-wapper > h1 {
+    display: none;
+}
+
+.institution-logo {
+    padding: 20px;
+    height: 100px;
+    margin: auto;
 }
 
 .teaser-img {
     margin: auto;
 }
 
-.institution-resource-groups-button{
-    margin: 0.4em;
-    padding: 0.4em;
+.institution-resource-groups-button {
+    margin: 0.2em;
+    padding: 0.2em;
     rotate: unset;
     height: 50px;
-    width: 96%;
+    width: 100%;
     z-index: 9;
     background: #C40D1E;
     color: #FFFFFF;
@@ -78,18 +95,27 @@ const translate = appStore.translate;
     min-width: 2rem;
     text-align: center;
     text-decoration: none;
-    transition: background 0.25s, color 0.25s;
+    transition:
+        background 0.25s,
+        color 0.25s;
     box-shadow: 0 1px 1px rgb(204, 203, 203);
 }
 
-
-@media only screen and (max-width: 1250px) {
+@media only screen and (max-width: 1200px) {
     .institution-card-wapper {
         width: 100%;
     }
 
-    .institution-resource-groups-button{
-        width: 90%;
+    .institution-resource-groups-button {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .institution-logo {
+        padding: 20px;
+        height: 80px;
+        margin: auto;
     }
 }
 </style>
