@@ -105,6 +105,15 @@ class Happening extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
+    protected static function booted(): void
+    {
+        static::softDeleted(function (Happening $happening) {
+            $happening->update([
+                'verifier' => null,
+            ]);
+        });
+    }
+
     private function isMine(): bool
     {
         return auth()->user()->id === $this->user_id_01 || auth()->user()->id === $this->user_id_02;
@@ -200,7 +209,7 @@ class Happening extends Model
         return $users;
     }
 
-    public function broadcast(String $broadcastEvent): void
+    public function broadcast(string $broadcastEvent): void
     {
         foreach ($this->users() as $user) {
             $broadcastEvent::dispatch($this, $user);
