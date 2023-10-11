@@ -235,6 +235,6 @@ class Happening extends Model
 
     public function prunable(): Builder
     {
-        return static::where('deleted_at', '<=', now()->subDays(config('roomz.happenings.cleanup_days')));
+        return static::where('end', '<=', now()->subDays(config('roomz.happenings.cleanup_days')));
     }
 }
