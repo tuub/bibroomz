@@ -21,18 +21,19 @@ class HomeController extends Controller
             return redirect()->route('home', [
                 'institution_slug' => $resource_groups->first()->institution->slug,
                 'resource_group_slug' => $resource_groups->first()->slug,
-            ]
-            );
+            ]);
         }
 
         return Inertia::render('Start', [
-            'institutions' => $institutions
+            'appName' => config('app.name'),
+            'institutions' => $institutions,
         ]);
     }
 
     public function getInstitutionalHome(Request $request): Response|RedirectResponse
     {
-        $resource_group = ResourceGroup::whereHas('institution',
+        $resource_group = ResourceGroup::whereHas(
+            'institution',
             fn ($query) => $query->where('slug', $request->institution_slug)
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
@@ -65,7 +66,8 @@ class HomeController extends Controller
 
     public function getTerminalView(Request $request): Response
     {
-        $resource_group = ResourceGroup::whereHas('institution',
+        $resource_group = ResourceGroup::whereHas(
+            'institution',
             fn ($query) => $query->where('slug', $request->institution_slug)
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 

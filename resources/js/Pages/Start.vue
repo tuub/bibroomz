@@ -22,7 +22,11 @@ import { onBeforeMount, onMounted } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
+    appName: {
+        type: String,
+        required: true,
+    },
     institutions: {
         type: Array,
         default: () => [],
@@ -39,6 +43,7 @@ const modal = useModal();
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
+    appStore.appName = props.appName;
     appStore.resourceGroup = null;
     appStore.settings = null;
     appStore.hiddenDays = null;
