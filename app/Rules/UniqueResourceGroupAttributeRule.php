@@ -9,9 +9,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 class UniqueResourceGroupAttributeRule implements ValidationRule
 {
     private string $institution_id;
-    private string $resource_group_id;
+    private string|null $resource_group_id;
 
-    public function __construct(string $institution_id, string $resource_group_id)
+    public function __construct(string $institution_id, string|null $resource_group_id)
     {
         $this->institution_id = $institution_id;
         $this->resource_group_id = $resource_group_id;
