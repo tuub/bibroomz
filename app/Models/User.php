@@ -92,6 +92,13 @@ class User extends Authenticatable
     /*****************************************************************
      * METHODS
      ****************************************************************/
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            Happening::where('user_id_01', $user->getKey())->orWhere('user_id_02', $user->getKey())->delete();
+        });
+    }
+
     public function isAdmin(): bool
     {
         return $this->is_admin;
@@ -108,16 +115,16 @@ class User extends Authenticatable
         CarbonImmutable $start,
         CarbonImmutable $end,
         Happening $happening = null,
-    ): bool
-    {
+    ): bool {
         return $this->getOtherUserHappeningsForResourceGroup($happening?->resource->resource_group, $happening)
             ->filter->isConcurrent($start, $end)
             ->isNotEmpty();
     }
 
     public function getOtherUserHappeningsForResourceGroup(
-        ResourceGroup $resource_group = null, Happening $happening = null): Collection
-    {
+        ResourceGroup $resource_group = null,
+        Happening $happening = null
+    ): Collection {
         return Happening::whereHas(
             'resource',
             fn (Builder $query) => $query->where('resource_group_id', $resource_group?->getKey()),
