@@ -4,7 +4,6 @@ namespace App\Auth;
 
 use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Hash;
@@ -127,38 +126,42 @@ class AlmaUserProvider implements UserProvider
 
     private function getLocalUserInfo($credentials)
     {
+        if (!config('roomz.test-accounts.is_enabled')) {
+            return null;
+        }
+
         if (
-            $credentials['username'] == config('roomz.test-user.admin.username')
-            && $credentials['password'] == config('roomz.test-user.admin.password')
+            $credentials['username'] == config('roomz.test-accounts.admin.username')
+            && $credentials['password'] == config('roomz.test-accounts.admin.password')
         ) {
             return [
-                'name' => config('roomz.test-user.admin.username'),
-                'password' => Hash::make(config('roomz.test-user.admin.password')),
-                'email' => config('roomz.test-user.admin.email'),
+                'name' => config('roomz.test-accounts.admin.username'),
+                'password' => Hash::make(config('roomz.test-accounts.admin.password')),
+                'email' => config('roomz.test-accounts.admin.email'),
                 'is_admin' => true,
             ];
         }
 
         if (
-            $credentials['username'] == config('roomz.test-user.test1.username')
-            && $credentials['password'] == config('roomz.test-user.test1.password')
+            $credentials['username'] == config('roomz.test-accounts.test1.username')
+            && $credentials['password'] == config('roomz.test-accounts.test1.password')
         ) {
             return [
-                'name' => config('roomz.test-user.test1.username'),
-                'password' => Hash::make(config('roomz.test-user.test1.password')),
-                'email' => config('roomz.test-user.test1.email'),
+                'name' => config('roomz.test-accounts.test1.username'),
+                'password' => Hash::make(config('roomz.test-accounts.test1.password')),
+                'email' => config('roomz.test-accounts.test1.email'),
                 'is_admin' => false,
             ];
         }
 
         if (
-            $credentials['username'] == config('roomz.test-user.test2.username')
-            && $credentials['password'] == config('roomz.test-user.test2.password')
+            $credentials['username'] == config('roomz.test-accounts.test2.username')
+            && $credentials['password'] == config('roomz.test-accounts.test2.password')
         ) {
             return [
-                'name' => config('roomz.test-user.test2.username'),
-                'password' => Hash::make(config('roomz.test-user.test2.password')),
-                'email' => config('roomz.test-user.test2.email'),
+                'name' => config('roomz.test-accounts.test2.username'),
+                'password' => Hash::make(config('roomz.test-accounts.test2.password')),
+                'email' => config('roomz.test-accounts.test2.email'),
                 'is_admin' => false,
             ];
         }

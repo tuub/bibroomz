@@ -44,12 +44,13 @@ return [
     'user' => [
         'is_suspension_enabled' => env('USER_SUSPENSION_ENABLED', true),
         'suspension_days' => env('USER_SUSPENSION_DAYS', 3),
-        'cleanup_days' => env('USER_CLEANUP_DAYS', 14),
+        'cleanup_days' => env('USER_CLEANUP_DAYS', 30),
     ],
     'happenings' => [
-        'cleanup_days' => env('HAPPENINGS_CLEANUP_DAYS', 7),
+        'cleanup_days' => env('HAPPENING_CLEANUP_DAYS', 30),
     ],
-    'test-user' => [
+    'test-accounts' => [
+        'is_enabled' => env('IS_TEST_ACCOUNTS_ENABLED', false),
         'admin' => [
             'username' => env('ADMIN_USER', 'admin'),
             'password' => env('ADMIN_PASSWORD', 'admin'),
