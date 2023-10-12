@@ -40,6 +40,10 @@ class Kernel extends ConsoleKernel
                 '--model' => [Happening::class],
             ]
         )->dailyAt('04:35');
+
+        $schedule->command(
+            'telescope:prune',
+        )->dailyAt('04:45');
     }
 
     /**
