@@ -1,5 +1,5 @@
 <template>
-    <div class="navigation-menu-wrapper">
+    <div class="navigation-menu-wrapper" :class="{ 'mobile-class-1': isAlwaysMobile, 'mobile-class-2': isAlwaysMobile }">
         <button
             class="mobile-menu-button"
             type="button"
@@ -43,7 +43,14 @@
     </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import {computed, ref} from "vue";
+
+defineProps({
+    isAlwaysMobile: {
+        type: Boolean,
+        default: false,
+    }
+})
 
 // ------------------------------------------------
 // Variables
@@ -59,6 +66,7 @@ const toggle = () => {
 </script>
 
 <style>
+
 .mobile-menu-button {
     display: block;
 }
@@ -74,115 +82,107 @@ const toggle = () => {
     float: right;
 }
 
-#mobile-menu > ul > li {
-    float: left;
-    margin-left: 20px;
-}
+
 
 .mobile-button {
     position: absolute;
     top: 77px;
     right: 27px;
+    display: block;
+}
+
+#mobile-menu > ul > a {
+    position: absolute;
+    display: flex;
+    height: 40px;
+    width: 280px;
+    top: 25px;
+    right: 0;
+    background: #FDFDFD;
+    padding: 8px;
+    z-index: 25;
+}
+
+.mobile-menu-background-red {
+    position: fixed;
+    background-color: #C40D1E;
+    top: 0px;
+    right: 0px;
+    width: 20em;
+    height: 100%;
+}
+
+#mobile-menu > ul > a:nth-child(1) {
+    top: -50px;
+}
+
+#mobile-menu > ul > a:nth-child(2) {
+    top: 0px;
+}
+
+#mobile-menu > ul > a:nth-child(3) {
+    top: 50px;
+}
+
+#mobile-menu > ul > a:nth-child(4) {
+    top: 100px;
+}
+
+#mobile-menu > ul > a:nth-child(5) {
+    top: 150px;
+}
+
+#mobile-menu > ul > a:nth-child(6) {
+    top: 200px;
+}
+
+#mobile-menu > ul > a:nth-child(7) {
+    top: 250px;
+}
+
+#mobile-menu > ul > a:nth-child(8) {
+    top: 300px;
+}
+
+#mobile-menu > ul > a:nth-child(9) {
+    top: 350px;
+}
+
+#mobile-menu > ul > a:nth-child(10) {
+    top: 400px;
+}
+
+#mobile-menu > ul > a:nth-child(11) {
+    top: 450px;
+}
+
+#mobile-menu > ul > a:nth-child(12) {
+    top: 500px;
+}
+
+#mobile-menu > ul > a:nth-child(13) {
+    top: 550px;
+}
+
+#mobile-menu > ul > a:nth-child(14) {
+    top: 600px;
+}
+
+.mobile-menu-background {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 50%);
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.mobile-menu-hidden {
     display: none;
 }
 
-@media only screen and (max-width: 1300px) {
-    #mobile-menu > ul > li {
-        position: absolute;
-        height: 40px;
-        width: 280px;
-        top: 25px;
-        right: 0;
-        background: #FDFDFD;
-        padding: 8px;
-        z-index: 25;
-    }
-
-    .mobile-menu-background-red {
-        position: fixed;
-        background-color: #C40D1E;
-        top: 0px;
-        right: 0px;
-        width: 20em;
-        height: 100%;
-    }
-
-    #mobile-menu > ul > li:nth-child(1) {
-        top: -50px;
-    }
-
-    #mobile-menu > ul > li:nth-child(2) {
-        top: 0px;
-    }
-
-    #mobile-menu > ul > li:nth-child(3) {
-        top: 50px;
-    }
-
-    #mobile-menu > ul > li:nth-child(4) {
-        top: 100px;
-    }
-
-    #mobile-menu > ul > li:nth-child(5) {
-        top: 150px;
-    }
-
-    #mobile-menu > ul > li:nth-child(6) {
-        top: 200px;
-    }
-
-    #mobile-menu > ul > li:nth-child(7) {
-        top: 250px;
-    }
-
-    #mobile-menu > ul > li:nth-child(8) {
-        top: 300px;
-    }
-
-    #mobile-menu > ul > li:nth-child(9) {
-        top: 350px;
-    }
-
-    #mobile-menu > ul > li:nth-child(10) {
-        top: 400px;
-    }
-
-    #mobile-menu > ul > li:nth-child(11) {
-        top: 450px;
-    }
-
-    #mobile-menu > ul > li:nth-child(12) {
-        top: 500px;
-    }
-
-    #mobile-menu > ul > li:nth-child(13) {
-        top: 550px;
-    }
-
-    #mobile-menu > ul > li:nth-child(14) {
-        top: 600px;
-    }
-
-    .mobile-button {
-        position: absolute;
-        display: block;
-    }
-
-    .mobile-menu-background {
-        position: fixed;
-        background-color: rgba(0, 0, 0, 50%);
-        top: 0px;
-        right: 0px;
-        width: 100%;
-        height: 100%;
-    }
-
-    .mobile-menu-hidden {
-        display: none;
-    }
-
-    .mobile-menu-visible {
-        display: block;
-    }
+.mobile-menu-visible {
+    display: block;
 }
+
 </style>
