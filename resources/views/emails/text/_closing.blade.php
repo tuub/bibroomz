@@ -6,17 +6,17 @@
     $institution = $closable instanceof Institution ? $closable : $closable->resource_group->institution;
 @endphp
 
-- @lang('email.closing.data.start.label'): {{ \Carbon\Carbon::parse($closing->start)->format('d.m.Y H:i') }}
-- @lang('email.closing.data.end.label'): {{ \Carbon\Carbon::parse($closing->end)->format('d.m.Y H:i') }}
-- @lang('email.closing.data.institution.label'): {{ $institution->title }}
+- @lang('email.closing.description'): {{ $closing->description }}
+- @lang('email.general.start.label'): {{ \Carbon\Carbon::parse($closing->start)->format('d.m.Y H:i') }}
+- @lang('email.general.end.label'): {{ \Carbon\Carbon::parse($closing->end)->format('d.m.Y H:i') }}
+- @lang('email.general.institution.label'): {{ $institution->title }}
 @if ($closable instanceof Resource)
-    - @lang('email.closing.data.resource.label'): {{ $closable->title }}
+    - @lang('email.general.resource.label'): {{ $closable->title }}
 @endif
 
-## @lang('email.closing.affected')
+## @lang('email.closing.affected_happenings')
 
 @foreach ($happenings as $happening)
     @include('emails.text._happening')
 @endforeach
-
 {{-- Empty Line --}}

@@ -3,13 +3,13 @@
     $verifier = $happening->user2?->name ?? $happening->verifier;
 @endphp
 
-- @lang('email.happening.data.start.label'): {{ \Carbon\Carbon::parse($happening->start)->format('d.m.Y H:i') }}
-- @lang('email.happening.data.end.label'): {{ \Carbon\Carbon::parse($happening->end)->format('d.m.Y H:i') }}
-- @lang('email.happening.data.institution.label'): {{ $happening->resource->resource_group->institution->title }}
+- @lang('email.general.start.label'): {{ \Carbon\Carbon::parse($happening->start)->format('d.m.Y H:i') }}
+- @lang('email.general.end.label'): {{ \Carbon\Carbon::parse($happening->end)->format('d.m.Y H:i') }}
+- @lang('email.general.institution.label'): {{ $happening->resource->resource_group->institution->title }}
 - {{ $happening->resource->resource_group->term_singular }}: {{ $happening->resource->title }}
-- @lang('email.happening.data.user.label'): {{ $happening->user1->name }}
+- @lang('email.general.user.label'): {{ $happening->user1->name }}
 @if ($verifier)
-- @lang('email.happening.data.verifier.label'): {{ $verifier }}
+- @lang('email.general.verifier.label'): {{ $verifier }}
 @endif
-- @lang('email.happening.data.status.label'): @lang('email.happening.data.status.value.' . $status)
+- @lang('email.general.status.label'): @lang('email.general.status.value.' . $status)
 {{-- Empty Line --}}

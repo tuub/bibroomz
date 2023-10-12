@@ -7,7 +7,7 @@ $institution = $closable instanceof Institution ? $closable : $closable->resourc
 @endphp
 
 <ul>
-<li>@lang('email.general.closing.description'): {{ $closing->description }}
+<li>@lang('email.closing.description'): {{ $closing->description }}
 <li>@lang('email.general.start.label'): {{ \Carbon\Carbon::parse($closing->start)->format('d.m.Y H:i') }}
 <li>@lang('email.general.end.label'): {{ \Carbon\Carbon::parse($closing->end)->format('d.m.Y H:i') }}
 <li>@lang('email.general.institution.label'): {{ $institution->title }}
