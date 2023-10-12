@@ -1,5 +1,5 @@
 <template>
-    <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" @click.prevent="openModal()">
+    <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline" @click.prevent="openModal()">
         {{ $t("admin." + model + "s.index.table.actions.delete") }}
     </a>
 </template>
