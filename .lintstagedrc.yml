@@ -16,4 +16,4 @@
 
 "*.php":
   - "php -l"
-  - "vendor/bin/phpcs"
+  - "vendor/bin/phpcs --ignore=*.blade.php"
