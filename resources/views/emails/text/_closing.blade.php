@@ -11,12 +11,12 @@
 - @lang('email.general.end.label'): {{ \Carbon\Carbon::parse($closing->end)->format('d.m.Y H:i') }}
 - @lang('email.general.institution.label'): {{ $institution->title }}
 @if ($closable instanceof Resource)
-    - @lang('email.general.resource.label'): {{ $closable->title }}
+- @lang('email.general.resource.label'): {{ $closable->title }}
 @endif
 
-## @lang('email.closing.affected_happenings')
-
+@lang('email.closing.affected_happenings'):
 @foreach ($happenings as $happening)
-    @include('emails.text._happening')
+{{-- Empty Line --}}
+@include('emails.text._happening')
 @endforeach
 {{-- Empty Line --}}
