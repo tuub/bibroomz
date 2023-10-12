@@ -1,35 +1,36 @@
 <template>
     <NavigationMenu>
         <ul>
-            <li v-if="isMultiTenancy">
-                <NavLink icon="ri-dashboard-fill" :href="route('start')" :is-active="isPageStart">
+            <NavLink v-if="isMultiTenancy" icon="ri-dashboard-fill" :href="route('start')" :is-active="isPageStart">
+                <li >
                     {{ $t("navigation.regular.institutions") }}
-                </NavLink>
-            </li>
-            <li v-if="institution?.slug && resourceGroup?.slug">
-                <NavLink
-                    icon="ri-home-fill"
-                    :href="
+                </li>
+            </NavLink>
+            <NavLink
+                icon="ri-home-fill"
+                :href="
                         route('home', {
                             institution_slug: institution.slug,
                             resource_group_slug: resourceGroup.slug,
                         })
                     "
-                    :is-active="isPageHome"
-                >
+                :is-active="isPageHome"
+                v-if="institution?.slug && resourceGroup?.slug"
+            >
+                <li>
                     {{ $t("navigation.regular.home", { short_title: institution?.short_title }) }}
-                </NavLink>
-            </li>
-            <li v-if="isPrivileged">
-                <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
+                </li>
+            </NavLink>
+            <NavLink v-if="isPrivileged" icon="ri-tools-fill" :href="route('admin.dashboard')">
+                <li>
                     {{ $t("navigation.regular.admin") }}
-                </NavLink>
-            </li>
-            <li>
-                <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
-                    {{ $t("navigation.regular.help.text") }}
-                </ExternalLink>
-            </li>
+                </li>
+            </NavLink>
+            <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
+                <li>
+                    {{ $t("navigation.regular.help.text") }} bg
+                </li>
+            </ExternalLink>
         </ul>
     </NavigationMenu>
 </template>

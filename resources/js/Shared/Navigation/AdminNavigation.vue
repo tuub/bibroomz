@@ -1,76 +1,80 @@
 <template>
-    <NavigationMenu>
+    <NavigationMenu is-always-mobile="true">
         <ul>
-            <li>
-                <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')" :is-active="isPageDashboard">
+            <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')" :is-active="isPageDashboard">
+                <li>
                     {{ $t("navigation.admin.dashboard") }}
-                </NavLink>
-            </li>
-            <li>
-                <NavLink
-                    icon="ri-calendar-event-fill"
-                    :href="route('admin.happening.index')"
-                    :is-active="isPageHappenings"
-                >
+                </li>
+            </NavLink>
+            <NavLink
+                icon="ri-calendar-event-fill"
+                :href="route('admin.happening.index')"
+                :is-active="isPageHappenings"
+            >
+                <li>
                     {{ $t("navigation.admin.happenings") }}
-                </NavLink>
-            </li>
-            <li v-if="canViewInstitutions()">
-                <NavLink
-                    icon="ri-home-smile-fill"
-                    :href="route('admin.institution.index')"
-                    :is-active="isPageInstitutions"
-                >
+                </li>
+            </NavLink>
+            <NavLink
+                v-if="canViewInstitutions()"
+                icon="ri-home-smile-fill"
+                :href="route('admin.institution.index')"
+                :is-active="isPageInstitutions"
+            >
+                <li>
                     {{ $t("navigation.admin.institutions") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_resource_groups')">
-                <NavLink
-                    icon="ri-map-pin-fill"
-                    :href="route('admin.resource_group.index')"
-                    :is-active="isPageResourceGroups"
-                >
+                </li>
+            </NavLink>
+            <NavLink
+                v-if="hasPermission('view_resource_groups')"
+                icon="ri-map-pin-fill"
+                :href="route('admin.resource_group.index')"
+                :is-active="isPageResourceGroups"
+            >
+                <li>
                     {{ $t("navigation.admin.resource_groups") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_users')">
-                <NavLink icon="ri-user-fill" :href="route('admin.user.index')" :is-active="isPageUsers">
+                </li>
+            </NavLink>
+            <NavLink v-if="hasPermission('view_users')" icon="ri-user-fill" :href="route('admin.user.index')" :is-active="isPageUsers">
+                <li >
                     {{ $t("navigation.admin.users") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_roles')">
-                <NavLink icon="ri-group-line" :href="route('admin.role.index')" :is-active="isPageRoles">
+                </li>
+            </NavLink>
+            <NavLink v-if="hasPermission('view_roles')" icon="ri-group-line" :href="route('admin.role.index')" :is-active="isPageRoles">
+                <li>
                     {{ $t("navigation.admin.roles") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_permissions')">
-                <NavLink
-                    icon="ri-door-lock-fill"
-                    :href="route('admin.permission.index')"
-                    :is-active="isPagePermissions"
-                >
+                </li>
+            </NavLink>
+            <NavLink
+                v-if="hasPermission('view_permissions')"
+                icon="ri-door-lock-fill"
+                :href="route('admin.permission.index')"
+                :is-active="isPagePermissions"
+            >
+                <li>
                     {{ $t("navigation.admin.permissions") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_permission_groups')">
-                <NavLink
-                    icon="ri-shield-keyhole-fill"
-                    :href="route('admin.permission_group.index')"
-                    :is-active="isPagePermissionGroups"
-                >
+                </li>
+            </NavLink>
+            <NavLink
+                v-if="hasPermission('view_permission_groups')"
+                icon="ri-shield-keyhole-fill"
+                :href="route('admin.permission_group.index')"
+                :is-active="isPagePermissionGroups"
+            >
+                <li >
                     {{ $t("navigation.admin.permission_groups") }}
-                </NavLink>
-            </li>
-            <li v-if="hasPermission('view_statistics')">
-                <NavLink icon="ri-bar-chart-fill" :href="route('admin.statistic.index')" :is-active="isPageStats">
-                    {{ $t("navigation.admin.stats") }}
-                </NavLink>
-            </li>
-            <li>
-                <NavLink icon="ri-shut-down-line" :href="getExitUri">
+                </li>
+            </NavLink>
+            <NavLink v-if="hasPermission('view_statistics')" icon="ri-bar-chart-fill" :href="route('admin.statistic.index')" :is-active="isPageStats">
+                <li>
+                        {{ $t("navigation.admin.stats") }}
+                </li>
+            </NavLink>
+            <NavLink icon="ri-shut-down-line" :href="getExitUri">
+                <li>
                     {{ $t("navigation.admin.exit") }}
-                </NavLink>
-            </li>
+                </li>
+            </NavLink>
         </ul>
     </NavigationMenu>
 </template>

@@ -53,6 +53,7 @@ const isSiteCredits = computed(() => {
 
 window.onscroll = function(ev) {
     let footer_element = document.getElementById('footer')
+    footer_element.classList.add("hide-footer");
     if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
         footer_element.classList.add("show-footer");
     }
@@ -64,7 +65,6 @@ window.onscroll = function(ev) {
 <style>
 .content-wrapper {
     margin: 10em 2em 4em 2em;
-    min-height: 80vh;
     position: relative;
 
 }
@@ -78,6 +78,10 @@ window.onscroll = function(ev) {
     width: 100%;
     bottom: 0px;
     z-index: 20;
+    display: block;
+}
+
+.hide-footer {
     display: none;
 }
 

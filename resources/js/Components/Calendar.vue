@@ -315,7 +315,7 @@ div.fc-timegrid-slots tr {
     }
 
     .content-wrapper {
-        margin: 12em 2em 0 2em;
+        margin: 12em 2em 4em 2em;
         min-height: 80vh;
         position: relative;
     }

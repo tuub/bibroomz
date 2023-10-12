@@ -1,11 +1,11 @@
 <template>
     <NavigationMenu v-if="isPrivileged">
         <ul>
-            <li>
-                <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
+            <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')">
+                <li>
                     {{ $t("navigation.regular.admin") }}
-                </NavLink>
-            </li>
+                </li>
+            </NavLink>
         </ul>
     </NavigationMenu>
 </template>
