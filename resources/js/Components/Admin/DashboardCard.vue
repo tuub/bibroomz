@@ -1,6 +1,6 @@
 <template>
     <div
-        class="text-center max-w-sm p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+        class="text-center max-w-sm p-4 m-4 bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700"
     >
         <i :class="icon" class="text-2xl"></i>
         <Link :href="link">

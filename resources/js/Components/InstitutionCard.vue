@@ -8,22 +8,20 @@
         </h1>
         <img class="teaser-img" :src="institution.teaser_uri" />
         <p class="py-2"><i class="ri-map-pin-fill pr-1"></i> {{ institution.location }}</p>
-        <button
+        <Link
             v-for="resource_group in institution.resource_groups"
             :key="resource_group.id"
-            class="institution-resource-groups-button"
-        >
-            <Link
-                :href="
+            :href="
                     route('home', {
                         institution_slug: institution.slug,
                         resource_group_slug: resource_group.slug,
                     })
                 "
-            >
-                {{ translate(resource_group.name) }}
-            </Link>
-        </button>
+        >
+            <div class="institution-resource-groups-button">
+                    {{ translate(resource_group.name) }}
+            </div>
+        </Link>
         <p class="py-2">
             <i class="ri-external-link-line pr-1"></i>
             <a :href="institution.home_uri" target="_blank">
@@ -81,8 +79,8 @@ const translate = appStore.translate;
 }
 
 .institution-resource-groups-button {
-    margin: 0.2em;
-    padding: 0.2em;
+    margin: 0.5em 0em;
+    padding: 0.5em;
     rotate: unset;
     height: 50px;
     width: 100%;
