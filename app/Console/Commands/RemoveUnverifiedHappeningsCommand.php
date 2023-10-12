@@ -48,7 +48,9 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
             ?? Institution::where('slug', $this->option('institution'))->first();
 
         /** @var Builder */
-        $query = Happening::where('is_verified', false);
+        $query = Happening::query()
+            ->where('is_verified', false)
+            ->whereHas('resource', fn (Builder $q) => $q->where('is_verification_required', true));
 
         // restrict query to institution
         if ($institution) {
