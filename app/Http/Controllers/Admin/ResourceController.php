@@ -114,8 +114,8 @@ class ResourceController extends Controller
         foreach ($business_hours as $business_hour) {
             $result = BusinessHour::updateOrCreate(['id' => $business_hour['id']], [
                 'resource_id' => $resource->id,
-                'start' => $business_hour['start'],
-                'end' => $business_hour['end'],
+                'start' => Carbon::parse($business_hour['start'])->isMidnight() ? '00:00' : $business_hour['start'],
+                'end' => Carbon::parse($business_hour['end'])->isMidnight() ? '24:00' : $business_hour['end'],
             ]);
 
             $result?->week_days()->sync($business_hour['week_days']);
