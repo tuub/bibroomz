@@ -5,21 +5,21 @@
     </Head>
     <section id="content" class="content-wrapper">
         <slot />
-        <footer class="footer">
-            <ul>
-                <li>
-                    <a href="https://www.tu.berlin/datenschutz" target="_blank">
-                        {{ $t("navigation.regular.privacy_statement") }}
-                    </a>
-                </li>
-                <li>
-                    <NavLink :href="route('site_credits')" :is-active="isSiteCredits">
-                        {{ $t("navigation.regular.site_credits") }}
-                    </NavLink>
-                </li>
-            </ul>
-        </footer>
     </section>
+    <footer id="footer" class="footer">
+        <ul>
+            <li>
+                <a href="https://www.tu.berlin/datenschutz" target="_blank">
+                    {{ $t("navigation.regular.privacy_statement") }}
+                </a>
+            </li>
+            <li>
+                <NavLink :href="route('site_credits')" :is-active="isSiteCredits">
+                    {{ $t("navigation.regular.site_credits") }}
+                </NavLink>
+            </li>
+        </ul>
+    </footer>
 </template>
 
 <script setup>
@@ -50,34 +50,52 @@ const isPrivacyStatement = computed(() => {
 const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
+
+window.onscroll = function(ev) {
+    let footer_element = document.getElementById('footer')
+    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+        footer_element.classList.add("show-footer");
+    }
+    else {
+        footer_element.classList.remove("show-footer");
+    }
+};
 </script>
 <style>
 .content-wrapper {
-    margin: 10em 2em 0 2em;
+    margin: 10em 2em 4em 2em;
     min-height: 80vh;
     position: relative;
+
 }
 
 .footer {
+    position: fixed;
     padding: 20px 0 20px 0;
     background-color: black;
     color: white;
-    position: absolute;
-    bottom: -80px;
-    right: -32px;
-    width: 130%;
     height: 0.5rem;
+    width: 100%;
+    bottom: 0px;
+    z-index: 20;
+    display: none;
+}
+
+.show-footer {
+    display: block;
 }
 
 .footer > ul > li:nth-child(1) > a {
     position: absolute;
     right: 160px;
     top: 8px;
+    color: white;
 }
 
 .footer > ul > li:nth-child(2) > a {
     position: absolute;
     right: 40px;
     top: 8px;
+    color: white;
 }
 </style>

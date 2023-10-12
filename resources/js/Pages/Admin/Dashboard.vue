@@ -71,11 +71,13 @@ const { hasPermission, canViewInstitutions } = authStore;
 </script>
 <style>
 .dashboard-card-wrapper > div {
-    margin: 0px 10px 20px 10px;
+    margin: 0px 0px 20px 20px;
     float: left;
     height: 150px;
-    width: 250px;
+    width: 30%;
     padding: 40px 20px 20px 20px;
     text-align: center;
+    overflow: hidden;
 }
+
 </style>

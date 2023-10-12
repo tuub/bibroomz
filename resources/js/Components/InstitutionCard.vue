@@ -79,11 +79,12 @@ const translate = appStore.translate;
 }
 
 .institution-resource-groups-button {
-    margin: 0.5em 0em;
+    margin: 0.5em auto;
     padding: 0.5em;
     rotate: unset;
     height: 50px;
     width: 100%;
+    max-width: 600px;
     z-index: 9;
     background: #C40D1E;
     color: #FFFFFF;
