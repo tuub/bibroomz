@@ -54,6 +54,7 @@ const isSiteCredits = computed(() => {
 
 window.onscroll = function(ev) {
     let footer_element = document.getElementById('footer')
+    footer_element.classList.add("hide-footer");
     if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
         footer_element.classList.add("show-footer");
     }

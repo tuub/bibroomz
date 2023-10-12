@@ -6,6 +6,14 @@
                     {{ $t("navigation.admin.dashboard") }}
                 </li>
             </NavLink>
+            <NavLink
+                icon="ri-calendar-event-fill"
+                :href="route('admin.happening.index')"
+                :is-active="isPageHappenings"
+            >
+                <li>
+                </li>
+            </NavLink>
             <NavLink icon="ri-calendar-event-fill" :href="route('admin.happening.index')" :is-active="isPageHappenings">
                 <li>
                     {{ $t("navigation.admin.happenings") }}
@@ -31,6 +39,11 @@
                     {{ $t("navigation.admin.resource_groups") }}
                 </li>
             </NavLink>
+            <NavLink v-if="hasPermission('view_users')" icon="ri-user-fill" :href="route('admin.user.index')" :is-active="isPageUsers">
+                <li>
+                    {{ $t("navigation.admin.users") }}
+                </li>
+            </NavLink>
             <NavLink
                 v-if="hasPermission('view_users')"
                 icon="ri-user-fill"
@@ -41,12 +54,7 @@
                     {{ $t("navigation.admin.users") }}
                 </li>
             </NavLink>
-            <NavLink
-                v-if="hasPermission('view_roles')"
-                icon="ri-group-line"
-                :href="route('admin.role.index')"
-                :is-active="isPageRoles"
-            >
+            <NavLink v-if="hasPermission('view_roles')" icon="ri-group-line" :href="route('admin.role.index')" :is-active="isPageRoles">
                 <li>
                     {{ $t("navigation.admin.roles") }}
                 </li>
@@ -67,18 +75,13 @@
                 :href="route('admin.permission_group.index')"
                 :is-active="isPagePermissionGroups"
             >
-                <li>
+                <li >
                     {{ $t("navigation.admin.permission_groups") }}
                 </li>
             </NavLink>
-            <NavLink
-                v-if="hasPermission('view_statistics')"
-                icon="ri-bar-chart-fill"
-                :href="route('admin.statistic.index')"
-                :is-active="isPageStats"
-            >
+            <NavLink v-if="hasPermission('view_statistics')" icon="ri-bar-chart-fill" :href="route('admin.statistic.index')" :is-active="isPageStats">
                 <li>
-                    {{ $t("navigation.admin.stats") }}
+                        {{ $t("navigation.admin.stats") }}
                 </li>
             </NavLink>
             <NavLink icon="ri-shut-down-line" :href="getExitUri">
