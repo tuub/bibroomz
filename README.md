@@ -1,5 +1,43 @@
 # Roomz
 
+# Prerequisites
+
+- PHP 8 with the following extensions
+  - curl
+  - xml
+  - mysql
+  - mbstring
+  - bcmath
+- Composer
+- Volta
+
+## PHP
+
+`sudo apt install php php-{curl,xml,mysql,mbstring,bcmath}`
+
+## Composer
+
+https://getcomposer.org/download/
+
+## Node
+
+1. `curl https://get.volta.sh | bash`
+2. `volta install node@lts` 
+
+## Database
+
+https://mariadb.com/kb/en/mariadb-package-repository-setup-and-usage/
+sudo apt install mariadb-server mariadb-backup
+
+1. `sudo apt install mariadb-server`
+2. `sudo su`
+3. `m̀ysql`
+4. `CREATE DATABASE roomz;`
+5. `GRANT ALL PRIVILEGES ON roomz.* TO roomz@localhost identified by 's*3*c*r*3*t';`
+6. `FLUSH PRIVILEGES;`
+7. `èxit`
+8. `exit`
+
 # Installation
 
 1. Clone the git repo
@@ -71,6 +109,7 @@ The pm2 config file `soketi-pm2.json` must always reflect the correct values:
 ### Run the websockets server
 * Manually: `npx soketi start --config=/srv/git/roomz/soketi.json`
 * Automatically via PM2:
+  * npm install pm2 -g
   * Add soketi service to pm2: `pm2 start soketi-pm2.json && pm2 save`
   * Start/Stop/Restart: `pm2 (start|stop|restart) soketi`
   * Check status: `pm2 status soketi`
@@ -84,6 +123,7 @@ When using on a production server, you probably want to proxy the websockets con
 As learned in https://stackoverflow.com/a/43592531
 
 Module `rewrite` must be enabled.
+Module `proxy_wstunnel` must be enabled.
 
 We assume that there is a symlink set from `/srv/git/roomz/public` to `/srv/www/roomz`.
 
