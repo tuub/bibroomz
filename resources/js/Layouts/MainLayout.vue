@@ -91,14 +91,14 @@ window.onscroll = function(ev) {
 
 .footer > ul > li:nth-child(1) > a {
     position: absolute;
-    right: 160px;
+    right: 140px;
     top: 8px;
     color: white;
 }
 
 .footer > ul > li:nth-child(2) > a {
     position: absolute;
-    right: 40px;
+    right: 30px;
     top: 8px;
     color: white;
 }
