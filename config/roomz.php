@@ -11,6 +11,9 @@ return [
         'url' => env('APP_URL', 'http://roomz.localhost:80'),
         'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
     ],
+    'log' => [
+        'level' => env('LOG_LEVEL', 'warning')
+    ],
     'auth' => [
         'method' => env('AUTH_METHOD', 'alma'),
         'api' => [

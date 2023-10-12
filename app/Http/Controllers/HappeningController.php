@@ -34,9 +34,6 @@ class HappeningController extends Controller
         $from = Carbon::parse($request->start);
         $to = Carbon::parse($request->end);
 
-        // LOG
-        $log['PAYLOAD'] = json_encode(['from' => $from, 'to' => $to], JSON_PRETTY_PRINT);
-
         $resource_ids = $resource_group->resources()->pluck('id')->all();
 
         $happenings = Happening::with('resource', 'user1', 'user2')
@@ -56,9 +53,6 @@ class HappeningController extends Controller
 
                 return ($open && !$closed) ? $happening : null;
             })->filter(fn ($h) => $h);
-
-        // LOG
-        $log['RESULT COUNT'] = $happenings->count();
 
         foreach ($happenings as $happening) {
             $status = $happening->getStatus();
@@ -121,12 +115,6 @@ class HappeningController extends Controller
             }
         }
 
-        // LOG
-        $log['OUTPUT'] = json_encode($output, JSON_PRETTY_PRINT);
-
-        // LOG
-        Utility::sendToLog('happenings', $log);
-
         return response()->json($output);
     }
 
@@ -137,9 +125,6 @@ class HappeningController extends Controller
 
         /** @var Resource */
         $resource = Resource::find($request['resource']['id']);
-
-        // LOG
-        $log['RESOURCE'] = json_encode($resource->only(['id', 'title']), JSON_PRETTY_PRINT);
 
         $start = new CarbonImmutable($request['start']);
         $end = new CarbonImmutable($request['end']);
@@ -162,17 +147,8 @@ class HappeningController extends Controller
             'verified_at' => $is_admin ? Carbon::now() : null,
         ];
 
-        // LOG
-        $log['PAYLOAD'] = json_encode($happening_data, JSON_PRETTY_PRINT);
-
         // Create
         $happening = Happening::create($happening_data);
-
-        // LOG
-        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
-
-        // LOG
-        Utility::sendToLog('happenings', $log);
 
         $happening->broadcast(HappeningCreatedEvent::class);
     }
@@ -184,9 +160,6 @@ class HappeningController extends Controller
 
         /** @var Happening */
         $happening = Happening::findOrFail($request->id);
-
-        // LOG
-        $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
 
         $this->isHappeningValid(
             $user,
@@ -202,20 +175,11 @@ class HappeningController extends Controller
             'end' => Utility::carbonize($request->end)->format('Y-m-d H:i:s'),
         ];
 
-        // LOG
-        $log['PAYLOAD'] = json_encode($happening_data, JSON_PRETTY_PRINT);
-
         // Update
         $happening->update($happening_data);
 
         // Refresh
         $happening = $happening->withoutRelations()->refresh();
-
-        // LOG
-        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
-
-        // LOG
-        Utility::sendToLog('happenings', $log);
 
         // Broadcast
         $happening->broadcast(HappeningUpdatedEvent::class);
@@ -228,9 +192,6 @@ class HappeningController extends Controller
 
         /** @var Happening */
         $happening = Happening::findOrFail($request->id);
-
-        // LOG
-        $log['HAPPENING'] = json_encode($happening, JSON_PRETTY_PRINT);
 
         $this->isHappeningValid(
             $user,
@@ -256,12 +217,6 @@ class HappeningController extends Controller
 
         // Refresh
         $happening = $happening->withoutRelations()->refresh();
-
-        // LOG
-        $log['RESULT'] = json_encode($happening, JSON_PRETTY_PRINT);
-
-        // LOG
-        Utility::sendToLog('happenings', $log);
 
         // Broadcast
         $happening->broadcast(HappeningVerifiedEvent::class);

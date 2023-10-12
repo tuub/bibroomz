@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class Utility
 {
-
     public static function carbonize($date): Carbon
     {
         if (is_string($date)) {
@@ -28,11 +27,15 @@ class Utility
 
     public static function createCarbonDateTime($date, $time): Carbon
     {
-        return Carbon::createFromFormat('d.m.Y H:i',  $date . ' ' . $time);
+        return Carbon::createFromFormat('d.m.Y H:i', $date . ' ' . $time);
     }
 
-    public static function sendToLog(string $channel, array $data, string $level = 'info'): void
+    public static function sendToLog(string $channel, array $data, string $level = null): void
     {
+        if ($level == null) {
+            $level = config('roomz.log.level');
+        }
+
         $callingMethod = debug_backtrace(
             !DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS,
             2
@@ -50,7 +53,7 @@ class Utility
         return array_combine(['hour', 'minute'], array_map('intval', explode(':', $envTimeValue)));
     }
 
-    public static function getDateTimeFromStrings(String $date_str, String $time_str): Carbon
+    public static function getDateTimeFromStrings(string $date_str, string $time_str): Carbon
     {
         $date = Carbon::parse($date_str);
         $time_arr = explode(':', $time_str);
