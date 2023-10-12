@@ -200,6 +200,11 @@ return [
          * Custom Service Providers
          */
         App\Providers\TranslatableServiceProvider::class,
+
+        /*
+         * Telescope Service Provider
+         */
+        App\Providers\TelescopeServiceProvider::class,
     ],
 
     /*
