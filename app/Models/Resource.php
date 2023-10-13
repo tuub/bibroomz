@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use \Bkwld\Cloner\Cloneable;
+use Bkwld\Cloner\Cloneable;
 
 class Resource extends Model
 {
@@ -201,7 +201,9 @@ class Resource extends Model
     public function isHappening(CarbonImmutable $start, CarbonImmutable $end, Happening $happening = null): bool
     {
         foreach ($this->happenings->whereNotIn('id', [$happening?->id]) as $h) {
-            return $h->isConcurrent($start, $end);
+            if ($h->isConcurrent($start, $end)) {
+                return true;
+            };
         }
 
         return false;
@@ -445,7 +447,7 @@ class Resource extends Model
      * @param bool $is_end
      * @return Collection
      */
-    private function disableClosedTimeSlots(Collection $time_slots, bool $is_end =  false): Collection
+    private function disableClosedTimeSlots(Collection $time_slots, bool $is_end = false): Collection
     {
         return $time_slots->map(function ($time_slot) use ($is_end) {
             if ($this->isTimeSlotInClosing($time_slot, $is_end)) {
