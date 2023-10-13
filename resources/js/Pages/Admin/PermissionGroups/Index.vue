@@ -1,6 +1,9 @@
 <template>
     <PageHead :title="$t('admin.permission_groups.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.permission_groups.index.title')" :description="$t('admin.permission_groups.index.description')" />
+    <BodyHead
+        :title="$t('admin.permission_groups.index.title')"
+        :description="$t('admin.permission_groups.index.description')"
+    />
 
     <PopupModal />
 

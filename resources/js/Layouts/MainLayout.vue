@@ -43,22 +43,24 @@ const inertiaPage = usePage();
 // ------------------------------------------------
 // Computed
 // ------------------------------------------------
-const isPrivacyStatement = computed(() => {
-    return inertiaPage.component === "PrivacyStatement";
-});
-
 const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
 
-window.onscroll = function(ev) {
-    let footer_element = document.getElementById('footer')
-    footer_element.classList.add("hide-footer");
-    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
-        footer_element.classList.add("show-footer");
-    }
-    else {
-        footer_element.classList.remove("show-footer");
+// FIXME: Remove this if not needed
+// const isPrivacyStatement = computed(() => {
+//     return inertiaPage.component === "PrivacyStatement";
+// });
+
+window.onscroll = function () {
+    const footerElement = document.getElementById("footer");
+
+    footerElement.classList.add("hide-footer");
+
+    if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight) {
+        footerElement.classList.add("show-footer");
+    } else {
+        footerElement.classList.remove("show-footer");
     }
 };
 </script>
@@ -66,7 +68,6 @@ window.onscroll = function(ev) {
 .content-wrapper {
     margin: 10em 2em 4em 2em;
     position: relative;
-
 }
 
 .footer {

@@ -12,14 +12,14 @@
             v-for="resource_group in institution.resource_groups"
             :key="resource_group.id"
             :href="
-                    route('home', {
-                        institution_slug: institution.slug,
-                        resource_group_slug: resource_group.slug,
-                    })
-                "
+                route('home', {
+                    institution_slug: institution.slug,
+                    resource_group_slug: resource_group.slug,
+                })
+            "
         >
             <div class="institution-resource-groups-button">
-                    {{ translate(resource_group.name) }}
+                {{ translate(resource_group.name) }}
             </div>
         </Link>
         <p class="py-2">

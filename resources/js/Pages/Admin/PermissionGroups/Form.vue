@@ -1,6 +1,9 @@
 <template>
     <PageHead :title="$t('admin.permission_groups.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.permission_groups.form.title')" :description="$t('admin.permission_groups.form.description')" />
+    <BodyHead
+        :title="$t('admin.permission_groups.form.title')"
+        :description="$t('admin.permission_groups.form.description')"
+    />
 
     <form class="max-w mx-auto mt-8">
         <!-- Input: Name -->

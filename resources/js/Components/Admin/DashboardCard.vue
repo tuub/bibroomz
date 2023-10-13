@@ -37,7 +37,7 @@ defineProps({
 });
 </script>
 <style>
-.dashboard-card{
+.dashboard-card {
     width: 500px;
     height: 150px;
     display: inline-block;
@@ -47,5 +47,4 @@ defineProps({
     padding: 40px 20px 20px 20px;
     text-align: center;
 }
-
 </style>

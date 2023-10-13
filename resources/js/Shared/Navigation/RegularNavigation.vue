@@ -2,27 +2,27 @@
     <NavigationMenu>
         <ul>
             <NavLink v-if="isMultiTenancy" icon="ri-dashboard-fill" :href="route('start')" :is-active="isPageStart">
-                <li >
+                <li>
                     {{ $t("navigation.regular.institutions") }}
                 </li>
             </NavLink>
             <NavLink
+                v-if="institution?.slug && resourceGroup?.slug"
                 icon="ri-home-fill"
                 :href="
-                        route('home', {
-                            institution_slug: institution.slug,
-                            resource_group_slug: resourceGroup.slug,
-                        })
-                    "
+                    route('home', {
+                        institution_slug: institution.slug,
+                        resource_group_slug: resourceGroup.slug,
+                    })
+                "
                 :is-active="isPageHome"
-                v-if="institution?.slug && resourceGroup?.slug"
             >
                 <li>
                     {{
-                         $t("navigation.regular.home", {
-                             institution: institution?.short_title,
-                             resource_group: translate(resourceGroup?.name),
-                         })
+                        $t("navigation.regular.home", {
+                            institution: institution?.short_title,
+                            resource_group: translate(resourceGroup?.name),
+                        })
                     }}
                 </li>
             </NavLink>
@@ -32,9 +32,7 @@
                 </li>
             </NavLink>
             <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
-                <li>
-                    {{ $t("navigation.regular.help.text") }}
-                </li>
+                <li>{{ $t("navigation.regular.help.text") }}</li>
             </ExternalLink>
         </ul>
     </NavigationMenu>
@@ -46,6 +44,7 @@ import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import NavigationMenu from "@/Shared/Navigation/NavigationMenu.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+
 import { usePage } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";

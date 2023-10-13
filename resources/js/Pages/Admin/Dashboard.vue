@@ -69,4 +69,3 @@ import { useAuthStore } from "@/Stores/AuthStore";
 const authStore = useAuthStore();
 const { hasPermission, canViewInstitutions } = authStore;
 </script>
-

@@ -156,7 +156,7 @@ const appStore = useAppStore();
 // Methods
 // ------------------------------------------------
 const getBusinessHourTime = (datetime) => {
-    return appStore.formatTime(datetime, false, 'HH:mm:ss');
+    return appStore.formatTime(datetime, false, "HH:mm:ss");
 };
 
 // ------------------------------------------------

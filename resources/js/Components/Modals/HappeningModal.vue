@@ -17,10 +17,9 @@
 </template>
 
 <script setup>
-import {useAppStore} from "@/Stores/AppStore";
-
 import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { toRaw } from "vue";
 

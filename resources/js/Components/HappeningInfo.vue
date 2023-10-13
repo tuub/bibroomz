@@ -38,10 +38,9 @@
 </template>
 
 <script setup>
-import {useAppStore} from "@/Stores/AppStore";
-
 import ResourceInfo from "@/Components/ResourceInfo.vue";
 import Label from "@/Shared/Label.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";

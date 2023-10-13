@@ -1,5 +1,5 @@
 <template>
-    <div class="navigation-menu-wrapper" :class="{ 'mobile-class-1': isAlwaysMobile, 'mobile-class-2': isAlwaysMobile }">
+    <div class="navigation-menu-wrapper">
         <button
             class="mobile-menu-button"
             type="button"
@@ -43,14 +43,14 @@
     </div>
 </template>
 <script setup>
-import {computed, ref} from "vue";
+import { ref } from "vue";
 
 defineProps({
     isAlwaysMobile: {
         type: Boolean,
         default: false,
-    }
-})
+    },
+});
 
 // ------------------------------------------------
 // Variables
@@ -66,7 +66,6 @@ const toggle = () => {
 </script>
 
 <style>
-
 .mobile-menu-button {
     display: block;
 }
@@ -81,8 +80,6 @@ const toggle = () => {
 #mobile-menu > ul {
     float: right;
 }
-
-
 
 .mobile-button {
     position: absolute;
@@ -184,5 +181,4 @@ const toggle = () => {
 .mobile-menu-visible {
     display: block;
 }
-
 </style>

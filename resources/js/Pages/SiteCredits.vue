@@ -16,7 +16,6 @@
 
     <h1 class="font-bold text-xl mt-5">{{ $t("site_credits.paragraphs.tax_id.header") }}</h1>
     <p>{{ $t("site_credits.paragraphs.tax_id.content") }}</p>
-
 </template>
 
 <script setup>
