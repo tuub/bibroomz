@@ -28,7 +28,7 @@
             </NavLink>
             <ExternalLink icon="ri-question-fill" :href="$t('navigation.regular.help.uri')">
                 <li>
-                    {{ $t("navigation.regular.help.text") }} bg
+                    {{ $t("navigation.regular.help.text") }}
                 </li>
             </ExternalLink>
         </ul>
