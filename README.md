@@ -54,7 +54,7 @@ sudo apt install mariadb-server mariadb-backup
 12. Setup websockets (see below)
 13. Compile app:
     - Development: `npm run dev`
-    - Production: `npm run prod`
+    - Production: `npm run build`
 
 # Deployment
 We assume the app is deployed under `/srv/git/roomz/`.
@@ -154,6 +154,33 @@ We assume that there is a symlink set from `/srv/git/roomz/public` to `/srv/www/
 
 #### nginx
 TODO
+
+## Steps after code changes:
+Recompile the frontend:
+- `npm run build`
+
+When routes are changed:
+- `php artisan route:clear`
+- `php artisan route:cache`
+- `php artisan ziggy:generate`
+- `npm run build`
+
+When events/listeners are changed:
+- `php artisan event:clear`
+- `php artisan event:cache`
+
+When environment variables or config files are changed:
+- `php artisan config:clear`
+- `php artisan config:cache`
+
+When blade templates are changed:
+- `php artisan view:clear`
+- `php artisan view:cache`
+
+When database migrations are added:
+- `php artisan migrate`
+
+Restart the schedule worker via your process supervisor.
 
 # Development
 
