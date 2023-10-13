@@ -3,7 +3,7 @@
 return [
     'regular' => [
         'institutions' => 'zurück zur Übersicht',
-        'home' => 'Start :short_title',
+        'home' => ':institution :resource_group',
         'admin' => 'Administration',
         'help' => [
             'text' => 'Hilfe',

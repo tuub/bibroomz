@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageHead :title="translate(appStore.institution.title)" />
+        <PageHead :title="translate(appStore.resourceGroup.name) + ' - ' + translate(appStore.institution.title)" />
 
         <XModal />
 

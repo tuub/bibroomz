@@ -6,6 +6,7 @@
             <a :href="institution?.home_uri" class="float-left" target="_blank">
                 <img :src="institution?.logo_uri" class="float-left h-7" :alt="institution?.title" />
             </a>
+            <span class="ml-2">{{ translate(resourceGroup?.name) }}</span>
             <slot />
         </div>
     </nav>
@@ -16,7 +17,9 @@ import Brand from "@/Shared/Brand.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 const appStore = useAppStore();
+const translate = appStore.translate;
 const institution = appStore.institution;
+const resourceGroup = appStore.resourceGroup;
 </script>
 
 <style>
@@ -45,10 +48,6 @@ nav {
         color: #C40D20;
         padding: 30px;
         height: 7em;
-    }
-
-    .login-lang-wrapper {
-        width: 40px;
     }
 }
 </style>

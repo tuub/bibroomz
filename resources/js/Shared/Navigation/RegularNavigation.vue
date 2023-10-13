@@ -18,7 +18,12 @@
                 v-if="institution?.slug && resourceGroup?.slug"
             >
                 <li>
-                    {{ $t("navigation.regular.home", { short_title: institution?.short_title }) }}
+                    {{
+                         $t("navigation.regular.home", {
+                             institution: institution?.short_title,
+                             resource_group: translate(resourceGroup?.name),
+                         })
+                    }}
                 </li>
             </NavLink>
             <NavLink v-if="isPrivileged" icon="ri-tools-fill" :href="route('admin.dashboard')">
@@ -41,7 +46,6 @@ import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import NavigationMenu from "@/Shared/Navigation/NavigationMenu.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-
 import { usePage } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
@@ -62,6 +66,7 @@ const { isPrivileged } = storeToRefs(authStore);
 
 const institution = appStore.institution;
 const resourceGroup = appStore.resourceGroup;
+const translate = appStore.translate;
 
 // ------------------------------------------------
 // Computed
