@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/happening/verify/{id}', [HappeningController::class, 'verifyHappening'])
         ->name('happening.verify');
     Route::post('/happening/update/{id}', [HappeningController::class, 'updateHappening'])
-        ->name('happening.add');
+        ->name('happening.update');
     Route::delete('/happening/delete/{id}', [HappeningController::class, 'deleteHappening'])
         ->name('happening.delete');
 
