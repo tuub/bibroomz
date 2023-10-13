@@ -3,9 +3,9 @@
     "port": 6001,
     "appManager.array.apps": [
         {
-            "id": "local",
-            "key": "local",
-            "secret": "local"
+            "id": "roomz",
+            "key": "ws",
+            "secret": "s3Cr3T!"
         }
     ]
 }
