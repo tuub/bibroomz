@@ -2,10 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Institution;
-use App\Models\Resource;
-use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             WeekDaySeeder::class,
             InstitutionSeeder::class,
+            SettingSeeder::class,
             BusinessHourSeeder::class,
             ActiveDaySeeder::class,
             PermissionSeeder::class,
