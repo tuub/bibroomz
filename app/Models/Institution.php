@@ -55,19 +55,9 @@ class Institution extends Model
         return $this->hasMany(ResourceGroup::class);
     }
 
-    public function settings(): HasMany
-    {
-        return $this->hasMany(Setting::class);
-    }
-
     public function week_days(): BelongsToMany
     {
         return $this->belongsToMany(WeekDay::class);
-    }
-
-    public function closings(): MorphMany
-    {
-        return $this->morphMany(Closing::class, 'closable');
     }
 
     public function resources(): HasManyThrough
@@ -80,6 +70,17 @@ class Institution extends Model
         return $this->belongsToMany(User::class, 'institution_user_role')
             ->withPivot('role_id')
             ->using(InstitutionUserRole::class);
+    }
+
+
+    public function closings(): MorphMany
+    {
+        return $this->morphMany(Closing::class, 'closable');
+    }
+
+    public function settings(): MorphMany
+    {
+        return $this->morphMany(Setting::class, 'settingable');
     }
 
     /*****************************************************************

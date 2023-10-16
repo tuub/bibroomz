@@ -32,6 +32,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     const institution = appStore.institution;
     const resourceGroup = appStore.resourceGroup;
     const settings = appStore.settings;
+    const institutionSettings = appStore.settings['institution'];
+    const resourceGroupSettings = appStore.settings['resource_group'];
     const hiddenDays = appStore.hiddenDays;
 
     const authStore = useAuthStore();
@@ -82,7 +84,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function getValidRange() {
-        const weeksInAdvance = settings["weeks_in_advance"];
+        const weeksInAdvance = resourceGroupSettings['weeks_in_advance'];
 
         const startDate = dayjs();
         const endDate = startDate.add(weeksInAdvance, "week");
@@ -102,7 +104,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         const tsStart = dayjs(event.startStr);
         const tsEnd = dayjs(event.endStr);
 
-        const tsLenConfig = settings["time_slot_length"].split(":");
+        const tsLenConfig = resourceGroupSettings["time_slot_length"].split(":");
         const tsLen = {
             hours: parseInt(tsLenConfig[0]),
             minutes: parseInt(tsLenConfig[1]),
@@ -246,8 +248,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         validRange: getValidRange(),
         resources: fetchResources,
         events: fetchHappenings,
-        slotMinTime: settings["start_time_slot"],
-        slotMaxTime: settings["end_time_slot"],
+        slotMinTime: resourceGroupSettings['start_time_slot'],
+        slotMaxTime: resourceGroupSettings['end_time_slot'],
         resourceOrder: "title",
         height: "auto",
         contentHeight: "auto",
@@ -260,8 +262,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         longPressDelay: 0,
         unselectAuto: true,
         selectMirror: true,
-        slotDuration: settings["time_slot_length"] + ":00",
-        slotLabelInterval: settings["time_slot_length"] + ":00",
+        slotDuration: resourceGroupSettings['time_slot_length'] + ':00',
+        slotLabelInterval: resourceGroupSettings['time_slot_length'] + ':00',
         selectOverlap: false,
         selectConstraint: "businessHours",
         selectable: isSelectable,

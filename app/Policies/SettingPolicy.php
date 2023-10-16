@@ -5,14 +5,17 @@ namespace App\Policies;
 use App\Models\Institution;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class SettingPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user, Institution $institution)
+    public function viewAny(User $user, Model $closable)
     {
+        $institution = $closable instanceof Institution ? $closable : $closable->institution;
+
         if ($user->can('view_settings', $institution)) {
             return true;
         }

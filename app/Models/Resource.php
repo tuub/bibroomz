@@ -233,7 +233,7 @@ class Resource extends Model
      */
     private function initTimePeriod(CarbonImmutable $date): CarbonPeriod
     {
-        $time_slot_length = $this->resource_group->institution->settings
+        $time_slot_length = $this->resource_group->settings
             ->where('key', 'time_slot_length')->first()->value;
         $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
@@ -429,7 +429,7 @@ class Resource extends Model
             }
 
             // keep current time slot
-            $time_slot_length = $this->resource_group->institution->settings
+            $time_slot_length = $this->resource_group->settings
                 ->where('key', 'time_slot_length')->first()->value;
             $interval = Utility::getTimeValuesFromEnvTimeString($time_slot_length);
 
@@ -605,11 +605,12 @@ class Resource extends Model
     {
         /** @var User $user */
         $user = auth()->user();
+        // FIXME!
         if ($user->can('unlimited_quotas', $this->resource_group->institution)) {
             return false;
         }
 
-        $settings = $this->resource_group->institution->settings;
+        $settings = $this->resource_group->settings;
 
         $quota_happening_block_hours = $settings->where('key', 'quota_happening_block_hours')->pluck('value')->first();
         $quota_weekly_happenings = $settings->where('key', 'quota_weekly_happenings')->pluck('value')->first();

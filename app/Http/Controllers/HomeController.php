@@ -43,7 +43,10 @@ class HomeController extends Controller
 
         $settings = [];
         foreach ($resource_group->institution->settings as $setting) {
-            $settings[$setting->key] = $setting->value;
+            $settings['institution'][$setting->key] = $setting->value;
+        }
+        foreach ($resource_group->settings as $setting) {
+            $settings['resource_group'][$setting->key] = $setting->value;
         }
 
         return Inertia::render('Home', [
@@ -73,7 +76,10 @@ class HomeController extends Controller
 
         $settings = [];
         foreach ($resource_group->institution->settings as $setting) {
-            $settings[$setting->key] = $setting->value;
+            $settings['institution'][$setting->key] = $setting->value;
+        }
+        foreach ($resource_group->settings as $setting) {
+            $settings['resource_group'][$setting->key] = $setting->value;
         }
 
         return Inertia::render('TerminalView', [

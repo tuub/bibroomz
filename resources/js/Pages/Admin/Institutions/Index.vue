@@ -69,7 +69,7 @@
                             v-if="hasPermission('edit_institution', institution.id)"
                             current="institution"
                             relation="setting"
-                            :params="{ institution_id: institution.id }"
+                            :params="{ settingable_type: 'institution', settingable_id: institution.id }"
                         />
                         |
                         <RelationLink

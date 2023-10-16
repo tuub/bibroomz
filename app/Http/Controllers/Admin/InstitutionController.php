@@ -43,7 +43,7 @@ class InstitutionController extends Controller
 
         // Init settings
         $settings = Setting::getInitialValues();
-        foreach ($settings as $key => $value) {
+        foreach ($settings['institution'] as $key => $value) {
             $setting = new Setting([
                 'key' => $key,
                 'value' => $value,

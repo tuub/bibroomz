@@ -15,12 +15,14 @@ class SettingController extends Controller
 {
     public function getSettings(Request $request): Response
     {
-        $institution = Institution::with('settings')->findOrFail($request->institution_id);
+        $settingable = Setting::getClosableModel($request->settingable_type)->find($request->settingable_id);
 
-        $this->authorize('viewAny', [Setting::class, $institution]);
+        $this->authorize('viewAny', [Setting::class, $settingable]);
 
         return Inertia::render('Admin/Settings/Index', [
-            'institution' => $institution,
+            'settingable' => $settingable->withoutRelations(),
+            'settingable_type' => $request->settingable_type,
+            'settings' => $settingable->settings()->orderBy('key')->get(),
         ]);
     }
 
@@ -31,7 +33,7 @@ class SettingController extends Controller
         $this->authorize('edit', $setting);
 
         return Inertia::render('Admin/Settings/Form', [
-            'setting' => $setting->only(['id', 'institution_id', 'key', 'value'])
+            'setting' => $setting->only(['id', 'settingable_type', 'settingable_id', 'key', 'value'])
         ]);
     }
 
@@ -45,7 +47,8 @@ class SettingController extends Controller
         $setting->update($validated);
 
         return redirect()->route('admin.setting.index', [
-            'institution_id' => $setting->institution_id,
+            'settingable_type' => $setting->settingable_type,
+            'settingable_id' => $setting->settingable_id,
         ]);
     }
 }

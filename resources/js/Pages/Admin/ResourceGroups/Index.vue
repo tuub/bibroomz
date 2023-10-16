@@ -71,6 +71,13 @@
                             :params="{ id: resource_group.id }"
                         />
                         |
+                        <RelationLink
+                            v-if="hasPermission('edit_institution', resource_group.institution_id)"
+                            current="resource_group"
+                            relation="setting"
+                            :params="{ settingable_type: 'resource_group', settingable_id: resource_group.id }"
+                        />
+                        |
                         <DeleteLink
                             v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
                             model="resource_group"

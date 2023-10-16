@@ -1,7 +1,12 @@
 <template>
-    <PageHead :title="$t('admin.settings.index.title', { title: translate(institution.title) })" page-type="admin" />
+    {{ settingable }}
+    <PageHead
+        :title="$t('admin.settings.index.title', { type: settingable_type, title: 'BLA' })"
+        page-type="admin"
+    />
+
     <BodyHead
-        :title="$t('admin.settings.index.title', { title: translate(institution.title) })"
+        :title="$t('admin.settings.index.title', { type: settingable_type, title: 'BLUBB' })"
         :description="$t('admin.settings.index.description')"
     />
 
@@ -25,7 +30,7 @@
             </thead>
             <tbody>
                 <tr
-                    v-for="setting in institution.settings"
+                    v-for="setting in settings"
                     :key="setting.id"
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
@@ -57,9 +62,18 @@ import { useAppStore } from "@/Stores/AppStore";
 // Props
 // ------------------------------------------------
 defineProps({
-    institution: {
+    settingable: {
         type: Object,
-        required: true,
+        default: () => ({}),
+    },
+    // eslint-disable-next-line vue/prop-name-casing
+    settingable_type: {
+        type: String,
+        default: "",
+    },
+    settings: {
+        type: Object,
+        default: () => ({}),
     },
 });
 

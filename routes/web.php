@@ -152,7 +152,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.closing.delete');
 
         /* Settings */
-        Route::get('/admin/institution/{institution_id}/settings', [AdminSettingController::class, 'getSettings'])
+        Route::get('/admin/{settingable_type}/{settingable_id}/settings', [
+            AdminSettingController::class, 'getSettings'])
             ->name('admin.setting.index');
         Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
             ->name('admin.setting.edit');

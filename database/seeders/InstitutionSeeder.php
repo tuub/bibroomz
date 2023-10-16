@@ -65,19 +65,5 @@ class InstitutionSeeder extends Seeder
                 }
             }
         }
-
-        // Init institution settings
-        $institutions = Institution::get();
-        $settings = Setting::getInitialValues();
-
-        foreach ($institutions as $institution) {
-            foreach ($settings as $key => $value) {
-                $setting = new Setting([
-                    'key' => $key,
-                    'value' => $value,
-                ]);
-                $institution->settings()->save($setting);
-            }
-        }
     }
 }

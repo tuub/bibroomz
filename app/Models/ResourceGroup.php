@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ResourceGroup extends Model
 {
@@ -56,6 +57,11 @@ class ResourceGroup extends Model
         return $this->hasMany(Resource::class);
     }
 
+    public function settings(): MorphMany
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+
     /*****************************************************************
      * SCOPES
      ****************************************************************/
@@ -71,5 +77,4 @@ class ResourceGroup extends Model
     {
         return $user->can('view', $this);
     }
-
 }
