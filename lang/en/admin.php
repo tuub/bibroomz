@@ -218,7 +218,7 @@ return [
             'description' => 'Ressource groups create, edit delete',
             'table' => [
                 'header' => [
-                    'name' => 'Name',
+                    'title' => 'Titel',
                     'slug' => 'Slug',
                     'institution' => 'Institution',
                     'description' => 'Description',
@@ -241,10 +241,10 @@ return [
                     'placeholder' => 'Die Einrichtung',
                     'hint' => 'Über die Einrichtung',
                 ],
-                'name' => [
-                    'label' => 'Name',
-                    'placeholder' => 'Name der Gruppe',
-                    'hint' => 'Über den Namen der Ressoure-Gruppe',
+                'title' => [
+                    'label' => 'Titel',
+                    'placeholder' => 'Titel der Gruppe',
+                    'hint' => 'Über den Titel der Ressoure-Gruppe',
                 ],
                 'slug' => [
                     'label' => 'Slug',
@@ -411,6 +411,10 @@ return [
         'description' => 'Visualize statistics'
     ],
     'closings' => [
+        'types' => [
+            'institution' => 'institution',
+            'resource_group' => 'resource group',
+        ],
         'index' => [
             'title' => 'Closings for :type ":title"',
             'description' => 'Create, edit, delete closings',
@@ -461,6 +465,10 @@ return [
         ],
     ],
     'settings' => [
+        'types' => [
+            'institution' => 'institution',
+            'resource_group' => 'resource group',
+        ],
         'keys' => [
             'timezone' => [
                 'label' => 'Time zone',
@@ -512,7 +520,7 @@ return [
             ],
         ],
         'index' => [
-            'title' => 'Settings for institution ":title"',
+            'title' => 'Settings for :type ":title"',
             'description' => 'Edit settings',
             'table' => [
                 'header' => [

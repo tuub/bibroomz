@@ -19,7 +19,7 @@ class ResourceGroupController extends Controller
     public function getResourceGroups(): Response
     {
         $resource_groups = ResourceGroup::with(['institution'])
-            ->orderBy('institution_id')->orderBy('name')->get()
+            ->orderBy('institution_id')->orderBy('title')->get()
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/ResourceGroups/Index', [

@@ -20,7 +20,7 @@ class ResourceGroupRequest extends FormRequest
 
         return [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
-            'name' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule()],
             'slug' => ['required', new UniqueResourceGroupAttributeRule($this->institution_id, $resource_group?->id)],
             'term_singular' => [new RequiredWithTranslationRule()],
             'term_plural' => [new RequiredWithTranslationRule()],

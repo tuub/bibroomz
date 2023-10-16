@@ -1,12 +1,12 @@
 <template>
-    <PageHead
-        :title="$t('admin.closings.index.title', { type: closable_type, title: translate(closable.title) })"
-        page-type="admin"
-    />
-    <BodyHead
-        :title="$t('admin.closings.index.title', { type: closable_type, title: translate(closable.title) })"
-        :description="$t('admin.closings.index.description')"
-    />
+    <PageHead :title="$t('admin.closings.index.title', {
+        type: $t('admin.closings.types.' + closable_type),
+        title: translate(closable.title)
+    })" page-type="admin" />
+    <BodyHead :title="$t('admin.closings.index.title', {
+        type: $t('admin.closings.types.' + closable_type),
+        title: translate(closable.title)
+    })" :description="$t('admin.closings.index.description')" />
 
     <PopupModal />
     <CreateLink model="closing" :params="{ closable_type: closable_type, closable_id: closable.id }"></CreateLink>

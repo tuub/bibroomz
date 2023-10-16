@@ -1,14 +1,13 @@
 <template>
-    {{ settingable }}
-    <PageHead
-        :title="$t('admin.settings.index.title', { type: settingable_type, title: 'BLA' })"
-        page-type="admin"
-    />
+    <PageHead :title="$t('admin.settings.index.title', {
+        type: $t('admin.settings.types.' + settingable_type),
+        title: translate(settingable.title)
+    })" page-type="admin"/>
 
-    <BodyHead
-        :title="$t('admin.settings.index.title', { type: settingable_type, title: 'BLUBB' })"
-        :description="$t('admin.settings.index.description')"
-    />
+    <BodyHead :title="$t('admin.settings.index.title', {
+        type: $t('admin.settings.types.' + settingable_type),
+        title: translate(settingable.title)
+    })" :description="$t('admin.settings.index.description')"/>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -83,7 +82,7 @@ defineProps({
 const appStore = useAppStore();
 
 // ------------------------------------------------
-// Injected
+// Variables
 // ------------------------------------------------
 const translate = appStore.translate;
 </script>

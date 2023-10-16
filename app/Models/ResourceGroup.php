@@ -25,7 +25,7 @@ class ResourceGroup extends Model
 
     protected $fillable = [
         'institution_id',
-        'name',
+        'title',
         'slug',
         'term_singular',
         'term_plural',
@@ -38,7 +38,7 @@ class ResourceGroup extends Model
     ];
 
     protected $translatable = [
-        'name',
+        'title',
         'term_singular',
         'term_plural',
         'description',

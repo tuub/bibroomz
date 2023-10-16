@@ -218,7 +218,7 @@ return [
             'description' => 'Ressource-Gruppen erstellen, bearbeiten, löschen',
             'table' => [
                 'header' => [
-                    'name' => 'Name',
+                    'title' => 'Titel',
                     'slug' => 'Slug',
                     'institution' => 'Einrichtung',
                     'description' => 'Beschreibung',
@@ -228,6 +228,7 @@ return [
                     'create' => 'Ressource-Gruppe erstellen',
                     'edit' => 'Bearbeiten',
                     'resources' => 'Ressourcen',
+                    'settings' => 'Einstellungen',
                     'delete' => 'Löschen',
                 ],
             ],
@@ -241,10 +242,10 @@ return [
                     'placeholder' => 'Die Einrichtung',
                     'hint' => 'Über die Einrichtung',
                 ],
-                'name' => [
-                    'label' => 'Name',
-                    'placeholder' => 'Name der Gruppe',
-                    'hint' => 'Über den Namen der Ressoure-Gruppe',
+                'title' => [
+                    'label' => 'Titel',
+                    'placeholder' => 'Titel der Gruppe',
+                    'hint' => 'Über den Titel der Ressoure-Gruppe',
                 ],
                 'slug' => [
                     'label' => 'Slug',
@@ -411,6 +412,10 @@ return [
         'description' => 'Statistiken visuell darstellen',
     ],
     'closings' => [
+        'types' => [
+            'institution' => 'Einrichtung',
+            'resource_group' => 'Ressourcen-Gruppe',
+        ],
         'index' => [
             'title' => 'Schließungen für :type ":title"',
             'description' => 'Schließungen erstellen, bearbeiten, löschen',
@@ -461,6 +466,10 @@ return [
         ],
     ],
     'settings' => [
+        'types' => [
+            'institution' => 'Einrichtung',
+            'resource_group' => 'Ressourcen-Gruppe',
+        ],
         'keys' => [
             'timezone' => [
                 'label' => 'Zeitzone',
@@ -512,7 +521,7 @@ return [
             ],
         ],
         'index' => [
-            'title' => 'Einstellungen für Einrichtung ":title"',
+            'title' => 'Einstellungen für :type ":title"',
             'description' => 'Einstellungen bearbeiten',
             'table' => [
                 'header' => [

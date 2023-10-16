@@ -19,7 +19,7 @@
             "
         >
             <div class="institution-resource-groups-button">
-                {{ translate(resource_group.name) }}
+                {{ translate(resource_group.title) }}
             </div>
         </Link>
         <p class="py-2">

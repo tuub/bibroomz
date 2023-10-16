@@ -57,7 +57,7 @@
                         {{ translate(happening.resource.resource_group.institution.title) }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ translate(happening.resource.resource_group.name) }}
+                        {{ translate(happening.resource.resource_group.title) }}
                     </td>
                     <td class="px-6 py-4">
                         {{ translate(happening.resource.title) }}

@@ -21,7 +21,7 @@
                     {{
                         $t("navigation.regular.home", {
                             institution: institution?.short_title,
-                            resource_group: translate(resourceGroup?.name),
+                            resource_group: translate(resourceGroup?.title),
                         })
                     }}
                 </li>

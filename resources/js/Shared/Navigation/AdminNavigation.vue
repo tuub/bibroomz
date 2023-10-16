@@ -1,5 +1,5 @@
 <template>
-    <NavigationMenu is-always-mobile="true">
+    <NavigationMenu :is-always-mobile="true">
         <ul>
             <NavLink icon="ri-tools-fill" :href="route('admin.dashboard')" :is-active="isPageDashboard">
                 <li>

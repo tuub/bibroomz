@@ -30,12 +30,12 @@
             ></FormValidationError>
         </div>
 
-        <!-- Input: Name -->
+        <!-- Input: Title -->
         <TranslatableFormInput
-            v-model="form.name"
-            field="name"
-            field-key="admin.resource_groups.form.fields.name"
-            :placeholder="$t('admin.resource_groups.form.fields.name.placeholder')"
+            v-model="form.title"
+            field="title"
+            field-key="admin.resource_groups.form.fields.title"
+            :placeholder="$t('admin.resource_groups.form.fields.title.placeholder')"
             :languages="languages"
             :errors="form.errors"
         ></TranslatableFormInput>
@@ -153,7 +153,7 @@ const translate = appStore.translate;
 const form = useForm({
     id: props.resource_group?.id ?? "",
     institution_id: props.resource_group?.institution_id ?? "",
-    name: props.resource_group?.name ?? {},
+    title: props.resource_group?.title ?? {},
     slug: props.resource_group?.slug ?? "",
     term_singular: props.resource_group?.term_singular ?? {},
     term_plural: props.resource_group?.term_plural ?? {},
