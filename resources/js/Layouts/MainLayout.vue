@@ -64,10 +64,6 @@ window.onscroll = function(ev) {
 };
 </script>
 <style>
-.content-wrapper {
-    margin: 10em 2em 4em 2em;
-    position: relative;
-}
 
 .footer {
     position: fixed;

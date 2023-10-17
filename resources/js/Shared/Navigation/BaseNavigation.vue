@@ -3,10 +3,9 @@
         <Brand />
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
-            <a :href="institution?.home_uri" class="float-left" target="_blank">
+            <a :href="institution?.home_uri" class="institution-logo-uri" target="_blank">
                 <img :src="institution?.logo_uri" class="float-left h-7" :alt="institution?.title" />
             </a>
-            <span class="ml-2">{{ translate(resourceGroup?.name) }}</span>
             <slot />
         </div>
     </nav>
@@ -36,6 +35,10 @@ nav {
 #nav-footer-wrapper > button {
     float: right;
     display: none;
+}
+
+.institution-logo-uri{
+    position: absolute ;
 }
 
 @media only screen and (max-width: 1150px) {

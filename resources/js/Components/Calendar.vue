@@ -1,7 +1,7 @@
 <template>
     <div id="legend-full-calendar-wrapper" class="calendar">
         <Legend class="mb-5"></Legend>
-
+        <span class="resource-group-name">{{ translate(resourceGroup?.title) }}</span>
         <div v-if="pagination.previousPage || pagination.nextPage" class="page-change-wrapper">
             <label>{{ $t("calendar.browse_resources") }}</label>
             <button
@@ -293,6 +293,13 @@ div.fc-timegrid-slots tr {
     top: -16px;
 }
 
+.resource-group-name{
+    position: absolute;
+    left: 0px;
+    top: -53px;
+    font-size: 1.1em;
+}
+
 .calendar-if-not-logged-in {
     width: 100% !important;
 }
@@ -309,16 +316,11 @@ div.fc-timegrid-slots tr {
     }
 }
 
-@media only screen and (max-width: 530px) {
+@media only screen and (max-width: 800px) {
     .fc .fc-toolbar.fc-header-toolbar {
         width: 50%;
     }
 
-    .content-wrapper {
-        margin: 12em 2em 4em 2em;
-        min-height: 80vh;
-        position: relative;
-    }
 
     .page-change-wrapper > label {
         position: absolute;
@@ -360,6 +362,13 @@ div.fc-timegrid-slots tr {
         position: absolute;
         left: 0;
         top: -53px;
+    }
+
+    .resource-group-name{
+        position: absolute;
+        left: 0px;
+        top: -90px;
+
     }
 }
 </style>

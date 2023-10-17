@@ -65,4 +65,10 @@ onMounted(() => {
     right: 30px;
     font-size: 10px;
 }
+
+.login-logout-button{
+    position: absolute;
+    right: 30px;
+    top: 37px;
+}
 </style>
