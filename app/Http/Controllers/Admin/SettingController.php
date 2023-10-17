@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingRequest;
+use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +16,8 @@ class SettingController extends Controller
 {
     public function getSettings(Request $request): Response
     {
-        $settingable = Setting::getClosableModel($request->settingable_type)->find($request->settingable_id);
+        $settingable = Setting::getSettingableModel($request->settingable_type)
+            ->findByUuid($request->settingable_id);
 
         $this->authorize('viewAny', [Setting::class, $settingable]);
 
@@ -28,18 +30,23 @@ class SettingController extends Controller
 
     public function editSetting(Request $request): Response
     {
-        $setting = Setting::findOrFail($request->id);
+        $setting = Setting::findByUuid($request->id);
 
         $this->authorize('edit', $setting);
 
+        $settingable_class = explode('\\', $setting->settingable_type);
+        $settingable_type = Utility::convertCamelCaseToSnakeCase(end($settingable_class));
+
         return Inertia::render('Admin/Settings/Form', [
-            'setting' => $setting->only(['id', 'settingable_type', 'settingable_id', 'key', 'value'])
+            'setting' => $setting,
+            'settingable' => $setting->settingable,
+            'settingable_type' => $settingable_type,
         ]);
     }
 
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse
     {
-        $setting = Setting::findOrFail($request->id);
+        $setting = Setting::findByUuid($request->id);
 
         $this->authorize('edit', $setting);
 
@@ -47,8 +54,8 @@ class SettingController extends Controller
         $setting->update($validated);
 
         return redirect()->route('admin.setting.index', [
-            'settingable_type' => $setting->settingable_type,
-            'settingable_id' => $setting->settingable_id,
+            'settingable_id' => $request->settingable_id,
+            'settingable_type' => $request->settingable_type,
         ]);
     }
 }

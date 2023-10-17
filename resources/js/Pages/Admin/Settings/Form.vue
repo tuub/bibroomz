@@ -1,12 +1,13 @@
 <template>
-    <PageHead title="Admin Settings Form" page-type="admin" />
-
-    <h1 class="text-3xl">Setting Form</h1>
+    <PageHead :title="$t('admin.settings.form.title', {
+        type: $t('admin.settings.types.' + settingable_type),
+        title: 'hoo'
+    })" page-type="admin"/>
 
     <form class="max-w mx-auto mt-8">
         <!-- Input: Key -->
         <div class="mb-6">
-            <label for="name" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase"> Key </label>
+            <FormLabel field="key" field-key="admin.settings.form.fields.key"></FormLabel>
             <input
                 id="key"
                 v-model="form.key"
@@ -20,9 +21,7 @@
 
         <!-- Input: Value -->
         <div class="mb-6">
-            <label for="email" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase">
-                Value
-            </label>
+            <FormLabel field="value" field-key="admin.settings.form.fields.value"></FormLabel>
             <input
                 id="value"
                 v-model="form.value"
@@ -38,12 +37,14 @@
             :form="form"
             model="setting"
             cancel-route="admin.setting.index"
-            :cancel-route-params="{ institution_id: setting.institution_id }"
+            :cancel-route-params="{ settingable_id: settingable.id, settingable_type: settingable_type }"
         />
     </form>
 </template>
 <script setup>
+import { useAppStore } from "@/Stores/AppStore";
 import FormAction from "@/Components/Admin/FormAction.vue";
+import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 
@@ -57,14 +58,32 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    settingable: {
+        type: Object,
+        default: () => ({}),
+    },
+    // eslint-disable-next-line vue/prop-name-casing
+    settingable_type: {
+        type: String,
+        default: "",
+    },
 });
+
+// ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const translate = appStore.translate;
+
 const form = useForm({
     id: props.setting.id ?? "",
     key: props.setting.key ?? "",
     value: props.setting.value ?? "",
+    settingable_id: props.settingable.id,
+    settingable_type: props.settingable_type,
 });
 </script>

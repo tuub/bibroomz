@@ -3,10 +3,6 @@
         :title="$t('admin.closings.form.title', { type: closable_type, title: translate(closable.title) })"
         page-type="admin"
     />
-    <BodyHead
-        :title="$t('admin.closings.form.title', { type: closable_type, title: translate(closable.title) })"
-        :description="$t('admin.closings.form.description')"
-    />
 
     <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Start Date & Start Time -->
@@ -95,7 +91,6 @@
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";

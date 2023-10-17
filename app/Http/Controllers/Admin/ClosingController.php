@@ -21,7 +21,8 @@ class ClosingController extends Controller
 {
     public function getClosings(Request $request)
     {
-        $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $closable = Closing::getClosableModel($request->closable_type)
+            ->findByUuid($request->closable_id);
 
         $this->authorize('viewAny', [Closing::class, $closable]);
 
@@ -34,7 +35,8 @@ class ClosingController extends Controller
 
     public function createClosing(Request $request): Response
     {
-        $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $closable = Closing::getClosableModel($request->closable_type)
+            ->findByUuid($request->closable_id);
 
         $this->authorize('create', [Closing::class, $closable]);
 
@@ -47,7 +49,8 @@ class ClosingController extends Controller
 
     public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
-        $closable = Closing::getClosableModel($request->closable_type)->find($request->closable_id);
+        $closable = Closing::getClosableModel($request->closable_type)
+            ->findByUuid($request->closable_id);
 
         $this->authorize('create', [Closing::class, $closable]);
 
@@ -73,11 +76,12 @@ class ClosingController extends Controller
 
     public function editClosing(Request $request): Response
     {
-        $closing = Closing::find($request->id);
+        $closing = Closing::findByUuid($request->id);
 
         $this->authorize('edit', $closing);
 
-        $closable_type = explode('\\', $closing->closable_type);
+        $closable_class = explode('\\', $closing->closable_type);
+        $closable_type = Utility::convertCamelCaseToSnakeCase(end($closable_class));
 
         $closing->start_date = Carbon::parse($closing->start)->format('d.m.Y');
         $closing->start_time = Carbon::parse($closing->start)->format('H:i');
@@ -87,14 +91,14 @@ class ClosingController extends Controller
         return Inertia::render('Admin/Closings/Form', [
             'closing' => $closing,
             'closable' => $closing->closable,
-            'closable_type' => strtolower(end($closable_type)),
+            'closable_type' => $closable_type,
             'languages' => config('app.supported_locales'),
         ]);
     }
 
     public function updateClosing(UpdateClosingRequest $request): RedirectResponse
     {
-        $closing = Closing::find($request->id);
+        $closing = Closing::findByUuid($request->id);
 
         $this->authorize('edit', $closing);
 
@@ -127,7 +131,7 @@ class ClosingController extends Controller
 
     public function deleteClosing(Request $request): RedirectResponse
     {
-        $closing = Closing::find($request->id);
+        $closing = Closing::findByUuid($request->id);
 
         $this->authorize('delete', $closing);
 

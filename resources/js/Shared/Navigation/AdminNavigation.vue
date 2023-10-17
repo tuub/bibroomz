@@ -127,20 +127,25 @@ const isPageHappenings = computed(() => {
 
 const isPageInstitutions = computed(() => {
     const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "institution";
+    const isSettingsPage = inertiaPage.props.settingable_type && inertiaPage.props.settingable_type === "institution";
+
     return (
         inertiaPage.component.startsWith("Admin/Institutions") ||
-        inertiaPage.component.startsWith("Admin/Settings") ||
         inertiaPage.component.startsWith("Admin/Mails") ||
-        isClosingsPage
+        isClosingsPage ||
+        isSettingsPage
     );
 });
 
 const isPageResourceGroups = computed(() => {
     const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
+    const isSettingsPage = inertiaPage.props.settingable_type && inertiaPage.props.settingable_type === "resource_group";
+
     return (
         inertiaPage.component.startsWith("Admin/ResourceGroups") ||
         inertiaPage.component.startsWith("Admin/Resources") ||
-        isClosingsPage
+        isClosingsPage ||
+        isSettingsPage
     );
 });
 

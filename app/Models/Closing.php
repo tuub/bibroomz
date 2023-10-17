@@ -59,7 +59,9 @@ class Closing extends Model
 
     public static function getClosableModel(string $closableType)
     {
-        $fullModelName = __NAMESPACE__ . '\\' . ucfirst($closableType);
+        $modelName = array_map('ucfirst', explode('_', $closableType));
+        $fullModelName = __NAMESPACE__ . '\\' . implode('', $modelName);
+
         return new $fullModelName();
     }
 

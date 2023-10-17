@@ -60,4 +60,9 @@ class Utility
 
         return $date->hour(str($time_arr[0]))->minute(str($time_arr[1]));
     }
+
+    public static function convertCamelCaseToSnakeCase(string $camel_case): string
+    {
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $camel_case));
+    }
 }

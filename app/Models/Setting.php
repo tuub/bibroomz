@@ -33,10 +33,11 @@ class Setting extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    public static function getClosableModel(string $closableType)
+    public static function getSettingableModel(string $settingableType)
     {
-        $modelName = array_map('ucfirst', explode('_', $closableType));
+        $modelName = array_map('ucfirst', explode('_', $settingableType));
         $fullModelName = __NAMESPACE__ . '\\' . implode('', $modelName);
+
         return new $fullModelName();
     }
 

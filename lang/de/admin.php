@@ -434,8 +434,8 @@ return [
             ],
         ],
         'form' => [
-            'title' => 'Schließungsformular für :type ":title"',
-            'description' => 'Schließung erstellen / bearbeiten',
+            'title' => 'Schließzeit für :type ":title"',
+            'description' => 'Schließzeit erstellen / bearbeiten',
             'fields' => [
                 'start_date' => [
                     'label' => 'Startdatum',
@@ -531,6 +531,22 @@ return [
                 ],
                 'actions' => [
                     'edit' => 'Bearbeiten',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Einstellung für :type ":title"',
+            'description' => 'Einstellung bearbeiten',
+            'fields' => [
+                'key' => [
+                    'label' => 'Schlüssel',
+                    'placeholder' => 'Der Schlüssel',
+                    'hint' => 'Über den Schlüssel',
+                ],
+                'value' => [
+                    'label' => 'Wert',
+                    'placeholder' => 'Der Wert',
+                    'hint' => 'Über den Wert',
                 ],
             ],
         ],
