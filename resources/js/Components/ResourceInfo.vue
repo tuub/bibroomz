@@ -17,8 +17,8 @@
             <div class="mb-2">{{ resource.description }}</div>
             <div class="font-bold">{{ $t("modal.resource_info.resource_location") }}</div>
             <div class="mb-2">
-                <template v-if="resource.locationUri">
-                    <a class="underline" :href="resource.locationUri" target="_blank">
+                <template v-if="resource.location_uri">
+                    <a class="underline" :href="resource.location_uri" target="_blank">
                         {{ resource.location }}
                     </a>
                 </template>
