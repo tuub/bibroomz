@@ -20,20 +20,21 @@
                 {{ happeningStart }} - {{ happeningEnd }}
             </p>
             <p class="text-sm font-medium pb-1">
-                <i class="ri-home-line" :title="translate(happening.resource.resourceGroup)"></i>
-                {{ happening.resource.resourceGroup }}
-                {{ happening.resource.title }}
-            </p>
-            <p class="text-sm font-medium truncate pb-1">
-                <i class="ri-map-pin-fill mr-1" :title="$t('user_happening.location')"></i>
+                <i class="ri-home-line mr-1" :title="translate(happening.resource.resourceGroup)"></i>
                 <template v-if="happening.resource.locationUri">
                     <a class="underline" :href="happening.resource.locationUri" target="_blank">
-                        {{ happening.resource.location }}
+                        {{ happening.resource.resourceGroup }}
+                        {{ happening.resource.title }}
                     </a>
                 </template>
                 <template v-else>
-                    {{ happening.resource.location }}
+                    {{ happening.resource.resourceGroup }}
+                    {{ happening.resource.title }}
                 </template>
+            </p>
+            <p class="text-sm font-medium truncate pb-1">
+                <i class="ri-map-pin-fill" :title="$t('user_happening.location')"></i>
+                {{ happening.resource.location }}
             </p>
             <p class="text-sm font-medium pb-1">
                 <i class="ri-user-fill" :title="$t('user_happening.user_01')"></i>

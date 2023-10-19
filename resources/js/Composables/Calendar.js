@@ -200,6 +200,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
             emit(
                 "open-modal-component",
                 useResourceInfoModal({
+                    resourceGroup: translate(resourceInfo.resource.extendedProps.translations.resourceGroup),
                     title: translate(resourceInfo.resource.extendedProps.translations.title),
                     description: translate(resourceInfo.resource.extendedProps.translations.description),
                     location: translate(resourceInfo.resource.extendedProps.translations.location),

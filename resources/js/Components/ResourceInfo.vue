@@ -11,21 +11,24 @@
             </div>
         </a>
         <div v-if="isVisible">
+            <div class="font-bold">{{ $t("modal.resource_info.resource_title") }}</div>
+            <div class="mb-2">
+                <template v-if="resource.location_uri">
+                    <a class="underline" :href="resource.location_uri" target="_blank">
+                        {{ resource.resourceGroup }}
+                        {{ resource.title }}
+                    </a>
+                </template>
+                <template v-else>
+                    {{ resource.title }}
+                </template>
+            </div>
+            <div class="font-bold">{{ $t("modal.resource_info.resource_location") }}</div>
+            <div class="mb-2">{{ resource.location }}</div>
             <div class="font-bold">{{ $t("modal.resource_info.resource_capacity") }}</div>
             <div class="mb-2">{{ resource.capacity }}</div>
             <div class="font-bold">{{ $t("modal.resource_info.resource_description") }}</div>
             <div class="mb-2">{{ resource.description }}</div>
-            <div class="font-bold">{{ $t("modal.resource_info.resource_location") }}</div>
-            <div class="mb-2">
-                <template v-if="resource.location_uri">
-                    <a class="underline" :href="resource.location_uri" target="_blank">
-                        {{ resource.location }}
-                    </a>
-                </template>
-                <template v-else>
-                    {{ resource.location }}
-                </template>
-            </div>
         </div>
     </div>
 </template>

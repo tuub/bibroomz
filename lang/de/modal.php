@@ -64,11 +64,12 @@ return [
         ],
     ],
     'resource_info' => [
-        'title' => 'Informationen zu :resource_group :resource_title',
+        'title' => 'Information',
         'description' => ' ',
+        'resource_title' => 'Bezeichnung',
+        'resource_location' => 'Standort',
         'resource_capacity' => 'Kapazität',
         'resource_description' => 'Beschreibung',
-        'resource_location' => 'Standort',
         'show' => 'Standortinfo anzeigen',
         'hide' => 'Standortinfo verbergen',
         'action' => [
