@@ -22,6 +22,7 @@ class ResourceController extends Controller
 
         $resources = Resource::active()
             ->where('resource_group_id', $resource_group->id)
+            ->orderBy('title')
             ->paginate($request->count)
             ->withPath('/' . $request->path() . '?count=' . $request->count);
 
