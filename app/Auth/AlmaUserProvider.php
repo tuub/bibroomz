@@ -7,7 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Ixudra\Curl\Facades\Curl;
+use Exception;
 use Vyuldashev\XmlToArray\XmlToArray;
 
 /*
@@ -72,13 +74,18 @@ class AlmaUserProvider implements UserProvider
                 'last_login' => Carbon::now(),
             ]);
         } else {
-            $user = User::create([
-                'name' => $user_data['name'],
-                'email' => $user_data['email'],
-                'password' => $user_data['password'],
-                'is_admin' => $user_data['is_admin'],
-                'last_login' => Carbon::now(),
-            ]);
+            try {
+                $user = User::create([
+                    'name' => $user_data['name'],
+                    'email' => $user_data['email'],
+                    'password' => $user_data['password'],
+                    'is_admin' => $user_data['is_admin'],
+                    'last_login' => Carbon::now(),
+                ]);
+            } catch (Exception $exc) {
+                Log::error($exc);
+                return null;
+            }
         }
 
         $session_data = [
@@ -187,7 +194,7 @@ class AlmaUserProvider implements UserProvider
 
         if ($response['result']['code'] == 0) {
             return [
-                'name' => $response['result']['barcode'],
+                'name' => $credentials['uid'],
                 'email' => $response['result']['email_address'],
                 'password' => Hash::make('Test123!'),
                 'is_admin' => false,
