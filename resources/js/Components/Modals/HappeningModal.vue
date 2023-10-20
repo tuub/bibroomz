@@ -8,6 +8,7 @@
     </div>
 
     <HappeningInfo :happening="happening" />
+    {{ happening }}
     <HappeningForm
         v-if="editable"
         :happening="happening"
@@ -21,7 +22,7 @@ import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
-import { toRaw } from "vue";
+import {reactive, toRaw} from "vue";
 
 // ------------------------------------------------
 // Props
@@ -50,14 +51,14 @@ defineEmits(["update:payload", "submit"]);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const happening = {
+const happening = reactive({
     id: props.payload.id,
     resource: toRaw(props.payload.resource),
     start: appStore.formatDateTime(props.payload.start, true),
     end: appStore.formatDateTime(props.payload.end, true),
     isVerificationRequired: props.payload.isVerificationRequired,
     verifier: props.payload.user_02,
-};
+});
 
 const editable = props.payload?.editable ?? false;
 </script>
