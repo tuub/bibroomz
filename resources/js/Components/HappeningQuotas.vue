@@ -19,10 +19,9 @@ import { computed } from "vue";
 const authStore = useAuthStore();
 const appStore = useAppStore();
 
-const institution = appStore.institution;
-
 const getQuotaSetting = (type) => {
-    return Number(institution.settings["quota_" + type]);
+    let setting = appStore.resourceGroup.settings.find(x => x.key === 'quota_' + type);
+    return Number(setting['value']);
 };
 
 const quotas = computed(() =>
