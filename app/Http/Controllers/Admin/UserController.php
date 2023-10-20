@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DeleteUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Requests\Admin\UserRequest;
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class UserController extends Controller
 {
@@ -26,6 +30,43 @@ class UserController extends Controller
     public function getFormUsers()
     {
         return User::get(['id', 'name', 'is_admin']);
+    }
+
+    public function createUser(Request $request): Response
+    {
+        return Inertia::render('Admin/Users/Form', [
+            'is_system_user' => true,
+            'is_set_password' => true,
+            'roles' => Role::orderBy('name')->get(['id', 'name', 'description']),
+            'institutions' => Institution::get()
+                ->filter->isEditableByUser(auth()->user())
+                ->map->only(['id', 'title', 'short_title'])
+        ]);
+    }
+
+    public function storeUser(UserRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        // Compile user data
+        $user_data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'is_admin' => $validated['is_admin'],
+        ];
+
+        if ($request['is_set_password']) {
+            $user_data['password'] = Hash::make($validated['password']);
+        }
+
+        $user = User::create($user_data);
+
+        // Attach new roles
+        collect($validated['roles'])->each(function ($input) use ($user) {
+            $user->roles()->attach($input['role_id'], ['institution_id' => $input['institution_id']]);
+        });
+
+        return redirect()->route('admin.user.index');
     }
 
     public function editUser(Request $request)
@@ -53,15 +94,25 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateUser(UpdateUserRequest $request): RedirectResponse
+    public function updateUser(UserRequest $request): RedirectResponse
     {
-        /** @var User */
         $user = User::find($request->id);
+        $validated = $request->validated();
 
-        $validated = $request->safe();
-        $user->update($validated->except(['roles']));
+        // Compile user data
+        $user_data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'is_admin' => $validated['is_admin'],
+        ];
 
-        // detach old roles
+        if ($request['is_set_password']) {
+            $user_data['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($user_data);
+
+        // Detach old roles
         $user->roles()->each(function (Role $role) use ($user) {
             $institution = $role->pivot->institution;
 
@@ -70,8 +121,8 @@ class UserController extends Controller
             }
         });
 
-        // attach new roles
-        collect($validated->roles)->each(function ($input) use ($user) {
+        // Attach new roles
+        collect($validated['roles'])->each(function ($input) use ($user) {
             $user->roles()->attach($input['role_id'], ['institution_id' => $input['institution_id']]);
         });
 

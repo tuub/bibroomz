@@ -53,16 +53,33 @@ class AlmaUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $user_data = $this->getLocalUserInfo($credentials);
+        $is_user_found = false;
 
-        if (!$user_data) {
-            $user_data = $this->getRemoteUserInfo([
-                'uid' => $credentials['username'],
-                'pw' => $credentials['password'],
-            ]);
+        // Check local users
+        if (!$is_user_found) {
+            $user_data = $this->getLocalUserInfo($credentials);
+            if ($user_data) {
+                $is_user_found = true;
+            }
         }
 
-        if (!$user_data) {
+        // Check system users
+        if (!$is_user_found) {
+            $user_data = $this->getSystemUserInfo($credentials);
+            if ($user_data) {
+                $is_user_found = true;
+            }
+        }
+
+        // Check API users
+        if (!$is_user_found) {
+            $user_data = $this->getRemoteUserInfo($credentials);
+            if ($user_data) {
+                $is_user_found = true;
+            }
+        }
+
+        if (!$is_user_found) {
             return null;
         }
 
@@ -176,8 +193,29 @@ class AlmaUserProvider implements UserProvider
         return null;
     }
 
+    private function getSystemUserInfo($credentials)
+    {
+        $user = User::where('name', $credentials['username'])->first();
+
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            return [
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => $user->password,
+                'is_admin' => $user->is_admin,
+            ];
+        }
+
+        return null;
+    }
+
     private function getRemoteUserInfo($credentials)
     {
+        $credentials = [
+            'uid' => $credentials['username'],
+            'pw' => $credentials['password'],
+        ];
+
         $response = Curl::to(config('roomz.auth.api.endpoint'))
             ->withData($credentials)
             ->withTimeout(config('roomz.auth.api.timeout'))

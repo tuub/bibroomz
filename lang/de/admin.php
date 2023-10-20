@@ -7,6 +7,7 @@ return [
         ],
         'form' => [
             'choose' => 'Bitte auswählen',
+            'toggle_password' => 'Passwort ein-/ausblenden',
             'submit' => 'Speichern',
             'cancel' => 'Abbrechen',
         ],
@@ -370,7 +371,7 @@ return [
             'description' => 'Benutzer erstellen, bearbeiten, löschen',
             'table' => [
                 'header' => [
-                    'name' => 'Benutzername',
+                    'name' => 'Benutzer*innen-Name',
                     'email' => 'E-Mail',
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Gesperrt?',
@@ -378,6 +379,7 @@ return [
                     'is_privileged' => 'Privilegiert?',
                 ],
                 'actions' => [
+                    'create' => 'System-Benutzer*in erstellen',
                     'edit' => 'Bearbeiten',
                     'delete' => 'Löschen',
                 ],
@@ -387,14 +389,38 @@ return [
             'title' => 'Formular für Benutzer',
             'description' => 'Benutzer bearbeiten',
             'fields' => [
+                'is_system_user' => [
+                    'label' => 'System-Benutzer*in?',
+                    'hint' => 'System-Benutzer*innen können sich ohne Statusprüfung einloggen.',
+                ],
                 'name' => [
                     'label' => 'Name',
-                    'hint' => '(nur lesbar)',
+                    'placeholder' => 'Name',
+                    'hint' => 'Der Username.',
                 ],
                 'email' => [
                     'label' => 'E-Mail',
                     'placeholder' => 'E-Mail-Adresse',
-                    'hint' => '(nur lesbar)',
+                    'hint' => 'Die Email-Adresse.',
+                ],
+                'is_set_password' => [
+                    'label' => 'Passwort erstellen/updaten?',
+                    'hint' => 'System-Benutzer*innen müssen ein Passwort angeben.',
+                ],
+                'current_password' => [
+                    'label' => 'Aktuelles Passwort',
+                    'placeholder' => 'Das aktuelle Passwort',
+                    'hint' => 'Hier wird das aktuelle Passwort angegeben.',
+                ],
+                'password' => [
+                    'label' => 'Neues Passwort',
+                    'placeholder' => 'Das neue Passwort',
+                    'hint' => 'Hier wird ein neues Passwort angegeben.',
+                ],
+                'password_confirm' => [
+                    'label' => 'Passwort bestätigen',
+                    'placeholder' => 'Das neue Passwort zur Bestätigung',
+                    'hint' => 'Hier wird erneut das neue Passwort angegeben.',
                 ],
                 'is_admin' => [
                     'label' => 'Admin?',

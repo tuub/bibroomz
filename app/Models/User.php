@@ -36,6 +36,7 @@ class User extends Authenticatable
         'name',
         'email',
         'is_admin',
+        'is_system_user',
         'banned_at',
         'password',
         'last_login',
@@ -59,6 +60,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'is_admin' => 'boolean',
+        'is_system_user' => 'boolean',
         'is_logged_in' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -102,6 +104,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->is_admin;
+    }
+
+    public function isSystemUser(): bool
+    {
+        return $this->is_system_user;
     }
 
     public function getHappenings()

@@ -7,6 +7,7 @@ return [
         ],
         'form' => [
             'choose' => 'Please choose',
+            'toggle_password' => 'Toggle password',
             'submit' => 'Save',
             'cancel' => 'Cancel',
         ],
@@ -386,14 +387,38 @@ return [
             'title' => 'User Form',
             'description' => 'Edit a user',
             'fields' => [
+                'is_system_user' => [
+                    'label' => 'System user?',
+                    'hint' => 'System users can log-in without status validation.',
+                ],
                 'name' => [
                     'label' => 'Name',
-                    'hint' => '(read-only)',
+                    'placeholder' => 'Name',
+                    'hint' => 'The users name.',
                 ],
                 'email' => [
-                    'label' => 'E-Mail',
-                    'placeholder' => 'email address',
-                    'hint' => '(read-only)',
+                    'label' => 'Email',
+                    'placeholder' => 'Email address',
+                    'hint' => 'The email address.',
+                ],
+                'is_set_password' => [
+                    'label' => 'Create/edit password?',
+                    'hint' => 'System users need a password.',
+                ],
+                'current_password' => [
+                    'label' => 'Current password',
+                    'placeholder' => 'The current password',
+                    'hint' => 'Provide the current password here.',
+                ],
+                'password' => [
+                    'label' => 'New password',
+                    'placeholder' => 'The new password',
+                    'hint' => 'Provide a new password here.',
+                ],
+                'password_confirm' => [
+                    'label' => 'Password confirmation',
+                    'placeholder' => 'The new password for confirmation',
+                    'hint' => 'Provide rhe new password once more for confirmation.',
                 ],
                 'is_admin' => [
                     'label' => 'Is Admin?',

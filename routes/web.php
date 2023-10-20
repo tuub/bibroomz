@@ -181,12 +181,16 @@ Route::middleware('auth:sanctum')->group(function () {
         /* Users */
         Route::get('/admin/users', [AdminUserController::class, 'getUsers'])
             ->name('admin.user.index');
+        Route::get('/admin/user/create', [AdminUserController::class, 'createUser'])
+            ->name('admin.user.create');
+        Route::post('/admin/user/store', [AdminUserController::class, 'storeUser'])
+            ->name('admin.user.store');
         Route::get('/admin/user/{id}/edit', [AdminUserController::class, 'editUser'])
             ->name('admin.user.edit');
-        Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
-            ->name('admin.user.delete');
         Route::post('/admin/user/update', [AdminUserController::class, 'updateUser'])
             ->name('admin.user.update');
+        Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
+            ->name('admin.user.delete');
 
         /* Roles */
         Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])
