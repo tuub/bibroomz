@@ -18,12 +18,12 @@ class ResourceGroupFactory extends Factory
     public function definition()
     {
         $faker = \Faker\Factory::create('de_DE');
-        $name = ucfirst($faker->colorName);
+        $title = ucfirst($faker->colorName);
         return [
-            'name' => $this->getTranslatable($name),
-            'slug' => strtolower($name),
-            'term_singular' => $this->getTranslatable($name),
-            'term_plural' => $this->getTranslatable($name . 's'),
+            'title' => $this->getTranslatable($title),
+            'slug' => strtolower($title),
+            'term_singular' => $this->getTranslatable($title),
+            'term_plural' => $this->getTranslatable($title . 's'),
             'description' => $this->getTranslatable($faker->realText(125)),
             'is_active' => 1,
         ];
