@@ -8,7 +8,6 @@
     </div>
 
     <HappeningInfo :happening="happening" />
-    {{ happening }}
     <HappeningForm
         v-if="editable"
         :happening="happening"
