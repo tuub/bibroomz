@@ -26,7 +26,7 @@ nav {
     background-color: white;
     color: #C40D20;
     padding: 30px;
-    height: 7.5em;
+    height: 7em;
     z-index: 9999;
     box-shadow: 0 3px 3px rgba(204, 203, 203);
     font-size: 17px;
@@ -44,13 +44,6 @@ nav {
 @media only screen and (max-width: 1150px) {
     #nav-footer-wrapper > button {
         display: block;
-    }
-
-    nav {
-        background-color: white;
-        color: #C40D20;
-        padding: 30px;
-        height: 7em;
     }
 }
 </style>

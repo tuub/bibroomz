@@ -273,14 +273,6 @@ div.fc-timegrid-slots tr {
     color: white;
 }
 
-@-moz-document url-prefix() {
-    .page-change-wrapper {
-        position: absolute;
-        top: -12px;
-        right: -5px;
-    }
-}
-
 .full-calendar > div:nth-child(1) > div:nth-child(1) {
     position: absolute;
     left: 65px;
@@ -296,7 +288,7 @@ div.fc-timegrid-slots tr {
 .resource-group-name{
     position: absolute;
     left: 0px;
-    top: -53px;
+    top: -60px;
     font-size: 1.1em;
 }
 
@@ -367,7 +359,7 @@ div.fc-timegrid-slots tr {
     .resource-group-name{
         position: absolute;
         left: 0px;
-        top: -90px;
+        top: -93px;
 
     }
 }

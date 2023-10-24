@@ -6,14 +6,6 @@
                     {{ $t("navigation.admin.dashboard") }}
                 </li>
             </NavLink>
-            <NavLink
-                icon="ri-calendar-event-fill"
-                :href="route('admin.happening.index')"
-                :is-active="isPageHappenings"
-            >
-                <li>
-                </li>
-            </NavLink>
             <NavLink icon="ri-calendar-event-fill" :href="route('admin.happening.index')" :is-active="isPageHappenings">
                 <li>
                     {{ $t("navigation.admin.happenings") }}
@@ -37,11 +29,6 @@
             >
                 <li>
                     {{ $t("navigation.admin.resource_groups") }}
-                </li>
-            </NavLink>
-            <NavLink v-if="hasPermission('view_users')" icon="ri-user-fill" :href="route('admin.user.index')" :is-active="isPageUsers">
-                <li>
-                    {{ $t("navigation.admin.users") }}
                 </li>
             </NavLink>
             <NavLink

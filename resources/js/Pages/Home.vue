@@ -109,11 +109,14 @@ onMounted(() => {
 #calendar-sidebar-wrapper {
     display: block;
     width: 100%;
+    margin-top: 11.5em;
 }
 
 .calendar-wrapper {
+    position: sticky;
     display: inline-block;
     width: 72%;
+
 }
 
 @media only screen and (max-width: 1150px) {
@@ -129,5 +132,16 @@ onMounted(() => {
         display: block;
         width: 100%;
     }
+
+    #calendar-sidebar-wrapper {
+        margin-top: 11.5em;
+    }
 }
+
+@media only screen and (max-width: 800px) {
+    #calendar-sidebar-wrapper {
+        margin-top: 13.5em;
+    }
+}
+
 </style>

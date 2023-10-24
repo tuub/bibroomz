@@ -1,6 +1,6 @@
 <template>
     <div class="legend-item-toggle-button-wrapper">
-        <button class="legend-item-toggle-button" @click="toggle">
+        <button id="legend-toggle-button" class="legend-item-toggle-button" @click="toggle">
             <i class="ri-question-line"></i>
         </button>
         <Transition>
@@ -46,7 +46,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const { isAuthenticated } = storeToRefs(authStore);
 
-const isOpen = ref(false);
+const isOpen = ref(true);
 
 // ------------------------------------------------
 // Methods
@@ -54,14 +54,18 @@ const isOpen = ref(false);
 const toggle = () => {
     isOpen.value = !isOpen.value;
 };
+
+
 </script>
 <style>
+
+
 #status-legend {
     position: fixed;
-    top: 235px;
+    top: 144px;
     z-index: 9;
     background: rgba(0, 0, 0, 0%);
-    right: 0;
+    right: 0px;
     height: 168px;
     width: 195px;
 }
@@ -79,8 +83,8 @@ const toggle = () => {
 
 .legend-item-toggle-button {
     position: fixed;
-    right: -2px;
-    top: 211px;
+    right: 0px;
+    top: 120px;
     rotate: unset;
     height: 40px;
     width: 40px;
