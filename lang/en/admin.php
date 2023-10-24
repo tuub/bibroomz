@@ -372,6 +372,7 @@ return [
                 'header' => [
                     'name' => 'Username',
                     'email' => 'E-Mail',
+                    'is_system_user' => 'System User?',
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Banned?',
                     'happenings' => '# Happenings',

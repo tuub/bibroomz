@@ -16,6 +16,9 @@
                         {{ $t("admin.users.index.table.header.email") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
+                        {{ $t("admin.users.index.table.header.is_system_user") }}
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
                         {{ $t("admin.users.index.table.header.is_admin") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
@@ -43,6 +46,9 @@
                     </th>
                     <td class="px-6 py-4">
                         {{ user.email }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <BooleanField :is-true="user.is_system_user" />
                     </td>
                     <td class="px-6 py-4 text-center">
                         <BooleanField :is-true="user.is_admin" />

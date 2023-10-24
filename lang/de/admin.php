@@ -373,6 +373,7 @@ return [
                 'header' => [
                     'name' => 'Benutzer*innen-Name',
                     'email' => 'E-Mail',
+                    'is_system_user' => 'System-User?',
                     'is_admin' => 'Admin?',
                     'is_banned' => 'Gesperrt?',
                     'happenings' => '# Events',

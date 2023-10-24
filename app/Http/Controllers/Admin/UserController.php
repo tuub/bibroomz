@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DeleteUserRequest;
-use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\Institution;
 use App\Models\Role;
@@ -53,6 +52,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'is_admin' => $validated['is_admin'],
+            'is_system_user' => $validated['is_system_user'],
         ];
 
         if ($request['is_set_password']) {
@@ -86,7 +86,7 @@ class UserController extends Controller
         });
 
         return Inertia::render('Admin/Users/Form', [
-            'user' => $user->only(['id', 'name', 'email', 'is_admin', 'roles']),
+            'user' => $user->only(['id', 'name', 'email', 'is_admin', 'is_system_user', 'roles']),
             'roles' => Role::orderBy('name')->get(['id', 'name', 'description']),
             'institutions' => Institution::get()
                 ->filter->isEditableByUser(auth()->user())
@@ -104,6 +104,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'is_admin' => $validated['is_admin'],
+            'is_system_user' => $validated['is_system_user'],
         ];
 
         if ($request['is_set_password']) {

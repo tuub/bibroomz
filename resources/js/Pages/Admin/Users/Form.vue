@@ -175,7 +175,7 @@ import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
-import {computed, onMounted, ref} from "vue";
+import { computed, ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------
@@ -220,7 +220,7 @@ const form = useForm({
     name: props.user.name ?? "",
     email: props.user.email ?? "",
     is_admin: props.user.is_admin ?? false,
-    is_system_user: props.is_system_user ?? false,
+    is_system_user: props.user.is_system_user ?? props.is_system_user,
     is_set_password: props.is_set_password ?? false,
     current_password: props.user.current_password ?? "",
     password: props.user.password ?? "",
