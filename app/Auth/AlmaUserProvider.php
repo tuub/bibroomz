@@ -227,16 +227,21 @@ class AlmaUserProvider implements UserProvider
             ->enableDebug(storage_path(config('roomz.auth.api.log_file')))
             ->post();
 
-        $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
-        $response = XmlToArray::convert($response);
+        if (empty($response)) {
+            Log::info(json_encode($credentials['uid']));
+            Log::info($response);
+        } else {
+            $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
+            $response = XmlToArray::convert($response);
 
-        if ($response['result']['code'] == 0) {
-            return [
-                'name' => $credentials['uid'],
-                'email' => $response['result']['email_address'],
-                'password' => Hash::make('Test123!'),
-                'is_admin' => false,
-            ];
+            if ($response['result']['code'] == 0) {
+                return [
+                    'name' => $credentials['uid'],
+                    'email' => $response['result']['email_address'],
+                    'password' => Hash::make('Test123!'),
+                    'is_admin' => false,
+                ];
+            }
         }
 
         return null;
