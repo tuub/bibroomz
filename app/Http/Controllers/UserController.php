@@ -25,7 +25,7 @@ class UserController extends Controller
             )
             ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
                 ->orWhere('user_id_02', $user->getKey())
-                ->orWhere('verifier', $user->name))
+                ->orWhere('verifier', strtolower($user->name)))
             ->weekly()
             ->orderBy('start')
             ->get()
