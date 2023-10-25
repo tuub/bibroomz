@@ -2,7 +2,9 @@
     <div
         class="institution-card-wapper text-center p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     >
-        <img :src="institution.logo_uri" class="institution-logo" />
+        <a :href="institution.home_uri" target="_blank">
+            <img :src="institution.logo_uri" class="institution-logo" />
+        </a>
         <h1 class="mt-2 mb-2 text-medium font-normal tracking-tight text-gray-900 dark:text-white uppercase">
             {{ translate(institution.title) }}
         </h1>
@@ -22,12 +24,7 @@
                 {{ translate(resource_group.title) }}
             </div>
         </Link>
-        <p class="py-2">
-            <i class="ri-external-link-line pr-1"></i>
-            <a :href="institution.home_uri" target="_blank">
-                {{ institution.home_uri }}
-            </a>
-        </p>
+
     </div>
 </template>
 
@@ -79,10 +76,11 @@ const translate = appStore.translate;
 }
 
 .institution-resource-groups-button {
-    margin: 0.5em auto;
-    padding: 0.5em;
+    margin: 0.7em auto;
+    padding: 0.7em;
     rotate: unset;
-    height: 50px;
+    min-height: 50px;
+    max-height: 200px;
     width: 100%;
     max-width: 600px;
     z-index: 9;
@@ -98,6 +96,7 @@ const translate = appStore.translate;
         background 0.25s,
         color 0.25s;
     box-shadow: 0 1px 1px rgb(204, 203, 203);
+    overflow: hidden;
 }
 
 @media only screen and (max-width: 1200px) {
