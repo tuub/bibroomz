@@ -1,7 +1,8 @@
 <template>
     <div class="legend-item-toggle-button-wrapper">
         <button id="legend-toggle-button" class="legend-item-toggle-button" @click="toggle">
-            <i class="ri-question-line"></i>
+            <i v-if="isOpen" class="ri-arrow-right-double-line"></i>
+            <i v-else class="ri-arrow-left-double-line"></i>
         </button>
         <Transition>
             <div v-show="isOpen" id="status-legend">
