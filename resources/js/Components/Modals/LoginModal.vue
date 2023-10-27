@@ -55,6 +55,8 @@
             <button type="submit" hidden />
         </form>
 
+        <Spinner v-if="authStore.isProcessingLogin" size="small" />
+
         <ModalAlert
             v-if="!error?.data?.errors && error?.data?.message"
             :error="error.data.message"
@@ -66,6 +68,7 @@
 <script setup>
 import ModalAlert from "@/Components/Modals/ModalAlert.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import Spinner from "@/Shared/Spinner.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
