@@ -23,6 +23,7 @@ export const useAuthStore = defineStore({
         userHappenings: [],
         quotas: {},
         error: null,
+        isProcessingLogin: false,
     }),
 
     getters: {

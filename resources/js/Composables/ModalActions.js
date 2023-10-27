@@ -33,6 +33,12 @@ function loginCallback(callback) {
     authStore.error = null;
 
     return async ({ username, password }) => {
+        if (authStore.isProcessingLogin) {
+            return;
+        }
+
+        authStore.isProcessingLogin = true;
+
         authStore.error = null;
 
         try {
@@ -41,6 +47,8 @@ function loginCallback(callback) {
         } catch (error) {
             authStore.error = error.response;
         }
+
+        authStore.isProcessingLogin = false;
     };
 }
 
