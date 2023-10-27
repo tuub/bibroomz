@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,9 +66,9 @@ class ResourceGroup extends Model
     /*****************************************************************
      * SCOPES
      ****************************************************************/
-    public function scopeActive($query)
+    public function scopeActive(Builder $query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->whereHas('institution', fn ($query) => $query->active());
     }
 
     /*****************************************************************

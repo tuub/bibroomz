@@ -53,7 +53,7 @@ class HomeController extends Controller
             'resourceGroup' => $resource_group,
             'settings' => $settings,
             'hiddenDays' => $resource_group->institution->getHiddenDays(),
-            'isMultiTenancy' => Institution::active()->count() > 1,
+            'isMultiTenancy' => ResourceGroup::active()->count() > 1,
         ]);
     }
 
