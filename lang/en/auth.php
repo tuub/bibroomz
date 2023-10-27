@@ -13,7 +13,7 @@ return [
         'error' => 'Failed to logout.',
     ],
     'errors' => [
-        'user_not_found' => 'User not found',
+        'user_not_found' => 'Login failed (check your password and library account).',
         'no_auth' => 'Not logged in.',
     ],
 ];

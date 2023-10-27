@@ -13,7 +13,7 @@ return [
         'success' => 'Erfolgreich ausgeloggt.',
     ],
     'errors' => [
-        'user_not_found' => 'Benutzer:in existiert nicht.',
+        'user_not_found' => 'Einloggen fehlgeschlagen (Überprüfen Sie Ihr Passwort und Bibliothekskonto).',
         'no_auth' => 'Nicht eingeloggt.',
     ],
 ];
