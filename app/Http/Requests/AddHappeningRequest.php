@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Happening;
 use App\Models\Resource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class AddHappeningRequest extends FormRequest
 {
@@ -30,15 +31,23 @@ class AddHappeningRequest extends FormRequest
 
         $user = $this->user();
 
-        $is_verification_required = $resource->isVerificationRequired() && !$user->hasPermission('no_verifier', $institution);
+        $is_verification_required = $resource->isVerificationRequired()
+            && !$user->hasPermission('no_verifier', $institution);
 
         return [
             'resource' => ['required'],
             'start' => ['required'],
             'end' => ['required'],
             'verifier' => [
-                $is_verification_required ? 'required' : '', 'not_in:' . $user->name,
+                $is_verification_required ? 'required' : '', 'not_in:' . strtolower($user->name),
             ],
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'verifier' => strtolower($this->verifier),
+        ]);
     }
 }
