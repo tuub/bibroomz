@@ -2,6 +2,7 @@
     <Head>
         <title>{{ appName }}</title>
         <meta type="description" :content="appName" head-key="description" />
+        <link rel="icon" type="image/x-icon" href="/images/1797769.png">
     </Head>
     <section id="content" class="content-wrapper">
         <slot />
