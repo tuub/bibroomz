@@ -1,5 +1,5 @@
 <template>
-    <PageHead title="Start" page-type="splash" />
+    <PageHead page-type="splash" />
 
     <XModal />
 
