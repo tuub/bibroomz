@@ -109,7 +109,7 @@ onMounted(() => {
 #calendar-sidebar-wrapper {
     display: block;
     width: 100%;
-    margin-top: 11.5em;
+    margin-top: 13.5em;
 }
 
 .calendar-wrapper {
@@ -133,15 +133,7 @@ onMounted(() => {
         width: 100%;
     }
 
-    #calendar-sidebar-wrapper {
-        margin-top: 11.5em;
-    }
 }
 
-@media only screen and (max-width: 800px) {
-    #calendar-sidebar-wrapper {
-        margin-top: 13.5em;
-    }
-}
 
 </style>

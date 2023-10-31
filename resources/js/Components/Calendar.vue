@@ -2,7 +2,7 @@
     <div id="legend-full-calendar-wrapper" class="calendar">
         <Legend class="mb-5"></Legend>
         <span class="resource-group-name">{{ translate(resourceGroup?.title) }}</span>
-        <div v-if="pagination.previousPage || pagination.nextPage" class="page-change-wrapper">
+        <div :class="{ 'page-change-wrapper': true, 'page-change-wrapper-page-change': isPaginated, 'page-change-wrapper-no-page-change': !isPaginated }">
             <label>{{ $t("calendar.browse_resources") }}</label>
             <button
                 :disabled="!pagination.previousPage"
@@ -76,6 +76,11 @@ const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination, t
 
 const { isAuthenticated } = storeToRefs(authStore);
 const refCalendar = ref(null);
+
+// ------------------------------------------------
+// Computed
+// ------------------------------------------------
+const isPaginated = computed(() => pagination.previousPage || pagination.nextPage);
 
 // ------------------------------------------------
 // Watchers
@@ -232,9 +237,24 @@ div.fc-timegrid-slots tr {
 .page-change-wrapper {
     position: absolute;
     top: -13px;
-    right: 0;
+    left: 0;
     font-size: 0.9em;
     font-weight: bold;
+}
+
+.page-change-wrapper > label {
+    position: absolute;
+    width: 200px;
+    top: 4px;
+    left: 65px;
+}
+
+.page-change-wrapper > button:nth-child(3) {
+    position: absolute;
+    top: 3px;
+    left: 20px;
+    background-color: #2C3E50;
+    color: white;
 }
 
 .page-change-wrapper > button > i {
@@ -243,11 +263,47 @@ div.fc-timegrid-slots tr {
     vertical-align: -0.16em;
 }
 
-.page-change-wrapper > label {
-    width: 200px;
-    margin-right: 20px;
-    top: 0;
-    right: 0;
+.page-change-wrapper > button:nth-child(2) {
+    position: absolute;
+    top: 3px;
+    left: 0px;
+    background-color: #2C3E50;
+    color: white;
+}
+
+.full-calendar > div:nth-child(1) > div:nth-child(1) {
+    position: absolute;
+    left: 65px;
+    top: -50px;
+}
+
+.full-calendar > div:nth-child(1) > div:nth-child(3) {
+    position: absolute;
+    left: 0;
+    top: -53px;
+}
+
+.resource-group-name{
+    position: absolute;
+    left: 0px;
+    top: -93px;
+
+}
+
+.calendar-if-not-logged-in {
+    width: 100% !important;
+}
+
+@media only screen and (max-width: 1150px) {
+    .fc .fc-toolbar.fc-header-toolbar {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .fc .fc-toolbar.fc-header-toolbar {
+        width: 40%;
+    }
 }
 
 @-moz-document url-prefix() {
@@ -260,107 +316,6 @@ div.fc-timegrid-slots tr {
 
     .page-change-wrapper > label {
         right: 20px;
-    }
-}
-
-.page-change-wrapper > button:nth-child(2) {
-    background-color: #2C3E50;
-    color: white;
-}
-
-.page-change-wrapper > button:nth-child(3) {
-    background-color: #2C3E50;
-    color: white;
-}
-
-.full-calendar > div:nth-child(1) > div:nth-child(1) {
-    position: absolute;
-    left: 65px;
-    top: -13px;
-}
-
-.full-calendar > div:nth-child(1) > div:nth-child(3) {
-    position: absolute;
-    left: 0;
-    top: -16px;
-}
-
-.resource-group-name{
-    position: absolute;
-    left: 0px;
-    top: -60px;
-    font-size: 1.1em;
-}
-
-.calendar-if-not-logged-in {
-    width: 100% !important;
-}
-
-@media only screen and (max-width: 1150px) {
-    .fc .fc-toolbar.fc-header-toolbar {
-        width: 30%;
-    }
-}
-
-@media only screen and (max-width: 600px) {
-    .fc .fc-toolbar.fc-header-toolbar {
-        width: 40%;
-    }
-}
-
-@media only screen and (max-width: 800px) {
-    .fc .fc-toolbar.fc-header-toolbar {
-        width: 50%;
-    }
-
-
-    .page-change-wrapper > label {
-        position: absolute;
-        top: 4px;
-        left: 65px;
-    }
-
-    .page-change-wrapper > button:nth-child(2) {
-        position: absolute;
-        top: 3px;
-        left: 0px;
-        background-color: #2C3E50;
-        color: white;
-    }
-
-    .page-change-wrapper > button:nth-child(3) {
-        position: absolute;
-        top: 3px;
-        left: 20px;
-        background-color: #2C3E50;
-        color: white;
-    }
-
-    .page-change-wrapper {
-        position: absolute;
-        top: -13px;
-        left: 0;
-        font-size: 0.9em;
-        font-weight: bold;
-    }
-
-    .full-calendar > div:nth-child(1) > div:nth-child(1) {
-        position: absolute;
-        left: 65px;
-        top: -50px;
-    }
-
-    .full-calendar > div:nth-child(1) > div:nth-child(3) {
-        position: absolute;
-        left: 0;
-        top: -53px;
-    }
-
-    .resource-group-name{
-        position: absolute;
-        left: 0px;
-        top: -93px;
-
     }
 }
 </style>

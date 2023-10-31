@@ -115,5 +115,10 @@ const translate = appStore.translate;
         height: 80px;
         margin: auto;
     }
+
+    .institution-resource-groups-button {
+        width: 100%;
+        font-size: 0.8rem;
+    }
 }
 </style>
