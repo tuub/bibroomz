@@ -14,9 +14,10 @@
             <div class="font-bold">{{ $t("modal.resource_info.resource_title") }}</div>
             <div class="mb-2">
                 <template v-if="resource.location_uri">
-                    <a class="underline" :href="resource.location_uri" target="_blank">
+                    <a class="tu-red hover:underline" :href="resource.location_uri" target="_blank">
                         {{ resource.resourceGroup }}
                         {{ resource.title }}
+                        <i class="ri-map-pin-2-line"></i>
                     </a>
                 </template>
                 <template v-else>
@@ -61,5 +62,9 @@ const toggleVisibility = () => {
 <style>
 a {
     cursor: pointer;
+}
+
+.tu-red {
+    color: #C40D20;
 }
 </style>
