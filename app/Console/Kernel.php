@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\AnonymizeHappeningUsersCommand;
 use App\Models\Happening;
 use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
 use App\Console\Commands\RemoveUsersCommand;
@@ -33,6 +34,14 @@ class Kernel extends ConsoleKernel
                 '--isolated',
             ]
         )->dailyAt('04:05');
+
+        $schedule->command(
+            AnonymizeHappeningUsersCommand::class,
+            [
+                '--force',
+                '--isolated',
+            ],
+        )->dailyAt('04:15');
 
         $schedule->command(
             'model:prune',
