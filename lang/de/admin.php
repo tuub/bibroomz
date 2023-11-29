@@ -442,6 +442,7 @@ return [
         'types' => [
             'institution' => 'Einrichtung',
             'resource_group' => 'Ressourcen-Gruppe',
+            'resource' => 'Resource',
         ],
         'index' => [
             'title' => 'Schließungen für :type ":title"',

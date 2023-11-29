@@ -440,6 +440,7 @@ return [
         'types' => [
             'institution' => 'institution',
             'resource_group' => 'resource group',
+            'resource' => 'resource',
         ],
         'index' => [
             'title' => 'Closings for :type ":title"',
