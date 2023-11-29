@@ -43,7 +43,6 @@ class RemoveUsersCommand extends Command implements Isolatable
 
         /** @var Builder $query */
         $query = User::query()
-            ->where('is_logged_in', '=', false)
             ->where('is_admin', '=', false);
 
         // do not delete privileged users
@@ -62,20 +61,22 @@ class RemoveUsersCommand extends Command implements Isolatable
                 });
         });
 
+        $users = $query->get()->filter(fn (User $user) => !$user->isLoggedIn());
+
         // print count
-        $this->info('Found ' . $query->count() . ' users to remove.');
+        $this->info('Found ' . $users->count() . ' users to remove.');
 
         // abort if no users to remove
-        if ($query->count() === 0) {
+        if ($users->count() === 0) {
             $this->info('Nothing to do.');
             return Command::SUCCESS;
         }
 
         // print users to be removed
         if ($this->output->isVerbose()) {
-            // $this->line($query->toSql());
+            $this->line($query->toRawSql());
 
-            $query->lazy()->each(function (User $user) {
+            $users->each(function (User $user) {
                 $this->line($user->toJson(JSON_PRETTY_PRINT));
             });
         }
@@ -93,7 +94,9 @@ class RemoveUsersCommand extends Command implements Isolatable
         }
 
         // remove users
-        $query->delete();
+        $users->each(function (User $user) {
+            $user->delete();
+        });
 
         $this->info('Done.');
         return Command::SUCCESS;
