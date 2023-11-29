@@ -24,7 +24,7 @@ class HappeningController extends Controller
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/Happenings/Index', [
-            'happenings' => $happenings,
+            'happenings' => $happenings->values(),
         ]);
     }
 
