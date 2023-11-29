@@ -50,7 +50,7 @@ class ClosingPolicy
         $closable = $closing->closable;
         $institution = $closable instanceof Institution ? $closable : $closable->institution;
 
-        if ($user->can('delete:closings', $institution)) {
+        if ($user->can('delete_closings', $institution)) {
             return true;
         }
     }
