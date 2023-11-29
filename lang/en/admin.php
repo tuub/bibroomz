@@ -380,7 +380,7 @@ return [
                     'is_privileged' => 'Privileged?',
                 ],
                 'actions' => [
-                    // 'create' => 'Create system user',
+                    'create' => 'Create system user',
                     'edit' => 'Edit',
                     'delete' => 'Delete',
                 ],
