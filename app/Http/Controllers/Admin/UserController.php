@@ -10,7 +10,6 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,8 +20,15 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
+        $users = User::with(['happenings', 'roles'])->orderBy('name')->get()
+            ->map(function (User $user) {
+                $user->is_logged_in = $user->isLoggedIn();
+
+                return $user;
+            });
+
         return Inertia::render('Admin/Users/Index', [
-            'users' => User::with(['happenings', 'roles'])->orderBy('name')->get()
+            'users' => $users,
         ]);
     }
 
@@ -31,7 +37,7 @@ class UserController extends Controller
         return User::get(['id', 'name', 'is_admin']);
     }
 
-    public function createUser(Request $request): Response
+    public function createUser(): Response
     {
         return Inertia::render('Admin/Users/Form', [
             'is_system_user' => true,

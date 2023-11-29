@@ -165,4 +165,17 @@ class User extends Authenticatable
     {
         return $this->isAdmin() || $this->roles->contains->hasPermission($permission, $institution);
     }
+
+    public function isLoggedIn(): bool
+    {
+        if (!$this->is_logged_in) {
+            return false;
+        }
+
+        if (cache()->has('user_activity_' . $this->getKey())) {
+            return true;
+        }
+
+        return false;
+    }
 }

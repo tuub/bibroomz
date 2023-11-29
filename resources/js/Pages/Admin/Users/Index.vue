@@ -25,7 +25,7 @@
                         {{ $t("admin.users.index.table.header.is_privileged") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.users.index.table.header.is_banned") }}
+                        {{ $t("admin.users.index.table.header.is_logged_in") }}
                     </th>
                     <th scope="col" class="px-6 py-3 text-center">
                         {{ $t("admin.users.index.table.header.happenings") }}
@@ -57,7 +57,7 @@
                         <BooleanField :is-true="user.roles?.length > 0" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <BooleanField :is-true="user.banned_at === ''" />
+                        <BooleanField :is-true="user.is_logged_in" />
                     </td>
                     <td class="px-6 py-4 text-center">
                         {{ user.happenings.length }}

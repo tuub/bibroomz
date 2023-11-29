@@ -375,7 +375,7 @@ return [
                     'email' => 'E-Mail',
                     'is_system_user' => 'System-User?',
                     'is_admin' => 'Admin?',
-                    'is_banned' => 'Gesperrt?',
+                    'is_logged_in' => 'Angemeldet?',
                     'happenings' => '# Events',
                     'is_privileged' => 'Privilegiert?',
                 ],
