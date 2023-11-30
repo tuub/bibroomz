@@ -562,6 +562,22 @@ return [
                 ],
             ],
         ],
+        'form' => [
+            'title' => 'Settings for :type ":title"',
+            'description' => 'Edit settings',
+            'fields' => [
+                'key' => [
+                    'label' => 'Key',
+                    'placeholder' => 'Key',
+                    'hint' => ' ',
+                ],
+                'value' => [
+                    'label' => 'Value',
+                    'placeholder' => 'Value',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
     ],
     'roles' => [
         'index' => [
