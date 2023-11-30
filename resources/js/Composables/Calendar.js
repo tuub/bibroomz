@@ -275,7 +275,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         resourceLabelContent: getResourceInfoLabel,
         slotLabelFormat: getTimeFormat(),
         eventTimeFormat: getTimeFormat(),
-        selectLongPressDelay: 2000,
+        selectLongPressDelay: 1000,
     };
 
     return {
