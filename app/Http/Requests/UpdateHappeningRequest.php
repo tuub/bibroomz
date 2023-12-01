@@ -31,6 +31,7 @@ class UpdateHappeningRequest extends FormRequest
             'id' => ['required', 'uuid'],
             'start' => ['required'],
             'end' => ['required'],
+            'label' => [''],
         ];
     }
 }

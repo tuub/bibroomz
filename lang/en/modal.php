@@ -18,6 +18,11 @@ return [
                 'placeholder' => 'Library Account (TU: TUB Account) 2nd person',
                 'hint' => 'About your verifier',
             ],
+            'label' => [
+                'label' => 'Label',
+                'placeholder' => 'Your label',
+                'hint' => 'About your label',
+            ],
         ],
     ],
     'info' => [

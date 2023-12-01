@@ -19,6 +19,10 @@
                 <i class="ri-arrow-right-line"></i>
                 {{ happeningStart }} - {{ happeningEnd }}
             </p>
+            <p v-if="isLabelPresent" class="truncate">
+                <i class="ri-price-tag-3-fill"></i>
+                {{ translate(happening.label) }}
+            </p>
             <p class="text-sm font-medium pb-1">
                 <i class="ri-home-line mr-1" :title="translate(happening.resource.resourceGroup)"></i>
                 <template v-if="happening.resource.locationUri">
@@ -163,6 +167,10 @@ const happeningEnd = computed(() => {
 
 const isPresent = computed(() => {
     return dayjs(props.happening.start).isBefore(dayjs.utc()) && dayjs(props.happening.end).isAfter(dayjs.utc());
+});
+
+const isLabelPresent = computed(() => {
+    return props.happening.label && !Array.isArray(props.happening.label);
 });
 
 // ------------------------------------------------

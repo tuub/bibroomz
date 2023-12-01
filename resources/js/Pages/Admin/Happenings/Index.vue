@@ -39,7 +39,7 @@
                         @sort="sortField = 'end'"
                     />
                     <TableHeader
-                        v-for="field in ['user1', 'user2', 'is_verified', 'is_over']"
+                        v-for="field in ['user1', 'user2', 'label', 'is_verified', 'is_over']"
                         :key="field"
                         v-model:filter="filters[field]"
                         v-model:sort-direction="sortDirection"
@@ -81,6 +81,9 @@
                     </td>
                     <td class="px-6 py-4">
                         {{ happening.user2 ? happening.user2 : $t("admin.general.table.not_required") }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ happening.label }}
                     </td>
                     <td class="px-6 py-4 text-center">
                         <BooleanField :is-true="happening.is_verified" />
@@ -195,6 +198,7 @@ function mapHappenings(happenings) {
         institution: translate(happening.institution),
         resource_group: translate(happening.resource_group),
         resource: translate(happening.resource),
+        label: translate(happening.label),
         is_over: isPastHappening(happening),
     }));
 }
@@ -204,7 +208,7 @@ function getPaginator(happenings) {
         data: happenings,
         initialSortField: "date",
         initialSortDirection: "asc",
-        nonNumericFields: ["institution", "resource_group", "resource", "user1", "user2"],
+        nonNumericFields: ["institution", "resource_group", "resource", "user1", "user2", "label"],
     });
 }
 

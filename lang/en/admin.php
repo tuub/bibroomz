@@ -64,6 +64,7 @@ return [
                     'end_time' => 'End time',
                     'user1' => 'User #1',
                     'user2' => 'User #2',
+                    'label' => 'Label',
                     'is_verified' => 'Verified',
                     'is_over' => 'Over?',
                 ],
@@ -123,6 +124,10 @@ return [
                 'is_verified' => [
                     'label' => 'Is verified?',
                     'hint' => 'About verification',
+                ],
+                'label' => [
+                    'label' => 'Label',
+                    'hint' => 'About label',
                 ],
             ],
         ],

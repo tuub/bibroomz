@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
+use App\Traits\HasTranslations;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +23,7 @@ class Happening extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, SoftDeletes, MassPrunable;
+    use HasFactory, HasUUID, UUIDIsPrimaryKey, SoftDeletes, MassPrunable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -41,6 +42,7 @@ class Happening extends Model
         'end',
         'reserved_at',
         'verified_at',
+        'label',
     ];
 
     protected $casts = [
@@ -51,6 +53,10 @@ class Happening extends Model
         'end' => 'datetime',
         'reserved_at' => 'datetime',
         'verified_at' => 'datetime',
+    ];
+
+    protected $translatable = [
+        'label',
     ];
 
     /*****************************************************************

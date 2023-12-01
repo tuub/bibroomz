@@ -67,6 +67,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcastNow
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
                 'can' => $happening->getPermissions($this->user),
                 'isVerificationRequired' => $is_verification_required,
+                'label' => $happening->getTranslations('label'),
             ],
         ];
     }

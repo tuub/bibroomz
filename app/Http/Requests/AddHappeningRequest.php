@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\Happening;
 use App\Models\Resource;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 
 class AddHappeningRequest extends FormRequest
 {
@@ -41,6 +40,7 @@ class AddHappeningRequest extends FormRequest
             'verifier' => [
                 $is_verification_required ? 'required' : '', 'not_in:' . strtolower($user->name),
             ],
+            'label' => [''],
         ];
     }
 

@@ -65,6 +65,7 @@ class UserController extends Controller
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),
                 'isVerificationRequired' => $happening->resource->is_verification_required,
+                'label' => $happening->getTranslations('label'),
             ];
         }
 

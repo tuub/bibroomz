@@ -140,6 +140,15 @@
             </div>
         </div>
 
+        <!-- Input: Label -->
+        <TranslatableFormInput
+            v-model="form.label"
+            field="label"
+            field-key="admin.happenings.form.fields.label"
+            :languages="languages"
+            :errors="form.errors"
+        ></TranslatableFormInput>
+
         <!-- Checkbox: Is verified -->
         <div class="mb-6">
             <label class="relative inline-flex items-center cursor-pointer">
@@ -156,8 +165,10 @@
         <FormAction :form="form" model="happening" cancel-route="admin.happening.index" />
     </form>
 </template>
+
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
+import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
@@ -183,6 +194,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    languages: {
+        type: Array,
+        required: true,
+    },
 });
 
 // ------------------------------------------------
@@ -205,6 +220,7 @@ const form = useForm({
     user_id_02: props.happening.user_id_02 ?? "",
     verifier: props.happening.verifier ?? "",
     is_verified: props.happening.is_verified ?? false,
+    label: props.happening.label ?? {},
 });
 
 const savedVerifier = form["verifier"];

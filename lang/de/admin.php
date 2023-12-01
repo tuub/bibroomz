@@ -64,6 +64,7 @@ return [
                     'end_time' => 'Endzeit',
                     'user1' => 'Benutzer Nr. 1',
                     'user2' => 'Benutzer Nr. 2',
+                    'label' => 'Label',
                     'is_verified' => 'Bestätigt?',
                     'is_over' => 'Vorbei?',
                 ],
@@ -123,6 +124,10 @@ return [
                 'is_verified' => [
                     'label' => 'Bestätigt?',
                     'hint' => 'Bestätigt ja/nein',
+                ],
+                'label' => [
+                    'label' => 'Label',
+                    'hint' => 'Über das Label',
                 ],
             ],
         ],

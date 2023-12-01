@@ -34,6 +34,7 @@ class HappeningController extends Controller
             'resource' => $happening->resource->getTranslations('title'),
             'user1' => $happening->user1?->name,
             'user2' => $happening->is_verified ? $happening->user2?->name : $happening->verifier,
+            'label' => $happening->getTranslations('label'),
             'is_verified' => $happening->is_verified,
         ];
     }
@@ -75,6 +76,7 @@ class HappeningController extends Controller
                 ];
             }),
             'users' => $users->map->only(['id', 'name', 'permissions']),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 
@@ -112,7 +114,7 @@ class HappeningController extends Controller
         });
 
         return Inertia::render('Admin/Happenings/Form', [
-            'happening' => $happening->only([
+            'happening' => collect($happening->only([
                 'id',
                 'user_id_01',
                 'user_id_02',
@@ -123,7 +125,7 @@ class HappeningController extends Controller
                 'start_time',
                 'end_date',
                 'end_time',
-            ]),
+            ]))->merge(['label' => $happening->getTranslations('label')])->toArray(),
             'resources' => $resources->map(function ($resource) {
                 return [
                     'id' => $resource->id,
@@ -133,6 +135,7 @@ class HappeningController extends Controller
                 ];
             }),
             'users' => $users->map->only(['id', 'name', 'permissions']),
+            'languages' => config('app.supported_locales'),
         ]);
     }
 

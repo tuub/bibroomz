@@ -49,6 +49,7 @@ abstract class HappeningRequest extends FormRequest
                 'required',
                 'boolean',
             ],
+            'label' => [''],
         ];
     }
 

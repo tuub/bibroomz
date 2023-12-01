@@ -70,6 +70,7 @@ class HappeningController extends Controller
                 'resource' => [
                     'resourceGroup' => $happening->resource->resource_group->getTranslations('term_singular'),
                 ],
+                'label' => $happening->getTranslations('label'),
             ];
         }
 
@@ -145,6 +146,7 @@ class HappeningController extends Controller
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
             'verified_at' => $is_admin ? Carbon::now() : null,
+            'label' => $request['label'],
         ];
 
         // Create
@@ -173,6 +175,7 @@ class HappeningController extends Controller
         $happening_data = [
             'start' => Utility::carbonize($request->start)->format('Y-m-d H:i:s'),
             'end' => Utility::carbonize($request->end)->format('Y-m-d H:i:s'),
+            'label' => $request->label,
         ];
 
         // Update

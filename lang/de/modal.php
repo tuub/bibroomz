@@ -18,6 +18,11 @@ return [
                 'placeholder' => 'Bibliothekskonto (TU: TUB-Account) der 2. Person',
                 'hint' => 'About your verifier',
             ],
+            'label' => [
+                'label' => 'Label',
+                'placeholder' => 'Ihr Label',
+                'hint' => 'Über Ihr Label',
+            ],
         ],
     ],
     'info' => [

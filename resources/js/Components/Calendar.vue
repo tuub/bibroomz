@@ -24,12 +24,12 @@
 
         <FullCalendar ref="refCalendar" class="full-calendar" :options="calendarOptions">
             <template #eventContent="arg">
-                <div class="text-center">
+                <div class="text-center truncate-lines" :style="{ '--truncate-lines': countLines(arg.event) }">
                     <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
                         {{ translate(arg.event.extendedProps.description) }}
                     </div>
                     <b>{{ arg.timeText }}</b>
-                    <i>{{ arg.event.title }}</i>
+                    <div class="px-1">{{ translate(arg.event.extendedProps.label) }}</div>
                 </div>
             </template>
         </FullCalendar>
@@ -153,6 +153,21 @@ const handleScreenResize = () => {
     windowWidth.value = window.innerWidth;
 
     setResourceCountFromScreen();
+};
+
+const convertTimeToMinutes = (time) => {
+    const timeParts = time.split(":");
+    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+};
+
+const countLines = (event) => {
+    const milliseconds = event.end - event.start;
+    const seconds = milliseconds / 1000;
+    const minutes = seconds / 60;
+
+    const timeSlotLength = convertTimeToMinutes(appStore.settings.resource_group.time_slot_length);
+
+    return minutes / timeSlotLength;
 };
 
 // ------------------------------------------------
@@ -322,5 +337,12 @@ div.fc-timegrid-slots tr {
     .page-change-wrapper > label {
         right: 20px;
     }
+}
+
+.truncate-lines {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--truncate-lines, 2);
 }
 </style>

@@ -166,6 +166,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         happening.end = dayjs.utc(eventInfo.event._instance.range.end);
         happening.isVerificationRequired = eventInfo.event.extendedProps.isVerificationRequired;
         happening.can = eventInfo.event.extendedProps.can;
+        happening.label= eventInfo.event.extendedProps.label;
 
         if (!isBgEvent) {
             if (happening.can?.verify) {

@@ -57,7 +57,15 @@ const happening = reactive({
     end: appStore.formatDateTime(props.payload.end, true),
     isVerificationRequired: props.payload.isVerificationRequired,
     verifier: props.payload.user_02,
+    label: isPlainObject(props.payload.label) ? props.payload.label : {},
 });
 
 const editable = props.payload?.editable ?? false;
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+function isPlainObject (obj) {
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj);
+}
 </script>
