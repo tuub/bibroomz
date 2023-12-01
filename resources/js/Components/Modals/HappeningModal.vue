@@ -21,7 +21,7 @@ import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
-import {reactive, toRaw} from "vue";
+import { reactive, toRaw } from "vue";
 
 // ------------------------------------------------
 // Props

@@ -1,12 +1,13 @@
+import dayjs from "dayjs";
 import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
-import dayjs from "dayjs";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 export const useAppStore = defineStore({
     id: "app",
     persist: true,
+
     state: () => {
         return {
             appName: import.meta.env.VITE_APP_NAME,
@@ -21,6 +22,7 @@ export const useAppStore = defineStore({
             supportedLocales: ["de", "en"],
         };
     },
+
     actions: {
         setCurrent(resourceGroup, settings, hiddenDays, isMultiTenancy) {
             this.resourceGroup = resourceGroup;
@@ -28,6 +30,7 @@ export const useAppStore = defineStore({
             this.hiddenDays = hiddenDays;
             this.isMultiTenancy = isMultiTenancy;
         },
+
         setCurrentLocale(locale) {
             axios
                 .post(`${baseUrl}/switch-lang`, {
@@ -39,37 +42,43 @@ export const useAppStore = defineStore({
                     this.setTemporalFormats(locale);
                 });
         },
+
         setTemporalFormats(locale) {
-            switch(locale) {
-                case 'en':
-                    this.dateFormat = 'YYYY/MM/DD';
-                    this.timeFormat = 'HH:mm';
-                    this.dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+            switch (locale) {
+                case "en":
+                    this.dateFormat = "YYYY/MM/DD";
+                    this.timeFormat = "HH:mm";
+                    this.dateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
                     break;
                 default:
-                    this.dateFormat = 'DD.MM.YYYY';
-                    this.timeFormat = 'HH:mm';
-                    this.dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+                    this.dateFormat = "DD.MM.YYYY";
+                    this.timeFormat = "HH:mm";
+                    this.dateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
             }
         },
-        formatDate(dateTimeStr, isUTC=false) {
+
+        formatDate(dateTimeStr, isUTC = false) {
             let date = this.getDateTimeFromString(dateTimeStr, isUTC);
             return date.format(this.dateFormat);
         },
-        formatTime(dateTimeStr, isUTC=false, dateTimeStrFormat=null) {
+
+        formatTime(dateTimeStr, isUTC = false, dateTimeStrFormat = null) {
             let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || null);
             return time.format(this.timeFormat);
         },
-        formatDateTime(datetimeStr, isUTC=false) {
+
+        formatDateTime(datetimeStr, isUTC = false) {
             let dateTime = this.getDateTimeFromString(datetimeStr, isUTC);
             return dateTime.format(this.dateTimeFormat);
         },
-        getDateTimeFromString(datetimeStr, isUTC=false, dateTimeStrFormat) {
+
+        getDateTimeFromString(datetimeStr, isUTC = false, dateTimeStrFormat) {
             if (isUTC) {
-                return dayjs.utc(datetimeStr, dateTimeStrFormat)
+                return dayjs.utc(datetimeStr, dateTimeStrFormat);
             }
-            return dayjs(datetimeStr, dateTimeStrFormat)
+            return dayjs(datetimeStr, dateTimeStrFormat);
         },
+
         translate(translatable, locale) {
             if (!translatable) {
                 return;
@@ -93,6 +102,7 @@ export const useAppStore = defineStore({
             return "";
         },
     },
+
     getters: {
         institution: (state) => state.resourceGroup?.institution,
     },

@@ -21,12 +21,15 @@ export const useHappeningStore = defineStore({
         addHappening(happening) {
             return axios.post(`${baseUrl}/happening/add`, happening);
         },
+
         editHappening(happening) {
             return axios.post(`${baseUrl}/happening/update/${happening.id}`, happening);
         },
+
         verifyHappening(happening) {
             return axios.post(`${baseUrl}/happening/verify/${happening.id}`, happening);
         },
+
         deleteHappening(id) {
             return axios.delete(`${baseUrl}/happening/delete/${id}`);
         },
