@@ -18,6 +18,7 @@ export const useAppStore = defineStore({
             dateFormat: null,
             timeFormat: null,
             dateTimeFormat: null,
+            supportedLocales: ["de", "en"],
         };
     },
     actions: {
@@ -79,7 +80,17 @@ export const useAppStore = defineStore({
                 locale = appStore.locale;
             }
 
-            return translatable[locale] ?? translatable["de"] ?? translatable["en"];
+            if (translatable[locale]) {
+                return translatable[locale];
+            }
+
+            for (const supportedLocale of this.supportedLocales) {
+                if (translatable[supportedLocale]) {
+                    return translatable[supportedLocale];
+                }
+            }
+
+            return "";
         },
     },
     getters: {
