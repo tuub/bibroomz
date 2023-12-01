@@ -11,7 +11,6 @@ use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
@@ -95,17 +94,46 @@ class Happening extends Model
     }
 
     /**
-     * @param User|null $user
-     * @return array
-     * @throws BindingResolutionException
+     * Get only happenings belonging to a given user.
+     *
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
      */
-    public function getPermissions(User|null $user): array
+    public function scopeUser(Builder $query, User $user): Builder
     {
-        return [
-            'verify' => $user ? $user->can('verify', $this) : false,
-            'edit' => $user ? $user->can('update', $this) : false,
-            'delete' => $user ? $user->can('delete', $this) : false,
-        ];
+        return $query->where(function (Builder $query) use ($user) {
+            return $query->where('user_id_01', $user->id)
+                ->orWhere('user_id_02', $user->id)
+                ->orWhere('verifier', strtolower($user->name));
+        });
+    }
+
+    /**
+     * Get only happenings belonging to a given resource group.
+     *
+     * @param Builder $query
+     * @param ResourceGroup $resourceGroup
+     * @return Builder
+     */
+    public function scopeResourceGroup(Builder $query, ResourceGroup $resourceGroup): Builder
+    {
+        return $query->whereHas('resource', function (Builder $query) use ($resourceGroup) {
+            return $query->where('resource_group_id', $resourceGroup->id);
+        });
+    }
+
+    /**
+     * Get only happenings belonging to an active resource.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereHas('resource', function (Builder $query) {
+            return $query->where('is_active', true);
+        });
     }
 
     /*****************************************************************
@@ -118,6 +146,15 @@ class Happening extends Model
                 'verifier' => null,
             ]);
         });
+    }
+
+    public function getPermissions(?User $user): array
+    {
+        return [
+            'verify' => $user ? $user->can('verify', $this) : false,
+            'edit' => $user ? $user->can('update', $this) : false,
+            'delete' => $user ? $user->can('delete', $this) : false,
+        ];
     }
 
     private function isMine(): bool
@@ -189,7 +226,7 @@ class Happening extends Model
         return $status;
     }
 
-    public function users(bool $is_verifier_included = true)
+    public function users()
     {
         $users = collect();
 
@@ -204,12 +241,10 @@ class Happening extends Model
             $users->push($user2);
         }
 
-        if ($is_verifier_included) {
-            $verifier = User::where('name', $this->verifier)->first();
+        $verifier = User::where('name', $this->verifier)->first();
 
-            if ($verifier) {
-                $users->push($verifier);
-            }
+        if ($verifier) {
+            $users->push($verifier);
         }
 
         return $users;

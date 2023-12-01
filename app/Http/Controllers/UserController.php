@@ -3,48 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Happening;
+use App\Models\ResourceGroup;
 use App\Models\User;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function getUserHappenings(Request $request)
     {
-        /** @var User */
+        $resource_group = ResourceGroup::find($request->resource_group_id);
         $user = auth()->user();
 
-        $resource_group_id = $request->resource_group_id;
-
         $happenings = Happening::with('resource')
-            ->whereHas(
-                'resource',
-                fn (Builder $query) => $query->where('resource_group_id', $resource_group_id)->active(),
-            )
-            ->where(fn (Builder $query) => $query->where('user_id_01', $user->getKey())
-                ->orWhere('user_id_02', $user->getKey())
-                ->orWhere('verifier', strtolower($user->name)))
+            ->resourceGroup($resource_group)
+            ->user($user)
+            ->active()
             ->weekly()
             ->orderBy('start')
             ->get()
-            ->map(function ($happening) {
-                $start = CarbonImmutable::parse($happening->start);
-                $end = CarbonImmutable::parse($happening->end);
+            ->filter->isResourceOpen()
+            ->map->withAdjustedStartEndTimes();
 
-                [$open, $start, $end] = $happening->resource->findOpen($start, $end);
-                [$closed, $start, $end] = $happening->resource->findClosed($start, $end);
-
-                $happening->start = $start;
-                $happening->end = $end;
-
-                return ($open && !$closed) ? $happening : null;
-            })->filter(fn ($h) => $h);
-
-        $output = [];
-        foreach ($happenings as $happening) {
-            $output[] = [
+        return $happenings->map(function ($happening) {
+            return [
                 'id' => $happening->id,
                 'user_01' => User::find($happening->user_id_01)->name,
                 'user_02' => User::find($happening->user_id_02)->name ?? $happening->verifier,
@@ -67,8 +49,6 @@ class UserController extends Controller
                 'isVerificationRequired' => $happening->resource->is_verification_required,
                 'label' => $happening->getTranslations('label'),
             ];
-        }
-
-        return $output;
+        })->toArray();
     }
 }
