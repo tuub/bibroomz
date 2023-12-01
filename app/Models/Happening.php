@@ -243,4 +243,26 @@ class Happening extends Model
     {
         return static::where('end', '<=', now()->subDays(config('roomz.happenings.cleanup_days')));
     }
+
+    public function withAdjustedStartEndTimes(): ?self
+    {
+        $start = CarbonImmutable::parse($this->start);
+        $end = CarbonImmutable::parse($this->end);
+
+        [, $this->start, $this->end] = $this->resource->findOpen($start, $end);
+        [, $this->start, $this->end] = $this->resource->findClosed($start, $end);
+
+        return $this;
+    }
+
+    public function isResourceOpen(): bool
+    {
+        $start = CarbonImmutable::parse($this->start);
+        $end = CarbonImmutable::parse($this->end);
+
+        [$is_open] = $this->resource->findOpen($start, $end);
+        [$is_closed] = $this->resource->findClosed($start, $end);
+
+        return $is_open && !$is_closed;
+    }
 }

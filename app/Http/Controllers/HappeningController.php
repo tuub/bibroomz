@@ -19,46 +19,46 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class HappeningController extends Controller
 {
     public function getHappenings(Request $request): JsonResponse
     {
-        $output = [];
-
         $resource_group = ResourceGroup::whereHas(
             'institution',
             fn ($query) => $query->where('slug', $request->institution_slug),
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
-        $from = Carbon::parse($request->start);
-        $to = Carbon::parse($request->end);
+        $start = Carbon::parse($request->start);
+        $end = Carbon::parse($request->end);
 
-        $resource_ids = $resource_group->resources()->pluck('id')->all();
+        return response()->json(
+            collect()
+                ->merge($this->getHappeningsOutputCollection($resource_group, $start, $end))
+                ->merge($this->getInstitutionClosingsOutputCollection($resource_group, $start, $end))
+                ->merge($this->getResourceClosingsOutputCollection($resource_group, $start, $end))
+        );
+    }
 
+    private function getHappeningsOutputCollection(
+        ResourceGroup $resource_group,
+        Carbon $start,
+        Carbon $end,
+    ): Collection {
         $happenings = Happening::with('resource', 'user1', 'user2')
-            ->whereDate('start', '>=', $from)
-            ->whereDate('end', '<=', $to)
-            ->whereIn('resource_id', $resource_ids)
+            ->resourceGroup($resource_group)
+            ->whereDate('start', '>=', $start)
+            ->whereDate('end', '<=', $end)
+            ->active()
             ->get()
-            ->map(function ($happening) {
-                $start = CarbonImmutable::parse($happening->start);
-                $end = CarbonImmutable::parse($happening->end);
+            ->filter->isResourceOpen()
+            ->map->withAdjustedStartEndTimes();
 
-                [$open, $start, $end] = $happening->resource->findOpen($start, $end);
-                [$closed, $start, $end] = $happening->resource->findClosed($start, $end);
-
-                $happening->start = $start;
-                $happening->end = $end;
-
-                return ($open && !$closed) ? $happening : null;
-            })->filter(fn ($h) => $h);
-
-        foreach ($happenings as $happening) {
+        return $happenings->map(function ($happening) {
             $status = $happening->getStatus();
 
-            // Note: resourceId and classNames have to be camelCased for FullCalendar recognition!
-            $output[] = [
+            return [
                 'id' => $happening->id,
                 'status' => $status,
                 'resourceId' => $happening->resource->id,
@@ -72,36 +72,49 @@ class HappeningController extends Controller
                 ],
                 'label' => $happening->getTranslations('label'),
             ];
-        }
+        });
+    }
 
-        // Since FullCalendar does not support closings as entities we have to include them
-        // as happenings (sic!). We do it here for now until we find a better solution or
-        // do it in the frontend.
-        $institution_closings = $resource_group->institution->closings;
+    private function getInstitutionClosingsOutputCollection(
+        ResourceGroup $resource_group,
+        Carbon $start,
+        Carbon $end,
+    ): Collection {
+        $closings = $resource_group->institution->closings;
+        $resources = $resource_group->resources;
 
-        foreach ($institution_closings as $closing) {
-            if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
-                foreach ($resource_group->resources as $resource) {
-                    $output[] = [
+        return $closings
+            ->filter(fn ($closing) => $closing->end->isAfter($start) && $closing->start->isBefore($end))
+            ->flatMap(function ($closing) use ($resources) {
+                return $resources->map(function ($resource) use ($closing) {
+                    return [
                         'id' => $closing->id,
                         'status' => null,
                         'resourceId' => $resource->id,
                         'start' => Carbon::parse($closing->start)->format('Y-m-d H:i'),
                         'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
                         'description' => $closing->getTranslations('description'),
-                        'resource_group' => $resource_group->getTranslations('term_singular'),
+                        'resource_group' => $resource->resource_group->getTranslations('term_singular'),
                         'user' => null,
                         'classNames' => 'closed',
                         'display' => 'background',
                     ];
-                }
-            }
-        }
+                });
+            });
+    }
 
-        foreach ($resource_group->resources as $resource) {
-            foreach ($resource->closings as $closing) {
-                if ($closing->end->isAfter($from) && $closing->start->isBefore($to)) {
-                    $output[] = [
+    private function getResourceClosingsOutputCollection(
+        ResourceGroup $resource_group,
+        Carbon $start,
+        Carbon $end,
+    ): Collection {
+        $resources = $resource_group->resources;
+
+        return $resources->flatMap(function ($resource) use ($start, $end) {
+            return $resource->closings
+                ->filter(fn ($closing) => $closing->end->isAfter($start) && $closing->start->isBefore($end))
+                ->map(function ($closing) use ($resource) {
+                    return [
                         'id' => $closing->id,
                         'status' => null,
                         'resourceId' => $resource->id,
@@ -112,11 +125,8 @@ class HappeningController extends Controller
                         'classNames' => 'closed',
                         'display' => 'background',
                     ];
-                }
-            }
-        }
-
-        return response()->json($output);
+                });
+        });
     }
 
     public function addHappening(AddHappeningRequest $request)

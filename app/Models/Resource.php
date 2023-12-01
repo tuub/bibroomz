@@ -109,13 +109,13 @@ class Resource extends Model
      */
     public function findClosed(CarbonImmutable $start, CarbonImmutable $end)
     {
-        $closed = false;
+        $is_closed = false;
         $closings = $this->closings->merge($this->resource_group->institution->closings);
 
         foreach ($closings as $closing) {
             if ($start >= $closing->start && $end <= $closing->end) {
                 // start and end are in closing: not happening
-                $closed = true;
+                $is_closed = true;
                 break;
             } elseif ($start >= $closing->start && $start < $closing->end) {
                 // start is in closing: start happening after closing end
@@ -134,7 +134,7 @@ class Resource extends Model
             }
         }
 
-        return [$closed, $start, $end];
+        return [$is_closed, $start, $end];
     }
 
     /**
@@ -147,7 +147,7 @@ class Resource extends Model
      */
     public function findOpen(CarbonImmutable $start, CarbonImmutable $end)
     {
-        $open = false;
+        $is_open = false;
         $business_hours = $this->business_hours;
 
         foreach ($business_hours as $business_hour) {
@@ -165,7 +165,7 @@ class Resource extends Model
             if (in_array($start->dayOfWeek, $week_days)) {
                 if ($start >= $business_hour_start && $end <= $business_hour_end) {
                     // business_hour->start <= start < end <= business_hour->end
-                    $open = true;
+                    $is_open = true;
                     break;
                 }
 
@@ -174,7 +174,7 @@ class Resource extends Model
                     && $end > $business_hour_end
                 ) {
                     // business_hour->start <= start < business_hour->end < end
-                    $open = true;
+                    $is_open = true;
                     $end = $business_hour_end;
                 }
 
@@ -183,13 +183,13 @@ class Resource extends Model
                     && $start < $business_hour_start
                 ) {
                     // start < business_hour->start < end <= business_hour->end
-                    $open = true;
+                    $is_open = true;
                     $start = $business_hour_start;
                 }
             }
         }
 
-        return [$open, $start, $end];
+        return [$is_open, $start, $end];
     }
 
     /**
