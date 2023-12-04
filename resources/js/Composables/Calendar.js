@@ -260,7 +260,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         editable: false,
         nowIndicator: true,
         allDaySlot: false,
-        longPressDelay: 500,
+        longPressDelay: import.meta.env.VITE_LONG_PRESS_DELAY,
         unselectAuto: true,
         selectMirror: true,
         slotDuration: resourceGroupSettings['time_slot_length'] + ':00',
