@@ -260,7 +260,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         editable: false,
         nowIndicator: true,
         allDaySlot: false,
-        longPressDelay: 0,
+        longPressDelay: 500,
         unselectAuto: true,
         selectMirror: true,
         slotDuration: resourceGroupSettings['time_slot_length'] + ':00',
@@ -275,7 +275,6 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         resourceLabelContent: getResourceInfoLabel,
         slotLabelFormat: getTimeFormat(),
         eventTimeFormat: getTimeFormat(),
-        selectLongPressDelay: 1000,
     };
 
     return {
