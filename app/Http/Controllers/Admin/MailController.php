@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\MailContentRequest;
 use App\Models\Institution;
 use App\Models\MailContent;
 use App\Models\MailType;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +15,10 @@ use Inertia\Response;
 
 class MailController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getMails(Request $request): Response
     {
         $institution = Institution::findOrFail($request->institution_id);
@@ -50,7 +55,9 @@ class MailController extends Controller
         $this->authorize('create', [MailContent::class, $institution]);
 
         $validated = $request->validated();
-        MailContent::create($validated);
+        $mail = MailContent::create($validated);
+
+        $this->adminLoggingService->log('created', $mail);
 
         return redirect()->route('admin.mail.index', [
             'institution_id' => $institution->id,
@@ -82,6 +89,8 @@ class MailController extends Controller
         $validated = $request->validated();
         $mail->update($validated);
 
+        $this->adminLoggingService->log('updated', $mail);
+
         return redirect()->route('admin.mail.index', [
             'institution_id' => $request->institution_id,
         ]);
@@ -93,6 +102,8 @@ class MailController extends Controller
 
         $this->authorize('delete', $mail);
         $mail->delete();
+
+        $this->adminLoggingService->log('deleted', $mail);
 
         return redirect()->route('admin.mail.index', [
             'institution_id' => $mail->institution_id,

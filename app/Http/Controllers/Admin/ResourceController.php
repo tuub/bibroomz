@@ -10,6 +10,7 @@ use App\Models\BusinessHour;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\WeekDay;
+use App\Services\AdminLoggingService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,10 @@ use Inertia\Response;
 
 class ResourceController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getResources(Request $request): Response
     {
         $resources = Resource::with(['resource_group', 'business_hours', 'business_hours.week_days', 'closings'])
@@ -46,6 +51,8 @@ class ResourceController extends Controller
 
         $resource = Resource::create($validated->except('business_hours'));
         $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
+
+        $this->adminLoggingService->log('created', $resource);
 
         return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
@@ -97,6 +104,8 @@ class ResourceController extends Controller
 
         $this->updateOrCreateBusinessHours($validated->business_hours, $resource);
 
+        $this->adminLoggingService->log('updated', $resource);
+
         return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
 
@@ -105,6 +114,8 @@ class ResourceController extends Controller
         $resource = Resource::find($request->id);
         $this->authorize('delete', $resource);
         $resource->delete();
+
+        $this->adminLoggingService->log('deleted', $resource);
 
         return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
     }
@@ -140,6 +151,8 @@ class ResourceController extends Controller
             $business_hour_copy = $resource_copy->business_hours()->create($business_hour_original->toArray());
             $business_hour_copy->week_days()->sync($business_hour_original->week_days->pluck('id'));
         });
+
+        $this->adminLoggingService->log('created clone', $resource_copy);
 
         return redirect()->route('admin.resource.edit', $resource_copy->id);
     }

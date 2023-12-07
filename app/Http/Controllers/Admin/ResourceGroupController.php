@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ResourceGroupRequest;
-use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Models\Institution;
-use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
-use App\Models\WeekDay;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,6 +15,10 @@ use Inertia\Response;
 
 class ResourceGroupController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getResourceGroups(): Response
     {
         $resource_groups = ResourceGroup::with(['institution'])
@@ -54,6 +56,8 @@ class ResourceGroupController extends Controller
             $resource_group->settings()->save($setting);
         }
 
+        $this->adminLoggingService->log('created', $resource_group);
+
         return redirect()->route('admin.resource_group.index');
     }
 
@@ -78,6 +82,8 @@ class ResourceGroupController extends Controller
         $validated = $request->validated();
         $resource_group->update($validated);
 
+        $this->adminLoggingService->log('updated', $resource_group);
+
         return redirect()->route('admin.resource_group.index');
     }
 
@@ -85,6 +91,8 @@ class ResourceGroupController extends Controller
     {
         $resource_group = ResourceGroup::where('id', $request->id)->firstOrFail();
         $resource_group->delete();
+
+        $this->adminLoggingService->log('deleted', $resource_group);
 
         return redirect()->route('admin.resource_group.index');
     }

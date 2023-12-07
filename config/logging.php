@@ -51,6 +51,12 @@ return [
     */
 
     'channels' => [
+        'admin' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/admin.log'),
+            'level' => 'info',
+        ],
+
         'happenings' => [
             'driver' => 'daily',
             'path' => storage_path('logs/happenings.log'),

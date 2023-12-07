@@ -11,13 +11,17 @@ use App\Http\Requests\Admin\UpdateHappeningRequest;
 use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
+use App\Services\AdminLoggingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class HappeningController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getHappenings()
     {
         $happenings = Happening::with(['resource', 'user1', 'user2'])->orderBy('start')->get()
@@ -58,6 +62,8 @@ class HappeningController extends Controller
         $happening = Happening::create($sanitized->toArray());
 
         $happening->broadcast(HappeningCreatedEvent::class);
+
+        $this->adminLoggingService->log('created', $happening);
 
         return redirect()->route('admin.happening.index');
     }
@@ -116,6 +122,8 @@ class HappeningController extends Controller
 
         $happening->broadcast(HappeningUpdatedEvent::class);
 
+        $this->adminLoggingService->log('updated', $happening);
+
         return redirect()->route('admin.happening.index');
     }
 
@@ -126,6 +134,8 @@ class HappeningController extends Controller
         $happening->delete();
 
         $happening->broadcast(HappeningDeletedEvent::class);
+
+        $this->adminLoggingService->log('deleted', $happening);
 
         return redirect()->route('admin.happening.index');
     }

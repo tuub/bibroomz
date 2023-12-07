@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PermissionRequest;
 use App\Models\Permission;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +13,10 @@ use Inertia\Response;
 
 class PermissionController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getPermissions(): Response
     {
         $this->authorize('viewAny', Permission::class);
@@ -38,6 +43,8 @@ class PermissionController extends Controller
         $this->authorize('edit', $permission->id);
 
         $permission->update($request->validated());
+
+        $this->adminLoggingService->log('updated', $permission);
 
         return redirect()->route('admin.permission.index');
     }

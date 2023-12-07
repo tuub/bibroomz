@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UserRequest;
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,10 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getUsers()
     {
         $this->authorize('viewAny', User::class);
@@ -71,6 +76,8 @@ class UserController extends Controller
         collect($validated['roles'])->each(function ($input) use ($user) {
             $user->roles()->attach($input['role_id'], ['institution_id' => $input['institution_id']]);
         });
+
+        $this->adminLoggingService->log('created', $user);
 
         return redirect()->route('admin.user.index');
     }
@@ -133,6 +140,8 @@ class UserController extends Controller
             $user->roles()->attach($input['role_id'], ['institution_id' => $input['institution_id']]);
         });
 
+        $this->adminLoggingService->log('updated', $user);
+
         return redirect()->route('admin.user.index');
     }
 
@@ -140,6 +149,8 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
         $user->delete();
+
+        $this->adminLoggingService->log('deleted', $user);
 
         return redirect()->route('admin.user.index');
     }

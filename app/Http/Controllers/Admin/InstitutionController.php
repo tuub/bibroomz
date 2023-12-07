@@ -7,11 +7,16 @@ use App\Http\Requests\Admin\InstitutionRequest;
 use App\Models\Institution;
 use App\Models\Setting;
 use App\Models\WeekDay;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InstitutionController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getInstitutions()
     {
         return Inertia::render('Admin/Institutions/Index', [
@@ -51,6 +56,8 @@ class InstitutionController extends Controller
             $institution->settings()->save($setting);
         }
 
+        $this->adminLoggingService->log('created', $institution);
+
         return redirect()->route('admin.institution.index');
     }
 
@@ -78,6 +85,8 @@ class InstitutionController extends Controller
         $institution->update($validated->except('week_days'));
         $institution->week_days()->sync($validated->week_days);
 
+        $this->adminLoggingService->log('updated', $institution);
+
         return redirect()->route('admin.institution.index');
     }
 
@@ -86,6 +95,8 @@ class InstitutionController extends Controller
         $institution = Institution::findOrFail($request->id);
         $this->authorize('delete', $institution);
         $institution->delete();
+
+        $this->adminLoggingService->log('deleted', $institution);
 
         return redirect()->route('admin.institution.index');
     }

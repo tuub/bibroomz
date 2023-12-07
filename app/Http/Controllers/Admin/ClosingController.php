@@ -9,16 +9,20 @@ use App\Library\Utility;
 use App\Events\ClosingCreatedEvent;
 use App\Events\ClosingUpdatedEvent;
 use App\Models\Closing;
+use App\Services\AdminLoggingService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ClosingController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getClosings(Request $request)
     {
         $closable = Closing::getClosableModel($request->closable_type)
@@ -67,6 +71,8 @@ class ClosingController extends Controller
                 ClosingCreatedEvent::dispatch($user, $happenings, $closing);
             }
         }
+
+        $this->adminLoggingService->log('created', $closing);
 
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,
@@ -123,6 +129,8 @@ class ClosingController extends Controller
             }
         }
 
+        $this->adminLoggingService->log('updated', $closing);
+
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,
             'closable_type' => $request->closable_type,
@@ -138,6 +146,8 @@ class ClosingController extends Controller
         $closing->delete();
 
         $closable_type = explode('\\', $closing->closable_type);
+
+        $this->adminLoggingService->log('deleted', $closing);
 
         return redirect()->route('admin.closing.index', [
             'closable_id' => $request->closable_id,

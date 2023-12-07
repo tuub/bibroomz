@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
 use App\Models\Role;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -14,6 +15,10 @@ use Inertia\Response;
 
 class RoleController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getRoles()
     {
         $this->authorize('viewAny', Role::class);
@@ -41,6 +46,8 @@ class RoleController extends Controller
         $role = Role::create($request->validated());
         $role->permissions()->sync($request->permissions);
 
+        $this->adminLoggingService->log('created', $role);
+
         return redirect()->route('admin.role.index');
     }
 
@@ -65,6 +72,8 @@ class RoleController extends Controller
         $role->update($request->validated());
         $role->permissions()->sync($request->permissions);
 
+        $this->adminLoggingService->log('updated', $role);
+
         return redirect()->route('admin.role.index');
     }
 
@@ -74,6 +83,8 @@ class RoleController extends Controller
         $this->authorize('delete', $role);
 
         $role->delete();
+
+        $this->adminLoggingService->log('deleted', $role);
 
         return redirect()->route('admin.role.index');
     }

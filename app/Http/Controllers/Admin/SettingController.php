@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Library\Utility;
-use App\Models\Institution;
 use App\Models\Setting;
+use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +14,10 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
+    public function __construct(private AdminLoggingService $adminLoggingService)
+    {
+    }
+
     public function getSettings(Request $request): Response
     {
         $settingable = Setting::getSettingableModel($request->settingable_type)
@@ -52,6 +56,8 @@ class SettingController extends Controller
 
         $validated = $request->validated();
         $setting->update($validated);
+
+        $this->adminLoggingService->log('updated', $setting);
 
         return redirect()->route('admin.setting.index', [
             'settingable_id' => $request->settingable_id,
