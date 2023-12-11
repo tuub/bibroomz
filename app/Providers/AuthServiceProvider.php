@@ -59,6 +59,10 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
+        Gate::define('viewPulse', function (User $user) {
+            return $user->isAdmin();
+        });
+
         Auth::provider('alma', function () {
             return new AlmaUserProvider(new User());
         });
