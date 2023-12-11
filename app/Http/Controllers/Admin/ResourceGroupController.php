@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
+use App\Models\Setting;
 use App\Models\WeekDay;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,7 +42,17 @@ class ResourceGroupController extends Controller
     public function storeResourceGroup(ResourceGroupRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        ResourceGroup::create($validated);
+        $resource_group = ResourceGroup::create($validated);
+
+        // Init settings
+        $settings = Setting::getInitialValues();
+        foreach ($settings['resource_group'] as $key => $value) {
+            $setting = new Setting([
+                'key' => $key,
+                'value' => $value,
+            ]);
+            $resource_group->settings()->save($setting);
+        }
 
         return redirect()->route('admin.resource_group.index');
     }
