@@ -22,13 +22,32 @@ class HappeningController extends Controller
     {
     }
 
+    public function mapHappeningToView(Happening $happening): array
+    {
+        return [
+            'id' => $happening->id,
+            'start' => $happening->start,
+            'end' => $happening->end,
+            'institution_id' => $happening->resource->resource_group->institution->id,
+            'institution'=> $happening->resource->resource_group->institution->getTranslations('title'),
+            'resource_group' => $happening->resource->resource_group->getTranslations('title'),
+            'resource' => $happening->resource->getTranslations('title'),
+            'user1' => $happening->user1?->name,
+            'user2' => $happening->is_verified ? $happening->user2?->name : $happening->verifier,
+            'is_verified' => $happening->is_verified,
+        ];
+    }
+
     public function getHappenings()
     {
+        $user = auth()->user();
+
         $happenings = Happening::with(['resource.resource_group.institution', 'user1', 'user2'])
             ->whereDate('start', '>=', Carbon::now())
             ->orderBy('start')
             ->get()
-            ->filter->isViewableByUser(auth()->user());
+            ->filter->isViewableByUser($user)
+            ->map(array($this, 'mapHappeningToView'));
 
         return Inertia::render('Admin/Happenings/Index', [
             'happenings' => $happenings->values(),

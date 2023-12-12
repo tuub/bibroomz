@@ -221,6 +221,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.permission_group.edit');
         Route::post('/admin/permission_group/update', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
             ->name('admin.permission_group.update');
+
+        Route::get('/admin', [AdminController::class, 'getDashboard']);
     });
 });
 
