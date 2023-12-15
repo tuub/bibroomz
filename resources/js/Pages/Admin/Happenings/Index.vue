@@ -126,7 +126,7 @@ import utc from "dayjs/plugin/utc";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
+defineProps({
     happenings: {
         type: Array,
         default: () => [],
@@ -159,15 +159,9 @@ const isPastHappening = (happening) => {
     return dayjs(happening.end).isBefore(dayjs().utcOffset(0, true));
 };
 
-const isPastDate = (date) => {
-    return dayjs(date).isBefore(dayjs().utcOffset(0, true), "date");
-};
-
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
 const { hasPermission } = authStore;
-
-const happenings = props.happenings.filter((happening) => !isPastDate(happening.end));
 </script>

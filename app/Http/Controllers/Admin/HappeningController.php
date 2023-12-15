@@ -24,7 +24,10 @@ class HappeningController extends Controller
 
     public function getHappenings()
     {
-        $happenings = Happening::with(['resource', 'user1', 'user2'])->orderBy('start')->get()
+        $happenings = Happening::with(['resource.resource_group.institution', 'user1', 'user2'])
+            ->whereDate('start', '>=', Carbon::now())
+            ->orderBy('start')
+            ->get()
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/Happenings/Index', [
