@@ -54,13 +54,13 @@
                         <BooleanField :is-true="user.is_admin" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <BooleanField :is-true="user.roles?.length > 0" />
+                        <BooleanField :is-true="user.is_privileged" />
                     </td>
                     <td class="px-6 py-4 text-center">
                         <BooleanField :is-true="user.is_logged_in" />
                     </td>
                     <td class="px-6 py-4 text-center">
-                        {{ user.happenings.length }}
+                        {{ user.happenings_count }}
                     </td>
                     <td class="px-6 py-4 text-right">
                         <ActionLink action="edit" model="user" :params="{ id: user.id }" />

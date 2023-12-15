@@ -27,9 +27,16 @@ class UserController extends Controller
 
         $users = User::with(['happenings', 'roles'])->orderBy('name')->get()
             ->map(function (User $user) {
-                $user->is_logged_in = $user->isLoggedIn();
-
-                return $user;
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'is_admin' => $user->is_admin,
+                    'is_system_user' => $user->is_system_user,
+                    'is_logged_in' => $user->isLoggedIn(),
+                    'is_privileged' => $user->roles->count() > 0,
+                    'happenings_count' => $user->happenings->count(),
+                ];
             });
 
         return Inertia::render('Admin/Users/Index', [
