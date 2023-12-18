@@ -57,7 +57,7 @@ return [
             'table' => [
                 'header' => [
                     'date' => 'Date',
-                    'institution' => 'Institituion',
+                    'institution' => 'Institution',
                     'resource_group' => 'Group',
                     'resource' => 'Resource',
                     'start_time' => 'Start time',
