@@ -2,7 +2,13 @@
     <div id="legend-full-calendar-wrapper" class="calendar">
         <Legend class="mb-5"></Legend>
         <span class="resource-group-name">{{ translate(resourceGroup?.title) }}</span>
-        <div :class="{ 'page-change-wrapper': true, 'page-change-wrapper-page-change': isPaginated, 'page-change-wrapper-no-page-change': !isPaginated }">
+        <div
+            :class="{
+                'page-change-wrapper': true,
+                'page-change-wrapper-page-change': isPaginated,
+                'page-change-wrapper-no-page-change': !isPaginated,
+            }"
+        >
             <label>{{ $t("calendar.browse_resources") }}</label>
             <button
                 :disabled="!pagination.previousPage"
@@ -283,11 +289,10 @@ div.fc-timegrid-slots tr {
     top: -53px;
 }
 
-.resource-group-name{
+.resource-group-name {
     position: absolute;
     left: 0px;
     top: -93px;
-
 }
 
 .calendar-if-not-logged-in {
