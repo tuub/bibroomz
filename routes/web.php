@@ -153,7 +153,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         /* Settings */
         Route::get('/admin/{settingable_type}/{settingable_id}/settings', [
-            AdminSettingController::class, 'getSettings'])
+            AdminSettingController::class, 'getSettings'
+        ])
             ->name('admin.setting.index');
         Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
             ->name('admin.setting.edit');
@@ -191,6 +192,10 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.user.update');
         Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])
             ->name('admin.user.delete');
+        Route::post('/admin/user/ban', [AdminUserController::class, 'banUser'])
+            ->name('admin.user.ban');
+        Route::post('/admin/user/unban', [AdminUserController::class, 'unbanUser'])
+        ->name('admin.user.unban');
 
         /* Roles */
         Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])

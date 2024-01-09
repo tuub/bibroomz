@@ -53,6 +53,10 @@ class Kernel extends ConsoleKernel
         $schedule->command(
             'telescope:prune',
         )->dailyAt('04:45');
+
+        $schedule->command(
+            'ban:delete-expired'
+        )->everyMinute();
     }
 
     /**

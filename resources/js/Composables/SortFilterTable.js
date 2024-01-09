@@ -80,7 +80,7 @@ export function useSortFilterTable({
         filteredData.value = filteredData.value.sort(sortFunction);
     });
 
-    watch(filters, () => {
+    watch([data, filters], () => {
         filteredData.value = unref(data).filter(filterFunction);
     });
 

@@ -8,6 +8,7 @@
         "php": "^8.1",
         "binarycabin/laravel-uuid": "^1.0",
         "bkwld/cloner": "^3.11",
+        "cybercog/laravel-ban": "^4.8",
         "doctrine/dbal": "^3.6",
         "fakerphp/faker": "^1.23",
         "guzzlehttp/guzzle": "^7.2",

@@ -12,17 +12,23 @@ class HappeningPolicy
     use HandlesAuthorization;
 
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user)
+    {
+        if ($user->isBanned()) {
+            return false;
+        }
+    }
+
+    /**
      * Determine if a happening can be created by the user.
      *
      * @param User $user
      * @return bool
      */
-    public function create(User $user): bool
+    public function create(): bool
     {
-        if ($user->banned_at?->isValid()) {
-            return false;
-        }
-
         return true;
     }
 

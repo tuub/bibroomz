@@ -62,4 +62,14 @@ class UserPolicy
             return true;
         }
     }
+
+    public function ban(User $user, User $model)
+    {
+        return $this->edit($user, $model);
+    }
+
+    public function unban(User $user, User $model)
+    {
+        return $this->edit($user, $model);
+    }
 }

@@ -48,9 +48,19 @@
                         <BooleanField :is-true="user.is_logged_in" />
                     </td>
                     <td class="px-6 py-4 text-center">
+                        <BooleanField :is-true="user.is_banned" />
+                    </td>
+                    <td class="px-6 py-4 text-center">
                         {{ user.happenings_count }}
                     </td>
                     <td class="px-6 py-4 text-right">
+                        <ActionLink
+                            :action="user.is_banned ? 'unban' : 'ban'"
+                            model="user"
+                            method="post"
+                            :params="{ id: user.id }"
+                        />
+                        |
                         <ActionLink action="edit" model="user" :params="{ id: user.id }" />
                         |
                         <DeleteLink model="user" :entity="user" :params="{ id: user.id }" />
@@ -84,6 +94,8 @@ import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import PopupModal from "@/Shared/PopupModal.vue";
 
+import { ref, watch } from "vue";
+
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
@@ -97,12 +109,30 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const fields = ["name", "email", "is_system_user", "is_admin", "is_privileged", "is_logged_in", "happenings_count"];
+const fields = [
+    "name",
+    "email",
+    "is_system_user",
+    "is_admin",
+    "is_privileged",
+    "is_logged_in",
+    "is_banned",
+    "happenings_count",
+];
+
+const users = ref(props.users);
 
 const { filters, paginator, sortField, sortDirection, toggleFilter } = useSortFilterTable({
-    data: props.users,
+    data: users,
     initialSortField: "name",
     initialSortDirection: "asc",
     nonNumericFields: ["name", "email"],
 });
+
+watch(
+    () => props.users,
+    () => {
+        users.value = props.users;
+    },
+);
 </script>

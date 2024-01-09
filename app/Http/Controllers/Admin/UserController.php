@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\AdminLoggingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,6 +36,7 @@ class UserController extends Controller
                     'is_system_user' => $user->is_system_user,
                     'is_logged_in' => $user->isLoggedIn(),
                     'is_privileged' => $user->roles->count() > 0,
+                    'is_banned' => $user->isBanned(),
                     'happenings_count' => $user->happenings->count(),
                 ];
             });
@@ -158,6 +160,27 @@ class UserController extends Controller
         $user->delete();
 
         $this->adminLoggingService->log('deleted', $user);
+
+        return redirect()->route('admin.user.index');
+    }
+
+    public function banUser(Request $request)
+    {
+        $user = User::find($request->id);
+        $this->authorize('ban', $user);
+
+        $user->ban([
+            'expired_at' => Carbon::now()->addDays(config('roomz.user.suspension_days')),
+        ]);
+
+        return redirect()->route('admin.user.index');
+    }
+
+    public function unbanUser(Request $request)
+    {
+        $user = User::find($request->id);
+        $this->authorize('unban', $user);
+        $user->unban();
 
         return redirect()->route('admin.user.index');
     }

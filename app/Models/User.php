@@ -10,15 +10,18 @@ use Laravel\Sanctum\HasApiTokens;
 use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use App\Library\Traits\UUIDIsPrimaryKey;
 use Carbon\CarbonImmutable;
+use Cog\Contracts\Ban\Bannable as BannableInterface;
+use Cog\Laravel\Ban\Traits\Bannable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
-class User extends Authenticatable
+class User extends Authenticatable implements BannableInterface
 {
     /*****************************************************************
      * TRAITS
      ****************************************************************/
     use HasApiTokens, HasFactory, Notifiable, HasUUID, UUIDIsPrimaryKey;
+    use Bannable;
 
     /*****************************************************************
      * OPTIONS
