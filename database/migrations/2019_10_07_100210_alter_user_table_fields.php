@@ -30,6 +30,8 @@ return new class extends Migration
      */
     public function down()
     {
-        $table->dropColumn(['is_admin', 'last_login', 'is_logged_in']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['is_admin', 'last_login', 'is_logged_in']);
+        });
     }
 };
