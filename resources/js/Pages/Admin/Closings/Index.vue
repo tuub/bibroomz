@@ -1,12 +1,22 @@
 <template>
-    <PageHead :title="$t('admin.closings.index.title', {
-        type: $t('admin.closings.types.' + closable_type),
-        title: translate(closable.title)
-    })" page-type="admin" />
-    <BodyHead :title="$t('admin.closings.index.title', {
-        type: $t('admin.closings.types.' + closable_type),
-        title: translate(closable.title)
-    })" :description="$t('admin.closings.index.description')" />
+    <PageHead
+        :title="
+            $t('admin.closings.index.title', {
+                type: $t('admin.closings.types.' + closable_type),
+                title: translate(closable.title),
+            })
+        "
+        page-type="admin"
+    />
+    <BodyHead
+        :title="
+            $t('admin.closings.index.title', {
+                type: $t('admin.closings.types.' + closable_type),
+                title: translate(closable.title),
+            })
+        "
+        :description="$t('admin.closings.index.description')"
+    />
 
     <PopupModal />
     <CreateLink model="closing" :params="{ closable_type: closable_type, closable_id: closable.id }"></CreateLink>
@@ -138,10 +148,7 @@ const institutionId = computed(() => {
 // Methods
 // ------------------------------------------------
 const getClosingDateTime = (dateTime) => {
-    return [
-        appStore.formatDate(dateTime, true),
-        appStore.formatTime(dateTime, true),
-    ].join(' ');
+    return [appStore.formatDate(dateTime, true), appStore.formatTime(dateTime, true)].join(" ");
 };
 
 const isPastClosing = (closing) => {

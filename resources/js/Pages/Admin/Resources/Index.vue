@@ -54,7 +54,10 @@
                     </td>
                     <td class="px-6 py-4 align-top">
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
-                            {{ getBusinessHourTime(business_hour.start) }} - {{ getBusinessHourTime(business_hour.end) }} ({{
+                            {{
+                                getBusinessHourTime(business_hour.start) + "-" + getBusinessHourTime(business_hour.end)
+                            }}
+                            ({{
                                 business_hour.week_days
                                     .map((week_day) =>
                                         trans("admin.general.week_days." + week_day.key + ".short_label"),

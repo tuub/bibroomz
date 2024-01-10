@@ -195,7 +195,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/user/ban', [AdminUserController::class, 'banUser'])
             ->name('admin.user.ban');
         Route::post('/admin/user/unban', [AdminUserController::class, 'unbanUser'])
-        ->name('admin.user.unban');
+            ->name('admin.user.unban');
 
         /* Roles */
         Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])

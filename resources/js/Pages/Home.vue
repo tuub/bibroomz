@@ -116,7 +116,6 @@ onMounted(() => {
     position: sticky;
     display: inline-block;
     width: 72%;
-
 }
 
 @media only screen and (max-width: 1150px) {
@@ -132,8 +131,5 @@ onMounted(() => {
         display: block;
         width: 100%;
     }
-
 }
-
-
 </style>
