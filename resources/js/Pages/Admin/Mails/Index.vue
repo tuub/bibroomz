@@ -5,7 +5,7 @@
         :description="$t('admin.mails.index.description')"
     />
 
-    <PopupModal />
+    <XModal />
     <CreateLink model="mail" :params="{ institution_id: institution.id }"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -72,7 +72,7 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

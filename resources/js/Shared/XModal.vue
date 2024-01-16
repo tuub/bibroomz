@@ -48,11 +48,26 @@
 import ModalCloseButton from "@/Components/Modals/ModalCloseButton.vue";
 import { useModal } from "@/Stores/Modal";
 
+import { Modal as FlowbiteModal } from "flowbite";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const modal = useModal();
 const { view, content, payload, actions } = storeToRefs(modal);
 
 const form = ref(null);
+
+onMounted(() => {
+    modal.init(
+        new FlowbiteModal(document.getElementById("modal"), {
+            closable: true,
+            placement: "center",
+            backdrop: "dynamic",
+            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
+            onHide: () => {
+                modal.cleanup();
+            },
+        }),
+    );
+});
 </script>

@@ -30,9 +30,8 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
 
-import { Modal as FlowbiteModal } from "flowbite";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onMounted } from "vue";
+import { onBeforeMount } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -81,20 +80,6 @@ const getModal = (data) => {
 // ------------------------------------------------
 onBeforeMount(() => {
     appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, props.isMultiTenancy);
-});
-
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
 });
 </script>
 

@@ -5,7 +5,7 @@
         :description="$t('admin.permission_groups.index.description')"
     />
 
-    <PopupModal />
+    <XModal />
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -47,7 +47,7 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 // ------------------------------------------------

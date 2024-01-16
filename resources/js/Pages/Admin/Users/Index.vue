@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.users.index.title')" page-type="admin" />
     <BodyHead :title="$t('admin.users.index.title')" :description="$t('admin.users.index.description')" />
 
-    <PopupModal />
+    <XModal />
     <CreateLink model="user"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -92,7 +92,7 @@ import TableHeader from "@/Components/Admin/TableHeader.vue";
 import { useSortFilterTable } from "@/Composables/SortFilterTable";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import XModal from "@/Shared/XModal.vue";
 
 import { ref, watch } from "vue";
 

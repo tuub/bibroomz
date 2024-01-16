@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.institutions.index.title')" page-type="admin" />
     <BodyHead :title="$t('admin.institutions.index.title')" :description="$t('admin.institutions.index.description')" />
 
-    <PopupModal />
+    <XModal />
     <CreateLink model="institution"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -100,7 +100,7 @@ import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

@@ -2,7 +2,7 @@
     <PageHead :title="$t('admin.happenings.index.title')" page-type="admin" />
     <BodyHead :title="$t('admin.happenings.index.title')" :description="$t('admin.happenings.index.description')" />
 
-    <PopupModal />
+    <XModal />
     <CreateLink model="happening"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -127,7 +127,7 @@ import TableHeader from "@/Components/Admin/TableHeader.vue";
 import { useSortFilterTable } from "@/Composables/SortFilterTable";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import PopupModal from "@/Shared/PopupModal.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

@@ -4,12 +4,12 @@
     </a>
 </template>
 <script setup>
+import ConfirmModal from "@/Components/Modals/ConfirmModal.vue";
 import useModal from "@/Stores/Modal";
 
 import { router } from "@inertiajs/vue3";
-import { Modal as FlowbiteModal } from "flowbite";
 import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount, onMounted } from "vue";
+import { computed, inject, onBeforeMount } from "vue";
 
 const modal = useModal();
 const route = inject("ziggyRoute");
@@ -36,7 +36,7 @@ const actions = [];
 
 const openModal = () => {
     modal.open(
-        {},
+        ConfirmModal,
         {
             message: trans("popup.content.delete." + props.model),
         },
@@ -50,32 +50,24 @@ const openModal = () => {
 // ------------------------------------------------
 onBeforeMount(() => {
     const deleteLabel = computed(() => trans("popup.actions.delete"));
+    const cancelLabel = computed(() => trans("popup.actions.cancel"));
 
     const deleteAction = {
         label: deleteLabel,
         callback: () => {
-            console.log("Route Visit: " + route("admin." + props.model + ".delete", props.params));
             router.visit(route("admin." + props.model + ".delete", props.params), {
                 method: "post",
                 preserveScroll: true,
+                onStart: () => modal.close(),
             });
         },
     };
 
-    actions.push(deleteAction);
-});
+    const cancelAction = {
+        label: cancelLabel,
+        callback: () => modal.close(),
+    };
 
-onMounted(() => {
-    modal.init(
-        new FlowbiteModal(document.getElementById("popup-modal"), {
-            closable: true,
-            placement: "center",
-            backdrop: "dynamic",
-            backdropClasses: "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-40",
-            onHide: () => {
-                modal.cleanup();
-            },
-        }),
-    );
+    actions.push(deleteAction, cancelAction);
 });
 </script>
