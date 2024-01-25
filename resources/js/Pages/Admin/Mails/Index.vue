@@ -45,19 +45,20 @@
                         <BooleanField :is-true="mail.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_mails', mail.institution_id)"
-                            action="edit"
-                            model="mail"
-                            :params="{ id: mail.id }"
-                        />
-                        |
-                        <DeleteLink
-                            v-if="hasPermission('delete_mails', mail.institution_id)"
-                            model="mail"
-                            :entity="mail"
-                            :params="{ id: mail.id }"
-                        />
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_mails', mail.institution_id)"
+                                action="edit"
+                                model="mail"
+                                :params="{ id: mail.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_mails', mail.institution_id)"
+                                action="delete"
+                                model="mail"
+                                :params="{ id: mail.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -69,7 +70,8 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";

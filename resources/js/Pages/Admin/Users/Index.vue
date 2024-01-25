@@ -54,16 +54,26 @@
                         {{ user.happenings_count }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink
-                            :action="user.is_banned ? 'unban' : 'ban'"
-                            model="user"
-                            method="post"
-                            :params="{ id: user.id }"
-                        />
-                        |
-                        <ActionLink action="edit" model="user" :params="{ id: user.id }" />
-                        |
-                        <DeleteLink model="user" :entity="user" :params="{ id: user.id }" />
+                        <LinkGroup>
+                            <PopupLink
+                                v-if="hasPermission('edit_users')"
+                                :action="user.is_banned ? 'unban' : 'ban'"
+                                model="user"
+                                :params="{ id: user.id }"
+                            />
+                            <ActionLink
+                                v-if="hasPermission('edit_users')"
+                                action="edit"
+                                model="user"
+                                :params="{ id: user.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_users')"
+                                action="delete"
+                                model="user"
+                                :params="{ id: user.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -86,13 +96,15 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import Paginator from "@/Components/Admin/Paginator.vue";
 import TableHeader from "@/Components/Admin/TableHeader.vue";
 import { useSortFilterTable } from "@/Composables/SortFilterTable";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import { ref, watch } from "vue";
 
@@ -107,8 +119,15 @@ const props = defineProps({
 });
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const authStore = useAuthStore();
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const { hasPermission } = authStore;
+
 const fields = [
     "name",
     "email",
@@ -129,6 +148,9 @@ const { filters, paginator, sortField, sortDirection, toggleFilter } = useSortFi
     nonNumericFields: ["name", "email"],
 });
 
+// ------------------------------------------------
+// Watchers
+// ------------------------------------------------
 watch(
     () => props.users,
     () => {

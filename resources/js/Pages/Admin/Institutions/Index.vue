@@ -51,40 +51,38 @@
                         <BooleanField :is-true="institution.is_active" />
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_institution', institution.id)"
-                            action="edit"
-                            model="institution"
-                            :params="{ id: institution.id }"
-                        />
-                        |
-                        <RelationLink
-                            v-if="hasPermission('view_closings', institution.id)"
-                            current="institution"
-                            relation="closing"
-                            :params="{ closable_type: 'institution', closable_id: institution.id }"
-                        />
-                        |
-                        <RelationLink
-                            v-if="hasPermission('edit_institution', institution.id)"
-                            current="institution"
-                            relation="setting"
-                            :params="{ settingable_type: 'institution', settingable_id: institution.id }"
-                        />
-                        |
-                        <RelationLink
-                            v-if="hasPermission('view_mails', institution.id)"
-                            current="institution"
-                            relation="mail"
-                            :params="{ institution_id: institution.id }"
-                        />
-                        |
-                        <DeleteLink
-                            v-if="hasPermission('delete_institution', institution.id)"
-                            model="institution"
-                            :entity="institution"
-                            :params="{ id: institution.id }"
-                        />
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_institution', institution.id)"
+                                action="edit"
+                                model="institution"
+                                :params="{ id: institution.id }"
+                            />
+                            <RelationLink
+                                v-if="hasPermission('view_closings', institution.id)"
+                                current="institution"
+                                relation="closing"
+                                :params="{ closable_type: 'institution', closable_id: institution.id }"
+                            />
+                            <RelationLink
+                                v-if="hasPermission('edit_institution', institution.id)"
+                                current="institution"
+                                relation="setting"
+                                :params="{ settingable_type: 'institution', settingable_id: institution.id }"
+                            />
+                            <RelationLink
+                                v-if="hasPermission('view_mails', institution.id)"
+                                current="institution"
+                                relation="mail"
+                                :params="{ institution_id: institution.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_institution', institution.id)"
+                                action="delete"
+                                model="institution"
+                                :params="{ id: institution.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -96,7 +94,8 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";

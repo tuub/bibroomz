@@ -3,6 +3,10 @@
         :href="route('admin.' + relation + '.index', params)"
         class="font-medium text-red-600 dark:text-red-500 hover:underline"
     >
+        <i v-if="relation === 'setting'" class="ri-settings-5-fill"></i>
+        <i v-if="relation === 'closing'" class="ri-calendar-close-fill"></i>
+        <i v-if="relation === 'resource'" class="ri-calendar-line"></i>
+        <i v-if="relation === 'mail'" class="ri-mail-line"></i>
         {{ $t("admin." + current + "s.index.table.actions." + relation + "s") }}
     </Link>
 </template>
@@ -11,11 +15,11 @@
 defineProps({
     current: {
         type: String,
-        default: null,
+        required: true,
     },
     relation: {
         type: String,
-        default: null,
+        required: true,
     },
     params: {
         type: Object,

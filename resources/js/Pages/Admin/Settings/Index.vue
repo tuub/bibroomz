@@ -1,13 +1,23 @@
 <template>
-    <PageHead :title="$t('admin.settings.index.title', {
-        type: $t('admin.settings.types.' + settingable_type),
-        title: translate(settingable.title)
-    })" page-type="admin"/>
+    <PageHead
+        :title="
+            $t('admin.settings.index.title', {
+                type: $t('admin.settings.types.' + settingable_type),
+                title: translate(settingable.title),
+            })
+        "
+        page-type="admin"
+    />
 
-    <BodyHead :title="$t('admin.settings.index.title', {
-        type: $t('admin.settings.types.' + settingable_type),
-        title: translate(settingable.title)
-    })" :description="$t('admin.settings.index.description')"/>
+    <BodyHead
+        :title="
+            $t('admin.settings.index.title', {
+                type: $t('admin.settings.types.' + settingable_type),
+                title: translate(settingable.title),
+            })
+        "
+        :description="$t('admin.settings.index.description')"
+    />
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -43,7 +53,12 @@
                         {{ setting.value }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit" model="setting" :params="{ id: setting.id }" />
+                        <ActionLink
+                            v-if="hasPermission('edit_settings', institutionId)"
+                            action="edit"
+                            model="setting"
+                            :params="{ id: setting.id }"
+                        />
                     </td>
                 </tr>
             </tbody>
@@ -56,11 +71,14 @@ import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
     settingable: {
         type: Object,
         default: () => ({}),
@@ -79,10 +97,20 @@ defineProps({
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
+const authStore = useAuthStore();
 const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
+const { hasPermission } = authStore;
+
+const institutionId = computed(() => {
+    if (props.settingable_type === "institution") {
+        return props.settingable.id;
+    }
+
+    return props.settingable.institution_id;
+});
 </script>

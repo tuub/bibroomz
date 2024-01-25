@@ -14,7 +14,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 defineProps({
     model: {
         type: String,
-        default: "",
+        required: true,
     },
     params: {
         type: Object,

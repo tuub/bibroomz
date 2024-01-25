@@ -57,33 +57,32 @@
                         <BooleanField :is-true="resource_group.is_active" />
                     </td>
                     <td class="px-6 py-4 align-top text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
-                            action="edit"
-                            model="resource_group"
-                            :params="{ id: resource_group.id }"
-                        />
-                        |
-                        <RelationLink
-                            v-if="hasPermission('view_resources', resource_group.institution_id)"
-                            current="resource_group"
-                            relation="resource"
-                            :params="{ id: resource_group.id }"
-                        />
-                        |
-                        <RelationLink
-                            v-if="hasPermission('edit_institution', resource_group.institution_id)"
-                            current="resource_group"
-                            relation="setting"
-                            :params="{ settingable_type: 'resource_group', settingable_id: resource_group.id }"
-                        />
-                        |
-                        <DeleteLink
-                            v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
-                            model="resource_group"
-                            :entity="resource_group"
-                            :params="{ id: resource_group.id }"
-                        />
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
+                                action="edit"
+                                model="resource_group"
+                                :params="{ id: resource_group.id }"
+                            />
+                            <RelationLink
+                                v-if="hasPermission('view_resources', resource_group.institution_id)"
+                                current="resource_group"
+                                relation="resource"
+                                :params="{ id: resource_group.id }"
+                            />
+                            <RelationLink
+                                v-if="hasPermission('edit_institution', resource_group.institution_id)"
+                                current="resource_group"
+                                relation="setting"
+                                :params="{ settingable_type: 'resource_group', settingable_id: resource_group.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
+                                action="delete"
+                                model="resource_group"
+                                :params="{ id: resource_group.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -95,7 +94,8 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";

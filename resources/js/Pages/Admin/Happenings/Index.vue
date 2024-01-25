@@ -89,16 +89,20 @@
                         <BooleanField :is-true="happening.is_over" />
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_happenings', happening.institution_id)"
-                            action="edit"
-                            model="happening"
-                            :params="{ id: happening.id }"
-                        />
-                        <span v-if="hasPermission('delete_happenings', happening.institution_id)">
-                            |
-                            <DeleteLink model="happening" :entity="happening" :params="{ id: happening.id }" />
-                        </span>
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_happenings', happening.institution_id)"
+                                action="edit"
+                                model="happening"
+                                :params="{ id: happening.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_happenings', happening.institution_id)"
+                                action="delete"
+                                model="happening"
+                                :params="{ id: happening.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -121,7 +125,8 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import Paginator from "@/Components/Admin/Paginator.vue";
 import TableHeader from "@/Components/Admin/TableHeader.vue";
 import { useSortFilterTable } from "@/Composables/SortFilterTable";

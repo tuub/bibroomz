@@ -61,24 +61,24 @@
                         <BooleanField :is-true="isPastClosing(closing)" />
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_closings', institutionId)"
-                            action="edit"
-                            model="closing"
-                            :params="{ id: closing.id }"
-                        />
-                        |
-                        <DeleteLink
-                            v-if="hasPermission('delete_closings', institutionId)"
-                            action="delete"
-                            model="closing"
-                            :entity="closing"
-                            :params="{
-                                id: closing.id,
-                                closable_id: closing.closable_id,
-                                closable_type: closing.closable_type,
-                            }"
-                        />
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_closings', institutionId)"
+                                action="edit"
+                                model="closing"
+                                :params="{ id: closing.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_closings', institutionId)"
+                                action="delete"
+                                model="closing"
+                                :params="{
+                                    id: closing.id,
+                                    closable_id: closing.closable_id,
+                                    closable_type: closing.closable_type,
+                                }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -90,7 +90,8 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
@@ -136,6 +137,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const translate = appStore.translate;
 const { hasPermission } = authStore;
+
 const institutionId = computed(() => {
     if (props.closable_type === "institution") {
         return props.closable.id;

@@ -44,9 +44,21 @@
                         }}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit" model="role" :params="{ id: role.id }" />
-                        |
-                        <DeleteLink model="role" :entity="role" :params="{ id: role.id }" />
+                        <LinkGroup>
+                            <ActionLink
+                                v-if="hasPermission('edit_roles')"
+                                action="edit"
+                                model="role"
+                                :params="{ id: role.id }"
+                            />
+                            <PopupLink
+                                v-if="hasPermission('delete_roles')"
+                                action="delete"
+                                model="role"
+                                :entity="role"
+                                :params="{ id: role.id }"
+                            />
+                        </LinkGroup>
                     </td>
                 </tr>
             </tbody>
@@ -57,11 +69,12 @@
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import DeleteLink from "@/Components/Admin/Index/DeleteLink.vue";
+import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 // ------------------------------------------------
 // Props
@@ -76,10 +89,12 @@ defineProps({
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
+const authStore = useAuthStore();
 const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
+const { hasPermission } = authStore;
 </script>
