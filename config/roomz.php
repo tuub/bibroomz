@@ -43,6 +43,7 @@ return [
         'timeslot_length' => env('DEFAULT_TIMESLOT_LENGTH', '00:30'),
         'weeks_in_advance' => env('DEFAULT_WEEKS_IN_ADVANCE', 2),
         'cleanup_interval' => env('DEFAULT_CLEANUP_INTERVAL', ':01:00'),
+        'is_label_enabled' => env('DEFAULT_IS_LABEL_ENABLED', false),
     ],
     'user' => [
         'is_suspension_enabled' => env('USER_SUSPENSION_ENABLED', true),

@@ -59,6 +59,7 @@ class Setting extends Model
                 'quota_daily_hours' => config('roomz.default.quota.daily_hours'),
                 'quota_weekly_hours' => config('roomz.default.quota.weekly_hours'),
                 'quota_happening_block_hours' => config('roomz.default.quota.happening_block_hours'),
+                'is_label_enabled' => config('roomz.default.is_label_enabled'),
             ],
         ];
     }

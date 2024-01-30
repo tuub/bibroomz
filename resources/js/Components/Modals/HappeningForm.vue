@@ -64,7 +64,7 @@
             />
         </div>
 
-        <div class="mb-6">
+        <div v-if="isLabelEnabled" class="mb-6">
             <div class="flex flex-nowrap space-x-2">
                 <div v-for="locale in appStore.supportedLocales" :key="locale" class="mb-6 flex-auto">
                     <FormLabel
@@ -136,6 +136,7 @@ const errorMessage = computed(() => error.value?.data?.message);
 
 const institutionSlug = appStore.institution.slug;
 const resourceGroupSlug = appStore.resourceGroup.slug;
+const isLabelEnabled = appStore.settings["resource_group"]["is_label_enabled"];
 
 const isInitial = ref(true);
 const isLoading = ref(false);
