@@ -267,7 +267,7 @@ export const useAuthStore = defineStore({
         },
 
         isExceedingQuotas(start, end) {
-            const settings = useAppStore().settings;
+            const settings = useAppStore().settings["resource_group"];
 
             const quota_happening_block_hours = settings.quota_happening_block_hours;
             const quota_weekly_happenings = settings.quota_weekly_happenings;
