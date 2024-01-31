@@ -24,7 +24,7 @@ return [
         ],
     ],
     'database' => [
-        'is_seed_example_institutions' => env('DB_SEED_EXAMPLE_INSTITUTIONS', true),
+        'is_seed_example_institution' => env('DB_SEED_EXAMPLE_INSTITUTION', false),
         'is_seed_tub_institutions' => env('DB_SEED_TUB_INSTITUTIONS', false),
     ],
     'default' => [

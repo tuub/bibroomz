@@ -5,11 +5,12 @@ namespace Database\Seeders;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
-use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 class InstitutionSeeder extends Seeder
 {
+    private $institutions = [];
+
     /**
      * Run the database seeds.
      *
@@ -17,20 +18,47 @@ class InstitutionSeeder extends Seeder
      */
     public function run()
     {
-        // https://www.laravelia.com/post/laravel-9-factory-seed-data-with-nested-relationship
-        /*
-        // Add random example institutions with random example resources
-        if (config('roomz.database.is_seed_example_institutions')) {
-            Institution::factory(1)
-                ->has(Resource::factory()->count(5))
-                ->create();
-        }
-        */
+        $this->createExampleInstitution();
+        $this->createTUBInstitutions();
 
-        // Add real example institutions with random example resources
-        if (config('roomz.database.is_seed_tub_institutions')) {
-            $institutions = [];
-            $institutions[] = Institution::create([
+        $this->createExampleResources();
+    }
+
+    private function createExampleInstitution()
+    {
+        if (!config('roomz.database.is_seed_example_institution')) {
+            return;
+        }
+
+        $this->institutions[] = Institution::factory(1)
+            ->has(Resource::factory()->count(5))
+            ->create();
+    }
+
+    private function createExampleResources()
+    {
+        foreach ($this->institutions as $institution) {
+            $resource_groups = ResourceGroup::factory()->count(2)->make();
+
+            foreach ($resource_groups as $resource_group) {
+                $institution->resource_groups()->save($resource_group);
+                $resources = Resource::factory()->count(5)->make();
+
+                foreach ($resources as $resource) {
+                    $resource_group->resources()->save($resource);
+                }
+            }
+        }
+    }
+
+    private function createTUBInstitutions()
+    {
+        if (!config('roomz.database.is_seed_tub_institutions')) {
+            return;
+        }
+
+        if (Institution::where('slug', 'ub')->count() == 0) {
+            $this->institutions[] = Institution::create([
                 'title' => 'Universitätsbibliothek der TU Berlin',
                 'short_title' => 'UB',
                 'slug' => 'ub',
@@ -41,8 +69,10 @@ class InstitutionSeeder extends Seeder
                 'teaser_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/teaser_zb.jpg',
                 'is_active' => true,
             ]);
+        }
 
-            $institutions[] = Institution::create([
+        if (Institution::where('slug', 'dbwm')->count() == 0) {
+            $this->institutions[] = Institution::create([
                 'title' => 'Die Bibliothek Wirtschaft & Management',
                 'short_title' => 'DBWM',
                 'slug' => 'dbwm',
@@ -53,17 +83,6 @@ class InstitutionSeeder extends Seeder
                 'teaser_uri' => 'https://services.ub.tu-berlin.de/platzbuchung/images/tuub/teaser_dbwm.jpg',
                 'is_active' => true,
             ]);
-
-            foreach ($institutions as $institution) {
-                $resource_groups = ResourceGroup::factory()->count(2)->make();
-                foreach ($resource_groups as $resource_group) {
-                    $institution->resource_groups()->save($resource_group);
-                    $resources = Resource::factory()->count(5)->make();
-                    foreach ($resources as $resource) {
-                        $resource_group->resources()->save($resource);
-                    }
-                }
-            }
         }
     }
 }

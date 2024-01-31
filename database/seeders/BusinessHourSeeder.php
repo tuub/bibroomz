@@ -22,18 +22,22 @@ class BusinessHourSeeder extends Seeder
         foreach ($institutions as $institution) {
             $resource_groups = $institution->resource_groups;
 
-
             foreach ($resource_groups as $resource_group) {
                 $resources = $resource_group->resources;
+
                 foreach ($resources as $resource) {
-                    $bh = BusinessHour::create([
+                    if ($resource->business_hours()->count() > 0) {
+                        continue;
+                    }
+
+                    $business_hour = BusinessHour::create([
                         'resource_id' => $resource->id,
                         'start' => '09:00:00',
                         'end' => '23:00:00',
                     ]);
 
                     foreach ($week_days as $week_day) {
-                        $bh->week_days()->attach($week_day->id);
+                        $business_hour->week_days()->attach($week_day->id);
                     }
                 }
             }

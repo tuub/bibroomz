@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Institution;
 use App\Models\MailContent;
 use App\Models\MailType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
 
@@ -21,6 +20,10 @@ class MailContentSeeder extends Seeder
 
         foreach ($institutions as $institution) {
             foreach ($mail_types as $mail_type) {
+                if ($mail_type->mail_contents()->where('institution_id', $institution->id)->exists()) {
+                    continue;
+                }
+
                 MailContent::create([
                     'institution_id' => $institution->id,
                     'mail_type_id' => $mail_type->id,
@@ -39,6 +42,7 @@ class MailContentSeeder extends Seeder
     public function getDefaultTranslatable($mail_type, $field): array
     {
         $locales = config('app.supported_locales');
+
         $output = [];
         foreach ($locales as $locale) {
             App::setLocale($locale);

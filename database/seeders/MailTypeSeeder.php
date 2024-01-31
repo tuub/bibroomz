@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,12 +14,22 @@ class MailTypeSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('mail_types')->insert(['key' => 'happening_created', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'happening_created_with_verification', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'happening_updated', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'happening_deleted', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'happening_verified', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'closing_created', 'description' => '']);
-        DB::table('mail_types')->insert(['key' => 'closing_updated', 'description' => '']);
+        $keys = [
+            'happening_created',
+            'happening_created_with_verification',
+            'happening_updated',
+            'happening_deleted',
+            'happening_verified',
+            'closing_created',
+            'closing_updated',
+        ];
+
+        foreach ($keys as $key) {
+            if (DB::table('mail_types')->where('key', $key)->exists()) {
+                continue;
+            }
+
+            DB::table('mail_types')->insert(['key' => $key, 'description' => '']);
+        }
     }
 }

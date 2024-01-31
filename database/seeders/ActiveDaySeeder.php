@@ -17,7 +17,12 @@ class ActiveDaySeeder extends Seeder
     {
         $institutions = Institution::active()->get();
         $week_days = WeekDay::get();
+
         foreach ($institutions as $institution) {
+            if ($institution->week_days->count() > 0) {
+                continue;
+            }
+
             $institution->week_days()->sync($week_days);
         }
     }

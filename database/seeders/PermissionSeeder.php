@@ -134,20 +134,32 @@ class PermissionSeeder extends Seeder
             'settings',
         ]);
 
-        Permission::create([
-            'key' => 'unlimited_quotas',
-            'name' => [
+        $this->createPermission(
+            'unlimited_quotas',
+            [
                 'en' => 'Unlimited quotas',
                 'de' => 'Unbegrenzte Kontingente',
             ],
-        ]);
+        );
 
-        Permission::create([
-            'key' => 'no_verifier',
-            'name' => [
+        $this->createPermission(
+            'no_verifier',
+            [
                 'en' => 'No verification necessary',
                 'de' => 'Keine Bestätigung notwendig',
             ],
+        );
+    }
+
+    private function createPermission(string $key, array $name): ?Permission
+    {
+        if (Permission::where('key', '=', $key)->exists()) {
+            return null;
+        }
+
+        return Permission::create([
+            'key' => $key,
+            'name' => $name,
         ]);
     }
 
@@ -158,23 +170,27 @@ class PermissionSeeder extends Seeder
                 $verbName = $this->verbs->get($verbKey);
                 $groupName = $this->groups->get($groupKey);
 
-                $permission = Permission::create([
-                    'key' => $verbKey . '_' . $groupKey,
-                    'name' => [
+                $permission = $this->createPermission(
+                    $verbKey . '_' . $groupKey,
+                    [
                         'en' => ucfirst($verbName['en']) . ' ' . lcfirst($groupName['en']),
                         'de' => ucfirst($groupName['de']) . ' ' . lcfirst($verbName['de']),
                     ],
-                ]);
+                );
 
                 $group = PermissionGroup::where('key', '=', $groupKey)->first();
-                $permission->group()->associate($group)->save();
+                $permission?->group()->associate($group)->save();
             }
         }
     }
 
-    private function createPermissionGroup(string $key, array $name)
+    private function createPermissionGroup(string $key, array $name): ?PermissionGroup
     {
-        PermissionGroup::create([
+        if (PermissionGroup::where('key', '=', $key)->exists()) {
+            return null;
+        }
+
+        return PermissionGroup::create([
             'key' => $key,
             'name' => $name,
         ]);
