@@ -555,6 +555,10 @@ return [
                 'label' => 'Cleanup interval',
                 'description' => '',
             ],
+            'is_label_enabled' => [
+                'label' => 'Booking labels enabled?',
+                'description' => ' ',
+            ],
         ],
         'index' => [
             'title' => 'Settings for :type ":title"',

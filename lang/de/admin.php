@@ -555,6 +555,10 @@ return [
                 'label' => 'Löschintervall',
                 'description' => '',
             ],
+            'is_label_enabled' => [
+                'label' => 'Buchungeslabels aktiviert?',
+                'description' => ' ',
+            ],
         ],
         'index' => [
             'title' => 'Einstellungen für :type ":title"',
