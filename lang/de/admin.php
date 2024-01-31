@@ -509,51 +509,51 @@ return [
         'keys' => [
             'timezone' => [
                 'label' => 'Zeitzone',
-                'description' => '',
+                'description' => ' ',
             ],
             'start_time_slot' => [
                 'label' => 'Startzeitfenster',
-                'description' => '',
+                'description' => ' ',
             ],
             'end_time_slot' => [
                 'label' => 'Endzeitfenster',
-                'description' => '',
+                'description' => ' ',
             ],
             'time_slot_length' => [
                 'label' => 'Länge des Zeitfensters',
-                'description' => '',
+                'description' => ' ',
             ],
             'weeks_in_advance' => [
                 'label' => 'Wochen im Voraus',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_weekly_happenings' => [
                 'label' => 'Wöchentliches Event-Kontingent',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_daily_hours' => [
                 'label' => 'Tägliches Stunden-Kontingent',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_weekly_hours' => [
                 'label' => 'Wöchentliches Stunden-Kontingent',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_happening_block_hours' => [
                 'label' => 'Block-Stunden-Kontingent',
-                'description' => '',
+                'description' => ' ',
             ],
             'date_format' => [
                 'label' => 'Datumsformat',
-                'description' => '',
+                'description' => ' ',
             ],
             'time_format' => [
                 'label' => 'Zeitformat',
-                'description' => '',
+                'description' => ' ',
             ],
             'cleanup_interval' => [
                 'label' => 'Löschintervall',
-                'description' => '',
+                'description' => ' ',
             ],
             'is_label_enabled' => [
                 'label' => 'Buchungeslabels aktiviert?',

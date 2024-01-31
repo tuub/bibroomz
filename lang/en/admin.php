@@ -509,51 +509,51 @@ return [
         'keys' => [
             'timezone' => [
                 'label' => 'Time zone',
-                'description' => '',
+                'description' => ' ',
             ],
             'start_time_slot' => [
                 'label' => 'Start time slot',
-                'description' => '',
+                'description' => ' ',
             ],
             'end_time_slot' => [
                 'label' => 'End time slot',
-                'description' => '',
+                'description' => ' ',
             ],
             'time_slot_length' => [
                 'label' => 'Length of time slot',
-                'description' => '',
+                'description' => ' ',
             ],
             'weeks_in_advance' => [
                 'label' => 'Weeks in advance',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_weekly_happenings' => [
                 'label' => 'Quota weekly happenings',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_daily_hours' => [
                 'label' => 'Quota daily hours',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_weekly_hours' => [
                 'label' => 'Quota weekly hours',
-                'description' => '',
+                'description' => ' ',
             ],
             'quota_happening_block_hours' => [
                 'label' => 'Quota happening block hours',
-                'description' => '',
+                'description' => ' ',
             ],
             'date_format' => [
                 'label' => 'Date format',
-                'description' => '',
+                'description' => ' ',
             ],
             'time_format' => [
                 'label' => 'Time format',
-                'description' => '',
+                'description' => ' ',
             ],
             'cleanup_interval' => [
                 'label' => 'Cleanup interval',
-                'description' => '',
+                'description' => ' ',
             ],
             'is_label_enabled' => [
                 'label' => 'Booking labels enabled?',
