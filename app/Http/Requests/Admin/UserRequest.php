@@ -25,6 +25,10 @@ class UserRequest extends FormRequest
             }
         }
 
+        if (!$this->id) {
+            return $this->user()->can('create', User::class);
+        }
+
         return $this->user()->can('update', User::find($this->id));
     }
 
