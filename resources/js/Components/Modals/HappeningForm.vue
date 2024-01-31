@@ -136,7 +136,7 @@ const errorMessage = computed(() => error.value?.data?.message);
 
 const institutionSlug = appStore.institution.slug;
 const resourceGroupSlug = appStore.resourceGroup.slug;
-const isLabelEnabled = appStore.settings["resource_group"]["is_label_enabled"];
+const isLabelEnabled = appStore.settings["resource_group"]["is_label_enabled"] == 1;
 
 const isInitial = ref(true);
 const isLoading = ref(false);
