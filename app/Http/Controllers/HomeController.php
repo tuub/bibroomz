@@ -14,7 +14,10 @@ class HomeController extends Controller
 {
     public function getStart(): Response|RedirectResponse
     {
-        $institutions = Institution::active()->with(['resource_groups' => fn ($q) => $q->active()])->get();
+        $institutions = Institution::active()
+            ->whereHas('resource_groups', fn ($q) => $q->active())
+            ->with(['resource_groups' => fn ($q) => $q->active()])
+            ->get();
         $resource_groups = $institutions->flatMap(fn ($institution) => $institution->resource_groups);
 
         if ($resource_groups->count() == 1) {
