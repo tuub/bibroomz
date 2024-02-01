@@ -21,6 +21,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment() === 'testing') {
+            return;
+        }
+
         $connection = DB::connection($this->getConnection());
 
         Schema::create('pulse_values', function (Blueprint $table) use ($connection) {
