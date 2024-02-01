@@ -44,6 +44,7 @@ return [
         'weeks_in_advance' => env('DEFAULT_WEEKS_IN_ADVANCE', 2),
         'cleanup_interval' => env('DEFAULT_CLEANUP_INTERVAL', ':01:00'),
         'is_label_enabled' => env('DEFAULT_IS_LABEL_ENABLED', false),
+        'allowed_ips' => env('DEFAULT_ALLOWED_IPS', '0.0.0.0/0'),
     ],
     'user' => [
         'is_suspension_enabled' => env('USER_SUSPENSION_ENABLED', true),

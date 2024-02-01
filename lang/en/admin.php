@@ -559,6 +559,10 @@ return [
                 'label' => 'Booking labels enabled?',
                 'description' => 'Set to "1" to enable booking labels.',
             ],
+            'allowed_ips' => [
+                'label' => 'Allowed IPs',
+                'description' => ' ',
+            ],
         ],
         'index' => [
             'title' => 'Settings for :type ":title"',

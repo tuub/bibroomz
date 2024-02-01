@@ -49,6 +49,7 @@ class Setting extends Model
                 'date_format' => config('roomz.default.date_format'),
                 'time_format' => config('roomz.default.time_format'),
                 'cleanup_interval' => config('roomz.default.cleanup_interval'),
+                'allowed_ips' => config('roomz.default.allowed_ips'),
             ],
             'resource_group' => [
                 'start_time_slot' => config('roomz.default.start_time_slot'),

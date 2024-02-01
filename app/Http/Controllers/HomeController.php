@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Library\IpChecker;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,13 @@ class HomeController extends Controller
             ->whereHas('resource_groups', fn ($q) => $q->active())
             ->with(['resource_groups' => fn ($q) => $q->active()])
             ->get();
+
+        foreach ($institutions as $institution) {
+            if (!$this->isIpAllowed($institution)) {
+                $institutions = $institutions->reject(fn ($item) => $item->id == $institution->id);
+            }
+        }
+
         $resource_groups = $institutions->flatMap(fn ($institution) => $institution->resource_groups);
 
         if ($resource_groups->count() == 1) {
@@ -35,26 +43,15 @@ class HomeController extends Controller
 
     public function getInstitutionalHome(Request $request): Response|RedirectResponse
     {
-        $resource_group = ResourceGroup::whereHas(
-            'institution',
-            fn ($query) => $query->where('slug', $request->institution_slug)
-        )->where('slug', $request->resource_group_slug)->firstOrFail();
+        $resource_group = $this->getResourceGroupFromRequest($request);
 
-        if (!$resource_group) {
+        if (!$this->isIpAllowed($resource_group->institution)) {
             return redirect()->route('start');
-        }
-
-        $settings = [];
-        foreach ($resource_group->institution->settings as $setting) {
-            $settings['institution'][$setting->key] = $setting->value;
-        }
-        foreach ($resource_group->settings as $setting) {
-            $settings['resource_group'][$setting->key] = $setting->value;
         }
 
         return Inertia::render('Home', [
             'resourceGroup' => $resource_group,
-            'settings' => $settings,
+            'settings' => self::mapSettings($resource_group),
             'hiddenDays' => $resource_group->institution->getHiddenDays(),
             'isMultiTenancy' => ResourceGroup::active()->count() > 1,
         ]);
@@ -72,22 +69,15 @@ class HomeController extends Controller
 
     public function getTerminalView(Request $request): Response
     {
-        $resource_group = ResourceGroup::whereHas(
-            'institution',
-            fn ($query) => $query->where('slug', $request->institution_slug)
-        )->where('slug', $request->resource_group_slug)->firstOrFail();
+        $resource_group = $this->getResourceGroupFromRequest($request);
 
-        $settings = [];
-        foreach ($resource_group->institution->settings as $setting) {
-            $settings['institution'][$setting->key] = $setting->value;
-        }
-        foreach ($resource_group->settings as $setting) {
-            $settings['resource_group'][$setting->key] = $setting->value;
+        if (!$this->isIpAllowed($resource_group->institution)) {
+            return redirect()->route('start');
         }
 
         return Inertia::render('TerminalView', [
             'resourceGroup' => $resource_group,
-            'settings' => $settings,
+            'settings' => $this->mapSettings($resource_group),
             'hiddenDays' => $resource_group->institution->getHiddenDays(),
         ]);
     }
@@ -101,5 +91,35 @@ class HomeController extends Controller
         $locale = $validated['locale'];
 
         Cookie::queue('locale', $locale, 600);
+    }
+
+    private function getResourceGroupFromRequest(Request $request): ResourceGroup
+    {
+        return ResourceGroup::whereHas(
+            'institution',
+            fn ($query) => $query->where('slug', $request->institution_slug)
+        )->where('slug', $request->resource_group_slug)->firstOrFail();
+    }
+
+    private function mapSettings(ResourceGroup $resource_group): array
+    {
+        $settings = [];
+
+        foreach ($resource_group->institution->settings as $setting) {
+            $settings['institution'][$setting->key] = $setting->value;
+        }
+
+        foreach ($resource_group->settings as $setting) {
+            $settings['resource_group'][$setting->key] = $setting->value;
+        }
+
+        return $settings;
+    }
+
+    private function isIpAllowed(Institution $institution): bool
+    {
+        $allowed_ips = explode(',', $institution->settings()->firstWhere('key', 'allowed_ips')?->value);
+
+        return (new IpChecker($allowed_ips))->isIpAllowed(request()->ip());
     }
 }
