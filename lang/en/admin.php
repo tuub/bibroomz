@@ -557,7 +557,7 @@ return [
             ],
             'is_label_enabled' => [
                 'label' => 'Booking labels enabled?',
-                'description' => ' ',
+                'description' => 'Set to "1" to enable booking labels.',
             ],
         ],
         'index' => [

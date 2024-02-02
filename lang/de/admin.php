@@ -557,7 +557,7 @@ return [
             ],
             'is_label_enabled' => [
                 'label' => 'Buchungslabels aktiviert?',
-                'description' => ' ',
+                'description' => 'Auf "1" setzen, um Buchungeslabels zu aktivieren.',
             ],
         ],
         'index' => [
