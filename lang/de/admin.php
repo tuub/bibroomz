@@ -581,12 +581,12 @@ return [
                 'key' => [
                     'label' => 'Schlüssel',
                     'placeholder' => 'Der Schlüssel',
-                    'hint' => 'Über den Schlüssel',
+                    'hint' => ' ',
                 ],
                 'value' => [
                     'label' => 'Wert',
                     'placeholder' => 'Der Wert',
-                    'hint' => 'Über den Wert',
+                    'hint' => ' ',
                 ],
             ],
         ],
