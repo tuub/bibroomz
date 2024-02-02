@@ -556,7 +556,7 @@ return [
                 'description' => ' ',
             ],
             'is_label_enabled' => [
-                'label' => 'Buchungeslabels aktiviert?',
+                'label' => 'Buchungslabels aktiviert?',
                 'description' => ' ',
             ],
         ],
