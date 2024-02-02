@@ -30,9 +30,7 @@ class InstitutionSeeder extends Seeder
             return;
         }
 
-        $this->institutions[] = Institution::factory(1)
-            ->has(Resource::factory()->count(5))
-            ->create();
+        $this->institutions[] = Institution::factory()->create();
     }
 
     private function createExampleResources()
