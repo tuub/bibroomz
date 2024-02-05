@@ -5,23 +5,23 @@ return [
         'fields' => [
             'start' => [
                 'label' => 'Start',
-                'placeholder' => 'Your start',
-                'hint' => 'About your start',
+                'placeholder' => 'Start of your reservation',
+                'hint' => ' ',
             ],
             'end' => [
                 'label' => 'End',
-                'placeholder' => 'Your end',
-                'hint' => 'About your end',
+                'placeholder' => 'End of your reservation',
+                'hint' => ' ',
             ],
             'verifier' => [
                 'label' => 'Confirmation',
                 'placeholder' => 'Library Account (TU: TUB Account) 2nd person',
-                'hint' => 'About your verifier',
+                'hint' => ' ',
             ],
             'label' => [
                 'label' => 'Label',
-                'placeholder' => 'Your label',
-                'hint' => 'About your label',
+                'placeholder' => 'Public Label',
+                'hint' => ' ',
             ],
         ],
     ],

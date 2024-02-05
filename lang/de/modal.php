@@ -6,22 +6,22 @@ return [
             'start' => [
                 'label' => 'Beginn',
                 'placeholder' => 'Beginn Ihrer Reservierung',
-                'hint' => 'Start of your reservation',
+                'hint' => ' ',
             ],
             'end' => [
                 'label' => 'Ende',
                 'placeholder' => 'Ende Ihrer Reservierung',
-                'hint' => 'End of your Reservation',
+                'hint' => ' ',
             ],
             'verifier' => [
                 'label' => 'Bestätigung',
                 'placeholder' => 'Bibliothekskonto (TU: TUB-Account) der 2. Person',
-                'hint' => 'About your verifier',
+                'hint' => ' ',
             ],
             'label' => [
                 'label' => 'Label',
-                'placeholder' => 'Ihr Label',
-                'hint' => 'Über Ihr Label',
+                'placeholder' => 'Öffentliches Label',
+                'hint' => ' ',
             ],
         ],
     ],
