@@ -84,10 +84,7 @@ export const useAppStore = defineStore({
                 return;
             }
 
-            if (!locale) {
-                const appStore = useAppStore();
-                locale = appStore.locale;
-            }
+            locale = locale ?? this.locale;
 
             if (translatable[locale]) {
                 return translatable[locale];
