@@ -14,10 +14,18 @@ return [
             'permission' => 'Sind Sie sicher, dass Sie diese Berechtigung löschen wollen?',
             'mail' => 'Sind Sie sicher, dass Sie diese E-Mail löschen wollen?',
         ],
+        'ban' => [
+            'user' => 'Sind Sie sicher, dass Sie diesen Benutzer sperren wollen?',
+        ],
+        'unban' => [
+            'user' => 'Sind Sie sicher, dass Sie diesen Benutzer entsperren wollen?',
+        ],
     ],
 
     'actions' => [
         'delete' => 'Ja, löschen',
         'cancel' => 'Nein, abbrechen',
+        'ban' => 'Ja, sperren',
+        'unban' => 'Ja, entsperren',
     ],
 ];

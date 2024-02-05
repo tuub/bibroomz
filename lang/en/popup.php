@@ -14,10 +14,18 @@ return [
             'permission' => 'Are you sure you want to delete this permission?',
             'mail' => 'Are you sire you want to delete this mail?',
         ],
+        'ban' => [
+            'user' => 'Are you sure you want to ban this user?',
+        ],
+        'unban' => [
+            'user' => 'Are you sure you want to unban this user?',
+        ],
     ],
 
     'actions' => [
         'delete' => 'Yes, delete',
         'cancel' => 'No, cancel',
+        'ban' => 'Yes, ban',
+        'unban' => 'Yes, unban',
     ],
 ];
