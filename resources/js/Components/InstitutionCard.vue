@@ -57,7 +57,7 @@ const translate = appStore.translate;
 }
 
 .institution-card-wapper:nth-child(2) {
-    margin: -5px 0px 35px auto;
+    margin: -5px 0px 105px auto;
     padding: 40px;
 }
 
@@ -73,6 +73,7 @@ const translate = appStore.translate;
 
 .teaser-img {
     margin: auto;
+    width: 600px;
 }
 
 .institution-resource-groups-button {
@@ -119,6 +120,11 @@ const translate = appStore.translate;
     .institution-resource-groups-button {
         width: 100%;
         font-size: 0.8rem;
+    }
+
+    .institution-card-wapper:nth-child(2) {
+        margin: -5px 0px 35px auto;
+        padding: 40px;
     }
 }
 </style>
