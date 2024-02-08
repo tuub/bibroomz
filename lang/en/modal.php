@@ -19,9 +19,16 @@ return [
                 'hint' => ' ',
             ],
             'label' => [
-                'label' => 'Label',
-                'placeholder' => 'Public Label',
-                'hint' => ' ',
+                'de' => [
+                    'label' => 'Notiz (optional, öffentlich sichtbar)',
+                    'placeholder' => 'Name der Lerngruppe',
+                    'hint' => ' ',
+                ],
+                'en' => [
+                    'label' => 'Note (optional, publicly visible)',
+                    'placeholder' => 'Name of the study group',
+                    'hint' => ' ',
+                ],
             ],
         ],
     ],

@@ -69,7 +69,7 @@
                 <div v-for="locale in appStore.supportedLocales" :key="locale" class="mb-6 flex-auto">
                     <FormLabel
                         :field="`label-${locale}`"
-                        field-key="modal.form.fields.label"
+                        :field-key="`modal.form.fields.label.${locale}`"
                         :language="locale"
                     ></FormLabel>
                     <input
@@ -78,7 +78,7 @@
                         type="text"
                         name="label"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
-                        :placeholder="$t('modal.form.fields.label.placeholder')"
+                        :placeholder="$t(`modal.form.fields.label.${locale}.placeholder`)"
                         @input="$emit('update-happening', happening)"
                         @keypress.enter.prevent="$emit('submit')"
                     />
