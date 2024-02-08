@@ -21,12 +21,12 @@ return [
             'label' => [
                 'de' => [
                     'label' => 'Notiz (optional, öffentlich sichtbar)',
-                    'placeholder' => 'Name der Lerngruppe',
+                    'placeholder' => 'z.B. Name der Lerngruppe',
                     'hint' => ' ',
                 ],
                 'en' => [
                     'label' => 'Note (optional, publicly visible)',
-                    'placeholder' => 'Name of the study group',
+                    'placeholder' => 'e.g. name of the study group',
                     'hint' => ' ',
                 ],
             ],
