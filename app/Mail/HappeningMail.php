@@ -26,7 +26,7 @@ class HappeningMail extends Mailable implements ShouldQueue
         public string $class,
         public MailContent $content,
     ) {
-        //
+        $this->locale(app()->getLocale());
     }
 
     /**
