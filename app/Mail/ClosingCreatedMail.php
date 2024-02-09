@@ -13,7 +13,6 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ClosingCreatedMail extends Mailable implements ShouldQueue
 {
@@ -29,7 +28,9 @@ class ClosingCreatedMail extends Mailable implements ShouldQueue
         public Collection $happenings,
         public string $class,
         public MailContent $content,
-    ) {}
+    ) {
+        //
+    }
 
     /**
      * Get the message envelope.
@@ -47,10 +48,12 @@ class ClosingCreatedMail extends Mailable implements ShouldQueue
 
         return new Envelope(
             from: new Address(
-                $from_email, $from_email
+                $from_email,
+                $from_email
             ),
             replyTo: new Address(
-                $from_email, $from_email
+                $from_email,
+                $from_email
             ),
             subject: $this->content->subject,
         );

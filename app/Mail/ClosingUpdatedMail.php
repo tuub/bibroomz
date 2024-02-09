@@ -49,10 +49,12 @@ class ClosingUpdatedMail extends Mailable implements ShouldQueue
 
         return new Envelope(
             from: new Address(
-                $from_email, $from_email
+                $from_email,
+                $from_email
             ),
             replyTo: new Address(
-                $from_email, $from_email
+                $from_email,
+                $from_email
             ),
             subject: $this->content->subject,
         );
