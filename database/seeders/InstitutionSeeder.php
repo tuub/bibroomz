@@ -36,7 +36,7 @@ class InstitutionSeeder extends Seeder
     private function createExampleResources()
     {
         foreach ($this->institutions as $institution) {
-            $resource_groups = ResourceGroup::factory()->count(2)->make();
+            $resource_groups = ResourceGroup::factory()->count(rand(2, 5))->make();
 
             foreach ($resource_groups as $resource_group) {
                 $institution->resource_groups()->save($resource_group);

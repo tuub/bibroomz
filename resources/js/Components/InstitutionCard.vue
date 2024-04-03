@@ -3,12 +3,12 @@
         class="institution-card-wapper text-center p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     >
         <a :href="institution.home_uri" target="_blank">
-            <img :src="institution.logo_uri" class="institution-logo" />
+            <img :src="institution.logo_uri" class="institution-logo" alt="institution-logo" />
         </a>
         <h1 class="mt-2 mb-2 text-medium font-normal tracking-tight text-gray-900 dark:text-white uppercase">
             {{ translate(institution.title) }}
         </h1>
-        <img class="teaser-img" :src="institution.teaser_uri" />
+        <img class="teaser-img" :src="institution.teaser_uri" alt="teaser-img" />
         <p class="py-2"><i class="ri-map-pin-fill pr-1"></i> {{ institution.location }}</p>
         <Link
             v-for="resource_group in institution.resource_groups"
@@ -24,7 +24,6 @@
                 {{ translate(resource_group.title) }}
             </div>
         </Link>
-
     </div>
 </template>
 
@@ -48,17 +47,10 @@ const translate = appStore.translate;
 </script>
 <style>
 .institution-card-wapper {
-    margin: -5px 30px 35px auto;
+    margin: -5px 25px 30px auto;
     padding: 40px;
-    width: 47.8%;
     box-shadow: 0 3px 3px rgb(204, 203, 203);
     float: left;
-    border-radius: 0px;
-}
-
-.institution-card-wapper:nth-child(2) {
-    margin: -5px 0px 105px auto;
-    padding: 40px;
 }
 
 .institution-card-wapper > h1 {
@@ -101,10 +93,6 @@ const translate = appStore.translate;
 }
 
 @media only screen and (max-width: 1200px) {
-    .institution-card-wapper {
-        width: 100%;
-    }
-
     .institution-resource-groups-button {
         width: 100%;
     }

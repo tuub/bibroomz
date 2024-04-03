@@ -48,6 +48,28 @@ onBeforeMount(() => {
 </script>
 <style>
 .institution-cards-wapper {
-    display: flow-root;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+@media only screen and (max-width: 1400px) {
+    .institution-cards-wapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    .institution-cards-wapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .institution-cards-wapper {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
 }
 </style>
