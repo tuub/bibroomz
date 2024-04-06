@@ -15,10 +15,7 @@ export default defineConfig({
             },
         }),
         laravel({
-            input: [
-                "resources/js/app.js",
-                "resources/sass/main.scss",
-            ],
+            input: ["resources/js/app.js", "resources/sass/main.scss"],
             refresh: true,
         }),
         i18n(),
@@ -27,6 +24,11 @@ export default defineConfig({
         alias: {
             "@": fileURLToPath(new URL("./resources/js/", import.meta.url)),
             ziggy: "vendor/tightenco/ziggy/dist/vue.es.js",
+        },
+    },
+    server: {
+        watch: {
+            ignored: ["**/.devenv/**", "**/.direnv/**", "**/vendor/**"],
         },
     },
 });
