@@ -1,65 +1,111 @@
-version: '3'
+x-environment: &env
+  DB_HOST: mariadb
+  MAIL_HOST: mailpit
+  REDIS_HOST: redis
+  REVERB_HOST: soketi
+
 services:
-    webserver:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        command: ./container-start
-        working_dir: /roomz
-        environment:
-            DB_HOST: 'mariadb'
-            MAIL_HOST: 'mailpit'
-            PUSHER_HOST: 'soketi'
-            VITE_PUSHER_HOST: '${APP_HOST}'
-            VITE_PUSHER_PORT: '${PUSHER_PORT}'
-        ports:
-            - '${APP_PORT:-8000}:${APP_PORT:-8000}'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-        volumes:
-            - '.:/roomz:z'
-        networks:
-            - roomz
-        depends_on:
-            - mariadb
-            - mailpit
-            - soketi
-    mariadb:
-        image: 'docker.io/library/mariadb:10'
-        ports:
-            - '${DB_PORT:-3306}:${DB_PORT:-3306}'
-        environment:
-            MARIADB_ROOT_PASSWORD: '${DB_PASSWORD}'
-            MARIADB_ROOT_HOST: '%'
-            MARIADB_DATABASE: '${DB_DATABASE}'
-            MARIADB_USER: '${DB_USERNAME}'
-            MARIADB_PASSWORD: '${DB_PASSWORD}'
-            MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
-        volumes:
-            - 'roomz-mariadb:/var/lib/mysql'
-        networks:
-            - roomz
-    mailpit:
-        image: 'docker.io/axllent/mailpit:latest'
-        ports:
-            - '${MAIL_PORT:-1025}:${MAIL_PORT:-1025}'
-            - '${MAILPIT_DASHBOARD_PORT:-8025}:${MAILPIT_DASHBOARD_PORT:-8025}'
-        networks:
-            - roomz
-    soketi:
-        image: 'quay.io/soketi/soketi:latest-16-alpine'
-        environment:
-            SOKETI_DEBUG: '${SOKETI_DEBUG:-1}'
-            SOKETI_PORT: '${PUSHER_PORT:-6001}'
-            SOKETI_DEFAULT_APP_ID: '${PUSHER_APP_ID}'
-            SOKETI_DEFAULT_APP_KEY: '${PUSHER_APP_KEY}'
-            SOKETI_DEFAULT_APP_SECRET: '${PUSHER_APP_SECRET}'
-        ports:
-            - '${PUSHER_PORT:-6001}:${PUSHER_PORT:-6001}'
-        networks:
-            - roomz
-networks:
-    roomz:
-        driver: bridge
+  queue-worker:
+    build:
+      target: php-fpm
+      secrets:
+        - .env
+    command: php artisan queue:work
+    volumes:
+      - .env:/var/www/.env
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      <<: *env
+  schedule-worker:
+    build:
+      target: php-fpm
+      secrets:
+        - .env
+    command: php artisan schedule:work
+    volumes:
+      - .env:/var/www/.env
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      <<: *env
+  php-fpm:
+    build:
+      target: php-fpm
+      secrets:
+        - .env
+    volumes:
+      - php-fpm-socket:/var/run/php
+      - .docker/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - .env:/var/www/.env
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      <<: *env
+  caddy:
+    build:
+      target: caddy
+      secrets:
+        - .env
+    volumes:
+      - caddy-config:/config
+      - caddy-data:/data
+      - php-fpm-socket:/var/run/php
+      - .docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - $APP_PORT:$APP_PORT
+    environment:
+      <<: *env
+      APP_SCHEME: $APP_SCHEME
+      APP_HOST: $APP_HOST
+      APP_PORT: $APP_PORT
+  mariadb:
+    image: mariadb:10
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: true
+      MARIADB_DATABASE: $DB_DATABASE
+      MARIADB_USER: $DB_USERNAME
+      MARIADB_PASSWORD: $DB_PASSWORD
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - .docker/mariadb/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    # ports:
+    #   - 3306:3306
+  redis:
+    image: redis:7
+    # ports:
+    #   - 6379:6379
+    volumes:
+      - redis-data:/data
+  soketi:
+    image: quay.io/soketi/soketi:1.6-16-alpine
+    environment:
+      SOKETI_DEBUG: ${SOKETI_DEBUG:-false}
+      SOKETI_DEFAULT_APP_ID: $REVERB_APP_ID
+      SOKETI_DEFAULT_APP_KEY: $REVERB_APP_KEY
+      SOKETI_DEFAULT_APP_SECRET: $REVERB_APP_SECRET
+    # ports:
+    #   - 6001:6001
+    #   - 9601:9601
+  mailpit:
+    image: axllent/mailpit
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    ports:
+      # - 1025:1025
+      - 8025:8025
+    volumes:
+      - mailpit-data:/data
 volumes:
-    roomz-mariadb:
-        driver: local
+  caddy-config:
+  caddy-data:
+  mailpit-data:
+  mariadb-data:
+  php-fpm-socket:
+  redis-data:
+secrets:
+  .env:
+    file: .env

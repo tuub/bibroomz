@@ -1,18 +1,57 @@
-FROM ubuntu:22.04
+FROM php:8.3-cli as php-build
 
-ARG NODE_VERSION=18
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get -y update
+RUN apt-get -y install --no-install-recommends git libzip-dev unzip
+RUN pecl install redis && docker-php-ext-enable redis
+RUN docker-php-ext-install bcmath zip
 
-RUN apt-get update && apt-get install -y \
-        ca-certificates \
-        curl \
-        php8.1 \
-        php8.1-fpm \
-        php8.1-dom \
-        php8.1-mbstring \
-        php8.1-mysql \
-    && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
-    && curl -sLS https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm
+WORKDIR /var/www
+COPY composer.json composer.lock ./
+RUN composer install --no-autoloader
+
+COPY . .
+RUN composer dump-autoload --optimize
+RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env php artisan ziggy:generate
+
+###
+
+FROM node:20 as node-build
+
+WORKDIR /var/www
+COPY package.json package-lock.json ./
+RUN npm clean-install --ignore-scripts --no-audit --no-fund
+
+COPY . .
+
+COPY --from=php-build /var/www/vendor /var/www/vendor
+COPY --from=php-build /var/www/resources/js/ziggy.js /var/www/resources/js/ziggy.js
+
+RUN mkdir -p /var/www/public/vendor \
+    && cp -r /var/www/vendor/laravel/telescope/public /var/www/public/vendor/telescope
+
+RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
+
+###
+
+FROM php:8.3-fpm as php-fpm
+
+RUN apt-get -y update
+RUN pecl install redis && docker-php-ext-enable redis
+RUN docker-php-ext-install pdo_mysql
+
+WORKDIR /var/www
+COPY . .
+
+COPY --from=node-build /var/www/public /var/www/public
+COPY --from=php-build /var/www/vendor /var/www/vendor
+
+RUN chown www-data: /var/www/bootstrap/cache \
+    && chown -R www-data: /var/www/storage
+
+###
+
+FROM caddy:2 as caddy
+
+COPY --from=node-build /var/www/public /var/www/public
