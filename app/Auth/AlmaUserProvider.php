@@ -246,4 +246,15 @@ class AlmaUserProvider implements UserProvider
 
         return null;
     }
+
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
+    {
+        if (! $this->hasher->needsRehash($user->getAuthPassword()) && ! $force) {
+            return;
+        }
+
+        $user->forceFill([
+            $user->getAuthPasswordName() => $this->hasher->make($credentials['password']),
+        ])->save();
+    }
 }

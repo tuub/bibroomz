@@ -2,7 +2,7 @@
 
 let
   caddyPort = "8000";
-  soketiPort = "6001";
+  websocketPort = "6001";
 
   mysqlDatabase = "roomz";
   mysqlUsername = "roomz";
@@ -46,10 +46,7 @@ in {
     queue-worker.exec = "php artisan queue:listen";
     schedule-worker.exec = "php artisan schedule:work";
 
-    soketi = {
-      exec = "npx soketi start --config soketi.json";
-      process-compose.shutdown.signal = 2;
-    };
+    reverb.exec = "php artisan reverb:start --debug";
   };
 
   scripts = {
@@ -88,7 +85,7 @@ in {
           extraConfig = ''
             root * public
             php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}
-            reverse_proxy /app/* :${soketiPort}
+            reverse_proxy /app/* :${websocketPort}
             file_server
           '';
         };
