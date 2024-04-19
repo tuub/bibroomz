@@ -54,7 +54,7 @@ in {
       set -x
 
       composer install --quiet
-      npm install --no-progress --silent
+      npm clean-install --no-progress --silent
 
       if [ ! -e .env ]; then
         cp .env.example .env
