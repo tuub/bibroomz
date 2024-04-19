@@ -75,23 +75,16 @@
         ></TranslatableFormInput>
 
         <!-- Textarea: Description -->
-        <TranslatableFormField
+        <TranslatableFormInput
+            v-model="form.description"
             field="description"
             field-key="admin.resource_groups.form.fields.description"
+            :placeholder="$t('admin.resource_groups.form.fields.description.placeholder')"
             :languages="languages"
             :errors="form.errors"
-        >
-            <template #default="{ language }">
-                <textarea
-                    :id="`description-${language}`"
-                    v-model="form.description[language]"
-                    name="description"
-                    rows="4"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
-                    :placeholder="$t('admin.resource_groups.form.fields.description.placeholder')"
-                ></textarea>
-            </template>
-        </TranslatableFormField>
+            type="textarea"
+            rows="4"
+        ></TranslatableFormInput>
 
         <!-- Checkbox: Is active -->
         <div class="mb-6">
@@ -112,7 +105,6 @@
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
-import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";

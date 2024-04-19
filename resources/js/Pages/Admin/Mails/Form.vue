@@ -56,43 +56,29 @@
             :errors="form.errors"
         ></TranslatableFormInput>
 
-        <!-- Input: Intro -->
-        <TranslatableFormField
+        <!-- Textarea: Intro -->
+        <TranslatableFormInput
+            v-model="form.intro"
             field="intro"
             field-key="admin.mails.form.fields.intro"
+            :placeholder="$t('admin.mails.form.fields.intro.placeholder')"
             :languages="languages"
             :errors="form.errors"
-        >
-            <template #default="{ language }">
-                <textarea
-                    :id="`intro-${language}`"
-                    v-model="form.intro[language]"
-                    name="intro"
-                    rows="10"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
-                    :placeholder="$t('admin.mails.form.fields.intro.placeholder')"
-                ></textarea>
-            </template>
-        </TranslatableFormField>
+            type="textarea"
+            rows="10"
+        ></TranslatableFormInput>
 
-        <!-- Input: Outro -->
-        <TranslatableFormField
+        <!-- Textarea: Outro -->
+        <TranslatableFormInput
+            v-model="form.outro"
             field="outro"
             field-key="admin.mails.form.fields.outro"
+            :placeholder="$t('admin.mails.form.fields.outro.placeholder')"
             :languages="languages"
             :errors="form.errors"
-        >
-            <template #default="{ language }">
-                <textarea
-                    :id="`outro-${language}`"
-                    v-model="form.outro[language]"
-                    name="outro"
-                    rows="10"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
-                    :placeholder="$t('admin.mails.form.fields.outro.placeholder')"
-                ></textarea>
-            </template>
-        </TranslatableFormField>
+            type="textarea"
+            rows="10"
+        ></TranslatableFormInput>
 
         <!-- Input: Action URI -->
         <div class="mb-6">
@@ -122,24 +108,17 @@
             <FormValidationError :message="form.errors.action_uri_label"></FormValidationError>
         </div>
 
-        <!-- Input: Farewell -->
-        <TranslatableFormField
+        <!-- Textarea: Farewell -->
+        <TranslatableFormInput
+            v-model="form.farewell"
             field="farewell"
             field-key="admin.mails.form.fields.farewell"
+            :placeholder="$t('admin.mails.form.fields.farewell.placeholder')"
             :languages="languages"
             :errors="form.errors"
-        >
-            <template #default="{ language }">
-                <textarea
-                    :id="`farewell-${language}`"
-                    v-model="form.farewell[language]"
-                    name="farewell"
-                    rows="10"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
-                    :placeholder="$t('admin.mails.form.fields.farewell.placeholder')"
-                ></textarea>
-            </template>
-        </TranslatableFormField>
+            type="textarea"
+            rows="10"
+        ></TranslatableFormInput>
 
         <!-- Checkbox: Is active -->
         <div class="mb-6">
@@ -165,7 +144,6 @@
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
-import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";

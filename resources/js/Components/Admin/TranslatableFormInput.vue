@@ -1,9 +1,21 @@
 <template>
     <TranslatableFormField :field="field" :field-key="fieldKey" :languages="languages" :errors="errors">
         <template #default="{ language }">
-            <input
+            <textarea
+                v-if="type === 'textarea'"
                 :id="`${field}-${language}`"
-                v-model="input[language]"
+                v-model.lazy="input[language]"
+                :placeholder="placeholder"
+                :required="required"
+                :name="field"
+                :rows="rows"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                @change="$emit('update:model-value', input)"
+            />
+            <input
+                v-else
+                :id="`${field}-${language}`"
+                v-model.lazy="input[language]"
                 :placeholder="placeholder"
                 :required="required"
                 :name="field"
@@ -48,6 +60,15 @@ const props = defineProps({
     errors: {
         type: Object,
         default: () => ({}),
+    },
+    type: {
+        type: String,
+        default: "input",
+        validator: (value) => ["input", "textarea"].includes(value),
+    },
+    rows: {
+        type: String,
+        default: "10",
     },
 });
 
