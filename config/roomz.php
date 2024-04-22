@@ -2,20 +2,12 @@
 
 return [
     'app' => [
-        'name' => env('APP_NAME', 'Roomz'),
-        'version' => env('APP_VERSION', '1.0'),
-        'locale' => env('APP_LOCALE', 'de'),
-        'scheme' => env('APP_SCHEME', 'http'),
-        'host' => env('APP_HOST', 'roomz.localhost'),
-        'port' => env('APP_PORT', 80),
-        'url' => env('APP_URL', 'http://roomz.localhost:80'),
         'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
     ],
     'log' => [
         'level' => env('LOG_LEVEL', 'warning')
     ],
     'auth' => [
-        'method' => env('AUTH_METHOD', 'alma'),
         'api' => [
             'endpoint' => env('AUTH_API_ENDPOINT', 'http://my.api.org'),
             'timeout' => env('AUTH_API_TIMEOUT', 15),

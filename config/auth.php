@@ -65,7 +65,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => env('AUTH_METHOD'),
+            'driver' => env('AUTH_METHOD', 'alma'),
             'model' => App\Models\User::class,
         ],
 
