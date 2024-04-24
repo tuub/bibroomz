@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Library\Utility;
+use App\Models\ResourceGroup;
+use App\Models\Setting;
+use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\App;
 
@@ -17,8 +21,9 @@ class ResourceGroupFactory extends Factory
      */
     public function definition()
     {
-        $faker = \Faker\Factory::create('de_DE');
+        $faker = FakerFactory::create('de_DE');
         $title = ucfirst($faker->colorName);
+
         return [
             'title' => $this->getTranslatable($title),
             'slug' => strtolower($title),
@@ -29,15 +34,27 @@ class ResourceGroupFactory extends Factory
         ];
     }
 
-    public function getTranslatable($value): array
+    private function getTranslatable($value): array
     {
-        $locales = config('app.supported_locales');
-        $output = [];
-        foreach ($locales as $locale) {
-            App::setLocale($locale);
-            $output[$locale] = $value;
-        }
+        return Utility::getTranslatable($value);
+    }
 
-        return $output;
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (ResourceGroup $resource_group) {
+            $settings = Setting::getInitialValues();
+
+            foreach ($settings['resource_group'] as $key => $value) {
+                $setting = new Setting([
+                    'key' => $key,
+                    'value' => $value,
+                ]);
+
+                $resource_group->settings()->save($setting);
+            }
+        });
     }
 }

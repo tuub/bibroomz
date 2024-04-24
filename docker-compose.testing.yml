@@ -1,0 +1,5 @@
+---
+include:
+  - path:
+      - docker-compose.yml
+      - .docker/testing-extends.yml

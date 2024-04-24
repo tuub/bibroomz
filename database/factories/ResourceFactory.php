@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Institution;
+use App\Library\Utility;
+use App\Models\Resource;
+use App\Models\WeekDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\App;
 
@@ -27,15 +29,21 @@ class ResourceFactory extends Factory
         ];
     }
 
-    public function getTranslatable($value): array
+    private function getTranslatable($value): array
     {
-        $locales = config('app.supported_locales');
-        $output = [];
-        foreach ($locales as $locale) {
-            App::setLocale($locale);
-            $output[$locale] = $value;
-        }
+        return Utility::getTranslatable($value);
+    }
 
-        return $output;
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Resource $resource) {
+            $resource->business_hours()->create([
+                'start' => '09:00:00',
+                'end' => '23:00:00',
+            ])->week_days()->sync(WeekDay::pluck('id'));
+        });
     }
 }

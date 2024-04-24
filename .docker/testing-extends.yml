@@ -1,0 +1,35 @@
+services:
+  chromium:
+    image: selenium/standalone-chromium
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - 4444:4444
+      - 5900:5900
+      - 7900:7900
+    healthcheck:
+      test: /opt/bin/check-grid.sh
+      interval: 5s
+      start_period: 5s
+  dusk:
+    extends:
+      file: docker-compose.yml
+      service: php-fpm
+    command: php artisan dusk --without-tty
+    volumes:
+      - ./database:/var/www/database
+      - ./tests:/var/www/tests
+    environment:
+      DUSK_DRIVER_URL: chromium:4444
+      TELESCOPE_ENABLED: false
+    depends_on:
+      caddy:
+        condition: service_started
+      chromium:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+    restart: no
+secrets:
+  .env:
+    file: .env.dusk.compose

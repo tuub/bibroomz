@@ -6,7 +6,6 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-  - build
   - lint
   - test
 workflow:
@@ -19,18 +18,6 @@ sast:
 include:
   - template: Jobs/SAST.latest.gitlab-ci.yml
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
-build:
-  stage: build
-  image: docker
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - cp .env.example .env
-  script:
-    - docker compose build
 commitlint:
   stage: lint
   image: node:alpine
@@ -41,3 +28,18 @@ commitlint:
     - npx commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
   rules:
     - if: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+dusk:
+  stage: test
+  image: docker
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - cp .env.dusk.compose .env
+  script:
+    - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED

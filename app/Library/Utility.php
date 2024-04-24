@@ -84,4 +84,20 @@ class Utility
 
         return $username;
     }
+
+    public static function getTranslatable($value): array
+    {
+        $saved_locale = app()->getLocale();
+        $supported_locales = config('app.supported_locales');
+
+        $output = [];
+        foreach ($supported_locales as $locale) {
+            app()->setLocale($locale);
+            $output[$locale] = $value;
+        }
+
+        app()->setLocale($saved_locale);
+
+        return $output;
+    }
 }

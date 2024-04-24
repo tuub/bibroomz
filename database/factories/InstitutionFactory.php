@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Institution;
+use App\Models\Setting;
+use App\Models\WeekDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -26,5 +29,26 @@ class InstitutionFactory extends Factory
             'logo_uri' => 'https://picsum.photos/500/200',
             'teaser_uri' => 'https://picsum.photos/600/300',
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Institution $institution) {
+            $settings = Setting::getInitialValues();
+
+            foreach ($settings['institution'] as $key => $value) {
+                $setting = new Setting([
+                    'key' => $key,
+                    'value' => $value,
+                ]);
+
+                $institution->settings()->save($setting);
+            }
+
+            $institution->week_days()->sync(WeekDay::pluck('id'));
+        });
     }
 }
