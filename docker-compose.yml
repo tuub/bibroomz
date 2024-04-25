@@ -3,7 +3,7 @@ x-environment: &env
   DB_HOST: mariadb
   MAIL_HOST: mailpit
   REDIS_HOST: redis
-  REVERB_HOST: soketi
+  REVERB_HOST: reverb
 
 services:
   php-fpm:
@@ -27,6 +27,9 @@ services:
   schedule-worker:
     extends: php-fpm
     command: php artisan schedule:work
+  reverb:
+    extends: php-fpm
+    command: php artisan reverb:start --host=0.0.0.0
   caddy:
     build:
       target: caddy
@@ -62,16 +65,6 @@ services:
     #   - 6379:6379
     volumes:
       - redis-data:/data
-  soketi:
-    image: quay.io/soketi/soketi:1.6-16-alpine
-    environment:
-      SOKETI_DEBUG: ${SOKETI_DEBUG:-false}
-      SOKETI_DEFAULT_APP_ID: $REVERB_APP_ID
-      SOKETI_DEFAULT_APP_KEY: $REVERB_APP_KEY
-      SOKETI_DEFAULT_APP_SECRET: $REVERB_APP_SECRET
-    # ports:
-    #   - 6001:6001
-    #   - 9601:9601
   mailpit:
     image: axllent/mailpit
     environment:

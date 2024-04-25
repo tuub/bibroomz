@@ -39,7 +39,7 @@ FROM php:8.3-fpm as php-fpm
 
 RUN apt-get -y update
 RUN pecl install redis && docker-php-ext-enable redis
-RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pcntl pdo_mysql
 
 WORKDIR /var/www
 COPY . .
