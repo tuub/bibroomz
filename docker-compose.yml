@@ -1,3 +1,4 @@
+---
 x-environment: &env
   DB_HOST: mariadb
   MAIL_HOST: mailpit
@@ -5,32 +6,6 @@ x-environment: &env
   REVERB_HOST: soketi
 
 services:
-  queue-worker:
-    build:
-      target: php-fpm
-      secrets:
-        - .env
-    command: php artisan queue:work
-    volumes:
-      - .env:/var/www/.env
-    depends_on:
-      - mariadb
-      - redis
-    environment:
-      <<: *env
-  schedule-worker:
-    build:
-      target: php-fpm
-      secrets:
-        - .env
-    command: php artisan schedule:work
-    volumes:
-      - .env:/var/www/.env
-    depends_on:
-      - mariadb
-      - redis
-    environment:
-      <<: *env
   php-fpm:
     build:
       target: php-fpm
@@ -45,6 +20,13 @@ services:
       - redis
     environment:
       <<: *env
+    restart: unless-stopped
+  queue-worker:
+    extends: php-fpm
+    command: php artisan queue:work
+  schedule-worker:
+    extends: php-fpm
+    command: php artisan schedule:work
   caddy:
     build:
       target: caddy
