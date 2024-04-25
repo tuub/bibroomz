@@ -42,6 +42,11 @@ services:
       - .docker/caddy/Caddyfile:/etc/caddy/Caddyfile
     ports:
       - $APP_PORT:$APP_PORT
+    depends_on:
+      - php-fpm
+      - queue-worker
+      - schedule-worker
+      - reverb
     environment:
       <<: *env
       APP_SCHEME: $APP_SCHEME
