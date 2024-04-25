@@ -79,6 +79,8 @@ services:
       - 8025:8025
     volumes:
       - mailpit-data:/data
+    healthcheck:
+      disable: true
 volumes:
   caddy-config:
   caddy-data:
