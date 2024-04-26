@@ -21,6 +21,7 @@ services:
     environment:
       <<: *env
     restart: unless-stopped
+    init: true
   queue-worker:
     extends: php-fpm
     command: php artisan queue:work
