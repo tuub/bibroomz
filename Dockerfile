@@ -13,6 +13,8 @@ RUN composer install --no-autoloader
 
 COPY . .
 RUN composer dump-autoload --optimize
+
+ARG CACHEBUST
 RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env php artisan ziggy:generate
 
 ###
@@ -31,6 +33,7 @@ COPY --from=php-build /var/www/resources/js/ziggy.js /var/www/resources/js/ziggy
 RUN mkdir -p /var/www/public/vendor \
     && cp -r /var/www/vendor/laravel/telescope/public /var/www/public/vendor/telescope
 
+ARG CACHEBUST
 RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
 
 ###
