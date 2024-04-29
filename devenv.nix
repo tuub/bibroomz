@@ -17,7 +17,7 @@ in {
     javascript = {
       enable = true;
       npm.enable = true;
-      package = pkgs.nodejs_18;
+      package = pkgs.nodejs_20;
     };
 
     php = {
