@@ -148,44 +148,12 @@ class Resource extends Model
     public function findOpen(CarbonImmutable $start, CarbonImmutable $end)
     {
         $is_open = false;
-        $business_hours = $this->business_hours;
 
-        foreach ($business_hours as $business_hour) {
-            $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
+        foreach ($this->business_hours as $business_hour) {
+            [$is_open, $start, $end] = $business_hour->isOpen($start, $end);
 
-            $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($start);
-            $business_hour_end = CarbonImmutable::parse($business_hour->end)->setDateFrom($end);
-
-            if (!($end->hour == 0 && $end->minute == 0)) {
-                if ($business_hour_end->hour == 0 && $business_hour_end->minute == 0) {
-                    $business_hour_end = $business_hour_end->addDay();
-                }
-            }
-
-            if (in_array($start->dayOfWeek, $week_days)) {
-                if ($start >= $business_hour_start && $end <= $business_hour_end) {
-                    // business_hour->start <= start < end <= business_hour->end
-                    $is_open = true;
-                    break;
-                }
-
-                if (
-                    $start >= $business_hour_start && $start < $business_hour_end
-                    && $end > $business_hour_end
-                ) {
-                    // business_hour->start <= start < business_hour->end < end
-                    $is_open = true;
-                    $end = $business_hour_end;
-                }
-
-                if (
-                    $end > $business_hour_start && $end <= $business_hour_end
-                    && $start < $business_hour_start
-                ) {
-                    // start < business_hour->start < end <= business_hour->end
-                    $is_open = true;
-                    $start = $business_hour_start;
-                }
+            if ($is_open) {
+                break;
             }
         }
 
