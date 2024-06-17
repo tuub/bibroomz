@@ -13,7 +13,7 @@
     @inertiaHead
 </head>
 <noscript>
-    The Roomz application needs JavaScript enabled to work. Please enable it to continue.
+    The {{ config('app.name') }} application needs JavaScript enabled to work. Please enable it to continue.
 </noscript>
 
 <body>

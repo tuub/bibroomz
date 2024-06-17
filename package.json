@@ -1,4 +1,5 @@
 {
+    "name": "bibroomz",
     "private": true,
     "scripts": {
         "dev": "vite",

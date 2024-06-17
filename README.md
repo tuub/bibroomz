@@ -1,4 +1,4 @@
-# Roomz
+# BibRoomz
 
 # Prerequisites
 
