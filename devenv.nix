@@ -43,9 +43,12 @@ in {
       npm run build
     '';
 
-    queue-worker.exec = "php artisan queue:listen";
-    schedule-worker.exec = "php artisan schedule:work";
+    queue-worker = {
+      exec = "php artisan queue:listen";
+      process-compose.availability.restart = "always";
+    };
 
+    schedule-worker.exec = "php artisan schedule:work";
     reverb.exec = "php artisan reverb:start --debug";
   };
 
