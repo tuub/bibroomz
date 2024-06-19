@@ -45,6 +45,7 @@ import { useCalendar } from "@/Composables/Calendar";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
+import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, watch } from "vue";
 
@@ -77,11 +78,65 @@ const pagination = reactive({
     previousPage: null,
 });
 
+const refCalendar = ref(null);
+let calendarApi;
+
+const resetCalendarDate = () => {
+    const date = dayjs(calendarApi.getDate()).utcOffset(0, true).format("YY-MM-DD");
+    const url = new URL(pagination.currentPage, window.location.origin);
+    url.searchParams.set("date", date);
+    pagination.currentPage = url.pathname + "?" + url.searchParams;
+};
+
+const changeCustomButtons = () => {
+    const date = dayjs(calendarApi.getDate());
+    const validRange = calendarApi.getOption("validRange");
+
+    const prevButton = document.querySelector(".fc-prevCustom-button");
+    prevButton.disabled = date.isSame(validRange.start, "day");
+
+    const nextButton = document.querySelector(".fc-nextCustom-button");
+    nextButton.disabled = date.isSame(validRange.end, "day");
+};
+
+const customCalendarOptions = {
+    customButtons: {
+        prevCustom: {
+            icon: "chevron-left",
+            click: () => {
+                calendarApi.prev();
+                resetCalendarDate();
+                calendarApi.refetchResources();
+                changeCustomButtons();
+            },
+        },
+        nextCustom: {
+            icon: "chevron-right",
+            click: () => {
+                calendarApi.next();
+                resetCalendarDate();
+                calendarApi.refetchResources();
+                changeCustomButtons();
+            },
+        },
+    },
+
+    headerToolbar: {
+        left: "title",
+        center: "",
+        right: "prevCustom,nextCustom",
+    },
+};
+
 const translate = appStore.translate;
-const { calendarOptions, refetchHappenings } = useCalendar({ emit, pagination, translate });
+const { calendarOptions, refetchHappenings } = useCalendar({
+    emit,
+    pagination,
+    translate,
+    calendarOptions: customCalendarOptions,
+});
 
 const { isAuthenticated } = storeToRefs(authStore);
-const refCalendar = ref(null);
 
 // ------------------------------------------------
 // Computed
@@ -186,6 +241,9 @@ onMounted(() => {
     slotAxis.innerHTML = '<i class="ri-time-line"></i>';
 
     window.addEventListener("resize", handleScreenResize);
+
+    calendarApi = unref(refCalendar)?.getApi();
+    changeCustomButtons();
 });
 
 onUnmounted(() => {

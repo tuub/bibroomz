@@ -20,27 +20,33 @@ class ResourceController extends Controller
             fn ($query) => $query->where('slug', $request->institution_slug),
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
+        $date = CarbonImmutable::parse($request->date)->startOfDay();
+
         $resources = Resource::active()
             ->where('resource_group_id', $resource_group->id)
             ->orderBy('title')
             ->paginate($request->count)
-            ->withPath('/' . $request->path() . '?count=' . $request->count);
+            ->withPath('/' . $request->path() . '?count=' . $request->count . '&date=' . $date->format('Y-m-d'));
 
         foreach ($resources as $resource) {
-            $business_hours = [];
-            foreach ($resource->business_hours as $business_hour) {
-                $days_of_week = $business_hour->week_days()->get()->pluck('day_of_week')->toArray();
-                $business_hours[] = [
+            $business_hours = $resource->getBusinessHoursForDate($date)->map(
+                fn ($business_hour) => [
                     'startTime' => $business_hour->start,
                     'endTime' => $business_hour->end,
-                    'daysOfWeek' => $days_of_week,
-                ];
+                    'daysOfWeek' => $business_hour->week_days()->get()->pluck('day_of_week'),
+                ]
+            );
+
+            if ($business_hours->isEmpty()) {
+                $business_hours->push([
+                    'daysOfWeek' => [],
+                ]);
             }
 
             $output['resources'][] = [
                 'id' => $resource->id,
                 'title' => $resource->title,
-                'businessHours' => $business_hours,
+                'businessHours' => $business_hours->values(),
                 'isVerificationRequired' => $resource->is_verification_required,
                 'capacity' => $resource->capacity,
                 'location_uri' => $resource->location_uri,

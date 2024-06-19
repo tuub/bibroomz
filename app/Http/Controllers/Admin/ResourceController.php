@@ -84,6 +84,8 @@ class ResourceController extends Controller
                     'id' => $business_hour->id,
                     'start' => Carbon::parse($business_hour->start)->format('H:i'),
                     'end' => Carbon::parse($business_hour->end)->format('H:i'),
+                    'start_date' => $business_hour->start_date?->format('d.m.Y'),
+                    'end_date' => $business_hour->end_date?->format('d.m.Y'),
                     'week_days' => $business_hour->week_days->map->id,
                 ]),
             ],
@@ -123,10 +125,17 @@ class ResourceController extends Controller
     private function updateOrCreateBusinessHours($business_hours, $resource)
     {
         foreach ($business_hours as $business_hour) {
+            $start_date = isset($business_hour['start_date'])
+                ? Carbon::parse($business_hour['start_date'])->startOfDay() : null;
+            $end_date = isset($business_hour['end_date'])
+                ? Carbon::parse($business_hour['end_date'])->startOfDay() : null;
+
             $result = BusinessHour::updateOrCreate(['id' => $business_hour['id']], [
                 'resource_id' => $resource->id,
                 'start' => Carbon::parse($business_hour['start'])->isMidnight() ? '00:00' : $business_hour['start'],
                 'end' => Carbon::parse($business_hour['end'])->isMidnight() ? '24:00' : $business_hour['end'],
+                'start_date' => $start_date,
+                'end_date' => $end_date,
             ]);
 
             $result?->week_days()->sync($business_hour['week_days']);

@@ -28,6 +28,8 @@ abstract class ResourceRequest extends FormRequest
             'business_hours.*.start' => ['required_with:business_hours'],
             'business_hours.*.end' => ['required_with:business_hours'],
             'business_hours.*.week_days' => ['required_with:business_hours'],
+            'business_hours.*.start_date' => ['nullable', 'date'],
+            'business_hours.*.end_date' => ['nullable', 'date'],
         ];
     }
 }

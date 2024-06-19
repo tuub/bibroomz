@@ -29,11 +29,15 @@ class BusinessHour extends Model
         'resource_id',
         'start',
         'end',
+        'start_date',
+        'end_date',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     protected $cloneable_relations = [
@@ -63,6 +67,28 @@ class BusinessHour extends Model
     public function isOpenOnDayOfWeek($dayOfWeek)
     {
         return $this->week_days->pluck('day_of_week')->contains($dayOfWeek);
+    }
+
+    public function isFallback()
+    {
+        return $this->start_date === null && $this->end_date === null;
+    }
+
+    public function isValidForDate(CarbonImmutable $date)
+    {
+        if ($this->start_date && $this->end_date) {
+            return $date->startOfDay()->isBetween($this->start_date, $this->end_date);
+        }
+
+        if ($this->start_date) {
+            return $date->startOfDay() >= $this->start_date;
+        }
+
+        if ($this->end_date) {
+            return $date->startOfDay() <= $this->end_date;
+        }
+
+        return false;
     }
 
     public function isOpen(CarbonImmutable $start, CarbonImmutable $end)

@@ -166,7 +166,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         happening.end = dayjs.utc(eventInfo.event._instance.range.end);
         happening.isVerificationRequired = eventInfo.event.extendedProps.isVerificationRequired;
         happening.can = eventInfo.event.extendedProps.can;
-        happening.label= eventInfo.event.extendedProps.label;
+        happening.label = eventInfo.event.extendedProps.label;
 
         if (!isBgEvent) {
             if (happening.can?.verify) {
@@ -235,7 +235,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         headerToolbar: {
             left: "title",
             center: "",
-            right: "prev,next",
+            right: "",
         },
         titleFormat: {
             month: "2-digit",

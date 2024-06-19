@@ -362,6 +362,16 @@ return [
                             'placeholder' => 'Die Endzeit',
                             'hint' => 'Über die Endzeit',
                         ],
+                        'start_date' => [
+                            'label' => 'Startdatum',
+                            'placeholder' => 'Das Startdatum',
+                            'hint' => 'Über das Startdatum',
+                        ],
+                        'end_date' => [
+                            'label' => 'Enddatum',
+                            'placeholder' => 'Das Enddatum',
+                            'hint' => 'Über das Enddatum',
+                        ],
                     ]
                 ],
             ],

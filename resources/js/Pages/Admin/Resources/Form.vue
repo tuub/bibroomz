@@ -118,9 +118,8 @@
                 :is-only="form.business_hours.length === 1"
                 :days-of-week="weekDays"
                 :errors="getBusinessHourErrors(index)"
-                @update-time-slot="updateTimeSlot"
-                @update-week-days="updateWeekDays"
                 @remove-business-hour-field="removeBusinessHourField"
+                @update-business-hour-field="updateBusinessHourField"
             ></BusinessHourField>
 
             <div class="flex flex-wrap mb-4 mt-4">
@@ -210,15 +209,14 @@ const removeBusinessHourField = () => {
     form.business_hours.splice(-1);
 };
 
-const updateTimeSlot = ({ id, start, end }) => {
+const updateBusinessHourField = ({ id, start, end, startDate, endDate, checkedWeekDays }) => {
     const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === id);
 
     currentTimeSlot.start = start;
     currentTimeSlot.end = end;
-};
 
-const updateWeekDays = ({ id, checkedWeekDays }) => {
-    const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === id);
+    currentTimeSlot.start_date = startDate;
+    currentTimeSlot.end_date = endDate;
 
     currentTimeSlot.week_days = props.weekDays.filter((el) => checkedWeekDays.includes(el.id)).map((el) => el.id);
 };
@@ -231,6 +229,8 @@ const getBusinessHourErrors = (index) => {
     return {
         start: form.errors[`business_hours.${index}.start`],
         end: form.errors[`business_hours.${index}.end`],
+        startDate: form.errors[`business_hours.${index}.start_date`],
+        endDate: form.errors[`business_hours.${index}.end_date`],
         weekDays: form.errors[`business_hours.${index}.week_days`],
     };
 };

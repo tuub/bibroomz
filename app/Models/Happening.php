@@ -284,8 +284,11 @@ class Happening extends Model
         $start = CarbonImmutable::parse($this->start);
         $end = CarbonImmutable::parse($this->end);
 
-        [, $this->start, $this->end] = $this->resource->findOpen($start, $end);
-        [, $this->start, $this->end] = $this->resource->findClosed($start, $end);
+        [, $start, $end] = $this->resource->findOpen($start, $end);
+        [, $start, $end] = $this->resource->findClosed($start, $end);
+
+        $this->start = $start;
+        $this->end = $end;
 
         return $this;
     }

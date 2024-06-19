@@ -149,7 +149,7 @@ class Resource extends Model
     {
         $is_open = false;
 
-        foreach ($this->business_hours as $business_hour) {
+        foreach ($this->getBusinessHoursForDate($start) as $business_hour) {
             [$is_open, $start, $end] = $business_hour->isOpen($start, $end);
 
             if ($is_open) {
@@ -473,7 +473,7 @@ class Resource extends Model
      */
     private function isTimeSlotInBusinessHour(CarbonImmutable $time_slot, bool $is_end = false): bool
     {
-        foreach ($this->business_hours as $business_hour) {
+        foreach ($this->getBusinessHoursForDate($time_slot) as $business_hour) {
             $week_days = $business_hour->week_days->pluck('day_of_week')->toArray();
 
             $business_hour_start = CarbonImmutable::parse($business_hour->start)->setDateFrom($time_slot);
@@ -680,5 +680,16 @@ class Resource extends Model
     public function getHappenings()
     {
         return $this->happenings;
+    }
+
+    public function getBusinessHoursForDate(CarbonImmutable $date)
+    {
+        $validBusinessHours = $this->business_hours->filter->isValidForDate($date);
+
+        if ($validBusinessHours->isNotEmpty()) {
+            return $validBusinessHours;
+        }
+
+        return $this->business_hours->filter->isFallback();
     }
 }

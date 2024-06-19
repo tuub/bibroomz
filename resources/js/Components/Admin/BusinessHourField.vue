@@ -17,7 +17,7 @@
                     name="weekDays"
                     type="checkbox"
                     :value="dayOfWeek.id"
-                    @change="updateWeekDays"
+                    @change="updateBusinessHourField"
                 />
                 {{ $t("admin.general.week_days." + dayOfWeek.key + ".short_label") }}
             </span>
@@ -35,7 +35,7 @@
                 class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.start.placeholder')"
-                @change="updateTimeSlot"
+                @change="updateBusinessHourField"
             />
             <FormValidationError v-if="errors?.start" :message="errors.start"></FormValidationError>
         </div>
@@ -51,9 +51,37 @@
                 class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.end.placeholder')"
-                @change="updateTimeSlot"
+                @change="updateBusinessHourField"
             />
             <FormValidationError v-if="errors?.end" :message="errors.end"></FormValidationError>
+        </div>
+        <div class="grid gap-6 mb-6 md:grid-cols-2 w-full px-3 my-3">
+            <div>
+                <FormLabel field="start_date" field-key="admin.resources.form.fields.business_hours.subfields.start_date"></FormLabel>
+                <input
+                    id="start_date"
+                    v-model="startDate"
+                    type="text"
+                    name="start_date"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    :placeholder="$t('admin.resources.form.fields.business_hours.subfields.start_date.placeholder')"
+                    @change="updateBusinessHourField"
+                />
+                <FormValidationError v-if="errors?.startDate" :message="errors.startDate"></FormValidationError>
+            </div>
+            <div>
+                <FormLabel field="end_date" field-key="admin.resources.form.fields.business_hours.subfields.end_date"></FormLabel>
+                <input
+                    id="end_date"
+                    v-model="endDate"
+                    type="text"
+                    name="end_date"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    :placeholder="$t('admin.resources.form.fields.business_hours.subfields.end_date.placeholder')"
+                    @change="updateBusinessHourField"
+                />
+                <FormValidationError v-if="errors?.endDate" :message="errors.endDate"></FormValidationError>
+            </div>
         </div>
     </div>
 </template>
@@ -84,6 +112,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    startDate: {
+        type: Date,
+        default: null,
+    },
+    endDate: {
+        type: Date,
+        default: null,
+    },
     errors: {
         type: Object,
         default: () => ({}),
@@ -93,13 +129,16 @@ const props = defineProps({
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-const emit = defineEmits(["remove-business-hour-field", "update-week-days", "update-time-slot"]);
+const emit = defineEmits(["remove-business-hour-field", "update-business-hour-field"]);
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const start = ref(props.timeSlot.start);
 const end = ref(props.timeSlot.end);
+
+const startDate = ref(props.timeSlot.start_date);
+const endDate = ref(props.timeSlot.end_date);
 
 const checkedWeekDays = ref(props.timeSlot.week_days ?? []);
 
@@ -112,18 +151,14 @@ const removeBusinessHourField = () => {
     });
 };
 
-const updateWeekDays = () => {
-    emit("update-week-days", {
-        id: props.timeSlot.id,
-        checkedWeekDays: checkedWeekDays.value.sort(),
-    });
-};
-
-const updateTimeSlot = () => {
-    emit("update-time-slot", {
+const updateBusinessHourField = () => {
+    emit("update-business-hour-field", {
         id: props.timeSlot.id,
         start,
         end,
+        startDate,
+        endDate,
+        checkedWeekDays: checkedWeekDays.value.sort(),
     });
 };
 </script>

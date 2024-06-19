@@ -54,16 +54,19 @@
                     </td>
                     <td class="px-6 py-4 align-top">
                         <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
+                            {{ formatBusinessHourDates(business_hour.start_date, business_hour.end_date) }}
                             {{
                                 getBusinessHourTime(business_hour.start) + "-" + getBusinessHourTime(business_hour.end)
                             }}
-                            ({{
+                            {{
+                                "(" +
                                 business_hour.week_days
                                     .map((week_day) =>
                                         trans("admin.general.week_days." + week_day.key + ".short_label"),
                                     )
-                                    .join(", ")
-                            }})
+                                    .join(", ") +
+                                ")"
+                            }}
                         </p>
                     </td>
                     <td class="px-6 py-4 align-top text-center">
@@ -150,19 +153,35 @@ dayjs.extend(customParseFormat);
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const authStore = useAuthStore();
-const appStore = useAppStore();
+const { formatDate, formatTime, translate } = useAppStore();
+const { hasPermission } = useAuthStore();
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const getBusinessHourTime = (datetime) => {
-    return appStore.formatTime(datetime, false, "HH:mm:ss");
+    return formatTime(datetime, false, "HH:mm:ss");
 };
 
-// ------------------------------------------------
-// Variables
-// ------------------------------------------------
-const translate = appStore.translate;
-const { hasPermission } = authStore;
+const formatBusinessHourDates = (startDate, endDate) => {
+    let formatString = "";
+
+    if (startDate) {
+        formatString += formatDate(startDate);
+    }
+
+    if (startDate || endDate) {
+        formatString += "-";
+    }
+
+    if (endDate) {
+        formatString += formatDate(endDate);
+    }
+
+    if (startDate || endDate) {
+        formatString += ":";
+    }
+
+    return formatString;
+};
 </script>
