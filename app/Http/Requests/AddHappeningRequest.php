@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Happening;
 use App\Models\Resource;
+use App\Library\Utility;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddHappeningRequest extends FormRequest
@@ -38,7 +39,7 @@ class AddHappeningRequest extends FormRequest
             'start' => ['required'],
             'end' => ['required'],
             'verifier' => [
-                $is_verification_required ? 'required' : '', 'not_in:' . strtolower($user->name),
+                $is_verification_required ? 'required' : '', 'not_in:' . Utility::normalizeLoginName($user->name),
             ],
             'label' => [''],
         ];
@@ -47,7 +48,7 @@ class AddHappeningRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'verifier' => strtolower($this->verifier),
+            'verifier' => Utility::normalizeLoginName($this->verifier),
         ]);
     }
 }

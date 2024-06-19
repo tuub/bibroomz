@@ -65,4 +65,23 @@ class Utility
     {
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $camel_case));
     }
+
+    public static function normalizeLoginName(?string $login_name): ?string
+    {
+        $method = config('roomz.user.login_name_normalization_method');
+
+        if ($login_name === null) {
+            return null;
+        }
+
+        switch ($method) {
+            case 1:
+                $username = strtolower($login_name);
+                break;
+            default:
+                $username = $login_name;
+        }
+
+        return $username;
+    }
 }

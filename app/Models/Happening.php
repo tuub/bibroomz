@@ -105,7 +105,7 @@ class Happening extends Model
         return $query->where(function (Builder $query) use ($user) {
             return $query->where('user_id_01', $user->id)
                 ->orWhere('user_id_02', $user->id)
-                ->orWhere('verifier', strtolower($user->name));
+                ->orWhere('verifier', Utility::normalizeLoginName($user->name));
         });
     }
 

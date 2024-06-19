@@ -42,6 +42,7 @@ return [
         'is_suspension_enabled' => env('USER_SUSPENSION_ENABLED', true),
         'suspension_days' => (int) env('USER_SUSPENSION_DAYS', 3),
         'cleanup_days' => (int) env('USER_CLEANUP_DAYS', 30),
+        'login_name_normalization_method' => (int) env('LOGIN_NAME_NORMALIZATION_METHOD', 1),
     ],
     'happenings' => [
         'cleanup_days' => (int) env('HAPPENING_CLEANUP_DAYS', 30),

@@ -151,7 +151,7 @@ class HappeningController extends Controller
             'resource_id' => $resource->id,
             'is_verification_required' => $resource->isVerificationRequired(),
             'is_verified' => $is_verified,
-            'verifier' => !$is_verified ? strtolower($request['verifier']) : null,
+            'verifier' => !$is_verified ? Utility::normalizeLoginName($request['verifier']) : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),

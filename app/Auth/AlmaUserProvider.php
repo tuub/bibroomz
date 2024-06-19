@@ -3,6 +3,7 @@
 namespace App\Auth;
 
 use App\Models\User;
+use App\Library\Utility;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -227,20 +228,24 @@ class AlmaUserProvider implements UserProvider
             ->enableDebug(storage_path(config('roomz.auth.api.log_file')))
             ->post();
 
-        if (empty($response)) {
-            Log::info(json_encode($credentials['uid']));
+        if (empty($response) || !str_starts_with($response, '<result')) {
+            Log::info('ALMA: failed call to API for user: ' . json_encode($credentials['uid']));
             Log::info($response);
         } else {
             $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
             $response = XmlToArray::convert($response);
 
             if ($response['result']['code'] == 0) {
+                Log::info('ALMA: Successful login for user: ' . json_encode($credentials['uid']));
+
                 return [
-                    'name' => strtolower($credentials['uid']),
+                    'name' => Utility::normalizeLoginName($credentials['uid']),
                     'email' => $response['result']['email_address'],
                     'password' => Hash::make('Test123!'),
                     'is_admin' => false,
                 ];
+            } else {
+                Log::info('ALMA: Wrong username/password for user: ' . json_encode($credentials['uid']));
             }
         }
 
