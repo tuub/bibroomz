@@ -2,7 +2,7 @@
     <div class="flex flex-wrap -mx-3">
         <div class="w-full mx-3 font-bold text-black">
             {{ $t("admin.resources.form.fields.business_hours.label", { index: (index + 1).toString() }) }}
-            <a v-if="isLast" href="#" class="p5" @click.prevent="removeBusinessHourField">
+            <a v-if="!isOnly" href="#" class="p5" @click.prevent="removeBusinessHourField">
                 <i class="ri-delete-bin-line"></i>
             </a>
         </div>
@@ -76,17 +76,13 @@ const props = defineProps({
         type: Number,
         required: true,
     },
-    isLast: {
-        type: Boolean,
-        required: true,
-    },
-    isNew: {
-        type: Boolean,
-        required: true,
-    },
     daysOfWeek: {
         type: Array,
         required: true,
+    },
+    isOnly: {
+        type: Boolean,
+        default: false,
     },
     errors: {
         type: Object,
