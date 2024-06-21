@@ -49,6 +49,6 @@ class UserController extends Controller
                 'isVerificationRequired' => $happening->resource->is_verification_required,
                 'label' => $happening->getTranslations('label'),
             ];
-        })->toArray();
+        })->values();
     }
 }
