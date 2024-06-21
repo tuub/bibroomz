@@ -177,7 +177,7 @@ import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -214,7 +214,6 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
-let isPasswordVisible = ref(false);
 
 const form = useForm({
     id: props.user.id ?? "",
