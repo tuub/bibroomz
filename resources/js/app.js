@@ -1,8 +1,5 @@
 import MainLayout from "@/Layouts/MainLayout.vue";
 
-// FIXME
-import route from "../../vendor/tightenco/ziggy/src/js";
-
 import "./bootstrap";
 import { Ziggy } from "./ziggy";
 
@@ -15,7 +12,7 @@ import "remixicon/fonts/remixicon.css";
 import { createApp, h } from "vue";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import { ZiggyVue } from "ziggy";
+import { ZiggyVue, route } from "ziggy-js";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);

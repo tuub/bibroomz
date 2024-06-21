@@ -1,6 +1,7 @@
 import vue from "@vitejs/plugin-vue";
 import laravel from "laravel-vite-plugin";
 import i18n from "laravel-vue-i18n/vite";
+import * as path from "path";
 import { URL, fileURLToPath } from "url";
 import { defineConfig } from "vite";
 
@@ -23,7 +24,7 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./resources/js/", import.meta.url)),
-            ziggy: "vendor/tightenco/ziggy/dist/vue.es.js",
+            "ziggy-js": path.resolve("vendor/tightenco/ziggy"),
         },
     },
     server: {
