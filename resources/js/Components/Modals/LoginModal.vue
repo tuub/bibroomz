@@ -15,7 +15,7 @@
 
                 <input
                     id="username"
-                    v-model="username"
+                    v-model="payload.username"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
                     type="text"
                     name="username"
@@ -37,7 +37,7 @@
 
                 <input
                     id="password"
-                    v-model="password"
+                    v-model="payload.password"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
                     type="password"
                     name="password"
@@ -75,26 +75,18 @@ import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
 // ------------------------------------------------
-// Props
+// Models, Props, Emits
 // ------------------------------------------------
-const props = defineProps({
+const payload = defineModel("payload", { type: Object, default: () => ({ username: "", password: "" }) });
+
+defineProps({
     content: {
         type: Object,
         default: () => ({}),
     },
-    payload: {
-        type: Object,
-        default: () => ({
-            username: "",
-            password: "",
-        }),
-    },
 });
 
-// ------------------------------------------------
-// Emits
-// ------------------------------------------------
-const emit = defineEmits(["update:payload", "submit"]);
+defineEmits(["submit"]);
 
 // ------------------------------------------------
 // Stores
@@ -112,24 +104,6 @@ const usernameError = computed(() => {
 
 const passwordError = computed(() => {
     return error.value?.data?.errors?.password;
-});
-
-const username = computed({
-    get() {
-        return props.payload.username;
-    },
-    set(value) {
-        emit("update:payload", { username: value, password });
-    },
-});
-
-const password = computed({
-    get() {
-        return props.payload.password;
-    },
-    set(value) {
-        emit("update:payload", { username, password: value });
-    },
 });
 </script>
 <style>
