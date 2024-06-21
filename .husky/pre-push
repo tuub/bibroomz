@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+from=$(git rev-parse --abbrev-ref '@{push}')
+to=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$from" ] && [ "$to" = main ]; then
+    npx --no -- commitlint --from="$from" --to="$to"
+fi
