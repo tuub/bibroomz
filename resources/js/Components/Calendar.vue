@@ -37,7 +37,6 @@
 </template>
 
 <script setup>
-import "@fullcalendar/core/vdom";
 import FullCalendar from "@fullcalendar/vue3";
 
 import Legend from "@/Components/Legend.vue";
@@ -254,9 +253,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="css">
-@import url("@fullcalendar/daygrid/main.css");
-@import url("@fullcalendar/timegrid/main.css");
-
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {
     overflow: visible;

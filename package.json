@@ -36,12 +36,12 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
-        "@fullcalendar/core": "^5.11.3",
-        "@fullcalendar/daygrid": "^5.11.3",
-        "@fullcalendar/interaction": "^5.11.3",
-        "@fullcalendar/resource-timegrid": "^5.11.3",
-        "@fullcalendar/resource-timeline": "^5.11.3",
-        "@fullcalendar/vue3": "^5.11.2",
+        "@fullcalendar/core": "^6.1.14",
+        "@fullcalendar/daygrid": "^6.1.14",
+        "@fullcalendar/interaction": "^6.1.14",
+        "@fullcalendar/resource-timegrid": "^6.1.14",
+        "@fullcalendar/resource-timeline": "^6.1.14",
+        "@fullcalendar/vue3": "^6.1.14",
         "@headlessui/vue": "^1.7.0",
         "@inertiajs/vue3": "^1.0.2",
         "@tailwindcss/typography": "^0.5.9",
