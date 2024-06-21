@@ -175,8 +175,9 @@ import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
-import { computed, ref } from "vue";
+
 import { useForm } from "@inertiajs/vue3";
+import { computed, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -194,11 +195,11 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    'is_system_user': {
+    is_system_user: {
         type: Boolean,
         default: false,
     },
-    'is_set_password': {
+    is_set_password: {
         type: Boolean,
         default: false,
     },
@@ -253,11 +254,10 @@ const isSetPassword = computed(() => {
 // ------------------------------------------------
 const togglePassword = (event) => {
     const passwordField = document.getElementById(event.target.rel);
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
     } else {
-        passwordField.type = 'password';
+        passwordField.type = "password";
     }
-}
-
+};
 </script>
