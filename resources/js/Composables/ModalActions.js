@@ -26,7 +26,7 @@ function happeningCallback(callback) {
     };
 }
 
-function loginCallback(callback) {
+function callLogin({ loginCallback, happeningModalCallback }) {
     const modal = useModal();
     const authStore = useAuthStore();
 
@@ -38,12 +38,16 @@ function loginCallback(callback) {
         }
 
         authStore.isProcessingLogin = true;
-
         authStore.error = null;
 
         try {
-            await callback({ username, password });
-            modal.close();
+            await loginCallback({ username, password });
+
+            if (!happeningModalCallback) {
+                modal.close();
+            } else {
+                happeningModalCallback();
+            }
         } catch (error) {
             authStore.error = error.response;
         }
@@ -185,9 +189,8 @@ export function useResourceInfoModal(resource) {
     };
 }
 
-export function useLoginModal() {
+export function useLoginModal(happeningModalCallback) {
     const authStore = useAuthStore();
-
     return {
         view: LoginModal,
         content: {
@@ -201,8 +204,9 @@ export function useLoginModal() {
         actions: [
             {
                 label: trans("login.form.submit.label"),
-                callback: loginCallback(({ username, password }) => {
-                    return authStore.login(username, password);
+                callback: callLogin({
+                    loginCallback: ({ username, password }) => authStore.login(username, password),
+                    happeningModalCallback,
                 }),
             },
         ],

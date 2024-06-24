@@ -9,6 +9,7 @@ import {
     useHappeningEditModal,
     useHappeningInfoModal,
     useHappeningVerifyModal,
+    useLoginModal,
     useResourceInfoModal,
 } from "./ModalActions";
 
@@ -20,7 +21,6 @@ import utc from "dayjs/plugin/utc";
 import { trans } from "laravel-vue-i18n";
 import { storeToRefs } from "pinia";
 import { reactive, unref } from "vue";
-import { useToast } from "vue-toastification";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -121,9 +121,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function onSelect(eventInfo) {
-        if (!isAuthenticated.value) {
-            useToast().error(trans("toast.no_auth"));
-        } else {
+        const happeningModalCallback = () => {
             const happening = reactive({
                 isSelected: true,
                 resource: {
@@ -141,6 +139,12 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
             });
 
             emit("open-modal-component", useHappeningCreateModal(happening));
+        };
+
+        if (!isAuthenticated.value) {
+            emit("open-modal-component", useLoginModal(happeningModalCallback));
+        } else {
+            happeningModalCallback();
         }
     }
 
