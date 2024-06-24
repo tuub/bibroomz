@@ -18,9 +18,9 @@
 {{ $content->outro }}
 
 @if ($content->action_uri)
-    <x-mail::button :url="$action_uri">
-        {{ $content->action_uri_label }}
-    </x-mail::button>
+<x-mail::button :url="$action_uri">
+{{ $content->action_uri_label }}
+</x-mail::button>
 @endif
 
 {{ $content->farewell }}

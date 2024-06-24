@@ -73,6 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])
             ->name('admin.dashboard');
 
+        /* Dashboard */
+        Route::get('/admin/vuestic-dashboard', [AdminController::class, 'getVuesticDashboard'])
+            ->name('admin.vuestic-dashboard');
+
         /* Happenings */
         Route::get('/admin/happenings', [AdminHappeningController::class, 'getHappenings'])
             ->name('admin.happening.index');
