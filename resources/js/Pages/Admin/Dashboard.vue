@@ -51,13 +51,6 @@
             :link="route('admin.permission_group.index')"
             icon="ri-shield-keyhole-fill"
         ></DashboardCard>
-        <DashboardCard
-            v-if="hasPermission('view_statistics')"
-            :title="$t('admin.stats.title')"
-            :description="$t('admin.stats.description')"
-            :link="route('admin.statistic.index')"
-            icon="ri-bar-chart-fill"
-        ></DashboardCard>
     </div>
 </template>
 

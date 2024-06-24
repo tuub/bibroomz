@@ -66,11 +66,6 @@
                     {{ $t("navigation.admin.permission_groups") }}
                 </li>
             </NavLink>
-            <NavLink v-if="hasPermission('view_statistics')" icon="ri-bar-chart-fill" :href="route('admin.statistic.index')" :is-active="isPageStats">
-                <li>
-                        {{ $t("navigation.admin.stats") }}
-                </li>
-            </NavLink>
             <NavLink icon="ri-shut-down-line" :href="getExitUri">
                 <li>
                     {{ $t("navigation.admin.exit") }}
@@ -153,10 +148,6 @@ const isPagePermissions = computed(() => {
 
 const isPagePermissionGroups = computed(() => {
     return inertiaPage.component.startsWith("Admin/PermissionGroups");
-});
-
-const isPageStats = computed(() => {
-    return inertiaPage.component.startsWith("Admin/Stats");
 });
 
 const getExitUri = computed(() => {

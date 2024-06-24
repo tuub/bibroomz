@@ -17,7 +17,6 @@ use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
-use App\Http\Controllers\Admin\StatisticController as AdminStatisticController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -174,10 +173,6 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.mail.update');
         Route::post('/admin/mail/delete', [AdminMailController::class, 'deleteMail'])
             ->name('admin.mail.delete');
-
-        /* Stats */
-        Route::get('/admin/stats', [AdminStatisticController::class, 'getStats'])
-            ->name('admin.statistic.index');
 
         /* Users */
         Route::get('/admin/users', [AdminUserController::class, 'getUsers'])
