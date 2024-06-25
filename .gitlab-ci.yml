@@ -33,4 +33,6 @@ commitlint:
     - apk add --no-cache git
     - npm install --save-dev @commitlint/config-conventional @commitlint/cli
   script:
-    - echo "${CI_COMMIT_MESSAGE}" | npx commitlint
+    - npx commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
+  rules:
+    - if: $CI_MERGE_REQUEST_DIFF_BASE_SHA
