@@ -6,6 +6,7 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
+  - build
   - lint
   - test
 sast:
@@ -13,6 +14,18 @@ sast:
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
+build:
+  stage: build
+  image: docker
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - cp .env.example .env
+  script:
+    - docker compose build
 commitlint:
   stage: lint
   image: node:alpine
