@@ -14,7 +14,9 @@ services:
     volumes:
       - php-fpm-socket:/var/run/php
       - .docker/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
-      - .env:/var/www/.env
+    secrets:
+      - source: .env
+        target: /var/www/.env
     depends_on:
       - mariadb
       - redis
