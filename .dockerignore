@@ -9,7 +9,7 @@
 !lang/
 !package-lock.json
 !package.json
-!postcss.config.js
+!postcss.config.?js
 !public/images/
 !public/index.php
 !public/robots.txt
@@ -23,6 +23,6 @@
 !storage/framework/sessions/.gitignore
 !storage/framework/views/.gitignore
 !storage/logs/.gitignore
-!tailwind.config.js
+!tailwind.config.?js
 !tsconfig.json
-!vite.config.js
+!vite.config.?js
