@@ -30,7 +30,7 @@ return [
 
         'reverb' => [
             'host' => env('REVERB_SERVER_HOST', '0.0.0.0'),
-            'port' => env('REVERB_SERVER_PORT', 8080),
+            'port' => env('REVERB_SERVER_PORT', 6001),
             'hostname' => env('REVERB_HOST'),
             'options' => [
                 'tls' => [],
@@ -63,9 +63,9 @@ return [
 
         'apps' => [
             [
-                'key' => env('REVERB_APP_KEY'),
-                'secret' => env('REVERB_APP_SECRET'),
-                'app_id' => env('REVERB_APP_ID'),
+                'key' => env('REVERB_APP_KEY', 'bibroomz'),
+                'secret' => env('REVERB_APP_SECRET', ''),
+                'app_id' => env('REVERB_APP_ID', 'bibroomz'),
                 'options' => [
                     'host' => env('REVERB_HOST'),
                     'port' => env('REVERB_PORT', 443),

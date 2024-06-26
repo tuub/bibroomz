@@ -10,7 +10,7 @@ export const useAppStore = defineStore({
 
     state: () => {
         return {
-            appName: import.meta.env.VITE_APP_NAME,
+            appName: import.meta.env.VITE_APP_NAME ?? "BibRoomz",
             resourceGroup: null,
             settings: null,
             hiddenDays: null,
