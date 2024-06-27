@@ -1,4 +1,4 @@
-FROM php:8.3-cli as php-build
+FROM php:8.3-cli AS php-build
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
@@ -19,7 +19,7 @@ RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env php artisan z
 
 ###
 
-FROM node:20 as node-build
+FROM node:20 AS node-build
 
 WORKDIR /var/www
 COPY package.json package-lock.json ./
@@ -38,7 +38,7 @@ RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
 
 ###
 
-FROM php:8.3-fpm as php-fpm
+FROM php:8.3-fpm AS php-fpm
 
 RUN apt-get -y update
 RUN apt-get -y install --no-install-recommends libicu-dev
@@ -56,6 +56,6 @@ RUN chown www-data: /var/www/bootstrap/cache \
 
 ###
 
-FROM caddy:2 as caddy
+FROM caddy:2 AS caddy
 
 COPY --from=node-build /var/www/public /var/www/public
