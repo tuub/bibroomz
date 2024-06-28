@@ -20,6 +20,9 @@ window.Echo = new Echo({
         import.meta.env.VITE_PUSHER_PORT ??
         new URL(import.meta.env.VITE_API_URL).port ??
         443,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? import.meta.env.VITE_PUSHER_SCHEME ?? "https") === "https",
+    forceTLS:
+        (import.meta.env.VITE_REVERB_SCHEME ??
+            import.meta.env.VITE_PUSHER_SCHEME ??
+            new URL(import.meta.env.VITE_API_URL).protocol.replace(":", "")) === "https",
     enabledTransports: ["ws", "wss"],
 });
