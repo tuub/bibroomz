@@ -25,6 +25,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 return true;
             }
 
+            if ($this->app->environment('devenv')) {
+                return true;
+            }
+
             return $entry->isReportableException() ||
                    $entry->isFailedRequest() ||
                    $entry->isFailedJob() ||
@@ -41,6 +45,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function hideSensitiveRequestDetails()
     {
         if ($this->app->environment('local')) {
+            return;
+        }
+
+        if ($this->app->environment('devenv')) {
             return;
         }
 

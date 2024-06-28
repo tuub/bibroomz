@@ -1,17 +1,44 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
-  caddyPort = "8000";
-  websocketPort = "6001";
+  caddyUrl = config.env.APP_URL;
 
-  mysqlDatabase = "roomz";
-  mysqlUsername = "roomz";
-  mysqlPassword = "roomz";
+  mysqlDatabase = config.env.DB_DATABASE;
+  mysqlUsername = config.env.DB_USERNAME;
+  mysqlPassword = config.env.DB_PASSWORD;
 
-  redisPassword = "roomz";
+  redisPassword = config.env.REDIS_PASSWORD;
+
+  reverbHost = config.env.REVERB_SERVER_HOST;
+  reverbPort = config.env.REVERB_SERVER_PORT;
 in {
+  env = let mkFallback = lib.mkOverride 1500;
+  in {
+    APP_ENV = lib.mkForce "devenv";
+    APP_HOST = mkFallback "localhost";
+    APP_PORT = mkFallback "8000";
+    APP_SCHEME = mkFallback "http";
+    APP_URL = mkFallback "${config.env.APP_SCHEME}://${config.env.APP_HOST}:${config.env.APP_PORT}";
+    DB_DATABASE = mkFallback "bibroomz";
+    DB_PASSWORD = mkFallback "bibroomz";
+    DB_USERNAME = mkFallback "bibroomz";
+    MAIL_HOST = mkFallback "localhost";
+    MAIL_MAILER = mkFallback "mailpit";
+    REDIS_PASSWORD = mkFallback "";
+    REVERB_HOST = mkFallback "localhost";
+    REVERB_PORT = mkFallback "6001";
+    REVERB_SCHEME = mkFallback "http";
+    REVERB_SERVER_HOST = mkFallback "127.0.0.1";
+    REVERB_SERVER_PORT = mkFallback "6001";
+    VITE_API_URL = mkFallback "${config.env.APP_URL}";
+  };
+
   cachix.enable = false;
-  dotenv.disableHint = true;
+  dotenv = {
+    enable = true;
+    disableHint = true;
+    filename = ".env.devenv";
+  };
 
   languages = {
     javascript = {
@@ -23,14 +50,14 @@ in {
     php = {
       enable = true;
       package = pkgs.php83.buildEnv { extensions = { all, enabled }: enabled ++ [ all.redis ]; };
-      fpm.pools.web = {
-        settings = {
-          "pm" = "dynamic";
-          "pm.max_children" = 75;
-          "pm.min_spare_servers" = 5;
-          "pm.max_spare_servers" = 20;
-          "pm.max_requests" = 500;
-        };
+      fpm.pools.web.settings = {
+        "clear_env" = "no";
+
+        "pm" = "dynamic";
+        "pm.max_children" = 10;
+        "pm.min_spare_servers" = 1;
+        "pm.max_spare_servers" = 5;
+        "pm.start_servers" = 2;
       };
     };
   };
@@ -40,7 +67,7 @@ in {
   processes = {
     build.exec = ''
       php artisan ziggy:generate
-      npm run build
+      npm run build -- --mode devenv
     '';
 
     queue-worker = {
@@ -56,20 +83,8 @@ in {
     installScript.exec = ''
       set -x
 
-      composer install --quiet
-      npm clean-install --no-progress --silent
-
-      if [ ! -e .env ]; then
-        cp .env.example .env
-
-        sed -i 's/^APP_PORT=.*/APP_PORT=${caddyPort}/' .env
-        sed -i 's/^DB_DATABASE=.*/DB_DATABASE=${mysqlDatabase}/' .env
-        sed -i 's/^DB_USERNAME=.*/DB_USERNAME=${mysqlUsername}/' .env
-        sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=${mysqlPassword}/' .env
-        sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${redisPassword}/' .env
-
-        php artisan key:generate
-      fi
+      composer install
+      npm clean-install --silent
     '';
 
     setupScript.exec = ''
@@ -83,16 +98,28 @@ in {
   services = {
     caddy = {
       enable = true;
-      virtualHosts = {
-        ":${caddyPort}" = {
-          extraConfig = ''
-            root * public
-            php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}
-            reverse_proxy /app/* :${websocketPort}
-            file_server
-          '';
-        };
-      };
+      config = lib.mkIf (config.env.APP_SCHEME == "https") ''
+        {
+          auto_https disable_redirects
+          skip_install_trust
+
+          servers {
+            listener_wrappers {
+              http_redirect
+              tls
+            }
+          }
+        }
+      '';
+      virtualHosts."${caddyUrl}".extraConfig = ''
+        root * public
+        php_fastcgi unix/${config.languages.php.fpm.pools.web.socket}
+        file_server
+
+        reverse_proxy /app/* ${reverbHost}:${reverbPort}
+
+        tls internal
+      '';
     };
 
     mailpit.enable = true;
@@ -109,9 +136,7 @@ in {
 
     redis = {
       enable = true;
-      extraConfig = ''
-        requirepass ${redisPassword}
-      '';
+      extraConfig = if redisPassword == "" then "" else "requirepass ${redisPassword}";
     };
   };
 }
