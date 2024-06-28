@@ -1,0 +1,10 @@
+{
+    servers {
+        listener_wrappers {
+            http_redirect
+            tls
+        }
+    }
+}
+
+import Caddyfile.http

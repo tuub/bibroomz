@@ -51,7 +51,8 @@ services:
       - caddy-config:/config
       - caddy-data:/data
       - php-fpm-socket:/var/run/php
-      - .docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - .docker/caddy:/etc/caddy
+      - .docker/caddy/Caddyfile.${APP_SCHEME:-https}:/etc/caddy/Caddyfile
     depends_on:
       - php-fpm
       - queue-worker
