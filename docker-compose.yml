@@ -72,14 +72,22 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
       - .docker/mariadb/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: healthcheck.sh --connect --innodb_initialized
+      interval: 5s
+      start_period: 5s
     # ports:
     #   - 3306:3306
   redis:
     image: redis:7
-    # ports:
-    #   - 6379:6379
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      start_period: 5s
+    # ports:
+    #   - 6379:6379
   mailpit:
     image: axllent/mailpit
     environment:
