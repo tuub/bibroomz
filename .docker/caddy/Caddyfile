@@ -1,6 +1,7 @@
-{$APP_SCHEME:http}://{$APP_HOST:localhost}:{$APP_PORT:8000} {
+{$APP_URL:https://localhost:8000} {
     root * /var/www/public
     php_fastcgi unix//var/run/php/php-fpm.sock
-    reverse_proxy /app/* {$REVERB_HOST:reverb}:{$REVERB_PORT:6001}
     file_server
+
+    reverse_proxy /app/* reverb:6001
 }
