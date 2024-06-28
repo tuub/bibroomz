@@ -83,13 +83,14 @@ services:
     image: axllent/mailpit
     environment:
       MP_DATABASE: /data/mailpit.db
-    ports:
-      # - 1025:1025
-      - 8025:8025
+      MP_WEBROOT: /mailpit
     volumes:
       - mailpit-data:/data
     healthcheck:
       disable: true
+    # ports:
+    #   - 1025:1025
+    #   - 8025:8025
 volumes:
   caddy-config:
   caddy-data:

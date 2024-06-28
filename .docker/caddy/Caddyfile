@@ -4,4 +4,10 @@
     file_server
 
     reverse_proxy /app/* reverb:6001
+
+    redir /mailpit /mailpit/
+    handle_path /mailpit/* {
+        rewrite * /mailpit{path}
+        reverse_proxy mailpit:8025
+    }
 }
