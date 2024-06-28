@@ -10,4 +10,6 @@
         rewrite * /mailpit{path}
         reverse_proxy mailpit:8025
     }
+
+    tls internal
 }
