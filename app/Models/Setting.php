@@ -2,21 +2,19 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Setting extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey;
+    use HasFactory, HasUuids;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'settings';
-    protected string $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
     protected $fillable = ['key', 'value', 'settingable_type', 'settingable_id', 'institution_id'];

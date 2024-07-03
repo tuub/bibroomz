@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
-use App\Traits\HasTranslations;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

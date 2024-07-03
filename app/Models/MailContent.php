@@ -2,22 +2,20 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MailContent extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
+    use HasFactory, HasUuids, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'mail_contents';
-    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = true;
 

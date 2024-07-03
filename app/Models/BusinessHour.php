@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Bkwld\Cloner\Cloneable;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,13 +14,12 @@ class BusinessHour extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable;
+    use HasFactory, HasUuids, Cloneable;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'business_hours';
-    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = true;
 

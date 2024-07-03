@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Library\Utility;
 use App\Traits\HasTranslations;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use Carbon\Exceptions\InvalidFormatException;
@@ -20,16 +18,16 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Bkwld\Cloner\Cloneable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Resource extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, Cloneable, HasTranslations;
+    use HasFactory, HasUuids, Cloneable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'resources';
-    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
 

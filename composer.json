@@ -6,7 +6,6 @@
     "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.2",
-        "binarycabin/laravel-uuid": "^1.0",
         "bkwld/cloner": "^3.11",
         "cybercog/laravel-ban": "^4.8",
         "fakerphp/faker": "^1.23",

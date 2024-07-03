@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
-use App\Library\Traits\UUIDIsPrimaryKey;
 use Carbon\CarbonImmutable;
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -20,14 +19,13 @@ class User extends Authenticatable implements BannableInterface
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasApiTokens, HasFactory, Notifiable, HasUUID, UUIDIsPrimaryKey;
+    use HasApiTokens, HasFactory, hasUuids, Notifiable;
     use Bannable;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'users';
-    protected string $uuidFieldName = 'id';
     public $incrementing = false;
 
     /**

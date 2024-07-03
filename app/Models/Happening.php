@@ -7,12 +7,11 @@ use App\Library\Utility;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
-use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use InvalidArgumentException;
@@ -22,13 +21,12 @@ class Happening extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, SoftDeletes, MassPrunable, HasTranslations;
+    use HasFactory, HasUuids, SoftDeletes, MassPrunable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'happenings';
-    protected $uuidFieldName = 'id';
     public $incrementing = false;
 
     protected $fillable = [

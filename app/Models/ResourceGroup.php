@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use App\Library\Traits\UUIDIsPrimaryKey;
 use App\Traits\HasTranslations;
-use BinaryCabin\LaravelUUID\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,13 +13,12 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ResourceGroup extends Model
 {
-    use HasFactory, HasUUID, UUIDIsPrimaryKey, HasTranslations;
+    use HasFactory, HasUuids, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'resource_groups';
-    protected $uuidFieldName = 'id';
     public $incrementing = false;
     public $timestamps = false;
 
