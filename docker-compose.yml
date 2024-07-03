@@ -30,6 +30,14 @@ services:
       <<: *env
     restart: unless-stopped
     init: true
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /var/www/app
+        - action: sync
+          path: ./database
+          target: /var/www/database
   queue-worker:
     extends: php-fpm
     command: php artisan queue:work
