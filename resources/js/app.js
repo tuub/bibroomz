@@ -4,10 +4,12 @@ import "./bootstrap";
 import { Ziggy } from "./ziggy";
 
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
+import Aura from "@primevue/themes/aura";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import PrimeVue from "primevue/config";
 import "remixicon/fonts/remixicon.css";
 import { createApp, h } from "vue";
 import Toast from "vue-toastification";
@@ -43,6 +45,20 @@ createInertiaApp({
         });
 
         const app = createApp({ render: () => h(App, props) });
+
+        app.use(PrimeVue, {
+            theme: {
+                preset: Aura,
+                options: {
+                    darkModeSelector: "system",
+                    cssLayer: {
+                        name: "primevue",
+                        order: "tailwind-base, primevue, tailwind-utilities",
+                    },
+                    ripple: true,
+                },
+            },
+        });
 
         app.use(pinia)
             .component("Head", Head)

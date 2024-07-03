@@ -3,6 +3,7 @@ module.exports = {
     content: [
         "./index.html",
         "./resources/**/*.{vue,js,ts,jsx,tsx}",
+        "./node_modules/primevue/**/*.{vue,js,ts,jsx,tsx}",
         "./node_modules/flowbite/**/*.js",
     ],
     theme: {
@@ -10,6 +11,7 @@ module.exports = {
     },
     plugins: [
         require("@tailwindcss/typography"),
-        require('flowbite/plugin')
+        require("tailwindcss-primeui"),
+        require("flowbite/plugin")
     ],
 }

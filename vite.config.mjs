@@ -1,7 +1,9 @@
+import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import vue from "@vitejs/plugin-vue";
 import laravel from "laravel-vite-plugin";
 import i18n from "laravel-vue-i18n/vite";
 import * as path from "path";
+import Components from "unplugin-vue-components/vite";
 import { URL, fileURLToPath } from "url";
 import { defineConfig } from "vite";
 
@@ -14,6 +16,9 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
             },
+        }),
+        Components({
+            resolvers: [PrimeVueResolver()],
         }),
         laravel({
             input: ["resources/js/app.js", "resources/sass/main.scss"],
