@@ -21,7 +21,7 @@ class WeekDaySeeder extends Seeder
             3 => 'wednesday',
             4 => 'thursday',
             5 => 'friday',
-            'saturday',
+            6 => 'saturday',
         ];
 
         foreach ($keys as $index => $key) {
