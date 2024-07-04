@@ -15,19 +15,19 @@
     outline: 0 #336699 solid;
 }
 
-html{
+html {
     height: 100%;
 }
 
 body {
     font-family: "Open Sans", sans-serif;
-    background-color: #F8F8F8;
+    background-color: #f8f8f8;
     min-height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-p{
+p {
     overflow: hidden;
 }
 
@@ -41,7 +41,7 @@ p{
 
 /* Today */
 .fc-unthemed td.fc-today {
-    background-color: #FFFFFF !important;
+    background-color: #ffffff !important;
 }
 
 /* Past Days */
@@ -61,14 +61,14 @@ p{
 .fc-bg-event {
     color: black;
     cursor: not-allowed;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     opacity: 1 !important;
     background: repeating-linear-gradient(
         45deg,
-        rgba(245,245,245),
-        rgba(245,245,245) 10px,
-        rgba(235,235,235) 10px,
-        rgba(235,235,235) 20px
+        rgba(245, 245, 245),
+        rgba(245, 245, 245) 10px,
+        rgba(235, 235, 235) 10px,
+        rgba(235, 235, 235) 20px
     ) !important;
 }
 
@@ -83,38 +83,38 @@ p{
 
 a.fc-event {
     &.past-event {
-        background-color: #CCCCCC;
+        background-color: #cccccc;
         opacity: 0.4;
     }
 
     &.reservation {
         background-color: $status-reservation;
-        color: #FFFFFF;
+        color: #ffffff;
     }
 
     &.booking {
         background-color: $status-booking;
-        color: #FFFFFF;
+        color: #ffffff;
     }
 
     &.user-reservation {
         background-color: $status-user-reservation;
-        color: #FFFFFF;
+        color: #ffffff;
     }
 
     &.user-to-verify {
         background-color: $status-user-to-verify;
-        color: #FFFFFF;
+        color: #ffffff;
     }
 
     &.user-booking {
         background-color: $status-user-booking;
-        color: #FFFFFF;
+        color: #ffffff;
     }
 
     &.block {
         background-color: $status-block;
-        color: #FFFFFF;
+        color: #ffffff;
         pointer-events: none;
     }
 }
@@ -128,32 +128,32 @@ div#status-legend {
 
         &.reservation {
             background-color: $status-reservation;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.booking {
             background-color: $status-booking;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.user-reservation {
             background-color: $status-user-reservation;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.user-to-verify {
             background-color: $status-user-to-verify;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.user-booking {
             background-color: $status-user-booking;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.closing {
             background-color: $status-closing;
-            color: #FFFFFF;
+            color: #ffffff;
         }
 
         &.block {
@@ -163,41 +163,35 @@ div#status-legend {
 }
 
 .fc-timegrid-slots tr:nth-child(odd) {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 }
 
 .fc-timegrid-slots tr:nth-child(even) {
-    background-color: #F6F6F6;
+    background-color: #f6f6f6;
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child){
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
     margin: 0;
     padding: 0;
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child){
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
     margin: 0;
     padding: 0;
 }
 
-.fc-next-button .fc-button .fc-button-primary{
+.fc-next-button .fc-button .fc-button-primary {
     width: 30px;
     height: 18px;
     vertical-align: middle;
     font-size: 0.4em;
 }
 
-
-.mt-3px{
+.mt-3px {
     margin-top: -3px;
 }
 
 .content-wrapper {
     margin: 10em 2em 4em 2em;
     position: relative;
-
 }
-
-
-
-

@@ -2,7 +2,7 @@
     <Head>
         <title>{{ appName }}</title>
         <meta type="description" :content="appName" head-key="description" />
-        <link rel="icon" type="image/x-icon" href="/images/1797769.png">
+        <link rel="icon" type="image/x-icon" href="/images/1797769.png" />
     </Head>
     <section id="content" class="content-wrapper">
         <slot />
@@ -28,7 +28,7 @@ import NavLink from "@/Shared/NavLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { usePage } from "@inertiajs/vue3";
-import {computed, onMounted} from "vue";
+import { computed, onMounted } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -48,19 +48,17 @@ const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
 
-window.onscroll = function(ev) {
-    let footer_element = document.getElementById('footer')
+window.onscroll = function (ev) {
+    let footer_element = document.getElementById("footer");
     footer_element.classList.add("hide-footer");
-    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+    if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight) {
         footer_element.classList.add("show-footer");
-    }
-    else {
+    } else {
         footer_element.classList.remove("show-footer");
     }
 };
 </script>
 <style>
-
 .footer {
     position: fixed;
     padding: 20px 0 20px 0;

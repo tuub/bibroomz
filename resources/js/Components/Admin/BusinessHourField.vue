@@ -57,7 +57,10 @@
         </div>
         <div class="grid gap-6 mb-6 md:grid-cols-2 w-full px-3 my-3">
             <div>
-                <FormLabel field="start_date" field-key="admin.resources.form.fields.business_hours.subfields.start_date"></FormLabel>
+                <FormLabel
+                    field="start_date"
+                    field-key="admin.resources.form.fields.business_hours.subfields.start_date"
+                ></FormLabel>
                 <input
                     id="start_date"
                     v-model="startDate"
@@ -70,7 +73,10 @@
                 <FormValidationError v-if="errors?.startDate" :message="errors.startDate"></FormValidationError>
             </div>
             <div>
-                <FormLabel field="end_date" field-key="admin.resources.form.fields.business_hours.subfields.end_date"></FormLabel>
+                <FormLabel
+                    field="end_date"
+                    field-key="admin.resources.form.fields.business_hours.subfields.end_date"
+                ></FormLabel>
                 <input
                     id="end_date"
                     v-model="endDate"

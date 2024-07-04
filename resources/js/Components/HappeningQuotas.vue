@@ -20,8 +20,8 @@ const authStore = useAuthStore();
 const appStore = useAppStore();
 
 const getQuotaSetting = (type) => {
-    let setting = appStore.resourceGroup.settings.find(x => x.key === 'quota_' + type);
-    return Number(setting['value']);
+    let setting = appStore.resourceGroup.settings.find((x) => x.key === "quota_" + type);
+    return Number(setting["value"]);
 };
 
 const quotas = computed(() =>

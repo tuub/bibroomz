@@ -55,12 +55,8 @@ const isOpen = ref(true);
 const toggle = () => {
     isOpen.value = !isOpen.value;
 };
-
-
 </script>
 <style>
-
-
 #status-legend {
     position: fixed;
     top: 144px;
@@ -91,7 +87,7 @@ const toggle = () => {
     width: 40px;
     z-index: 9;
     background: white;
-    color: #C40D1E;
+    color: #c40d1e;
     font-family: Muli, sans-serif, Arial;
     font-size: 1.5rem;
     font-weight: 400;

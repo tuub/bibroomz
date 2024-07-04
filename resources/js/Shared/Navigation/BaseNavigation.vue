@@ -24,7 +24,7 @@ const resourceGroup = appStore.resourceGroup;
 <style>
 nav {
     background-color: white;
-    color: #C40D20;
+    color: #c40d20;
     padding: 30px;
     height: 7em;
     z-index: 9999;
@@ -37,8 +37,8 @@ nav {
     display: none;
 }
 
-.institution-logo-uri{
-    position: absolute ;
+.institution-logo-uri {
+    position: absolute;
 }
 
 @media only screen and (max-width: 1150px) {

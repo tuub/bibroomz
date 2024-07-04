@@ -65,7 +65,7 @@ const editable = props.payload?.editable ?? false;
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-function isPlainObject (obj) {
+function isPlainObject(obj) {
     return typeof obj === "object" && obj !== null && !Array.isArray(obj);
 }
 </script>

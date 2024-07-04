@@ -95,14 +95,14 @@ const toggle = () => {
     width: 280px;
     top: 25px;
     right: 0;
-    background: #FDFDFD;
+    background: #fdfdfd;
     padding: 8px;
     z-index: 25;
 }
 
 .mobile-menu-background-red {
     position: fixed;
-    background-color: #C40D1E;
+    background-color: #c40d1e;
     top: 0px;
     right: 0px;
     width: 20em;

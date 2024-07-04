@@ -124,7 +124,7 @@ const can = authStore.can;
     position: absolute;
 }
 
-.label-past-bocking{
+.label-past-bocking {
     margin-left: 60px;
 }
 

@@ -41,7 +41,12 @@
                     {{ $t("navigation.admin.users") }}
                 </li>
             </NavLink>
-            <NavLink v-if="hasPermission('view_roles')" icon="ri-group-line" :href="route('admin.role.index')" :is-active="isPageRoles">
+            <NavLink
+                v-if="hasPermission('view_roles')"
+                icon="ri-group-line"
+                :href="route('admin.role.index')"
+                :is-active="isPageRoles"
+            >
                 <li>
                     {{ $t("navigation.admin.roles") }}
                 </li>
@@ -62,7 +67,7 @@
                 :href="route('admin.permission_group.index')"
                 :is-active="isPagePermissionGroups"
             >
-                <li >
+                <li>
                     {{ $t("navigation.admin.permission_groups") }}
                 </li>
             </NavLink>
@@ -124,7 +129,8 @@ const isPageInstitutions = computed(() => {
 
 const isPageResourceGroups = computed(() => {
     const isClosingsPage = inertiaPage.props.closable_type && inertiaPage.props.closable_type === "resource";
-    const isSettingsPage = inertiaPage.props.settingable_type && inertiaPage.props.settingable_type === "resource_group";
+    const isSettingsPage =
+        inertiaPage.props.settingable_type && inertiaPage.props.settingable_type === "resource_group";
 
     return (
         inertiaPage.component.startsWith("Admin/ResourceGroups") ||

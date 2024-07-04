@@ -264,11 +264,11 @@ a.fc-event:hover {
 }
 
 .fc-non-business {
-    background-color: #BEBEBE !important;
+    background-color: #bebebe !important;
 }
 
 div.fc-timegrid-slots tr {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 }
 
 .fc .fc-timegrid-axis-frame {
@@ -328,7 +328,7 @@ div.fc-timegrid-slots tr {
     position: absolute;
     top: 3px;
     left: 20px;
-    background-color: #2C3E50;
+    background-color: #2c3e50;
     color: white;
 }
 
@@ -342,7 +342,7 @@ div.fc-timegrid-slots tr {
     position: absolute;
     top: 3px;
     left: 0px;
-    background-color: #2C3E50;
+    background-color: #2c3e50;
     color: white;
 }
 

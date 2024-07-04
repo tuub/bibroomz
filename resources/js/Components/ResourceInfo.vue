@@ -65,6 +65,6 @@ a {
 }
 
 .tu-red {
-    color: #C40D20;
+    color: #c40d20;
 }
 </style>

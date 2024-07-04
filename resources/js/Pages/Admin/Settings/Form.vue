@@ -1,8 +1,13 @@
 <template>
-    <PageHead :title="$t('admin.settings.form.title', {
-        type: $t('admin.settings.types.' + settingable_type),
-        title: 'hoo'
-    })" page-type="admin"/>
+    <PageHead
+        :title="
+            $t('admin.settings.form.title', {
+                type: $t('admin.settings.types.' + settingable_type),
+                title: 'hoo',
+            })
+        "
+        page-type="admin"
+    />
 
     <form class="max-w mx-auto mt-8">
         <!-- Input: Key -->
@@ -42,11 +47,11 @@
     </form>
 </template>
 <script setup>
-import { useAppStore } from "@/Stores/AppStore";
 import FormAction from "@/Components/Admin/FormAction.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
 
