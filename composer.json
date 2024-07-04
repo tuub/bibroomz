@@ -1,9 +1,9 @@
 {
-    "name": "laravel/laravel",
+    "name": "tuub/bibroomz",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
-    "license": "MIT",
+    "description": "BibRoomz",
+    "keywords": ["room", "reservation", "php", "laravel", "libraries", "reservation-system", "vue3"],
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.2",
         "binarycabin/laravel-uuid": "^1.0",
