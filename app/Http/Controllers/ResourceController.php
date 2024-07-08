@@ -17,7 +17,7 @@ class ResourceController extends Controller
 
         $resource_group = ResourceGroup::whereHas(
             'institution',
-            fn ($query) => $query->where('slug', $request->institution_slug),
+            fn($query) => $query->where('slug', $request->institution_slug),
         )->where('slug', $request->resource_group_slug)->firstOrFail();
 
         $date = CarbonImmutable::parse($request->date)->startOfDay();
@@ -30,7 +30,7 @@ class ResourceController extends Controller
 
         foreach ($resources as $resource) {
             $business_hours = $resource->getBusinessHoursForDate($date)->map(
-                fn ($business_hour) => [
+                fn($business_hour) => [
                     'startTime' => $business_hour->start,
                     'endTime' => $business_hour->end,
                     'daysOfWeek' => $business_hour->week_days()->get()->pluck('day_of_week'),
