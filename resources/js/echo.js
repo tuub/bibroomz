@@ -4,6 +4,8 @@ import Pusher from "pusher-js";
 const baseUrl = new URL(import.meta.env.VITE_API_URL);
 const protocol = baseUrl.protocol.replace(":", "");
 
+const authEndpoint = [baseUrl.pathname.replace(/\/$/, ""), "broadcasting/auth"].join("/");
+
 window.Pusher = Pusher;
 
 window.Echo = new Echo({
@@ -14,4 +16,5 @@ window.Echo = new Echo({
     wssPort: import.meta.env.VITE_REVERB_PORT ?? import.meta.env.VITE_PUSHER_PORT ?? baseUrl.port ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? import.meta.env.VITE_PUSHER_SCHEME ?? protocol) === "https",
     enabledTransports: ["ws", "wss"],
+    authEndpoint,
 });

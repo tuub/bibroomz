@@ -26,7 +26,7 @@ class ResourceController extends Controller
             ->where('resource_group_id', $resource_group->id)
             ->orderBy('title')
             ->paginate($request->count)
-            ->withPath('/' . $request->path() . '?count=' . $request->count . '&date=' . $date->format('Y-m-d'));
+            ->withPath($request->url() . '?count=' . $request->count . '&date=' . $date->format('Y-m-d'));
 
         foreach ($resources as $resource) {
             $business_hours = $resource->getBusinessHoursForDate($date)->map(

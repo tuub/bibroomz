@@ -19,5 +19,6 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const imageUrl = "/images/spinner_" + props.size + ".gif";
+const baseUrl = import.meta.env.VITE_API_URL;
+const imageUrl = baseUrl + "/images/spinner_" + props.size + ".gif";
 </script>

@@ -65,10 +65,11 @@ const resourceCount = ref(0);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const baseUrl = import.meta.env.VITE_API_URL;
 const resourceGroup = appStore.resourceGroup;
 
 const initialPage = computed(
-    () => `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
+    () => `${baseUrl}/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
 );
 
 const pagination = reactive({
