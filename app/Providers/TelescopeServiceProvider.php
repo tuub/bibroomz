@@ -29,6 +29,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 return true;
             }
 
+            if ($this->app->environment('demo')) {
+                return true;
+            }
+
             return $entry->isReportableException() ||
                    $entry->isFailedRequest() ||
                    $entry->isFailedJob() ||
