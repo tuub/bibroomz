@@ -28,7 +28,7 @@ import NavLink from "@/Shared/NavLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { usePage } from "@inertiajs/vue3";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -48,7 +48,7 @@ const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
 
-window.onscroll = function (ev) {
+window.onscroll = function () {
     let footer_element = document.getElementById("footer");
     footer_element.classList.add("hide-footer");
     if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight) {
