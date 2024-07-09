@@ -58,21 +58,24 @@ const isSiteCredits = computed(() => {
     return inertiaPage.component === "SiteCredits";
 });
 
-window.onscroll = function () {
-    let footer_element = document.getElementById("footer");
-    footer_element.classList.add("hide-footer");
-    if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight) {
-        footer_element.classList.add("show-footer");
-    } else {
-        footer_element.classList.remove("show-footer");
-    }
-};
-
 // ------------------------------------------------
 // Hooks
 // ------------------------------------------------
 onMounted(() => {
     toastStore.initToast();
+});
+
+/* Show footer when user scrolls to bottom of page. */
+window.addEventListener("scroll", function () {
+    const footerElement = document.getElementById("footer");
+
+    if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight) {
+        footerElement.classList.remove("hide-footer");
+        footerElement.classList.add("show-footer");
+    } else {
+        footerElement.classList.remove("show-footer");
+        footerElement.classList.add("hide-footer");
+    }
 });
 </script>
 
