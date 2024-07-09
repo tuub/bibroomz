@@ -6,6 +6,12 @@
     </Head>
     <section id="content" class="content-wrapper">
         <slot />
+
+        <Toast
+            position="bottom-right"
+            @close="toastStore.removeQuotaToastMessage"
+            @life-end="toastStore.removeQuotaToastMessage"
+        />
     </section>
     <footer id="footer" class="footer">
         <ul>
@@ -26,14 +32,17 @@
 <script setup>
 import NavLink from "@/Shared/NavLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import { useToastStore } from "@/Stores/ToastStore";
 
 import { usePage } from "@inertiajs/vue3";
-import { computed } from "vue";
+import Toast from "primevue/toast";
+import { computed, onMounted } from "vue";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const appStore = useAppStore();
+const toastStore = useToastStore();
 
 // ------------------------------------------------
 // Variables
@@ -58,7 +67,15 @@ window.onscroll = function () {
         footer_element.classList.remove("show-footer");
     }
 };
+
+// ------------------------------------------------
+// Hooks
+// ------------------------------------------------
+onMounted(() => {
+    toastStore.initToast();
+});
 </script>
+
 <style>
 .footer {
     position: fixed;

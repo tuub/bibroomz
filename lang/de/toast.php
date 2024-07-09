@@ -12,11 +12,11 @@ return [
     ],
     'happening' => [
         'event' => [
-            'created' => 'Buchung erstellt:',
-            'updated' => 'Buchung aktualisiert:',
-            'verified' => 'Buchung bestätigt:',
-            'deleted' => 'Buchung gelöscht:',
-            'scheduler' => 'Unbestätigte Buchung nach 1 Stunde gelöscht:',
+            'created' => 'Buchung erstellt',
+            'updated' => 'Buchung aktualisiert',
+            'verified' => 'Buchung bestätigt',
+            'deleted' => 'Buchung gelöscht',
+            'scheduler' => 'Unbestätigte Buchung gelöscht',
         ],
         'info' => [
             'date' => 'Datum',

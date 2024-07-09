@@ -59,7 +59,6 @@
         "primevue": "^4.0.0-rc.2",
         "remixicon": "^3.5.0",
         "tailwindcss-primeui": "^0.3.2",
-        "vue": "^3.4.29",
-        "vue-toastification": "^2.0.0-rc.5"
+        "vue": "^3.4.29"
     }
 }

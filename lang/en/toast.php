@@ -12,11 +12,11 @@ return [
     ],
     'happening' => [
         'event' => [
-            'created' => 'Booking created:',
-            'updated' => 'Booking updated:',
-            'verified' => 'Booking verified:',
-            'deleted' => 'Booking deleted:',
-            'scheduler' => 'Unverified booking deleted after 1 hour:',
+            'created' => 'Booking created',
+            'updated' => 'Booking updated',
+            'verified' => 'Booking verified',
+            'deleted' => 'Booking deleted',
+            'scheduler' => 'Unverified booking deleted',
         ],
         'info' => [
             'date' => 'Date',

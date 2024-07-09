@@ -1,15 +1,12 @@
-import HappeningToast from "@/Components/HappeningToast.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import { useToastStore } from "@/Stores/ToastStore";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import { trans } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
-import { useToast } from "vue-toastification";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
-
-const toast = useToast();
 
 export const useAuthStore = defineStore({
     id: "auth",
@@ -54,6 +51,8 @@ export const useAuthStore = defineStore({
         },
 
         async login(username, password) {
+            const toastStore = useToastStore();
+
             // await this.csrf();
 
             const response = await axios.post(`${baseUrl}/login`, {
@@ -69,10 +68,12 @@ export const useAuthStore = defineStore({
             this.fetchUserHappenings();
             this.subscribe();
 
-            toast.success(trans("toast.login.success"));
+            toastStore.addAuthToast({ summary: trans("toast.login.success") });
         },
 
         async logout() {
+            const toastStore = useToastStore();
+
             try {
                 await axios.post(`${baseUrl}/logout`);
 
@@ -81,9 +82,9 @@ export const useAuthStore = defineStore({
 
                 router.visit("/");
 
-                toast.success(trans("toast.logout.success"));
+                toastStore.addAuthToast({ summary: trans("toast.logout.success") });
             } catch (error) {
-                toast.error(trans("toast.logout.error"));
+                toastStore.addAuthToast({ severity: "error", summary: trans("toast.logout.error") });
             }
         },
 
@@ -145,9 +146,10 @@ export const useAuthStore = defineStore({
             return this.userHappenings.findIndex((x) => x.id === id);
         },
 
-        updateUserHappenings(happening, callback, message) {
+        updateUserHappenings({ happening, callback, summary }) {
             const appStore = useAppStore();
             const resourceGroup = appStore.resourceGroup;
+            const toastStore = useToastStore();
 
             // filter happenings from other institutions
             if (happening.resource.resourceGroupId !== resourceGroup.id) {
@@ -156,10 +158,7 @@ export const useAuthStore = defineStore({
 
             callback(happening);
 
-            toast.success({
-                component: HappeningToast,
-                props: { message, happening },
-            });
+            toastStore.addHappeningToast({ happening, summary });
         },
 
         subscribe() {
@@ -171,39 +170,39 @@ export const useAuthStore = defineStore({
 
             Echo.private(userChannel)
                 .listen("HappeningCreatedEvent", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.addUserHappening,
-                        trans("toast.happening.event.created"),
-                    );
+                    this.updateUserHappenings({
+                        happening: event.happening,
+                        callback: this.addUserHappening,
+                        summary: trans("toast.happening.event.created"),
+                    });
                 })
                 .listen("HappeningUpdatedEvent", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.updateUserHappening,
-                        trans("toast.happening.event.updated"),
-                    );
+                    this.updateUserHappenings({
+                        happening: event.happening,
+                        callback: this.updateUserHappening,
+                        summary: trans("toast.happening.event.updated"),
+                    });
                 })
                 .listen("HappeningDeletedEvent", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.removeUserHappening,
-                        trans("toast.happening.event.deleted"),
-                    );
+                    this.updateUserHappenings({
+                        happening: event.happening,
+                        callback: this.removeUserHappening,
+                        summary: trans("toast.happening.event.deleted"),
+                    });
                 })
                 .listen("HappeningVerifiedEvent", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.updateUserHappening,
-                        trans("toast.happening.event.verified"),
-                    );
+                    this.updateUserHappenings({
+                        happening: event.happening,
+                        callback: this.updateUserHappening,
+                        summary: trans("toast.happening.event.verified"),
+                    });
                 })
                 .listen("UnverifiedHappeningRemovedBySchedulerEvent", (event) => {
-                    this.updateUserHappenings(
-                        event.happening,
-                        this.removeUserHappening,
-                        trans("toast.happening.event.scheduler"),
-                    );
+                    this.updateUserHappenings({
+                        happening: event.happening,
+                        callback: this.removeUserHappening,
+                        summary: trans("toast.happening.event.scheduler"),
+                    });
                 });
         },
 
@@ -267,6 +266,7 @@ export const useAuthStore = defineStore({
         },
 
         isExceedingQuotas(start, end) {
+            const toastStore = useToastStore();
             const settings = useAppStore().settings["resource_group"];
 
             const quota_happening_block_hours = settings.quota_happening_block_hours;
@@ -278,12 +278,9 @@ export const useAuthStore = defineStore({
                 return false;
             }
 
-            const toastOptions = {
-                id: this.$quotaToast,
-            };
-
             if (this.isOverlappingUserHappening(start, end)) {
-                toast.error(trans("toast.concurrent_happening"), toastOptions);
+                const summary = trans("toast.concurrent_happening");
+                toastStore.addQuotaToast({ summary });
                 return true;
             }
 
@@ -291,12 +288,11 @@ export const useAuthStore = defineStore({
 
             const happening_block_hours = selectLength;
             if (quota_happening_block_hours > 0 && happening_block_hours > quota_happening_block_hours) {
-                toast.error(
-                    trans("toast.quota.happening_block_hours", {
-                        limit: quota_happening_block_hours,
-                    }),
-                    toastOptions,
-                );
+                const summary = trans("toast.quota.happening_block_hours", {
+                    limit: quota_happening_block_hours,
+                });
+
+                toastStore.addQuotaToast({ summary });
 
                 return true;
             }
@@ -305,13 +301,12 @@ export const useAuthStore = defineStore({
             if (quota_weekly_happenings > 0 && weekly_happenings > quota_weekly_happenings) {
                 const remaining = quota_weekly_happenings - this.quotas.weekly_happenings;
 
-                toast.error(
-                    trans("toast.quota.weekly_happenings", {
-                        remaining,
-                        limit: quota_weekly_happenings,
-                    }),
-                    toastOptions,
-                );
+                const summary = trans("toast.quota.weekly_happenings", {
+                    remaining,
+                    limit: quota_weekly_happenings,
+                });
+
+                toastStore.addQuotaToast({ summary });
 
                 return true;
             }
@@ -320,13 +315,12 @@ export const useAuthStore = defineStore({
             if (quota_weekly_hours > 0 && weekly_hours > quota_weekly_hours) {
                 const remaining = quota_weekly_hours - this.quotas.weekly_hours;
 
-                toast.error(
-                    trans("toast.quota.weekly_hours", {
-                        remaining,
-                        limit: quota_weekly_hours,
-                    }),
-                    toastOptions,
-                );
+                const summary = trans("toast.quota.weekly_hours", {
+                    remaining,
+                    limit: quota_weekly_hours,
+                });
+
+                toastStore.addQuotaToast({ summary });
 
                 return true;
             }
@@ -335,13 +329,12 @@ export const useAuthStore = defineStore({
             if (quota_daily_hours > 0 && daily_hours > quota_daily_hours) {
                 const remaining = quota_daily_hours - this.quotas.daily_hours;
 
-                toast.error(
-                    trans("toast.quota.daily_hours", {
-                        remaining,
-                        limit: quota_daily_hours,
-                    }),
-                    toastOptions,
-                );
+                const summary = trans("toast.quota.daily_hours", {
+                    remaining,
+                    limit: quota_daily_hours,
+                });
+
+                toastStore.addQuotaToast({ summary });
 
                 return true;
             }
