@@ -111,14 +111,6 @@ class ClosingController extends Controller
         $validated = $request->validated();
         $sanitized = self::sanitizeClosingData($validated);
 
-        // get previously affected users/happenings
-        // $users = $closing->getUsersAffected();
-        // foreach ($users as $user) {
-        //    $happenings = $closing->getUserHappeningsAffected($user);
-
-        //    $previously[$user->id] = $happenings;
-        //}
-
         if ($closing->update($sanitized)) {
             // send mails to affected users
             $users = $closing->getUsersAffected();
