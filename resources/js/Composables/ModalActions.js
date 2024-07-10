@@ -1,5 +1,6 @@
 import HappeningModal from "@/Components/Modals/HappeningModal.vue";
 import LoginModal from "@/Components/Modals/LoginModal.vue";
+import ResourceGroupInfoModal from "@/Components/Modals/ResourceGroupInfoModal.vue";
 import ResourceInfoModal from "@/Components/Modals/ResourceInfoModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
@@ -161,6 +162,29 @@ export function useHappeningInfoModal(happening) {
         description: trans("modal.info.description"),
         editable: false,
     });
+}
+
+export function useResourceGroupInfoModal(resourceGroup) {
+    const modal = useModal();
+    const appStore = useAppStore();
+    const translate = appStore.translate;
+
+    return {
+        view: ResourceGroupInfoModal,
+        content: {
+            title: translate(resourceGroup.title),
+            description: translate(resourceGroup.description),
+        },
+        payload: { resourceGroup },
+        actions: [
+            {
+                label: trans("modal.resource_group_info.action.ok"),
+                callback: () => {
+                    modal.close();
+                },
+            },
+        ],
+    };
 }
 
 export function useResourceInfoModal(resource) {

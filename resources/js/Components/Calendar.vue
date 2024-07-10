@@ -1,7 +1,10 @@
 <template>
     <div id="legend-full-calendar-wrapper" class="calendar">
         <Legend class="mb-5"></Legend>
-        <span class="resource-group-name">{{ translate(resourceGroup?.title) }}</span>
+        <h1 class="resource-group-name text-lg font-bold">
+            {{ translate(resourceGroup?.title) }}
+            <a href="#"><i class="ri-information-line" @click="getResourceGroupInfo(resourceGroup)"></i></a>
+        </h1>
         <div
             :class="{
                 'page-change-wrapper': true,
@@ -45,6 +48,7 @@ import FullCalendar from "@fullcalendar/vue3";
 
 import Legend from "@/Components/Legend.vue";
 import { useCalendar } from "@/Composables/Calendar";
+import { useResourceGroupInfoModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
@@ -195,6 +199,16 @@ const nextResources = () => {
 
     const api = unref(refCalendar)?.getApi();
     api?.refetchResources();
+};
+
+const getResourceGroupInfo = (resourceGroup) => {
+    emit(
+        "open-modal-component",
+        useResourceGroupInfoModal({
+            title: resourceGroup.title,
+            description: resourceGroup.description,
+        }),
+    );
 };
 
 const setResourceCountFromScreen = () => {
