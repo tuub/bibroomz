@@ -26,7 +26,7 @@ class ClosingController extends Controller
     public function getClosings(Request $request)
     {
         $closable = Closing::getClosableModel($request->closable_type)
-            ->findByUuid($request->closable_id);
+            ->find($request->closable_id);
 
         $this->authorize('viewAny', [Closing::class, $closable]);
 
@@ -40,7 +40,7 @@ class ClosingController extends Controller
     public function createClosing(Request $request): Response
     {
         $closable = Closing::getClosableModel($request->closable_type)
-            ->findByUuid($request->closable_id);
+            ->find($request->closable_id);
 
         $this->authorize('create', [Closing::class, $closable]);
 
@@ -54,7 +54,7 @@ class ClosingController extends Controller
     public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
         $closable = Closing::getClosableModel($request->closable_type)
-            ->findByUuid($request->closable_id);
+            ->find($request->closable_id);
 
         $this->authorize('create', [Closing::class, $closable]);
 
@@ -82,7 +82,7 @@ class ClosingController extends Controller
 
     public function editClosing(Request $request): Response
     {
-        $closing = Closing::findByUuid($request->id);
+        $closing = Closing::find($request->id);
 
         $this->authorize('edit', $closing);
 
@@ -104,7 +104,7 @@ class ClosingController extends Controller
 
     public function updateClosing(UpdateClosingRequest $request): RedirectResponse
     {
-        $closing = Closing::findByUuid($request->id);
+        $closing = Closing::find($request->id);
 
         $this->authorize('edit', $closing);
 
@@ -139,7 +139,7 @@ class ClosingController extends Controller
 
     public function deleteClosing(Request $request): RedirectResponse
     {
-        $closing = Closing::findByUuid($request->id);
+        $closing = Closing::find($request->id);
 
         $this->authorize('delete', $closing);
 

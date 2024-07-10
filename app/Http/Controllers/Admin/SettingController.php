@@ -21,7 +21,7 @@ class SettingController extends Controller
     public function getSettings(Request $request): Response
     {
         $settingable = Setting::getSettingableModel($request->settingable_type)
-            ->findByUuid($request->settingable_id);
+            ->find($request->settingable_id);
 
         $this->authorize('viewAny', [Setting::class, $settingable]);
 
@@ -34,7 +34,7 @@ class SettingController extends Controller
 
     public function editSetting(Request $request): Response
     {
-        $setting = Setting::findByUuid($request->id);
+        $setting = Setting::find($request->id);
 
         $this->authorize('edit', $setting);
 
@@ -50,7 +50,7 @@ class SettingController extends Controller
 
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse
     {
-        $setting = Setting::findByUuid($request->id);
+        $setting = Setting::find($request->id);
 
         $this->authorize('edit', $setting);
 
