@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-4 space-y-3">
+    <form class="mt-4 space-y-3">
         <div class="grid md:grid-cols-2 md:gap-2">
             <div class="mb-6">
                 <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
@@ -87,7 +87,7 @@
         </div>
 
         <ModalAlert v-if="errorMessage" :error="errorMessage" @close="error = null" />
-    </div>
+    </form>
 </template>
 
 <script setup>

@@ -19,9 +19,7 @@ import { useLoginModal } from "@/Composables/ModalActions";
 import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
 
-import { initFlowbite } from "flowbite";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -49,13 +47,6 @@ const logoutUser = async () => {
         return console.log(error);
     }
 };
-
-// ------------------------------------------------
-// Mount
-// ------------------------------------------------
-onMounted(() => {
-    initFlowbite();
-});
 </script>
 
 <style>

@@ -1,19 +1,18 @@
 <!-- HappeningModal.vue -->
 <template>
-    <div class="text-3xl font-bold inline-flex">
-        {{ content.title }}
-    </div>
-    <div class="italic mt-4 mb-4">
-        {{ content.description }}
-    </div>
+    <div>
+        <div class="italic mb-4">
+            {{ content.description }}
+        </div>
 
-    <HappeningInfo :happening="happening" />
-    <HappeningForm
-        v-if="editable"
-        :happening="happening"
-        @update-happening="$emit('update:payload', $event)"
-        @submit="$emit('submit')"
-    />
+        <HappeningInfo :happening="happening" />
+        <HappeningForm
+            v-if="editable"
+            :happening="happening"
+            @update-happening="$emit('update:payload', $event)"
+            @submit="$emit('submit')"
+        />
+    </div>
 </template>
 
 <script setup>
