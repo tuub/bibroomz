@@ -11,14 +11,8 @@ import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import BadgeDirective from "primevue/badgedirective";
 import PrimeVue from "primevue/config";
-import ConfirmationService from "primevue/confirmationservice";
-import ConfirmDialog from "primevue/confirmdialog";
-import ConfirmPopup from "primevue/confirmpopup";
-import Dialog from "primevue/dialog";
-import DialogService from "primevue/dialogservice";
 import Ripple from "primevue/ripple";
 import StyleClass from "primevue/styleclass";
-import Toast from "primevue/toast";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import "remixicon/fonts/remixicon.css";
@@ -65,16 +59,10 @@ createInertiaApp({
                 },
             })
             .use(ToastService)
-            .use(DialogService)
-            .use(ConfirmationService)
             .directive("tooltip", Tooltip)
             .directive("badge", BadgeDirective)
             .directive("ripple", Ripple)
             .directive("styleclass", StyleClass)
-            .component("Toast", Toast)
-            .component("ConfirmDialog", ConfirmDialog)
-            .component("ConfirmPopup", ConfirmPopup)
-            .component("Dialog", Dialog)
             // Pinia
             .use(pinia)
             // i18n
