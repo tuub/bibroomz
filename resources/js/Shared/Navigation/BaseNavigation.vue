@@ -4,7 +4,7 @@
 
         <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
             <a :href="institution?.home_uri" class="institution-logo-uri" target="_blank">
-                <img :src="institution?.logo_uri" class="float-left h-7" :alt="institution?.title" />
+                <img :src="institution?.logo_uri" class="float-left h-7" :alt="translate(institution?.title)" />
             </a>
             <slot />
         </div>
@@ -18,7 +18,6 @@ import { useAppStore } from "@/Stores/AppStore";
 const appStore = useAppStore();
 const translate = appStore.translate;
 const institution = appStore.institution;
-const resourceGroup = appStore.resourceGroup;
 </script>
 
 <style>
