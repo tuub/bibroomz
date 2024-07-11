@@ -14,7 +14,7 @@ import { Link } from "@inertiajs/vue3";
 defineProps({
     icon: {
         type: String,
-        required: false,
+        default: null,
     },
     isActive: {
         type: Boolean,
