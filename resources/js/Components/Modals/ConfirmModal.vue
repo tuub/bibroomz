@@ -1,7 +1,7 @@
 <template>
     <div class="pt-6 text-center">
         <svg
-            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+            class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

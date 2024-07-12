@@ -24,7 +24,7 @@
 
         <FullCalendar ref="refCalendar" class="full-calendar" :options="calendarOptions">
             <template #eventContent="arg">
-                <div class="text-center truncate-lines" :style="{ '--truncate-lines': countLines(arg.event) }">
+                <div class="truncate-lines text-center" :style="{ '--truncate-lines': countLines(arg.event) }">
                     <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
                         {{ translate(arg.event.extendedProps.description) }}
                     </div>

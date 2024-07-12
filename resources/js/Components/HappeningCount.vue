@@ -1,5 +1,5 @@
 <template>
-    <div class="inline-flex items-center justify-center w-8 h-8 ml-2 font-bold text-red-800 bg-red-200 rounded-full">
+    <div class="ml-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-200 font-bold text-red-800">
         {{ count }}
     </div>
 </template>

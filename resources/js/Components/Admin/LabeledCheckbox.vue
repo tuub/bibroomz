@@ -1,6 +1,6 @@
 <template>
     <div class="flex">
-        <div class="flex items-center h-5">
+        <div class="flex h-5 items-center">
             <input
                 :id="`${name}-checkbox-${value}`"
                 :name="name"
@@ -8,7 +8,7 @@
                 :value="value"
                 :checked="checked"
                 :aria-describedby="`${name}-checkbox-text-${value}`"
-                class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600"
                 @change="$emit('update-checked', { value: $event.target.value, checked: $event.target.checked })"
             />
         </div>

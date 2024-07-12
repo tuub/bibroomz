@@ -4,7 +4,7 @@
 
     <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Start Date & Start Time -->
-        <div class="grid gap-6 mb-6 md:grid-cols-2">
+        <div class="mb-6 grid gap-6 md:grid-cols-2">
             <div>
                 <FormLabel field="start_date" field-key="admin.happenings.form.fields.start_date"></FormLabel>
                 <input
@@ -12,7 +12,7 @@
                     v-model="form.start_date"
                     type="text"
                     name="start_date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.happenings.form.fields.start_date.placeholder')"
                 />
                 <FormValidationError :message="form.errors.start_date"></FormValidationError>
@@ -24,7 +24,7 @@
                     v-model="form.start_time"
                     type="text"
                     name="start_time"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.happenings.form.fields.start_time.placeholder')"
                 />
                 <FormValidationError :message="form.errors.start_time"></FormValidationError>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- Input: End Date & End Time -->
-        <div class="grid gap-6 mb-6 md:grid-cols-2">
+        <div class="mb-6 grid gap-6 md:grid-cols-2">
             <div>
                 <FormLabel field="end_date" field-key="admin.happenings.form.fields.end_date"></FormLabel>
                 <input
@@ -40,7 +40,7 @@
                     v-model="form.end_date"
                     type="text"
                     name="end_date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.happenings.form.fields.end_date.placeholder')"
                 />
                 <FormValidationError :message="form.errors.end_date"></FormValidationError>
@@ -52,7 +52,7 @@
                     v-model="form.end_time"
                     type="text"
                     name="end_time"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.happenings.form.fields.end_time.placeholder')"
                 />
                 <FormValidationError :message="form.errors.end_time"></FormValidationError>
@@ -66,7 +66,7 @@
                 id="resource_id"
                 v-model="form.resource_id"
                 name="resource_id"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
             >
                 <option value="-1">Choose</option>
                 <option v-for="resource in resources" :key="resource.id" :value="resource.id">
@@ -83,7 +83,7 @@
                 id="user_id_02"
                 v-model="form.user_id_01"
                 name="user_id_02"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
             >
                 <option value="">Choose</option>
                 <option v-for="user in users" :key="user.id" :value="user.id">
@@ -108,7 +108,7 @@
                     id="user_id_02"
                     v-model="form.user_id_02"
                     name="user_id_02"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     @change="updateVerifier($event)"
                 >
                     <option value="">Choose</option>
@@ -126,7 +126,7 @@
                     v-model="form.verifier"
                     type="text"
                     name="verifier"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.happenings.form.fields.verifier.placeholder')"
                     @change="updateUser2($event)"
                 />
@@ -151,12 +151,12 @@
 
         <!-- Checkbox: Is verified -->
         <div class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_verified" type="checkbox" class="sr-only peer" />
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input v-model="form.is_verified" type="checkbox" class="peer sr-only" />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.happenings.form.fields.is_verified.label") }}
                 </span>
             </label>

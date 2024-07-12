@@ -1,7 +1,8 @@
 {
     "plugins": [
         "@trivago/prettier-plugin-sort-imports",
-        "prettier-plugin-css-order"
+        "prettier-plugin-css-order",
+        "prettier-plugin-tailwindcss"
     ],
     "importOrder": [
         "^@fullcalendar/(.*)$",

@@ -1,19 +1,19 @@
 <template>
-    <div class="flex items-center space-x-4 p-1" :class="[isPresent ? 'border border-pink-300 rounded-xl' : '']">
-        <div class="flex-1 min-w-0" :class="[isPast ? 'text-gray-400' : 'text-gray-900']">
+    <div class="flex items-center space-x-4 p-1" :class="[isPresent ? 'rounded-xl border border-pink-300' : '']">
+        <div class="min-w-0 flex-1" :class="[isPast ? 'text-gray-400' : 'text-gray-900']">
             <span
                 v-if="isPast"
-                class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-gray-200 last:mr-0 mr-1"
+                class="mr-1 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-normal uppercase text-black last:mr-0"
             >
                 {{ $t("user_happening.past_happening") }}
             </span>
             <span
                 v-else-if="isPresent"
-                class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-pink-300 last:mr-0 mr-1"
+                class="mr-1 inline-block rounded bg-pink-300 px-2 py-0.5 text-xs font-normal uppercase text-black last:mr-0"
             >
                 {{ $t("user_happening.present_happening") }}
             </span>
-            <p class="font-bold truncate dark:text-white pb-1">
+            <p class="truncate pb-1 font-bold dark:text-white">
                 <i class="ri-calendar-event-line" :title="$t('user_happening.date_time')"></i>
                 {{ happeningDate }}
                 <i class="ri-arrow-right-line"></i>
@@ -23,7 +23,7 @@
                 <i class="ri-price-tag-3-fill"></i>
                 {{ translate(happening.label) }}
             </p>
-            <p class="text-sm font-medium pb-1">
+            <p class="pb-1 text-sm font-medium">
                 <i class="ri-home-line mr-1" :title="translate(happening.resource.resourceGroup)"></i>
                 <template v-if="happening.resource.locationUri">
                     <a class="underline" :href="happening.resource.locationUri" target="_blank">
@@ -36,27 +36,27 @@
                     {{ happening.resource.title }}
                 </template>
             </p>
-            <p class="text-sm font-medium truncate pb-1">
+            <p class="truncate pb-1 text-sm font-medium">
                 <i class="ri-map-pin-fill" :title="$t('user_happening.location')"></i>
                 {{ happening.resource.location }}
             </p>
-            <p class="text-sm font-medium pb-1">
+            <p class="pb-1 text-sm font-medium">
                 <i class="ri-user-fill" :title="$t('user_happening.user_01')"></i>
                 {{ happening.user_01 }}
             </p>
-            <p v-if="happening.isVerificationRequired" class="text-sm font-medium pb-1">
+            <p v-if="happening.isVerificationRequired" class="pb-1 text-sm font-medium">
                 <i class="ri-user-follow-fill" :title="$t('user_happening.user_02')"></i>
                 {{ happening.user_02 }}
                 <span
                     v-if="!isPast && happening.isVerified"
-                    class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-green-300 last:mr-0 mr-1"
+                    class="mr-1 inline-block rounded bg-green-300 px-2 py-0.5 text-xs font-normal uppercase text-black last:mr-0"
                 >
                     <i class="ri-check-line"></i>
                     {{ $t("user_happening.verified") }}
                 </span>
                 <span
                     v-if="!isPast && !happening.isVerified"
-                    class="text-xs font-normal inline-block py-0.5 px-2 uppercase rounded text-black bg-red-300 last:mr-0 mr-1"
+                    class="mr-1 inline-block rounded bg-red-300 px-2 py-0.5 text-xs font-normal uppercase text-black last:mr-0"
                 >
                     <i class="ri-close-line"></i>
                     {{ $t("user_happening.unverified") }}
@@ -68,7 +68,7 @@
                 <a
                     v-if="happening.can.delete"
                     href="#"
-                    class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-red-200 border border-gray-200 rounded-lg hover:bg-red-100 hover:text-red-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2"
+                    class="mb-2 inline-flex items-center rounded-lg border border-gray-200 bg-red-200 px-2 py-1 text-sm font-medium text-gray-900 hover:bg-red-100 hover:text-red-700 focus:z-10 focus:text-blue-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                     @click="deleteUserHappening(happening)"
                 >
                     <i class="ri-delete-bin-line mr-1"></i>
@@ -79,7 +79,7 @@
                 <a
                     v-if="happening.can.verify"
                     href="#"
-                    class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2"
+                    class="mb-2 inline-flex items-center rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:text-blue-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                     @click="verifyUserHappening(happening)"
                 >
                     <i class="ri-check-double-line mr-1"></i>
@@ -90,7 +90,7 @@
                 <a
                     v-if="happening.can.edit"
                     href="#"
-                    class="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mb-2"
+                    class="mb-2 inline-flex items-center rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:text-blue-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                     @click="editUserHappening(happening)"
                 >
                     <i class="ri-edit-line mr-1"></i>

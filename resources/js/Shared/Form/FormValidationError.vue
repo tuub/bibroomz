@@ -1,5 +1,5 @@
 <template>
-    <div class="text-red-500 text-sm mt-1" v-text="message"></div>
+    <div class="mt-1 text-sm text-red-500" v-text="message"></div>
 </template>
 
 <script setup>

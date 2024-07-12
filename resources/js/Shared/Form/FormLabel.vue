@@ -6,7 +6,7 @@
     <div v-else :class="labelClasses">
         {{ $t(fieldKey + ".label") }}
     </div>
-    <div v-if="hint" class="text-xs mb-2">
+    <div v-if="hint" class="mb-2 text-xs">
         {{ $t(fieldKey + ".hint") }}
     </div>
 </template>

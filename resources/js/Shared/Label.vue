@@ -1,7 +1,7 @@
 <template>
     <span
         id="label"
-        class="text-xs font-semibold inline-block py-2 px-3 rounded uppercase last:mr-0 mr-1 mt-1"
+        class="mr-1 mt-1 inline-block rounded px-3 py-2 text-xs font-semibold uppercase last:mr-0"
         :class="[textColorClass, bgColorClass]"
         :style="{ color: textColor, 'background-color': bgColor }"
     >

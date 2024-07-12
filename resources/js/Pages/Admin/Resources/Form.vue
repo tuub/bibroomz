@@ -31,7 +31,7 @@
                 v-model="form.location_uri"
                 type="text"
                 name="location_uri"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.resources.form.fields.location_uri.placeholder')"
             />
             <FormValidationError
@@ -62,7 +62,7 @@
                         v-model="form.capacity"
                         type="range"
                         name="capacity"
-                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
                     />
                 </div>
                 <div class="w-2/12 text-center">
@@ -75,12 +75,12 @@
 
         <!-- Checkbox: Is active -->
         <div class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input id="is_active" v-model="form.is_active" type="checkbox" class="sr-only peer" />
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input id="is_active" v-model="form.is_active" type="checkbox" class="peer sr-only" />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.resources.form.fields.is_active.label") }}
                 </span>
             </label>
@@ -89,17 +89,17 @@
 
         <!-- Checkbox: Is verification required -->
         <div class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
+            <label class="relative inline-flex cursor-pointer items-center">
                 <input
                     id="is_verification_required"
                     v-model="form.is_verification_required"
                     type="checkbox"
-                    class="sr-only peer"
+                    class="peer sr-only"
                 />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.resources.form.fields.is_verification_required.label") }}
                 </span>
             </label>
@@ -122,9 +122,9 @@
                 @update-business-hour-field="updateBusinessHourField"
             ></BusinessHourField>
 
-            <div class="flex flex-wrap mb-4 mt-4">
+            <div class="mb-4 mt-4 flex flex-wrap">
                 <div class="w-full text-center">
-                    <a href="#" class="p-3 bg-green-600 text-white my-13" @click.prevent="addBusinessHourField">
+                    <a href="#" class="my-13 bg-green-600 p-3 text-white" @click.prevent="addBusinessHourField">
                         {{ $t("admin.resources.form.actions.add_business_hours") }}
                     </a>
                 </div>

@@ -34,7 +34,7 @@
                 <div>
                     <input
                         :id="`group-checkbox-${group.id}`"
-                        class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600"
                         type="checkbox"
                         :checked="isGroupChecked(group.id)"
                         :indeterminate="isGroupIndeterminate(group.id)"
@@ -43,7 +43,7 @@
                     <span class="pl-2 text-gray-600">{{ translate(group.name) }}</span>
                 </div>
 
-                <ul class="ml-6 mb-2">
+                <ul class="mb-2 ml-6">
                     <li v-for="permission in permissions.filter((x) => x.group_id === group.id)" :key="permission.id">
                         <LabeledCheckbox
                             :value="permission.id"
@@ -61,7 +61,7 @@
                 <div>
                     <input
                         id="no-group-checkbox"
-                        class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600"
                         type="checkbox"
                         :checked="isGroupChecked()"
                         :indeterminate="isGroupIndeterminate()"
@@ -70,7 +70,7 @@
                     <span class="pl-2 text-gray-600">{{ $t("admin.roles.form.no_group") }}</span>
                 </div>
 
-                <ul class="ml-6 mb-2">
+                <ul class="mb-2 ml-6">
                     <li v-for="permission in permissions.filter((x) => !x.group_id)" :key="permission.id">
                         <LabeledCheckbox
                             :value="permission.id"

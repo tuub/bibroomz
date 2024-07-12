@@ -2,7 +2,7 @@
     <nav class="w-full">
         <Brand />
 
-        <div id="nav-footer-wrapper" class="block w-full h-8 pt-3.5">
+        <div id="nav-footer-wrapper" class="block h-8 w-full pt-3.5">
             <a :href="institution?.home_uri" class="institution-logo-uri" target="_blank">
                 <img :src="institution?.logo_uri" class="float-left h-7" :alt="translate(institution?.title)" />
             </a>

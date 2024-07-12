@@ -1,10 +1,10 @@
 <template>
     <Link :href="link">
         <div
-            class="dashboard-card text-center max-w-sm p-4 m-4 bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700"
+            class="dashboard-card m-4 max-w-sm border border-gray-200 bg-white p-4 text-center shadow dark:border-gray-700 dark:bg-gray-800"
         >
             <i :class="icon" class="text-2xl"></i>
-            <h5 class="mt-2 mb-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white uppercase">
+            <h5 class="mb-2 mt-2 text-xl font-semibold uppercase tracking-tight text-gray-900 dark:text-white">
                 {{ title }}
             </h5>
         </div>

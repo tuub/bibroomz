@@ -2,13 +2,13 @@
     <div class="mb-6">
         <button
             type="button"
-            class="bg-green-400 text-white rounded py-2 px-4 hover:bg-green-700"
+            class="rounded bg-green-400 px-4 py-2 text-white hover:bg-green-700"
             :disabled="form.processing"
             @click="submitForm"
         >
             {{ $t("admin.general.form.submit") }}
         </button>
-        <button type="button" class="bg-gray-400 text-black rounded py-2 px-4 hover:bg-gray-700" @click="cancelForm">
+        <button type="button" class="rounded bg-gray-400 px-4 py-2 text-black hover:bg-gray-700" @click="cancelForm">
             {{ $t("admin.general.form.cancel") }}
         </button>
     </div>

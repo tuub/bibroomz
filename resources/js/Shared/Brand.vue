@@ -1,6 +1,6 @@
 <template>
-    <div class="brand-wrapper block w-full h-8">
-        <a :href="route('start')" class="float-left brand-name">
+    <div class="brand-wrapper block h-8 w-full">
+        <a :href="route('start')" class="brand-name float-left">
             {{ appName }}
         </a>
         <div class="login-lang-wrapper">

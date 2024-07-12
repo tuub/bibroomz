@@ -1,7 +1,7 @@
 <template>
     <Link
         :href="route('admin.' + relation + '.index', params)"
-        class="font-medium text-red-600 dark:text-red-500 hover:underline"
+        class="font-medium text-red-600 hover:underline dark:text-red-500"
     >
         <i v-if="relation === 'setting'" class="ri-settings-5-fill"></i>
         <i v-if="relation === 'closing'" class="ri-calendar-close-fill"></i>

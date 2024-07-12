@@ -1,11 +1,11 @@
 <template>
     <div
-        class="institution-card-wapper text-center p-4 m-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+        class="institution-card-wapper m-4 rounded-lg border border-gray-200 bg-white p-4 text-center shadow dark:border-gray-700 dark:bg-gray-800"
     >
         <a :href="institution.home_uri" target="_blank">
             <img :src="institution.logo_uri" class="institution-logo" alt="institution-logo" />
         </a>
-        <h1 class="mt-2 mb-2 text-medium font-normal tracking-tight text-gray-900 dark:text-white uppercase">
+        <h1 class="text-medium mb-2 mt-2 font-normal uppercase tracking-tight text-gray-900 dark:text-white">
             {{ translate(institution.title) }}
         </h1>
         <img class="teaser-img" :src="institution.teaser_uri" alt="teaser-img" />

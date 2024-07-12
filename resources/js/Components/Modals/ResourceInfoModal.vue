@@ -1,7 +1,7 @@
 <!-- HappeningModal.vue -->
 <template>
     <div>
-        <div class="italic mb-4">
+        <div class="mb-4 italic">
             {{ content.description }}
         </div>
 

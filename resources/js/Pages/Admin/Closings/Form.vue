@@ -6,7 +6,7 @@
 
     <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
         <!-- Input: Start Date & Start Time -->
-        <div class="grid gap-6 mb-6 md:grid-cols-2">
+        <div class="mb-6 grid gap-6 md:grid-cols-2">
             <div>
                 <FormLabel field="start_date" field-key="admin.closings.form.fields.start_date"></FormLabel>
                 <input
@@ -14,7 +14,7 @@
                     v-model="form.start_date"
                     type="text"
                     name="start_date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.closings.form.fields.start_date.placeholder')"
                 />
                 <FormValidationError :message="form.errors.start_date"></FormValidationError>
@@ -26,7 +26,7 @@
                     v-model="form.start_time"
                     type="text"
                     name="start_time"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.closings.form.fields.start_time.placeholder')"
                 />
                 <FormValidationError :message="form.errors.start_time"></FormValidationError>
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Input: End Date & End Time -->
-        <div class="grid gap-6 mb-6 md:grid-cols-2">
+        <div class="mb-6 grid gap-6 md:grid-cols-2">
             <div>
                 <FormLabel field="end_date" field-key="admin.closings.form.fields.end_date"></FormLabel>
                 <input
@@ -42,7 +42,7 @@
                     v-model="form.end_date"
                     type="text"
                     name="end_date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.closings.form.fields.end_date.placeholder')"
                 />
                 <FormValidationError :message="form.errors.end_date"></FormValidationError>
@@ -54,7 +54,7 @@
                     v-model="form.end_time"
                     type="text"
                     name="end_time"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                     :placeholder="$t('admin.closings.form.fields.end_time.placeholder')"
                 />
                 <FormValidationError :message="form.errors.end_time"></FormValidationError>

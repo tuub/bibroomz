@@ -12,7 +12,7 @@
             <span>
                 <input
                     inputmode="numeric"
-                    class="bg-transparent outline-none text-center"
+                    class="bg-transparent text-center outline-none"
                     :style="{ width: inputWidth }"
                     :value="currentPage"
                     :placeholder="currentPage"

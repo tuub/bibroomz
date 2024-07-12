@@ -5,16 +5,16 @@
     <form class="max-w mx-auto mt-8">
         <!-- Checkbox: Is System User? -->
         <div class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_system_user" type="checkbox" class="sr-only peer" disabled />
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input v-model="form.is_system_user" type="checkbox" class="peer sr-only" disabled />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.users.form.fields.is_system_user.label") }}
                 </span>
             </label>
-            <div class="text-xs mb-2">{{ $t("admin.users.form.fields.is_system_user.hint") }}</div>
+            <div class="mb-2 text-xs">{{ $t("admin.users.form.fields.is_system_user.hint") }}</div>
             <FormValidationError :message="form.errors.is_system_user"></FormValidationError>
         </div>
 
@@ -26,7 +26,7 @@
                 v-model="form.name"
                 type="text"
                 name="name"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.users.form.fields.name.placeholder')"
                 :disabled="isDisabled"
             />
@@ -41,7 +41,7 @@
                 v-model="form.email"
                 type="text"
                 name="email"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.users.form.fields.email.placeholder')"
                 :disabled="isDisabled"
             />
@@ -50,16 +50,16 @@
 
         <!-- Checkbox: Set password? -->
         <div v-if="isSystemUser" class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_set_password" type="checkbox" class="sr-only peer" />
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input v-model="form.is_set_password" type="checkbox" class="peer sr-only" />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.users.form.fields.is_set_password.label") }}
                 </span>
             </label>
-            <div class="text-xs mb-2">{{ $t("admin.users.form.fields.is_set_password.hint") }}</div>
+            <div class="mb-2 text-xs">{{ $t("admin.users.form.fields.is_set_password.hint") }}</div>
             <FormValidationError :message="form.errors.is_set_password"></FormValidationError>
         </div>
 
@@ -71,7 +71,7 @@
                 v-model="form.current_password"
                 type="password"
                 name="password"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.users.form.fields.password.placeholder')"
             />
             <a rel="current_password" @click="togglePassword">{{ $t("admin.general.form.toggle_password") }}</a>
@@ -86,7 +86,7 @@
                 v-model="form.password"
                 type="password"
                 name="password"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.users.form.fields.password.placeholder')"
             />
             <a rel="password" @click="togglePassword">{{ $t("admin.general.form.toggle_password") }}</a>
@@ -101,7 +101,7 @@
                 v-model="form.password_confirm"
                 type="password"
                 name="password_confirm"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500"
+                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 :placeholder="$t('admin.users.form.fields.password_confirm.placeholder')"
             />
             <a rel="password_confirm" @click="togglePassword">{{ $t("admin.general.form.toggle_password") }}</a>
@@ -110,16 +110,16 @@
 
         <!-- Checkbox: Is Admin? -->
         <div class="mb-6">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input v-model="form.is_admin" type="checkbox" class="sr-only peer" />
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input v-model="form.is_admin" type="checkbox" class="peer sr-only" />
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
+                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
                 ></div>
-                <span class="ml-3 text-sm font-bold text-gray-900 dark:text-white uppercase">
+                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.users.form.fields.is_admin.label") }}
                 </span>
             </label>
-            <div class="text-xs mb-2">{{ $t("admin.users.form.fields.is_admin.hint") }}</div>
+            <div class="mb-2 text-xs">{{ $t("admin.users.form.fields.is_admin.hint") }}</div>
             <FormValidationError :message="form.errors.is_admin"></FormValidationError>
         </div>
 
@@ -135,14 +135,14 @@
                 <ul class="px-2">
                     <li v-for="(role, roleIndex) in roles" :key="role.id">
                         <div class="flex">
-                            <div class="flex items-center h-5">
+                            <div class="flex h-5 items-center">
                                 <input
                                     :id="`role-checkbox-${institutionIndex}-${roleIndex}`"
                                     v-model="form.roles"
                                     :value="{ role_id: role.id, institution_id: institution.id }"
                                     :aria-describedby="`role-checkbox-text-${institutionIndex}-${roleIndex}`"
                                     type="checkbox"
-                                    class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600"
                                 />
                             </div>
                             <div class="ml-2 text-sm">

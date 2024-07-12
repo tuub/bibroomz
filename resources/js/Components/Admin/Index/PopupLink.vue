@@ -1,5 +1,5 @@
 <template>
-    <button class="font-medium text-red-600 dark:text-red-500 hover:underline" @click="openModal">
+    <button class="font-medium text-red-600 hover:underline dark:text-red-500" @click="openModal">
         <i v-if="action === 'delete'" class="ri-delete-bin-line"></i>
         <i v-if="action === 'clone'" class="ri-file-copy-line"></i>
         <i v-if="action === 'ban'" class="ri-prohibited-line"></i>
