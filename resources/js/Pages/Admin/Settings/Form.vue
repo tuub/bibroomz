@@ -51,7 +51,6 @@ import FormAction from "@/Components/Admin/FormAction.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import PageHead from "@/Shared/PageHead.vue";
-import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
 
@@ -73,16 +72,6 @@ const props = defineProps({
         default: "",
     },
 });
-
-// ------------------------------------------------
-// Stores
-// ------------------------------------------------
-const appStore = useAppStore();
-
-// ------------------------------------------------
-// Variables
-// ------------------------------------------------
-const translate = appStore.translate;
 
 const form = useForm({
     id: props.setting.id ?? "",
