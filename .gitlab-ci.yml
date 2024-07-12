@@ -10,9 +10,7 @@ stages:
   - test
 workflow:
   rules:
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
-      when: never
-    - when: always
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 sast:
   stage: test
 include:
@@ -65,6 +63,3 @@ dusk:
     - cp .env.dusk.compose .env
   script:
     - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
-  rules:
-    - if: $CI_COMMIT_REF_PROTECTED
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED
