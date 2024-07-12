@@ -23,11 +23,35 @@ commitlint:
   image: node:alpine
   before_script:
     - apk add --no-cache git
-    - npm install --save-dev @commitlint/config-conventional @commitlint/cli
+    - npm ci
   script:
-    - npx commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    - npx --no -- commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
   rules:
     - if: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+eslint:
+  stage: lint
+  image: node:alpine
+  before_script:
+    - apk add --no-cache git
+    - npm ci
+  script:
+    - npx --no -- eslint resources/js/**/*.{js,ts,vue}
+prettier:
+  stage: lint
+  image: node:alpine
+  before_script:
+    - apk add --no-cache git
+    - npm ci
+  script:
+    - npx --no -- prettier --list-different resources/js resources/sass
+stylelint:
+  stage: lint
+  image: node:alpine
+  before_script:
+    - apk add --no-cache git
+    - npm ci
+  script:
+    - npx --no -- stylelint resources/{js,sass}/**/*.{css,sass,vue}
 dusk:
   stage: test
   image: docker
