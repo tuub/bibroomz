@@ -82,29 +82,29 @@ const toggle = () => {
 }
 
 .mobile-button {
+    display: block;
     position: absolute;
     top: 77px;
     right: 27px;
-    display: block;
 }
 
 #mobile-menu > ul > a {
-    position: absolute;
     display: flex;
-    height: 40px;
-    width: 280px;
+    position: absolute;
     top: 25px;
     right: 0;
+    z-index: 25;
     background: #fdfdfd;
     padding: 8px;
-    z-index: 25;
+    width: 280px;
+    height: 40px;
 }
 
 .mobile-menu-background-red {
     position: fixed;
-    background-color: #c40d1e;
     top: 0px;
     right: 0px;
+    background-color: #c40d1e;
     width: 20em;
     height: 100%;
 }
@@ -167,9 +167,9 @@ const toggle = () => {
 
 .mobile-menu-background {
     position: fixed;
-    background-color: rgba(0, 0, 0, 50%);
     top: 0px;
     right: 0px;
+    background-color: rgba(0, 0, 0, 50%);
     width: 100%;
     height: 100%;
 }

@@ -60,18 +60,18 @@ const toggle = () => {
 #status-legend {
     position: fixed;
     top: 144px;
+    right: 0px;
     z-index: 9;
     background: rgba(0, 0, 0, 0%);
-    right: 0px;
-    height: 168px;
     width: 195px;
+    height: 168px;
 }
 
 #status-legend > span {
-    float: left;
     display: block;
-    width: 100%;
+    float: left;
     padding: 7px;
+    width: 100%;
 }
 
 .legend-item-toggle-button-wrapper {
@@ -80,24 +80,24 @@ const toggle = () => {
 
 .legend-item-toggle-button {
     position: fixed;
-    right: 0px;
     top: 120px;
+    right: 0px;
     rotate: unset;
-    height: 40px;
-    width: 40px;
     z-index: 9;
-    background: white;
-    color: #c40d1e;
-    font-family: Muli, sans-serif, Arial;
-    font-size: 1.5rem;
-    font-weight: 400;
-    min-width: 2rem;
-    text-align: center;
-    text-decoration: none;
     transition:
         background 0.25s,
         color 0.25s;
     box-shadow: 0 3px 3px rgb(204, 203, 203);
+    background: white;
+    width: 40px;
+    min-width: 2rem;
+    height: 40px;
+    color: #c40d1e;
+    font-weight: 400;
+    font-size: 1.5rem;
+    font-family: Muli, sans-serif, Arial;
+    text-align: center;
+    text-decoration: none;
 }
 
 .v-enter-active,

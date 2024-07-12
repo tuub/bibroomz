@@ -81,15 +81,15 @@ window.addEventListener("scroll", function () {
 
 <style>
 .footer {
+    display: block;
     position: fixed;
-    padding: 20px 0 20px 0;
-    background-color: black;
-    color: white;
-    height: 0.5rem;
-    width: 100%;
     bottom: 0px;
     z-index: 20;
-    display: block;
+    background-color: black;
+    padding: 20px 0 20px 0;
+    width: 100%;
+    height: 0.5rem;
+    color: white;
 }
 
 .hide-footer {
@@ -102,15 +102,15 @@ window.addEventListener("scroll", function () {
 
 .footer > ul > li:nth-child(1) > a {
     position: absolute;
-    right: 140px;
     top: 8px;
+    right: 140px;
     color: white;
 }
 
 .footer > ul > li:nth-child(2) > a {
     position: absolute;
-    right: 30px;
     top: 8px;
+    right: 30px;
     color: white;
 }
 </style>

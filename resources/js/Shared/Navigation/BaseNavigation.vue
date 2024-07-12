@@ -22,18 +22,18 @@ const institution = appStore.institution;
 
 <style>
 nav {
-    background-color: white;
-    color: #c40d20;
-    padding: 30px;
-    height: 7em;
     z-index: 9999;
     box-shadow: 0 3px 3px rgba(204, 203, 203);
+    background-color: white;
+    padding: 30px;
+    height: 7em;
+    color: #c40d20;
     font-size: 17px;
 }
 
 #nav-footer-wrapper > button {
-    float: right;
     display: none;
+    float: right;
 }
 
 .institution-logo-uri {

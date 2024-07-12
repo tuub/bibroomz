@@ -53,8 +53,8 @@ onBeforeMount(() => {
 @media only screen and (max-width: 500px) {
     .language-button-wrapper {
         position: absolute;
-        right: 120px;
         top: 44px;
+        right: 120px;
         font-size: 11px;
     }
 }

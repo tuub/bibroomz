@@ -85,31 +85,31 @@ onBeforeMount(() => {
 
 <style scoped>
 #sidebar {
+    float: right;
     margin-top: 24px;
     margin-bottom: 30px;
     width: 26%;
-    float: right;
 }
 
 #calendar-sidebar-wrapper {
     display: block;
-    width: 100%;
     margin-top: 13.5em;
+    width: 100%;
 }
 
 .calendar-wrapper {
-    position: sticky;
     display: inline-block;
+    position: sticky;
     width: 72%;
 }
 
 @media only screen and (max-width: 1150px) {
     #sidebar {
+        display: contents;
+        float: left;
         margin-top: 30px;
         margin-bottom: 30px;
-        display: contents;
         width: 100%;
-        float: left;
     }
 
     .calendar-wrapper {

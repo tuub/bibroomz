@@ -114,8 +114,8 @@ const can = authStore.can;
 
 .list-enter-from,
 .list-leave-to {
-    opacity: 0;
     transform: translateX(30px);
+    opacity: 0;
 }
 
 /* ensure leaving items are taken out of layout flow so that moving
@@ -129,9 +129,9 @@ const can = authStore.can;
 }
 
 .toggle-button-hide-past-bookings {
-    min-height: 20px;
-    min-width: 50px;
-    position: absolute;
     display: block;
+    position: absolute;
+    min-width: 50px;
+    min-height: 20px;
 }
 </style>

@@ -47,10 +47,10 @@ const translate = appStore.translate;
 </script>
 <style>
 .institution-card-wapper {
-    margin: -5px 25px 30px auto;
-    padding: 40px;
-    box-shadow: 0 3px 3px rgb(204, 203, 203);
     float: left;
+    margin: -5px 25px 30px auto;
+    box-shadow: 0 3px 3px rgb(204, 203, 203);
+    padding: 40px;
 }
 
 .institution-card-wapper > h1 {
@@ -58,9 +58,9 @@ const translate = appStore.translate;
 }
 
 .institution-logo {
+    margin: auto;
     padding: 20px;
     height: 100px;
-    margin: auto;
 }
 
 .teaser-img {
@@ -69,27 +69,27 @@ const translate = appStore.translate;
 }
 
 .institution-resource-groups-button {
-    margin: 0.7em auto;
-    padding: 0.7em;
     rotate: unset;
-    min-height: 50px;
-    max-height: 200px;
-    width: 100%;
-    max-width: 600px;
     z-index: 9;
-    background: #c40d1e;
-    color: #ffffff;
-    font-family: Muli, sans-serif, Arial;
-    font-size: 1.2rem;
-    font-weight: 400;
-    min-width: 2rem;
-    text-align: center;
-    text-decoration: none;
     transition:
         background 0.25s,
         color 0.25s;
+    margin: 0.7em auto;
     box-shadow: 0 1px 1px rgb(204, 203, 203);
+    background: #c40d1e;
+    padding: 0.7em;
+    width: 100%;
+    min-width: 2rem;
+    max-width: 600px;
+    min-height: 50px;
+    max-height: 200px;
     overflow: hidden;
+    color: #ffffff;
+    font-weight: 400;
+    font-size: 1.2rem;
+    font-family: Muli, sans-serif, Arial;
+    text-align: center;
+    text-decoration: none;
 }
 
 @media only screen and (max-width: 1200px) {
@@ -100,9 +100,9 @@ const translate = appStore.translate;
 
 @media only screen and (max-width: 400px) {
     .institution-logo {
+        margin: auto;
         padding: 20px;
         height: 80px;
-        margin: auto;
     }
 
     .institution-resource-groups-button {

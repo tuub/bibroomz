@@ -69,7 +69,8 @@ const baseUrl = import.meta.env.VITE_API_URL;
 const resourceGroup = appStore.resourceGroup;
 
 const initialPage = computed(
-    () => `${baseUrl}/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
+    () =>
+        `${baseUrl}/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
 );
 
 const pagination = reactive({
@@ -278,24 +279,24 @@ div.fc-timegrid-slots tr {
 }
 
 .fc .fc-toolbar-title {
-    font-size: 0.9em;
     margin-right: 0.5em;
+    font-size: 0.9em;
 }
 
 @-moz-document url-prefix() {
     .fc .fc-toolbar-title {
-        font-size: 0.8em;
         margin-right: 0.5em;
+        font-size: 0.8em;
     }
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
     float: left;
-    width: 27%;
-    margin-bottom: 0.5em;
     margin-top: 1em;
     margin-right: 1em;
+    margin-bottom: 0.5em;
     padding-right: 1em;
+    width: 27%;
 }
 
 .fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
@@ -314,15 +315,15 @@ div.fc-timegrid-slots tr {
     position: absolute;
     top: -13px;
     left: 0;
-    font-size: 0.9em;
     font-weight: bold;
+    font-size: 0.9em;
 }
 
 .page-change-wrapper > label {
     position: absolute;
-    width: 200px;
     top: 4px;
     left: 65px;
+    width: 200px;
 }
 
 .page-change-wrapper > button:nth-child(3) {
@@ -334,9 +335,9 @@ div.fc-timegrid-slots tr {
 }
 
 .page-change-wrapper > button > i {
+    vertical-align: -0.16em;
     font-size: 1.4em;
     line-height: 0.9666em;
-    vertical-align: -0.16em;
 }
 
 .page-change-wrapper > button:nth-child(2) {
@@ -349,20 +350,20 @@ div.fc-timegrid-slots tr {
 
 .full-calendar > div:nth-child(1) > div:nth-child(1) {
     position: absolute;
-    left: 65px;
     top: -50px;
+    left: 65px;
 }
 
 .full-calendar > div:nth-child(1) > div:nth-child(3) {
     position: absolute;
-    left: 0;
     top: -53px;
+    left: 0;
 }
 
 .resource-group-name {
     position: absolute;
-    left: 0px;
     top: -93px;
+    left: 0px;
 }
 
 .calendar-if-not-logged-in {
@@ -395,8 +396,8 @@ div.fc-timegrid-slots tr {
 }
 
 .truncate-lines {
-    overflow: hidden;
     display: -webkit-box;
+    overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: var(--truncate-lines, 2);
 }

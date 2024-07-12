@@ -22,15 +22,15 @@ const { appName } = storeToRefs(appStore);
 </script>
 <style>
 .brand-name {
-    font-size: x-large;
     font-weight: 800;
+    font-size: x-large;
 }
 
 .login-lang-wrapper {
-    height: 2em;
     float: right;
     margin-top: 8px;
     width: 240px;
+    height: 2em;
 }
 
 .login-lang-wrapper > div:nth-child(2) {

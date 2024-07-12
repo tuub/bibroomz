@@ -59,7 +59,7 @@ const logoutUser = async () => {
 
 .login-logout-button {
     position: absolute;
-    right: 30px;
     top: 37px;
+    right: 30px;
 }
 </style>
