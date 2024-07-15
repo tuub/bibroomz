@@ -13,11 +13,8 @@
         </div>
         <div class="mt-4">
             <label class="inline-flex cursor-pointer items-center">
-                <input v-model="hidePast" type="checkbox" class="peer sr-only" />
-                <div
-                    class="toggle-button-hide-past-bookings peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="label-past-bocking ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
+                <ToggleSwitch v-model="hidePast" />
+                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
                     $t("user_happening.hide_past_happenings")
                 }}</span>
             </label>
@@ -50,6 +47,7 @@ import UserHappening from "./UserHappening.vue";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import ToggleSwitch from "primevue/toggleswitch";
 import { computed, ref } from "vue";
 
 // ------------------------------------------------
@@ -122,16 +120,5 @@ const can = authStore.can;
    animations can be calculated correctly. */
 .list-leave-active {
     position: absolute;
-}
-
-.label-past-bocking {
-    margin-left: 60px;
-}
-
-.toggle-button-hide-past-bookings {
-    display: block;
-    position: absolute;
-    min-width: 50px;
-    min-height: 20px;
 }
 </style>
