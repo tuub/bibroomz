@@ -1,7 +1,7 @@
 <template>
-    <form class="mt-4 space-y-3">
+    <form class="space-y-3">
         <div class="grid md:grid-cols-2 md:gap-2">
-            <div class="mb-6">
+            <div>
                 <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
                 <Spinner v-if="isLoading" size="small"></Spinner>
                 <select
@@ -25,7 +25,7 @@
                 </select>
             </div>
 
-            <div class="mb-6">
+            <div>
                 <FormLabel field="end" field-key="modal.form.fields.end"></FormLabel>
                 <Spinner v-if="isLoading" size="small"></Spinner>
                 <select
@@ -49,7 +49,8 @@
                 </select>
             </div>
         </div>
-        <div v-if="happening.isVerificationRequired && !can('no_verifier')" class="mb-6">
+
+        <div v-if="happening.isVerificationRequired && !can('no_verifier')">
             <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input
                 id="verifier"
@@ -64,9 +65,9 @@
             />
         </div>
 
-        <div v-if="isLabelEnabled" class="mb-6">
+        <div v-if="isLabelEnabled">
             <div class="flex flex-nowrap space-x-2">
-                <div v-for="locale in appStore.supportedLocales" :key="locale" class="mb-6 flex-auto">
+                <div v-for="locale in appStore.supportedLocales" :key="locale" class="flex-auto">
                     <FormLabel
                         :field="`label-${locale}`"
                         :field-key="`modal.form.fields.label.${locale}`"

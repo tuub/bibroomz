@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="space-y-2">
         <a v-if="isExpandable" @click.prevent="toggleVisibility">
             <div v-if="isVisible">
                 <span class="underline">{{ $t("modal.resource_info.hide") }}</span>
@@ -10,26 +10,33 @@
                 <i class="ri-arrow-down-s-line"></i>
             </div>
         </a>
-        <div v-if="isVisible">
-            <div class="font-bold">{{ $t("modal.resource_info.resource_title") }}</div>
-            <div class="mb-2">
-                <template v-if="resource.location_uri">
+
+        <div v-if="isVisible" class="space-y-2">
+            <div>
+                <span class="font-bold">{{ $t("modal.resource_info.resource_title") }}</span>
+                <div v-if="resource.location_uri">
                     <a class="tu-red hover:underline" :href="resource.location_uri" target="_blank">
                         {{ resource.resourceGroup }}
                         {{ resource.title }}
                         <i class="ri-map-pin-2-line"></i>
                     </a>
-                </template>
-                <template v-else>
+                </div>
+                <div v-else>
                     {{ resource.title }}
-                </template>
+                </div>
             </div>
-            <div class="font-bold">{{ $t("modal.resource_info.resource_location") }}</div>
-            <div class="mb-2">{{ resource.location }}</div>
-            <div class="font-bold">{{ $t("modal.resource_info.resource_capacity") }}</div>
-            <div class="mb-2">{{ resource.capacity }}</div>
-            <div class="font-bold">{{ $t("modal.resource_info.resource_description") }}</div>
-            <div class="mb-2">{{ resource.description }}</div>
+            <div>
+                <span class="font-bold">{{ $t("modal.resource_info.resource_location") }}</span>
+                <div>{{ resource.location }}</div>
+            </div>
+            <div>
+                <span class="font-bold">{{ $t("modal.resource_info.resource_capacity") }}</span>
+                <div>{{ resource.capacity }}</div>
+            </div>
+            <div>
+                <span class="font-bold">{{ $t("modal.resource_info.resource_description") }}</span>
+                <div>{{ resource.description }}</div>
+            </div>
         </div>
     </div>
 </template>

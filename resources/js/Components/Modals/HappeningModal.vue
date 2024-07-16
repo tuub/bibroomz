@@ -1,10 +1,11 @@
 <template>
-    <div>
-        <div class="mb-4 italic">
+    <div class="space-y-4">
+        <div class="italic">
             {{ content.description }}
         </div>
 
         <HappeningInfo :happening="happening" />
+
         <HappeningForm
             v-if="editable"
             :happening="happening"

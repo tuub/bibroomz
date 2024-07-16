@@ -1,8 +1,6 @@
 <template>
-    <div>
-        <div class="mb-4 italic">
-            {{ content.description }}
-        </div>
+    <div class="italic">
+        {{ content.description }}
     </div>
 </template>
 

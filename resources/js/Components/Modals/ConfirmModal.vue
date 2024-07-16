@@ -1,5 +1,5 @@
 <template>
-    <div class="pt-6 text-center">
+    <div class="text-center">
         <svg
             class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
             aria-hidden="true"
@@ -16,7 +16,7 @@
             />
         </svg>
 
-        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+        <h3 class="text-lg font-normal text-gray-500 dark:text-gray-400">
             {{ modal.content?.message }}
         </h3>
     </div>

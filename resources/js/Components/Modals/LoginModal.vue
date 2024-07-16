@@ -1,24 +1,24 @@
 <template>
-    <div>
-        <div class="mb-4 italic">
+    <div class="space-y-4">
+        <div class="italic">
             {{ content.description }}
         </div>
 
-        <form @submit.prevent="$emit('submit')">
-            <div class="mb-6">
-                <label class="mb-2 block text-xs font-bold uppercase text-gray-700" for="username">
-                    {{ $t("login.form.username.label") }}
-                </label>
+        <form class="space-y-6" @submit.prevent="$emit('submit')">
+            <div>
+                <label class="space-y-2" for="username">
+                    <span class="text-xs font-bold uppercase text-gray-700">{{ $t("login.form.username.label") }}</span>
 
-                <input
-                    id="username"
-                    v-model="payload.username"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    type="text"
-                    name="username"
-                    autocomplete="username"
-                    :placeholder="$t('login.form.username.placeholder')"
-                />
+                    <input
+                        id="username"
+                        v-model="payload.username"
+                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                        type="text"
+                        name="username"
+                        autocomplete="username"
+                        :placeholder="$t('login.form.username.placeholder')"
+                    />
+                </label>
 
                 <FormValidationError
                     v-for="(message, index) in usernameError"
@@ -27,20 +27,20 @@
                 ></FormValidationError>
             </div>
 
-            <div class="mb-6">
-                <label class="mb-2 block text-xs font-bold uppercase text-gray-700" for="password">
-                    {{ $t("login.form.password.label") }}
-                </label>
+            <div>
+                <label class="space-y-2" for="password">
+                    <span class="text-xs font-bold uppercase text-gray-700">{{ $t("login.form.password.label") }}</span>
 
-                <input
-                    id="password"
-                    v-model="payload.password"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    type="password"
-                    name="password"
-                    autocomplete="current-password"
-                    :placeholder="$t('login.form.password.placeholder')"
-                />
+                    <input
+                        id="password"
+                        v-model="payload.password"
+                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                        type="password"
+                        name="password"
+                        autocomplete="current-password"
+                        :placeholder="$t('login.form.password.placeholder')"
+                    />
+                </label>
 
                 <FormValidationError
                     v-for="(message, index) in passwordError"
