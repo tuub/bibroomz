@@ -5,7 +5,7 @@
         dismissable-mask
         :header="modal.content?.title"
         modal
-        :style="{ 'max-width': '95%' }"
+        class="w-[46rem] max-w-[95%]"
         @hide="modal.cleanup"
     >
         <!-- Modal content -->
