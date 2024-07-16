@@ -88,4 +88,9 @@ return [
             'ok' => 'OK',
         ],
     ],
+    'resource_group_info' => [
+        'action' => [
+            'ok' => 'OK',
+        ],
+    ],
 ];
