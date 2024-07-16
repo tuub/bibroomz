@@ -1,4 +1,3 @@
-<!-- HappeningModal.vue -->
 <template>
     <div>
         <div class="mb-4 italic">
