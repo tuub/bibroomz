@@ -12,7 +12,7 @@
         <component :is="view" v-model:payload="payload" :content="content" @submit="modal.submit()"></component>
 
         <!-- Action buttons -->
-        <div class="flex items-end space-x-2">
+        <div class="mt-2 flex items-end space-x-2 pt-2">
             <button
                 v-for="action in actions"
                 :key="action.label"
