@@ -13,11 +13,15 @@
             <button
                 :disabled="!pagination.previousPage"
                 :class="{ 'opacity-25': !pagination.previousPage }"
-                @click="previousStuff"
+                @click="previousResources"
             >
                 <i class="ri-arrow-left-s-line ri-xl"></i>
             </button>
-            <button :disabled="!pagination.nextPage" :class="{ 'opacity-25': !pagination.nextPage }" @click="nextStuff">
+            <button
+                :disabled="!pagination.nextPage"
+                :class="{ 'opacity-25': !pagination.nextPage }"
+                @click="nextResources"
+            >
                 <i class="ri-arrow-right-s-line ri-xl"></i>
             </button>
         </div>
@@ -179,14 +183,14 @@ watch(resourceCount, () => {
 // Methods
 // ------------------------------------------------
 
-const previousStuff = () => {
+const previousResources = () => {
     pagination.currentPage = pagination.previousPage;
 
     const api = unref(refCalendar)?.getApi();
     api?.refetchResources();
 };
 
-const nextStuff = () => {
+const nextResources = () => {
     pagination.currentPage = pagination.nextPage;
 
     const api = unref(refCalendar)?.getApi();
