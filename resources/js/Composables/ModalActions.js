@@ -199,7 +199,6 @@ export function useResourceInfoModal(resource) {
                 resource_group: translate(appStore.resourceGroup.term_singular),
                 resource_title: resource.title,
             }),
-            description: trans("modal.resource_info.description"),
         },
         payload: { resource },
         actions: [

@@ -1,11 +1,5 @@
 <template>
-    <div class="space-y-4">
-        <div class="italic">
-            {{ content.description }}
-        </div>
-
-        <ResourceInfo :resource="payload.resource" :is-expandable="false" :is-initially-visible="true" />
-    </div>
+    <ResourceInfo :resource="payload.resource" :is-expandable="false" :is-initially-visible="true" />
 </template>
 
 <script setup>

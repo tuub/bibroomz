@@ -77,7 +77,6 @@ return [
     ],
     'resource_info' => [
         'title' => 'Information',
-        'description' => ' ',
         'resource_title' => 'Bezeichnung',
         'resource_location' => 'Standort',
         'resource_capacity' => 'Kapazität',
