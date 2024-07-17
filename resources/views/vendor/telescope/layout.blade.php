@@ -235,8 +235,11 @@
         $url = parse_url(config('app.url'));
     @endphp
 
-    window.Telescope.basePath = "{{ $url['path'] }}/telescope";
-    window.Telescope.path = "{{ ltrim($url['path'], '/') }}/telescope";
+    @if (isset($url['path']))
+        window.Telescope.basePath = "{{ $url['path'] }}/telescope";
+        window.Telescope.path = "{{ ltrim($url['path'], '/') }}/telescope";
+    @endif
+
 </script>
 
 <script src="{{ asset(mix('app.js', 'vendor/telescope')) }}"></script>
