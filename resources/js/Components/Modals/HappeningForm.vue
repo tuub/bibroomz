@@ -1,6 +1,6 @@
 <template>
     <form class="space-y-3">
-        <div class="grid md:grid-cols-2 md:gap-2">
+        <div class="grid gap-2 sm:grid-cols-2">
             <div>
                 <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
                 <Spinner v-if="isLoading" size="small"></Spinner>
@@ -65,25 +65,23 @@
             />
         </div>
 
-        <div v-if="isLabelEnabled">
-            <div class="flex flex-nowrap space-x-2">
-                <div v-for="locale in appStore.supportedLocales" :key="locale" class="flex-auto">
-                    <FormLabel
-                        :field="`label-${locale}`"
-                        :field-key="`modal.form.fields.label.${locale}`"
-                        :language="locale"
-                    ></FormLabel>
-                    <input
-                        id="`label-${locale}`"
-                        v-model="happening.label[locale]"
-                        type="text"
-                        name="label"
-                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                        :placeholder="$t(`modal.form.fields.label.${locale}.placeholder`)"
-                        @input="$emit('update-happening', happening)"
-                        @keypress.enter.prevent="$emit('submit')"
-                    />
-                </div>
+        <div v-if="isLabelEnabled" class="grid gap-2 sm:grid-cols-2">
+            <div v-for="locale in appStore.supportedLocales" :key="locale" class="row-span-2 grid grid-rows-subgrid">
+                <FormLabel
+                    :field="`label-${locale}`"
+                    :field-key="`modal.form.fields.label.${locale}`"
+                    :language="locale"
+                ></FormLabel>
+                <input
+                    id="`label-${locale}`"
+                    v-model="happening.label[locale]"
+                    type="text"
+                    name="label"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                    :placeholder="$t(`modal.form.fields.label.${locale}.placeholder`)"
+                    @input="$emit('update-happening', happening)"
+                    @keypress.enter.prevent="$emit('submit')"
+                />
             </div>
         </div>
 
