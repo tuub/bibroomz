@@ -16,7 +16,6 @@ class WeekDay extends Model
 
     protected $hidden = ['pivot'];
 
-    // A week day belongs to many time slots
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function business_hours(): BelongsToMany
     {

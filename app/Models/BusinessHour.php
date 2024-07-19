@@ -46,13 +46,11 @@ class BusinessHour extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-    // A business hour belongs to 1 resource
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
     }
 
-    // A business hour belongs to many week days
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function week_days(): BelongsToMany
     {
