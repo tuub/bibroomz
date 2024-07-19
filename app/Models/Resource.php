@@ -571,7 +571,7 @@ class Resource extends Model
     {
         /** @var User $user */
         $user = auth()->user();
-        // FIXME!
+
         if ($user->can('unlimited_quotas', $this->resource_group->institution)) {
             return false;
         }
@@ -592,7 +592,6 @@ class Resource extends Model
         $weekly_hours = $happening_block_hours;
         $daily_hours = $happening_block_hours;
 
-        // FIXME: quotas per resource_group!
         $happenings = $user->getOtherUserHappeningsForResourceGroup($this->resource_group, $happening);
 
         foreach ($happenings as $_happening) {
