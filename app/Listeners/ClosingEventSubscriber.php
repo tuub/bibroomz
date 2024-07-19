@@ -17,7 +17,7 @@ class ClosingEventSubscriber
     {
         $mail_content = $this->getMailContentForEvent($event);
 
-        if (!$mail_content->is_active) {
+        if (!$mail_content?->is_active) {
             return;
         }
 
