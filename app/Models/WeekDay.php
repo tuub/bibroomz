@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class WeekDay extends Model
 {
-    // FIXME: add UUID
     protected $table = 'week_days';
     protected $fillable = [
         'day_of_week',
