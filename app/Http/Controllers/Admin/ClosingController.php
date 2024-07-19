@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\UpdateClosingRequest;
 use App\Library\Utility;
 use App\Events\ClosingCreatedEvent;
+use App\Events\ClosingDeletedEvent;
 use App\Events\ClosingUpdatedEvent;
 use App\Models\Closing;
 use App\Services\AdminLoggingService;
@@ -112,7 +113,6 @@ class ClosingController extends Controller
         $sanitized = self::sanitizeClosingData($validated);
 
         if ($closing->update($sanitized)) {
-            // send mails to affected users
             $users = $closing->getUsersAffected();
 
             foreach ($users as $user) {
@@ -135,7 +135,14 @@ class ClosingController extends Controller
 
         $this->authorize('delete', $closing);
 
-        $closing->delete();
+        if ($closing->delete()) {
+            $users = $closing->getUsersAffected();
+
+            foreach ($users as $user) {
+                $happenings = $closing->getUserHappeningsAffected($user);
+                ClosingDeletedEvent::dispatch($user, $happenings, $closing);
+            }
+        }
 
         $closable_type = explode('\\', $closing->closable_type);
 

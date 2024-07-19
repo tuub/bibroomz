@@ -92,5 +92,13 @@ return [
             'outro' => 'Contact us for further information.',
             'farewell' => 'Best regards',
         ],
+        'closing_deleted' => [
+            'subject' => 'Closing canceled',
+            'title' => 'Closing canceled',
+            'salutation' => 'Hello',
+            'intro' => 'The following closing was canceled:',
+            'outro' => 'Contact us for further information.',
+            'farewell' => 'Best regards',
+        ],
     ]
 ];

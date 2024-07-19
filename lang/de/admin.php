@@ -709,6 +709,7 @@ return [
             'happening_verified' => 'Event bestätigt',
             'closing_created' => 'Schließzeit erstellt',
             'closing_updated' => 'Schließzeit geändert',
+            'closing_deleted' => 'Schließzeit storniert',
         ],
         'index' => [
             'title' => 'E-Mails für Einrichtung ":title"',

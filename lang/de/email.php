@@ -92,5 +92,13 @@ return [
             'outro' => 'Weitere Informationen erfahren Sie bei uns.',
             'farewell' => 'Mit freundlichen Grüßen',
         ],
+        'closing_deleted' => [
+            'subject' => 'Schließzeit storniert',
+            'title' => 'Schließzeit storniert',
+            'salutation' => 'Guten Tag',
+            'intro' => 'Die folgende Schließzeit wurde storniert:',
+            'outro' => 'Weitere Informationen erfahren Sie bei uns.',
+            'farewell' => 'Mit freundlichen Grüßen',
+        ],
     ]
 ];

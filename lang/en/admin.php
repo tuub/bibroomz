@@ -709,6 +709,7 @@ return [
             'happening_verified' => 'Event verified',
             'closing_created' => 'Closing created',
             'closing_updated' => 'Closing updated',
+            'closing_deleted' => 'Closing canceled',
         ],
         'index' => [
             'title' => 'Emails for institution ":title"',

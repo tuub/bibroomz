@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ClosingCreatedEvent;
+use App\Events\ClosingDeletedEvent;
 use App\Events\ClosingEvent;
 use App\Events\ClosingUpdatedEvent;
 use App\Mail\ClosingMail;
@@ -43,6 +44,7 @@ class ClosingEventSubscriber
         return [
             ClosingCreatedEvent::class => 'handleClosingCreatedEvent',
             ClosingUpdatedEvent::class => 'handleClosingUpdatedEvent',
+            ClosingDeletedEvent::class => 'handleClosingDeletedEvent',
         ];
     }
 
@@ -57,6 +59,9 @@ class ClosingEventSubscriber
                 break;
             case $event instanceof ClosingUpdatedEvent:
                 $mail_type = 'closing_updated';
+                break;
+            case $event instanceof ClosingDeletedEvent:
+                $mail_type = 'closing_deleted';
                 break;
         }
 

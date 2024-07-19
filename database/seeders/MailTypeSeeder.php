@@ -22,6 +22,7 @@ class MailTypeSeeder extends Seeder
             'happening_verified',
             'closing_created',
             'closing_updated',
+            'closing_deleted',
         ];
 
         foreach ($keys as $key) {
