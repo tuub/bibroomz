@@ -20,8 +20,7 @@ class ClosingUpdatedEvent
         public User $user,
         public Collection $happenings,
         public Closing $closing,
-    )
-    {
+    ) {
         //
     }
 }

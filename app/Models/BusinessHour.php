@@ -53,6 +53,7 @@ class BusinessHour extends Model
     }
 
     // A business hour belongs to many week days
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function week_days()
     {
         return $this->belongsToMany(WeekDay::class)->orderBy('id', 'asc');

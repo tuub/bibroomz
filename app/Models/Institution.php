@@ -48,11 +48,14 @@ class Institution extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function resource_groups(): HasMany
     {
         return $this->hasMany(ResourceGroup::class);
     }
 
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function week_days(): BelongsToMany
     {
         return $this->belongsToMany(WeekDay::class);

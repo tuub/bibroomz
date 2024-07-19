@@ -15,7 +15,7 @@ class PermissionRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [new RequiredWithTranslationRule],
+            'name' => [new RequiredWithTranslationRule()],
             'description' => [''],
         ];
     }

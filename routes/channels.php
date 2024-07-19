@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Broadcast;
 | used to check if an authenticated user can listen to the channel.
 |
 */
-Broadcast::channel('happenings.{id}', function (User $user, String $id) {
+Broadcast::channel('happenings.{id}', function (User $user, string $id) {
     return $user->id === $id;
 });

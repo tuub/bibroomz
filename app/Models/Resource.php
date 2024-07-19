@@ -64,6 +64,8 @@ class Resource extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function resource_group(): BelongsTo
     {
         return $this->belongsTo(ResourceGroup::class);
@@ -74,6 +76,7 @@ class Resource extends Model
         return $this->hasMany(Happening::class);
     }
 
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function business_hours(): HasMany
     {
         return $this->hasMany(BusinessHour::class);
@@ -332,7 +335,7 @@ class Resource extends Model
      */
     private function containsSelectedTimeSlot(Collection $time_slots): bool
     {
-        return $time_slots->contains(fn($time_slot) => $time_slot['is_selected']);
+        return $time_slots->contains(fn ($time_slot) => $time_slot['is_selected']);
     }
 
     /**
@@ -358,7 +361,7 @@ class Resource extends Model
      */
     private function getFirstEnabledTimeSlotKey(Collection $time_slots)
     {
-        return $time_slots->search(fn($time_slot) => !$time_slot['is_disabled']);
+        return $time_slots->search(fn ($time_slot) => !$time_slot['is_disabled']);
     }
 
     /**
@@ -370,7 +373,7 @@ class Resource extends Model
     {
         return $time_slots->map(function ($time_slot) use ($start, $time_slots) {
             if (
-                $time_slots->contains(fn($_time_slot) => $_time_slot['time'] > $start
+                $time_slots->contains(fn ($_time_slot) => $_time_slot['time'] > $start
                     && $_time_slot['time'] < $time_slot['time'] && $_time_slot['is_disabled'])
             ) {
                 $time_slot['is_disabled'] = true;

@@ -29,7 +29,7 @@ class HappeningController extends Controller
             'start' => $happening->start,
             'end' => $happening->end,
             'institution_id' => $happening->resource->resource_group->institution->id,
-            'institution'=> $happening->resource->resource_group->institution->getTranslations('title'),
+            'institution' => $happening->resource->resource_group->institution->getTranslations('title'),
             'resource_group' => $happening->resource->resource_group->getTranslations('title'),
             'resource' => $happening->resource->getTranslations('title'),
             'user1' => $happening->user1?->name,

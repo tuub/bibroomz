@@ -8,13 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class WeekDay extends Model
 {
     protected $table = 'week_days';
+
     protected $fillable = [
         'day_of_week',
         'name',
     ];
+
     protected $hidden = ['pivot'];
 
     // A week day belongs to many time slots
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function business_hours(): BelongsToMany
     {
         return $this->belongsToMany(BusinessHour::class);

@@ -54,6 +54,7 @@ class MailContent extends Model
         return $this->belongsTo(Institution::class);
     }
 
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function mail_type(): BelongsTo
     {
         return $this->belongsTo(MailType::class);

@@ -25,6 +25,8 @@ class MailType extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function mail_contents(): hasMany
     {
         return $this->hasMany(MailContent::class);
