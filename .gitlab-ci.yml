@@ -18,7 +18,7 @@ include:
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 commitlint:
   stage: lint
-  image: node:alpine
+  image: node:20-alpine
   before_script:
     - apk add --no-cache git
     - npm ci
@@ -28,7 +28,7 @@ commitlint:
     - if: $CI_MERGE_REQUEST_DIFF_BASE_SHA
 eslint:
   stage: lint
-  image: node:alpine
+  image: node:20-alpine
   before_script:
     - apk add --no-cache git
     - npm ci
@@ -36,7 +36,7 @@ eslint:
     - npx --no -- eslint resources/js/**/*.{js,ts,vue}
 prettier:
   stage: lint
-  image: node:alpine
+  image: node:20-alpine
   before_script:
     - apk add --no-cache git
     - npm ci
@@ -44,7 +44,7 @@ prettier:
     - npx --no -- prettier --list-different resources/js resources/sass
 stylelint:
   stage: lint
-  image: node:alpine
+  image: node:20-alpine
   before_script:
     - apk add --no-cache git
     - npm ci
