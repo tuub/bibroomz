@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class BusinessHour extends Model
 {
@@ -45,7 +46,6 @@ class BusinessHour extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
-
     // A business hour belongs to 1 resource
     public function resource(): BelongsTo
     {
@@ -54,7 +54,7 @@ class BusinessHour extends Model
 
     // A business hour belongs to many week days
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    public function week_days()
+    public function week_days(): BelongsToMany
     {
         return $this->belongsToMany(WeekDay::class)->orderBy('id', 'asc');
     }
