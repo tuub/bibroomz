@@ -14,7 +14,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ClosingUpdatedMail extends Mailable implements ShouldQueue
+class ClosingMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -26,9 +26,7 @@ class ClosingUpdatedMail extends Mailable implements ShouldQueue
     public function __construct(
         public Closing $closing,
         public Collection $happenings,
-        public string $class,
         public MailContent $content,
-        //public Collection $previously,
     ) {
         //
     }

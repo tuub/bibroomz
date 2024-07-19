@@ -9,7 +9,7 @@
 
 {{ $content->intro }}
 
-@if (str_starts_with($class, 'Closing'))
+@if (str_starts_with($content->mail_type->key, 'closing'))
 @include('emails.markdown._closing')
 @else
 @include('emails.markdown._happening')

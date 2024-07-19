@@ -9,7 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-class ClosingCreatedEvent
+class ClosingCreatedEvent implements ClosingEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -21,5 +21,6 @@ class ClosingCreatedEvent
         public Collection $happenings,
         public Closing $closing,
     ) {
+        //
     }
 }

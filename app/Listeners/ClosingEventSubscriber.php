@@ -3,37 +3,39 @@
 namespace App\Listeners;
 
 use App\Events\ClosingCreatedEvent;
+use App\Events\ClosingEvent;
 use App\Events\ClosingUpdatedEvent;
-use App\Mail\ClosingCreatedMail;
-use App\Mail\ClosingUpdatedMail;
+use App\Mail\ClosingMail;
 use App\Models\Institution;
 use App\Models\MailContent;
-use App\Models\Resource;
 use Illuminate\Support\Facades\Mail;
-use ReflectionClass;
 
 class ClosingEventSubscriber
 {
+    private function handleClosingEvent(ClosingEvent $event): void
+    {
+        $mail_content = $this->getMailContentForEvent($event);
+
+        if (!$mail_content->is_active) {
+            return;
+        }
+
+        Mail::to($event->user)->queue(new ClosingMail($event->closing, $event->happenings, $mail_content));
+    }
+
     public function handleClosingCreatedEvent(ClosingCreatedEvent $event): void
     {
-        $mail_class = (new ReflectionClass($event))->getShortName();
-        $mail_content = $this->getMailContentForEvent($event, 'closing_created');
-
-        if ($mail_content && $mail_content->is_active) {
-            Mail::to($event->user)
-                ->queue(new ClosingCreatedMail($event->closing, $event->happenings, $mail_class, $mail_content));
-        }
+        $this->handleClosingEvent($event);
     }
 
     public function handleClosingUpdatedEvent(ClosingUpdatedEvent $event): void
     {
-        $mail_class = (new ReflectionClass($event))->getShortName();
-        $mail_content = $this->getMailContentForEvent($event, 'closing_updated');
+        $this->handleClosingEvent($event);
+    }
 
-        if ($mail_content && $mail_content->is_active) {
-            Mail::to($event->user)
-                ->queue(new ClosingUpdatedMail($event->closing, $event->happenings, $mail_class, $mail_content));
-        }
+    public function handleClosingDeletedEvent(ClosingDeletedEvent $event): void
+    {
+        $this->handleClosingEvent($event);
     }
 
     public function subscribe(): array
@@ -44,10 +46,19 @@ class ClosingEventSubscriber
         ];
     }
 
-    private function getMailContentForEvent($event, string $mail_type)
+    private function getMailContentForEvent(ClosingEvent $event)
     {
         $closable = $event->closing->closable;
         $institution = $closable instanceof Institution ? $closable : $closable->resource_group->institution;
+
+        switch (true) {
+            case $event instanceof ClosingCreatedEvent:
+                $mail_type = 'closing_created';
+                break;
+            case $event instanceof ClosingUpdatedEvent:
+                $mail_type = 'closing_updated';
+                break;
+        }
 
         return MailContent::where('institution_id', $institution->id)
             ->whereHas('mail_type', function ($query) use ($mail_type) {

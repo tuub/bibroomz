@@ -4,7 +4,7 @@
 
 {{ $content->intro }}
 
-@if (str_starts_with($class, 'Closing'))
+@if (str_starts_with($content->mail_type->key, 'closing'))
 @include('emails.text._closing')
 @else
 @include('emails.text._happening')
