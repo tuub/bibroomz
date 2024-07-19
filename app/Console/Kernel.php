@@ -6,6 +6,7 @@ use App\Console\Commands\AnonymizeHappeningUsersCommand;
 use App\Models\Happening;
 use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
 use App\Console\Commands\RemoveUsersCommand;
+use App\Models\Closing;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -46,7 +47,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(
             'model:prune',
             [
-                '--model' => [Happening::class],
+                '--model' => [Closing::class, Happening::class],
             ]
         )->dailyAt('04:35');
 

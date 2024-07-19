@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Traits\HasTranslations;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Closing extends Model
 {
-    use HasFactory, HasUuids, HasTranslations;
+    use HasFactory, HasUuids, HasTranslations, Prunable, SoftDeletes;
 
     /*****************************************************************
      * OPTIONS
@@ -82,5 +85,10 @@ class Closing extends Model
         return $this->getHappeningsAffected()->filter(function ($happening) use ($user) {
             return $happening->isBelongingTo($user);
         });
+    }
+
+    public function prunable(): Builder
+    {
+        return static::onlyTrashed();
     }
 }
