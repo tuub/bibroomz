@@ -69,6 +69,7 @@
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
