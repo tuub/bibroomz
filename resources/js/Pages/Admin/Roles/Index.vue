@@ -1,79 +1,67 @@
 <template>
-    <PageHead :title="$t('admin.roles.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.roles.index.title')" :description="$t('admin.roles.index.description')" />
+    <IndexLayout model="role" :title="$t('admin.roles.index.title')" :description="$t('admin.roles.index.description')">
+        <template #header>
+            <IndexHeaderField>
+                {{ $t("admin.roles.index.table.header.name") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.roles.index.table.header.description") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.roles.index.table.header.permissions") }}
+            </IndexHeaderField>
+            <IndexHeaderField :is-label-visible="false">
+                {{ $t("admin.general.table.actions") }}
+            </IndexHeaderField>
+        </template>
 
-    <XModal />
-    <CreateLink model="role"></CreateLink>
-
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.roles.index.table.header.name") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.roles.index.table.header.description") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.roles.index.table.header.permissions") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{{ $t("admin.general.table.actions") }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="role in roles"
-                    :key="role.id"
-                    class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                    <td scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ translate(role.name) }}
-                    </td>
-                    <td scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ translate(role.description) }}
-                    </td>
-                    <td class="px-6 py-4 text-left">
-                        {{
-                            role.permissions
-                                .sort((a, b) => translate(a.name).localeCompare(translate(b.name)))
-                                .map((permission) => translate(permission.name))
-                                .join(", ")
-                        }}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <LinkGroup>
-                            <ActionLink
-                                v-if="hasPermission('edit_roles')"
-                                action="edit"
-                                model="role"
-                                :params="{ id: role.id }"
-                            />
-                            <PopupLink
-                                v-if="hasPermission('delete_roles')"
-                                action="delete"
-                                model="role"
-                                :entity="role"
-                                :params="{ id: role.id }"
-                            />
-                        </LinkGroup>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <template #body>
+            <IndexRow v-for="role in roles" :key="role.id">
+                <IndexRowHeaderField>
+                    {{ translate(role.name) }}
+                </IndexRowHeaderField>
+                <IndexRowHeaderField>
+                    {{ translate(role.description) }}
+                </IndexRowHeaderField>
+                <IndexRowField class="text-left">
+                    {{
+                        role.permissions
+                            .sort((a, b) => translate(a.name).localeCompare(translate(b.name)))
+                            .map((permission) => translate(permission.name))
+                            .join(", ")
+                    }}
+                </IndexRowField>
+                <IndexRowField class="text-right">
+                    <LinkGroup>
+                        <ActionLink
+                            v-if="hasPermission('edit_roles')"
+                            action="edit"
+                            model="role"
+                            :params="{ id: role.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_roles')"
+                            action="delete"
+                            model="role"
+                            :entity="role"
+                            :params="{ id: role.id }"
+                        />
+                    </LinkGroup>
+                </IndexRowField>
+            </IndexRow>
+        </template>
+    </IndexLayout>
 </template>
 
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
-import XModal from "@/Shared/XModal.vue";
+import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
+import IndexLayout from "@/Components/Admin/IndexLayout.vue";
+import IndexRow from "@/Components/Admin/IndexRow.vue";
+import IndexRowField from "@/Components/Admin/IndexRowField.vue";
+import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

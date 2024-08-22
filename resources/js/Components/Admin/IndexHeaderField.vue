@@ -1,7 +1,12 @@
 <template>
     <th scope="col" class="px-6 py-3 align-top" :class="{ 'sr-only': !isLabelVisible }">
         <div @click="sort">
-            {{ label }}
+            <span v-if="$slots.default">
+                <slot />
+            </span>
+            <span v-else>
+                {{ label }}
+            </span>
             <SortDirectionIcon v-if="isSortField" :sort-direction="sortDirection" />
             <button v-if="isFilterField" @click.stop="toggleFilter">
                 <i class="ri-filter-2-line" />
@@ -51,7 +56,7 @@ const props = defineProps({
     },
     label: {
         type: String,
-        required: true,
+        default: "",
     },
     sortDirection: {
         type: String,

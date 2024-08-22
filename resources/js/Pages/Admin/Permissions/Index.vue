@@ -1,50 +1,44 @@
 <template>
-    <PageHead :title="$t('admin.permissions.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.permissions.index.title')" :description="$t('admin.permissions.index.description')" />
+    <IndexLayout
+        :title="$t('admin.permissions.index.title')"
+        :description="$t('admin.permissions.index.description')"
+        :add-create-button="false"
+    >
+        <template #header>
+            <IndexHeaderField>
+                {{ $t("admin.permissions.index.table.header.name") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.permissions.index.table.header.description") }}
+            </IndexHeaderField>
+            <IndexHeaderField :is-label-visible="false">
+                {{ $t("admin.general.table.actions") }}
+            </IndexHeaderField>
+        </template>
 
-    <XModal />
-
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.permissions.index.table.header.name") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.permissions.index.table.header.description") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{{ $t("admin.general.table.actions") }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="permission in permissions"
-                    :key="permission.id"
-                    class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                    <td scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ translate(permission.name) }}
-                    </td>
-                    <td scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ translate(permission.description) }}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <ActionLink action="edit" model="permission" :params="{ id: permission.id }" />
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <template #body>
+            <IndexRow v-for="permission in permissions" :key="permission.id">
+                <IndexRowHeaderField>
+                    {{ translate(permission.name) }}
+                </IndexRowHeaderField>
+                <IndexRowField>
+                    {{ translate(permission.description) }}
+                </IndexRowField>
+                <IndexRowField class="text-right">
+                    <ActionLink action="edit" model="permission" :params="{ id: permission.id }" />
+                </IndexRowField>
+            </IndexRow>
+        </template>
+    </IndexLayout>
 </template>
 
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
-import XModal from "@/Shared/XModal.vue";
+import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
+import IndexLayout from "@/Components/Admin/IndexLayout.vue";
+import IndexRow from "@/Components/Admin/IndexRow.vue";
+import IndexRowField from "@/Components/Admin/IndexRowField.vue";
+import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 // ------------------------------------------------

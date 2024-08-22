@@ -1,15 +1,5 @@
 <template>
-    <PageHead
-        :title="
-            $t('admin.settings.index.title', {
-                type: $t('admin.settings.types.' + settingable_type),
-                title: translate(settingable.title),
-            })
-        "
-        page-type="admin"
-    />
-
-    <BodyHead
+    <IndexLayout
         :title="
             $t('admin.settings.index.title', {
                 type: $t('admin.settings.types.' + settingable_type),
@@ -17,59 +7,54 @@
             })
         "
         :description="$t('admin.settings.index.description')"
-    />
+        :add-create-button="false"
+    >
+        <template #header>
+            <IndexHeaderField>
+                {{ $t("admin.settings.index.table.header.key") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.settings.index.table.header.description") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.settings.index.table.header.value") }}
+            </IndexHeaderField>
+            <IndexHeaderField :is-label-visible="false">
+                {{ $t("admin.general.table.actions") }}
+            </IndexHeaderField>
+        </template>
 
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.settings.index.table.header.key") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.settings.index.table.header.description") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.settings.index.table.header.value") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{{ $t("admin.general.table.actions") }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="setting in settings"
-                    :key="setting.id"
-                    class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                    <th scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ $t("admin.settings.keys." + setting.key + ".label") }}
-                    </th>
-                    <td class="px-6 py-4">
-                        {{ $t("admin.settings.keys." + setting.key + ".description") }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ setting.value }}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <ActionLink
-                            v-if="hasPermission('edit_settings', institutionId)"
-                            action="edit"
-                            model="setting"
-                            :params="{ id: setting.id }"
-                        />
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <template #body>
+            <IndexRow v-for="setting in settings" :key="setting.id">
+                <IndexRowHeaderField>
+                    {{ $t("admin.settings.keys." + setting.key + ".label") }}
+                </IndexRowHeaderField>
+                <IndexRowField>
+                    {{ $t("admin.settings.keys." + setting.key + ".description") }}
+                </IndexRowField>
+                <IndexRowField>
+                    {{ setting.value }}
+                </IndexRowField>
+                <IndexRowField class="text-right">
+                    <ActionLink
+                        v-if="hasPermission('edit_settings', institutionId)"
+                        action="edit"
+                        model="setting"
+                        :params="{ id: setting.id }"
+                    />
+                </IndexRowField>
+            </IndexRow>
+        </template>
+    </IndexLayout>
 </template>
 
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
+import IndexLayout from "@/Components/Admin/IndexLayout.vue";
+import IndexRow from "@/Components/Admin/IndexRow.vue";
+import IndexRowField from "@/Components/Admin/IndexRowField.vue";
+import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

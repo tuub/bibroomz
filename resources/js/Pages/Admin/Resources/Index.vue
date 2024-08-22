@@ -1,128 +1,114 @@
 <template>
-    <PageHead :title="$t('admin.resources.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.resources.index.title')" :description="$t('admin.resources.index.description')" />
+    <IndexLayout
+        model="resource"
+        :title="$t('admin.resources.index.title')"
+        :description="$t('admin.resources.index.description')"
+        :create-params="{ resource_group_id: resourceGroup.id }"
+    >
+        <template #header>
+            <IndexHeaderField>
+                {{ $t("admin.resources.index.table.header.title") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.resources.index.table.header.location") }}
+            </IndexHeaderField>
+            <IndexHeaderField>
+                {{ $t("admin.resources.index.table.header.business_hours") }}
+            </IndexHeaderField>
+            <IndexHeaderField class="text-center">
+                {{ $t("admin.resources.index.table.header.capacity") }}
+            </IndexHeaderField>
+            <IndexHeaderField class="text-center">
+                {{ $t("admin.resources.index.table.header.is_active") }}
+            </IndexHeaderField>
+            <IndexHeaderField class="text-center">
+                {{ $t("admin.resources.index.table.header.is_verification_required") }}
+            </IndexHeaderField>
+            <IndexHeaderField :is-label-visible="false">
+                {{ $t("admin.general.table.actions") }}
+            </IndexHeaderField>
+        </template>
 
-    <XModal />
-    <CreateLink model="resource" :params="{ resource_group_id: resourceGroup.id }"></CreateLink>
-
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.title") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.location") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.resources.index.table.header.business_hours") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.capacity") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.is_active") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.resources.index.table.header.is_verification_required") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{{ $t("admin.general.table.actions") }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="resource in resources"
-                    :key="resource.id"
-                    class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                    <th
-                        scope="row"
-                        class="whitespace-nowrap px-6 py-4 align-top font-medium text-gray-900 dark:text-white"
-                    >
-                        {{ translate(resource.title) }}
-                    </th>
-                    <td class="px-6 py-4 align-top">
-                        {{ translate(resource.location) }}
-                        <template v-if="resource.location_uri">
-                            <a :href="resource.location_uri" target="_blank">
-                                <i class="ri-external-link-line inline"></i>
-                            </a>
-                        </template>
-                    </td>
-                    <td class="px-6 py-4 align-top">
-                        <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
-                            {{ formatBusinessHourDates(business_hour.start_date, business_hour.end_date) }}
-                            {{
-                                getBusinessHourTime(business_hour.start) + "-" + getBusinessHourTime(business_hour.end)
-                            }}
-                            {{
-                                "(" +
-                                business_hour.week_days
-                                    .map((week_day) =>
-                                        trans("admin.general.week_days." + week_day.key + ".short_label"),
-                                    )
-                                    .join(", ") +
-                                ")"
-                            }}
-                        </p>
-                    </td>
-                    <td class="px-6 py-4 text-center align-top">
-                        {{ resource.capacity }}
-                    </td>
-                    <td class="px-6 py-4 text-center align-top">
-                        <BooleanField :is-true="resource.is_active" />
-                    </td>
-                    <td class="px-6 py-4 text-center align-top">
-                        <BooleanField :is-true="resource.is_verification_required" />
-                    </td>
-                    <td class="px-6 py-4 text-right align-top">
-                        <LinkGroup>
-                            <!-- FIXME: resource.resource_group.institution.id? -->
-                            <ActionLink
-                                v-if="hasPermission('edit_resources', resource.institution_id)"
-                                action="edit"
-                                model="resource"
-                                :params="{ id: resource.id }"
-                            />
-                            <PopupLink
-                                v-if="hasPermission('create_resources', resource.institution_id)"
-                                action="clone"
-                                model="resource"
-                                :params="{ id: resource.id }"
-                            />
-                            <RelationLink
-                                v-if="hasPermission('view_closings', resource.institution_id)"
-                                current="resource"
-                                relation="closing"
-                                :params="{ closable_type: 'resource', closable_id: resource.id }"
-                            />
-                            <PopupLink
-                                v-if="hasPermission('delete_resources', resource.institution_id)"
-                                action="delete"
-                                model="resource"
-                                :params="{ id: resource.id }"
-                            />
-                        </LinkGroup>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <template #body>
+            <IndexRow v-for="resource in resources" :key="resource.id">
+                <IndexRowHeaderField>
+                    {{ translate(resource.title) }}
+                </IndexRowHeaderField>
+                <IndexRowField>
+                    {{ translate(resource.location) }}
+                    <template v-if="resource.location_uri">
+                        <a :href="resource.location_uri" target="_blank">
+                            <i class="ri-external-link-line inline"></i>
+                        </a>
+                    </template>
+                </IndexRowField>
+                <IndexRowField>
+                    <p v-for="business_hour in resource.business_hours" :key="business_hour.id">
+                        {{ formatBusinessHourDates(business_hour.start_date, business_hour.end_date) }}
+                        {{ getBusinessHourTime(business_hour.start) + "-" + getBusinessHourTime(business_hour.end) }}
+                        {{
+                            "(" +
+                            business_hour.week_days
+                                .map((week_day) => trans("admin.general.week_days." + week_day.key + ".short_label"))
+                                .join(", ") +
+                            ")"
+                        }}
+                    </p>
+                </IndexRowField>
+                <IndexRowField class="text-center">
+                    {{ resource.capacity }}
+                </IndexRowField>
+                <IndexRowField class="text-center">
+                    <BooleanField :is-true="resource.is_active" />
+                </IndexRowField>
+                <IndexRowField class="text-center">
+                    <BooleanField :is-true="resource.is_verification_required" />
+                </IndexRowField>
+                <IndexRowField class="text-right">
+                    <LinkGroup>
+                        <!-- FIXME: resource.resource_group.institution.id? -->
+                        <ActionLink
+                            v-if="hasPermission('edit_resources', resource.institution_id)"
+                            action="edit"
+                            model="resource"
+                            :params="{ id: resource.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('create_resources', resource.institution_id)"
+                            action="clone"
+                            model="resource"
+                            :params="{ id: resource.id }"
+                        />
+                        <RelationLink
+                            v-if="hasPermission('view_closings', resource.institution_id)"
+                            current="resource"
+                            relation="closing"
+                            :params="{ closable_type: 'resource', closable_id: resource.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_resources', resource.institution_id)"
+                            action="delete"
+                            model="resource"
+                            :params="{ id: resource.id }"
+                        />
+                    </LinkGroup>
+                </IndexRowField>
+            </IndexRow>
+        </template>
+    </IndexLayout>
 </template>
 
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
-import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
-import XModal from "@/Shared/XModal.vue";
+import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
+import IndexLayout from "@/Components/Admin/IndexLayout.vue";
+import IndexRow from "@/Components/Admin/IndexRow.vue";
+import IndexRowField from "@/Components/Admin/IndexRowField.vue";
+import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
