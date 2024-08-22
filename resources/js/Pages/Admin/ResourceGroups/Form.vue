@@ -1,13 +1,10 @@
 <template>
-    <PageHead :title="$t('admin.resource_groups.form.title')" page-type="admin" />
-    <BodyHead
+    <FormLayout
         :title="$t('admin.resource_groups.form.title')"
         :description="$t('admin.resource_groups.form.description')"
-    />
-
-    <form class="max-w mx-auto mt-8">
+    >
         <!-- Select: Institution -->
-        <div class="mb-6">
+        <div>
             <FormLabel field="institution_id" field-key="admin.resource_groups.form.fields.institution"></FormLabel>
             <select
                 id="institution_id"
@@ -41,18 +38,13 @@
         ></TranslatableFormInput>
 
         <!-- Input: Slug -->
-        <div class="mb-6">
-            <FormLabel field="slug" field-key="admin.resource_groups.form.fields.slug"></FormLabel>
-            <input
-                id="slug"
-                v-model="form.slug"
-                type="text"
-                name="slug"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                :placeholder="$t('admin.resource_groups.form.fields.slug.placeholder')"
-            />
-            <FormValidationError :message="form.errors.slug"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.slug"
+            field="slug"
+            field-key="admin.resource_groups.form.fields.slug"
+            :error="form.errors.slug"
+            :is-required="true"
+        />
 
         <!-- Input: Term singular -->
         <TranslatableFormInput
@@ -87,32 +79,26 @@
         ></TranslatableFormInput>
 
         <!-- Checkbox: Is active -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input id="is_active" v-model="form.is_active" type="checkbox" class="peer sr-only" />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.resource_groups.form.fields.is_active.label") }}
-                </span>
-            </label>
-            <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
+        <div class="space-x-2">
+            <ToggleSwitch model="form.is_active" input-id="is_active" />
+            <FormLabel field="is_active" field-key="admin.resource_groups.form.fields.is_active" class="inline-block" />
+            <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
         <FormAction :form="form" model="resource_group" cancel-route="admin.resource_group.index" />
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
+import ToggleSwitch from "primevue/toggleswitch";
 
 // ------------------------------------------------
 // Props

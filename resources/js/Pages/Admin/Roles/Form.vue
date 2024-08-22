@@ -1,8 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.roles.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.roles.form.title')" :description="$t('admin.roles.form.description')" />
-
-    <form class="max-w mx-auto mt-8">
+    <FormLayout :title="$t('admin.roles.form.title')" :description="$t('admin.roles.form.description')">
         <!-- Input: Name -->
         <TranslatableFormInput
             v-model="form.name"
@@ -22,10 +19,16 @@
         ></TranslatableFormInput>
 
         <!-- Checkbox: Permissions -->
-        <div class="mb-6">
-            <div>
-                <FormLabel field-key="admin.roles.form.fields.permissions"></FormLabel>
-            </div>
+        <fieldset>
+            <legend class="space-y-2">
+                <div class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+                    {{ $t("admin.roles.form.fields.permissions.label") }}
+                </div>
+
+                <div class="text-xs">
+                    {{ $t("admin.roles.form.fields.permissions.hint") }}
+                </div>
+            </legend>
 
             <div
                 v-for="group in [...groups].sort((a, b) => translate(a.name).localeCompare(translate(b.name)))"
@@ -83,18 +86,16 @@
                     </li>
                 </ul>
             </div>
-        </div>
+        </fieldset>
 
         <FormAction :form="form" model="role" cancel-route="admin.role.index"></FormAction>
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import LabeledCheckbox from "@/Components/Admin/LabeledCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import FormLabel from "@/Shared/Form/FormLabel.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";

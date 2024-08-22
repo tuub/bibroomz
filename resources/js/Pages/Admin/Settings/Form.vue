@@ -1,42 +1,13 @@
 <template>
-    <PageHead
-        :title="
-            $t('admin.settings.form.title', {
-                type: $t('admin.settings.types.' + settingable_type),
-                title: 'hoo',
-            })
-        "
-        page-type="admin"
-    />
+    <FormLayout :title="title" :description="$t('admin.settings.form.description')">
+        <FormInput v-model="form.key" field="key" field-key="admin.settings.form.fields.key" :error="form.errors.key" />
 
-    <form class="max-w mx-auto mt-8">
-        <!-- Input: Key -->
-        <div class="mb-6">
-            <FormLabel field="key" field-key="admin.settings.form.fields.key"></FormLabel>
-            <input
-                id="key"
-                v-model="form.key"
-                type="text"
-                name="key"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.key"></FormValidationError>
-        </div>
-
-        <!-- Input: Value -->
-        <div class="mb-6">
-            <FormLabel field="value" field-key="admin.settings.form.fields.value"></FormLabel>
-            <input
-                id="value"
-                v-model="form.value"
-                type="text"
-                name="value"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.value"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.value"
+            field="value"
+            field-key="admin.settings.form.fields.value"
+            :error="form.errors.value"
+        />
 
         <FormAction
             :form="form"
@@ -44,15 +15,18 @@
             cancel-route="admin.setting.index"
             :cancel-route-params="{ settingable_id: settingable.id, settingable_type: settingable_type }"
         />
-    </form>
+    </FormLayout>
 </template>
+
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
-import FormLabel from "@/Shared/Form/FormLabel.vue";
-import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
+import { trans } from "laravel-vue-i18n";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -66,6 +40,7 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+
     // eslint-disable-next-line vue/prop-name-casing
     settingable_type: {
         type: String,
@@ -73,6 +48,9 @@ const props = defineProps({
     },
 });
 
+// ------------------------------------------------
+// Variables
+// ------------------------------------------------
 const form = useForm({
     id: props.setting.id ?? "",
     key: props.setting.key ?? "",
@@ -80,4 +58,13 @@ const form = useForm({
     settingable_id: props.settingable.id,
     settingable_type: props.settingable_type,
 });
+
+const translate = useAppStore().translate;
+
+const title = computed(() =>
+    trans("admin.settings.form.title", {
+        type: trans("admin.settings.types." + props.settingable_type),
+        title: translate(props.settingable.title),
+    }),
+);
 </script>

@@ -1,11 +1,8 @@
 <template>
-    <PageHead :title="$t('admin.permission_groups.form.title')" page-type="admin" />
-    <BodyHead
+    <FormLayout
         :title="$t('admin.permission_groups.form.title')"
         :description="$t('admin.permission_groups.form.description')"
-    />
-
-    <form class="max-w mx-auto mt-8">
+    >
         <!-- Input: Name -->
         <TranslatableFormInput
             v-model="form.name"
@@ -25,13 +22,12 @@
         ></TranslatableFormInput>
 
         <FormAction :form="form" model="permission_group" cancel-route="admin.permission_group.index"></FormAction>
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 
 import { useForm } from "@inertiajs/vue3";
 

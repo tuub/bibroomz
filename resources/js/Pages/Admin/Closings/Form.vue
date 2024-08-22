@@ -1,64 +1,35 @@
 <template>
-    <PageHead
-        :title="$t('admin.closings.form.title', { type: closable_type, title: translate(closable.title) })"
-        page-type="admin"
-    />
-
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <FormLayout :title="title" :description="$t('admin.closings.form.description')">
         <!-- Input: Start Date & Start Time -->
-        <div class="mb-6 grid gap-6 md:grid-cols-2">
-            <div>
-                <FormLabel field="start_date" field-key="admin.closings.form.fields.start_date"></FormLabel>
-                <input
-                    id="start_date"
-                    v-model="form.start_date"
-                    type="text"
-                    name="start_date"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.closings.form.fields.start_date.placeholder')"
-                />
-                <FormValidationError :message="form.errors.start_date"></FormValidationError>
-            </div>
-            <div>
-                <FormLabel field="start_time" field-key="admin.closings.form.fields.start_time"></FormLabel>
-                <input
-                    id="start_time"
-                    v-model="form.start_time"
-                    type="text"
-                    name="start_time"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.closings.form.fields.start_time.placeholder')"
-                />
-                <FormValidationError :message="form.errors.start_time"></FormValidationError>
-            </div>
+        <div class="grid gap-6 md:grid-cols-2">
+            <FormInput
+                v-model="form.start_date"
+                field="start_date"
+                field-key="admin.closings.form.fields.start_date"
+                :error="form.errors.start_date"
+            />
+            <FormInput
+                v-model="form.start_time"
+                field="start_time"
+                field-key="admin.closings.form.fields.start_time"
+                :error="form.errors.start_time"
+            />
         </div>
 
         <!-- Input: End Date & End Time -->
-        <div class="mb-6 grid gap-6 md:grid-cols-2">
-            <div>
-                <FormLabel field="end_date" field-key="admin.closings.form.fields.end_date"></FormLabel>
-                <input
-                    id="end_date"
-                    v-model="form.end_date"
-                    type="text"
-                    name="end_date"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.closings.form.fields.end_date.placeholder')"
-                />
-                <FormValidationError :message="form.errors.end_date"></FormValidationError>
-            </div>
-            <div>
-                <FormLabel field="end_time" field-key="admin.closings.form.fields.end_time"></FormLabel>
-                <input
-                    id="end_time"
-                    v-model="form.end_time"
-                    type="text"
-                    name="end_time"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.closings.form.fields.end_time.placeholder')"
-                />
-                <FormValidationError :message="form.errors.end_time"></FormValidationError>
-            </div>
+        <div class="grid gap-6 md:grid-cols-2">
+            <FormInput
+                v-model="form.end_date"
+                field="end_date"
+                field-key="admin.closings.form.fields.end_date"
+                :error="form.errors.end_date"
+            />
+            <FormInput
+                v-model="form.end_time"
+                field="end_time"
+                field-key="admin.closings.form.fields.end_time"
+                :error="form.errors.end_time"
+            />
         </div>
 
         <!-- Textarea: Description -->
@@ -79,17 +50,18 @@
             cancel-route="admin.closing.index"
             :cancel-route-params="{ closable_id: closable.id, closable_type: closable_type }"
         />
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import FormLabel from "@/Shared/Form/FormLabel.vue";
-import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
+import { trans } from "laravel-vue-i18n";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -135,14 +107,10 @@ const form = useForm({
     closable_type: props.closable_type,
 });
 
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const submitForm = () => {
-    if (form.id) {
-        form.post("/admin/closing/update");
-    } else {
-        form.post("/admin/closing/store");
-    }
-};
+const title = computed(() =>
+    trans("admin.closings.form.title", {
+        type: props.closable_type,
+        title: translate(props.closable.title),
+    }),
+);
 </script>

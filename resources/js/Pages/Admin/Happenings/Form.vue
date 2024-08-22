@@ -1,100 +1,70 @@
 <template>
-    <PageHead :title="$t('admin.happenings.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.happenings.form.title')" :description="$t('admin.happenings.form.description')" />
-
-    <form class="max-w mx-auto mt-8" @submit.prevent="submitForm">
+    <FormLayout :title="$t('admin.happenings.form.title')" :description="$t('admin.happenings.form.description')">
         <!-- Input: Start Date & Start Time -->
-        <div class="mb-6 grid gap-6 md:grid-cols-2">
-            <div>
-                <FormLabel field="start_date" field-key="admin.happenings.form.fields.start_date"></FormLabel>
-                <input
-                    id="start_date"
-                    v-model="form.start_date"
-                    type="text"
-                    name="start_date"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.happenings.form.fields.start_date.placeholder')"
-                />
-                <FormValidationError :message="form.errors.start_date"></FormValidationError>
-            </div>
-            <div>
-                <FormLabel field="start_time" field-key="admin.happenings.form.fields.start_time"></FormLabel>
-                <input
-                    id="start_time"
-                    v-model="form.start_time"
-                    type="text"
-                    name="start_time"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.happenings.form.fields.start_time.placeholder')"
-                />
-                <FormValidationError :message="form.errors.start_time"></FormValidationError>
-            </div>
+        <div class="grid gap-6 md:grid-cols-2">
+            <FormInput
+                v-model="form.start_date"
+                field="start_date"
+                field-key="admin.happenings.form.fields.start_date"
+                :error="form.errors.start_date"
+            />
+            <FormInput
+                v-model="form.start_time"
+                field="start_time"
+                field-key="admin.happenings.form.fields.start_time"
+                :error="form.errors.start_time"
+            />
         </div>
 
         <!-- Input: End Date & End Time -->
-        <div class="mb-6 grid gap-6 md:grid-cols-2">
-            <div>
-                <FormLabel field="end_date" field-key="admin.happenings.form.fields.end_date"></FormLabel>
-                <input
-                    id="end_date"
-                    v-model="form.end_date"
-                    type="text"
-                    name="end_date"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.happenings.form.fields.end_date.placeholder')"
-                />
-                <FormValidationError :message="form.errors.end_date"></FormValidationError>
-            </div>
-            <div>
-                <FormLabel field="end_time" field-key="admin.happenings.form.fields.end_time"></FormLabel>
-                <input
-                    id="end_time"
-                    v-model="form.end_time"
-                    type="text"
-                    name="end_time"
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                    :placeholder="$t('admin.happenings.form.fields.end_time.placeholder')"
-                />
-                <FormValidationError :message="form.errors.end_time"></FormValidationError>
-            </div>
+        <div class="grid gap-6 md:grid-cols-2">
+            <FormInput
+                v-model="form.end_date"
+                field="end_date"
+                field-key="admin.happenings.form.fields.end_date"
+                :error="form.errors.end_date"
+            />
+            <FormInput
+                v-model="form.end_time"
+                field="end_time"
+                field-key="admin.happenings.form.fields.end_time"
+                :error="form.errors.end_time"
+            />
         </div>
 
         <!-- Select: Resource -->
-        <div class="mb-6">
-            <FormLabel field="resource_id" field-key="admin.happenings.form.fields.resource"></FormLabel>
-            <select
-                id="resource_id"
-                v-model="form.resource_id"
-                name="resource_id"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-            >
-                <option value="-1">Choose</option>
-                <option v-for="resource in resources" :key="resource.id" :value="resource.id">
-                    {{ translate(resource.title) }}
-                </option>
-            </select>
-            <FormValidationError :message="form.errors.resource_id"></FormValidationError>
-        </div>
+        <FormSelect
+            v-model="form.resource_id"
+            field="resource_id"
+            field-key="admin.happenings.form.fields.resource"
+            :options="
+                resources.map((resource) => ({
+                    key: resource.id,
+                    value: resource.id.toString(),
+                    label: translate(resource.title),
+                }))
+            "
+            :placeholder="{ value: '-1' }"
+            :error="form.errors.resource_id"
+        />
 
         <!-- Select: User 1 -->
-        <div class="mb-6">
-            <FormLabel field="user_01" field-key="admin.happenings.form.fields.user_01"></FormLabel>
-            <select
-                id="user_id_02"
-                v-model="form.user_id_01"
-                name="user_id_02"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-            >
-                <option value="">Choose</option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                    {{ user.name }}
-                </option>
-            </select>
-            <FormValidationError :message="form.errors.user_id_01"></FormValidationError>
-        </div>
+        <FormSelect
+            v-model="form.user_id_01"
+            field="user_01"
+            field-key="admin.happenings.form.fields.user_01"
+            :options="
+                users.map((user) => ({
+                    key: user.id,
+                    value: user.id.toString(),
+                    label: user.name,
+                }))
+            "
+            :error="form.errors.user_id_01"
+        />
 
         <!-- Select: User 2 / Verifier -->
-        <div class="mb-6">
+        <div>
             <div>
                 <FormLabel
                     v-if="form.is_verified"
@@ -150,32 +120,28 @@
         ></TranslatableFormInput>
 
         <!-- Checkbox: Is verified -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input v-model="form.is_verified" type="checkbox" class="peer sr-only" />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.happenings.form.fields.is_verified.label") }}
-                </span>
-            </label>
+        <div class="space-x-2">
+            <ToggleSwitch v-model="form.is_verified" input-id="is_verified" />
+            <FormLabel field="is_verified" field-key="admin.happenings.form.fields.is_verified" class="inline-block" />
+            <FormValidationError :message="form.errors.is_verified"></FormValidationError>
         </div>
 
         <FormAction :form="form" model="happening" cancel-route="admin.happening.index" />
-    </form>
+    </FormLayout>
 </template>
 
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
+import FormSelect from "@/Shared/Form/FormSelect.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
+import ToggleSwitch from "primevue/toggleswitch";
 import { computed, watch } from "vue";
 
 // ------------------------------------------------

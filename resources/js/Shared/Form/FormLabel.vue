@@ -1,35 +1,38 @@
 <template>
-    <label v-if="field" :for="field" :class="labelClasses">
-        {{ $t(fieldKey + ".label") }}
-        <span v-if="language">({{ language }})</span>
-    </label>
-    <div v-else :class="labelClasses">
-        {{ $t(fieldKey + ".label") }}
-    </div>
-    <div v-if="hint" class="mb-2 text-xs">
-        {{ $t(fieldKey + ".hint") }}
+    <div>
+        <label :for="field" class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+            {{ label }}
+
+            <span v-if="language">
+                {{ `(${language})` }}
+            </span>
+        </label>
+
+        <div v-if="hint" class="text-xs">
+            {{ hint }}
+        </div>
     </div>
 </template>
 
 <script setup>
-defineProps({
+import { trans } from "laravel-vue-i18n";
+import { computed } from "vue";
+
+const props = defineProps({
     field: {
         type: String,
-        default: "",
+        required: true,
     },
     fieldKey: {
         type: String,
         required: true,
     },
-    hint: {
-        type: Boolean,
-        default: true,
-    },
     language: {
         type: String,
-        default: "",
+        default: null,
     },
 });
 
-const labelClasses = "block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase";
+const hint = computed(() => trans(props.fieldKey + ".hint").trim());
+const label = computed(() => trans(props.fieldKey + ".label"));
 </script>

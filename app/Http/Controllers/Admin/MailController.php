@@ -44,7 +44,7 @@ class MailController extends Controller
 
         return Inertia::render('Admin/Mails/Form', [
             'institution_id' => $institution->id,
-            'mail_types' => $mail_types,
+            'mail_types' => $mail_types->values(),
             'languages' => config('app.supported_locales'),
         ]);
     }
@@ -75,7 +75,7 @@ class MailController extends Controller
         return Inertia::render('Admin/Mails/Form', [
             'mail' => $mail,
             'institution_id' => $mail->institution_id,
-            'mail_types' => $mail_types,
+            'mail_types' => $mail_types->values(),
             'languages' => config('app.supported_locales'),
         ]);
     }

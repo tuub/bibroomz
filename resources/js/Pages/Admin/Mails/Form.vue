@@ -1,30 +1,20 @@
 <template>
-    <PageHead :title="$t('admin.mails.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.mails.form.title')" :description="$t('admin.mails.form.description')" />
-
-    <form class="max-w mx-auto mt-8">
+    <FormLayout :title="$t('admin.mails.form.title')" :description="$t('admin.mails.form.description')">
         <!-- Select: Mail Type -->
-        <div v-if="!mail.id" class="mb-6">
-            <FormLabel field="mail_type_id" field-key="admin.mails.form.fields.mail_type"></FormLabel>
-            <select
-                id="mail_type_id"
-                v-model="form.mail_type_id"
-                name="mail_type_id"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-            >
-                <option value="">
-                    {{ $t("admin.general.form.choose") }}
-                </option>
-
-                <option v-for="mail_type in mail_types" :key="mail_type.id" :value="mail_type.id">
-                    {{ $t("admin.mails.mail_types." + mail_type.key) }}
-                </option>
-            </select>
-            <FormValidationError
-                v-if="form.errors.mail_type_id"
-                :message="form.errors.mail_type_id"
-            ></FormValidationError>
-        </div>
+        <FormSelect
+            v-if="!mail.id"
+            v-model="form.mail_type_id"
+            field="mail_type_id"
+            field-key="admin.mails.form.fields.mail_type"
+            :options="
+                mail_types.map((mail_type) => ({
+                    key: mail_type.id,
+                    value: mail_type.id.toString(),
+                    label: $t('admin.mails.mail_types.' + mail_type.key),
+                }))
+            "
+            :error="form.errors.mail_type_id"
+        />
 
         <!-- Input: Subject -->
         <TranslatableFormInput
@@ -81,32 +71,20 @@
         ></TranslatableFormInput>
 
         <!-- Input: Action URI -->
-        <div class="mb-6">
-            <FormLabel field="action_uri" field-key="admin.mails.form.fields.action_uri"></FormLabel>
-            <input
-                id="action_uri"
-                v-model="form.action_uri"
-                type="text"
-                name="action_uri"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                :placeholder="$t('admin.mails.form.fields.action_uri.placeholder')"
-            />
-            <FormValidationError :message="form.errors.action_uri"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.action_uri"
+            field="action_uri"
+            field-key="admin.mails.form.fields.action_uri"
+            :error="form.errors.action_uri"
+        />
 
         <!-- Input: Action URI Label -->
-        <div class="mb-6">
-            <FormLabel field="action_uri_label" field-key="admin.mails.form.fields.action_uri_label"></FormLabel>
-            <input
-                id="action_uri_label"
-                v-model="form.action_uri_label"
-                type="text"
-                name="action_uri_label"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                :placeholder="$t('admin.mails.form.fields.action_uri_label.placeholder')"
-            />
-            <FormValidationError :message="form.errors.action_uri_label"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.action_uri_label"
+            field="action_uri_label"
+            field-key="admin.mails.form.fields.action_uri_label"
+            :error="form.errors.action_uri_label"
+        />
 
         <!-- Textarea: Farewell -->
         <TranslatableFormInput
@@ -121,17 +99,10 @@
         ></TranslatableFormInput>
 
         <!-- Checkbox: Is active -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input id="is_active" v-model="form.is_active" type="checkbox" class="peer sr-only" />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.mails.form.fields.is_active.label") }}
-                </span>
-            </label>
-            <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
+        <div class="space-x-3">
+            <ToggleSwitch v-model="form.is_active" input-id="is_active" />
+            <FormLabel field="is_active" field-key="admin.mails.form.fields.is_active" class="inline-block" />
+            <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
         <FormAction
@@ -140,15 +111,16 @@
             cancel-route="admin.mail.index"
             :cancel-route-params="{ institution_id: institution_id }"
         />
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
+import FormSelect from "@/Shared/Form/FormSelect.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
 
@@ -167,8 +139,8 @@ const props = defineProps({
     },
     // eslint-disable-next-line vue/prop-name-casing
     mail_types: {
-        type: Object,
-        default: () => ({}),
+        type: Array,
+        default: () => [],
     },
     languages: {
         type: Array,

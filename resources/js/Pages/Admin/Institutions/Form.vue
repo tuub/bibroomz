@@ -1,8 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.institutions.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.institutions.form.title')" :description="$t('admin.institutions.form.description')" />
-
-    <form class="max-w mx-auto mt-8">
+    <FormLayout :title="$t('admin.institutions.form.title')" :description="$t('admin.institutions.form.description')">
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -13,52 +10,34 @@
         ></TranslatableFormInput>
 
         <!-- Input: Short title -->
-        <div class="mb-6">
-            <FormLabel field="short_title" field-key="admin.institutions.form.fields.short_title"></FormLabel>
-            <input
-                id="short_title"
-                v-model="form.short_title"
-                type="text"
-                name="short_title"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-                required
-            />
-            <FormValidationError :message="form.errors.short_title"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.short_title"
+            field="short_title"
+            field-key="admin.institutions.form.fields.short_title"
+            :error="form.errors.short_title"
+            :is-required="true"
+        />
 
         <!-- Input: Slug -->
-        <div class="mb-6">
-            <FormLabel field="slug" field-key="admin.institutions.form.fields.slug"></FormLabel>
-            <input
-                id="slug"
-                v-model="form.slug"
-                type="text"
-                name="slug"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-                required
-            />
-            <FormValidationError :message="form.errors.slug"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.slug"
+            field="slug"
+            field-key="admin.institutions.form.fields.slug"
+            :error="form.errors.slug"
+            :is-required="true"
+        />
 
         <!-- Input: Location -->
-        <div class="mb-6">
-            <FormLabel field="location" field-key="admin.institutions.form.fields.location"></FormLabel>
-            <input
-                id="location"
-                v-model="form.location"
-                type="text"
-                name="location"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-                required
-            />
-            <FormValidationError :message="form.errors.location"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.location"
+            field="location"
+            field-key="admin.institutions.form.fields.location"
+            :error="form.errors.location"
+            :is-required="true"
+        />
 
         <!-- Checkbox: Week Days -->
-        <div class="mb-6">
+        <div>
             <FormLabel field="week_days" field-key="admin.institutions.form.fields.week_days"></FormLabel>
             <span v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
                 <input v-model="form.week_days" type="checkbox" name="week_days[]" :value="dayOfWeek.id" />
@@ -68,88 +47,59 @@
         </div>
 
         <!-- Input: Home URI -->
-        <div class="mb-6">
-            <FormLabel field="home_uri" field-key="admin.institutions.form.fields.home_uri"></FormLabel>
-            <input
-                id="home_uri"
-                v-model="form.home_uri"
-                type="text"
-                name="home_uri"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.home_uri"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.home_uri"
+            field="home_uri"
+            field-key="admin.institutions.form.fields.home_uri"
+            :error="form.errors.home_uri"
+        />
 
         <!-- Input: Email -->
-        <div class="mb-6">
-            <FormLabel field="email" field-key="admin.institutions.form.fields.email"></FormLabel>
-            <input
-                id="email"
-                v-model="form.email"
-                type="text"
-                name="email"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.email"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.email"
+            field="email"
+            field-key="admin.institutions.form.fields.email"
+            :error="form.errors.email"
+        />
 
         <!-- Input: Logo URI -->
-        <div class="mb-6">
-            <FormLabel field="logo_uri" field-key="admin.institutions.form.fields.logo_uri"></FormLabel>
-            <input
-                id="logo_uri"
-                v-model="form.logo_uri"
-                type="text"
-                name="logo_uri"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.logo_uri"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.logo_uri"
+            field="logo_uri"
+            field-key="admin.institutions.form.fields.logo_uri"
+            :error="form.errors.logo_uri"
+        />
 
         <!-- Input: Teaser URI -->
-        <div class="mb-6">
-            <FormLabel field="teaser_uri" field-key="admin.institutions.form.fields.teaser_uri"></FormLabel>
-            <input
-                id="teaser_uri"
-                v-model="form.teaser_uri"
-                type="text"
-                name="teaser_uri"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                placeholder=""
-            />
-            <FormValidationError :message="form.errors.teaser_uri"></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.teaser_uri"
+            field="teaser_uri"
+            field-key="admin.institutions.form.fields.teaser_uri"
+            :error="form.errors.teaser_uri"
+        />
 
         <!-- Checkbox: Is active -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input v-model="form.is_active" type="checkbox" class="peer sr-only" />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.institutions.form.fields.is_active.label") }}
-                </span>
-            </label>
+        <div class="space-x-2">
+            <ToggleSwitch v-model="form.is_active" input-id="is_active" />
+            <FormLabel field="is_active" field-key="admin.institutions.form.fields.is_active" class="inline-block" />
+            <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
         <FormAction :form="form" model="institution" cancel-route="admin.institution.index" />
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import ToggleSwitch from "primevue/toggleswitch";
 import { onMounted } from "vue";
 
 // ------------------------------------------------

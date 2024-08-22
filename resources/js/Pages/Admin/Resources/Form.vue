@@ -1,8 +1,5 @@
 <template>
-    <PageHead :title="$t('admin.resources.form.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')" />
-
-    <form class="max-w mx-auto mt-8">
+    <FormLayout :title="$t('admin.resources.form.title')" :description="$t('admin.resources.form.description')">
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -24,21 +21,12 @@
         ></TranslatableFormInput>
 
         <!-- Input: Location URI -->
-        <div class="mb-6">
-            <FormLabel field="location_uri" field-key="admin.resources.form.fields.location_uri"></FormLabel>
-            <input
-                id="location_uri"
-                v-model="form.location_uri"
-                type="text"
-                name="location_uri"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
-                :placeholder="$t('admin.resources.form.fields.location_uri.placeholder')"
-            />
-            <FormValidationError
-                v-if="form.errors.location_uri"
-                :message="form.errors.location_uri"
-            ></FormValidationError>
-        </div>
+        <FormInput
+            v-model="form.location_uri"
+            field="location_uri"
+            field-key="admin.resources.form.fields.location_uri"
+            :error="form.errors.location_uri"
+        />
 
         <!-- Textarea: Description -->
         <TranslatableFormInput
@@ -53,7 +41,7 @@
         ></TranslatableFormInput>
 
         <!-- Input: Capacity -->
-        <div class="mb-6">
+        <div>
             <FormLabel field="capacity" field-key="admin.resources.form.fields.capacity"></FormLabel>
             <div class="mb-6 flex flex-row">
                 <div class="w-10/12">
@@ -74,42 +62,24 @@
         </div>
 
         <!-- Checkbox: Is active -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input id="is_active" v-model="form.is_active" type="checkbox" class="peer sr-only" />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.resources.form.fields.is_active.label") }}
-                </span>
-            </label>
-            <FormValidationError v-if="form.errors.is_active" :message="form.errors.is_active"></FormValidationError>
+        <div class="space-x-2">
+            <ToggleSwitch model="form.is_active" input-id="is_active" />
+            <FormLabel field="is_active" field-key="admin.resources.form.fields.is_active" class="inline-block" />
+            <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
         <!-- Checkbox: Is verification required -->
-        <div class="mb-6">
-            <label class="relative inline-flex cursor-pointer items-center">
-                <input
-                    id="is_verification_required"
-                    v-model="form.is_verification_required"
-                    type="checkbox"
-                    class="peer sr-only"
-                />
-                <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-red-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-red-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-red-800"
-                ></div>
-                <span class="ml-3 text-sm font-bold uppercase text-gray-900 dark:text-white">
-                    {{ $t("admin.resources.form.fields.is_verification_required.label") }}
-                </span>
-            </label>
-            <FormValidationError
-                v-if="form.errors.is_verification_required"
-                :message="form.errors.is_verification_required"
-            ></FormValidationError>
+        <div class="space-x-2">
+            <ToggleSwitch model="form.is_verification_required" input-id="is_verification_required" />
+            <FormLabel
+                field="is_verification_required"
+                field-key="admin.resources.form.fields.is_verification_required"
+                class="inline-block"
+            />
+            <FormValidationError :message="form.errors.is_verification_required"></FormValidationError>
         </div>
 
-        <div class="mb-6">
+        <div>
             <BusinessHourField
                 v-for="(timeSlot, index) in form.business_hours"
                 :key="timeSlot.id"
@@ -142,18 +112,19 @@
             cancel-route="admin.resource.index"
             :cancel-route-params="{ resource_group_id: resourceGroup.id }"
         />
-    </form>
+    </FormLayout>
 </template>
 <script setup>
 import BusinessHourField from "@/Components/Admin/BusinessHourField.vue";
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
+import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
+import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
-import PageHead from "@/Shared/PageHead.vue";
 
 import { useForm } from "@inertiajs/vue3";
+import ToggleSwitch from "primevue/toggleswitch";
 
 // ------------------------------------------------
 // Props
