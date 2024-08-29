@@ -33,6 +33,7 @@ class Institution extends Model
         'teaser_uri',
         'email',
         'is_active',
+        'order',
     ];
 
     protected $morphClass = 'institution';

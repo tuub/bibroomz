@@ -89,6 +89,8 @@ Route::middleware('auth:sanctum')->group(function () {
         /* Institutions */
         Route::get('/admin/institutions', [AdminInstitutionController::class, 'getInstitutions'])
             ->name('admin.institution.index');
+        Route::post('/admin/institutions/order', [AdminInstitutionController::class, 'orderInstitutions'])
+            ->name('admin.institution.order');
         Route::get('/admin/institution/create', [AdminInstitutionController::class, 'createInstitution'])
             ->name('admin.institution.create');
         Route::get('/admin/institution/{id}/edit', [AdminInstitutionController::class, 'editInstitution'])

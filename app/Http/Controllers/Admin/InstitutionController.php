@@ -8,8 +8,10 @@ use App\Models\Institution;
 use App\Models\Setting;
 use App\Models\WeekDay;
 use App\Services\AdminLoggingService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class InstitutionController extends Controller
 {
@@ -20,12 +22,28 @@ class InstitutionController extends Controller
     public function getInstitutions()
     {
         return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => Institution::with(['closings'])->get()
-                ->filter->isViewableByUser(auth()->user()),
+            'institutions' => Institution::with(['closings'])
+                ->orderBy('order')
+                ->get()
+                ->filter->isViewableByUser(auth()->user())
+                ->transform(function ($item) {
+                    return $item->withoutTranslations();
+                })
         ]);
     }
 
-    public function createInstitution()
+    public function orderInstitutions(Request $request): void
+    {
+        foreach ($request->input() as $row) {
+            $institution = Institution::findOrFail($row['id']);
+            $institution->update([
+                'order' => $row['order'],
+            ]);
+            $this->adminLoggingService->log('reordered institution', $institution);
+        }
+    }
+
+    public function createInstitution(): Response
     {
         $this->authorize('create', Institution::class);
 
@@ -37,7 +55,7 @@ class InstitutionController extends Controller
         ]);
     }
 
-    public function storeInstitution(InstitutionRequest $request)
+    public function storeInstitution(InstitutionRequest $request): RedirectResponse
     {
         $this->authorize('create', Institution::class);
 
@@ -61,7 +79,7 @@ class InstitutionController extends Controller
         return redirect()->route('admin.institution.index');
     }
 
-    public function editInstitution(Request $request)
+    public function editInstitution(Request $request): Response
     {
         $institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
 
@@ -74,7 +92,7 @@ class InstitutionController extends Controller
         ]);
     }
 
-    public function updateInstitution(InstitutionRequest $request)
+    public function updateInstitution(InstitutionRequest $request): RedirectResponse
     {
         $institution = Institution::findOrFail($request->id);
 
@@ -90,7 +108,7 @@ class InstitutionController extends Controller
         return redirect()->route('admin.institution.index');
     }
 
-    public function deleteInstitution(Request $request)
+    public function deleteInstitution(Request $request): RedirectResponse
     {
         $institution = Institution::findOrFail($request->id);
         $this->authorize('delete', $institution);

@@ -18,6 +18,7 @@ class HomeController extends Controller
         $institutions = Institution::active()
             ->whereHas('resource_groups', fn ($q) => $q->active())
             ->with(['resource_groups' => fn ($q) => $q->active()])
+            ->orderBy('order')
             ->get();
 
         foreach ($institutions as $institution) {

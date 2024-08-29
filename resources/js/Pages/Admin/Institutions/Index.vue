@@ -1,92 +1,82 @@
 <template>
     <PageHead :title="$t('admin.institutions.index.title')" page-type="admin" />
-    <BodyHead :title="$t('admin.institutions.index.title')" :description="$t('admin.institutions.index.description')" />
-
     <XModal />
-    <CreateLink model="institution"></CreateLink>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.institutions.index.table.header.title") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.institutions.index.table.header.short_title") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.institutions.index.table.header.slug") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ $t("admin.institutions.index.table.header.location") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-center">
-                        {{ $t("admin.institutions.index.table.header.is_active") }}
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        <span class="sr-only">{{ $t("admin.general.actions") }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="institution in institutions"
-                    :key="institution.id"
-                    class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                    <th scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {{ translate(institution.title) }}
-                    </th>
-                    <td class="px-6 py-4">
-                        {{ institution.short_title }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ institution.slug }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ institution.location }}
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <BooleanField :is-true="institution.is_active" />
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <LinkGroup>
-                            <ActionLink
-                                v-if="hasPermission('edit_institution', institution.id)"
-                                action="edit"
-                                model="institution"
-                                :params="{ id: institution.id }"
-                            />
-                            <RelationLink
-                                v-if="hasPermission('view_closings', institution.id)"
-                                current="institution"
-                                relation="closing"
-                                :params="{ closable_type: 'institution', closable_id: institution.id }"
-                            />
-                            <RelationLink
-                                v-if="hasPermission('edit_institution', institution.id)"
-                                current="institution"
-                                relation="setting"
-                                :params="{ settingable_type: 'institution', settingable_id: institution.id }"
-                            />
-                            <RelationLink
-                                v-if="hasPermission('view_mails', institution.id)"
-                                current="institution"
-                                relation="mail"
-                                :params="{ institution_id: institution.id }"
-                            />
-                            <PopupLink
-                                v-if="hasPermission('delete_institution', institution.id)"
-                                action="delete"
-                                model="institution"
-                                :params="{ id: institution.id }"
-                            />
-                        </LinkGroup>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <DataTable
+            ref="indexTable"
+            :value="institutions"
+            size="medium"
+            striped-rows
+            removable-sort
+            table-style="min-width: 50rem"
+            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+            @row-reorder="reorderRows"
+        >
+            <template #header>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xl font-bold">{{ $t("admin.institutions.index.title") }}</div>
+                        <div class="italic">{{ $t("admin.institutions.index.description") }}</div>
+                    </div>
+                    <CreateLink model="institution" />
+                </div>
+            </template>
+            <Column :row-reorder="!isSortedByColumn()" header-style="width: 3rem" />
+            <Column field="title" sortable :header="$t('admin.institutions.index.table.header.title')">
+                <template #body="slotProps">
+                    {{ slotProps.data.title }}
+                </template>
+            </Column>
+            <Column
+                field="short_title"
+                sortable
+                :header="$t('admin.institutions.index.table.header.short_title')"
+            ></Column>
+            <Column field="slug" sortable :header="$t('admin.institutions.index.table.header.slug')"></Column>
+            <Column field="location" sortable :header="$t('admin.institutions.index.table.header.location')"></Column>
+            <Column field="is_active" sortable :header="$t('admin.institutions.index.table.header.is_active')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_active" />
+                </template>
+            </Column>
+            <Column :columnheader="$t('admin.general.actions')">
+                <template #body="slotProps">
+                    <LinkGroup>
+                        <ActionLink
+                            v-if="hasPermission('edit_institution', slotProps.data.id)"
+                            action="edit"
+                            model="institution"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <RelationLink
+                            v-if="hasPermission('view_closings', slotProps.data.id)"
+                            current="institution"
+                            relation="closing"
+                            :params="{ closable_type: 'institution', closable_id: slotProps.data.id }"
+                        />
+                        <RelationLink
+                            v-if="hasPermission('edit_institution', slotProps.data.id)"
+                            current="institution"
+                            relation="setting"
+                            :params="{ settingable_type: 'institution', settingable_id: slotProps.data.id }"
+                        />
+                        <RelationLink
+                            v-if="hasPermission('view_mails', slotProps.data.id)"
+                            current="institution"
+                            relation="mail"
+                            :params="{ institution_id: slotProps.data.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_institution', slotProps.data.id)"
+                            action="delete"
+                            model="institution"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                    </LinkGroup>
+                </template>
+            </Column>
+        </DataTable>
     </div>
 </template>
 
@@ -97,11 +87,13 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
 import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+
+import { router } from "@inertiajs/vue3";
+import { inject, ref, watch } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -122,6 +114,29 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = appStore.translate;
+const route = inject("route");
 const { hasPermission } = authStore;
+const indexTable = ref({});
+
+// ------------------------------------------------
+// Watchers
+// ------------------------------------------------
+watch(
+    () => appStore.locale,
+    () => {
+        router.reload();
+    },
+);
+
+const isSortedByColumn = () => {
+    return !!indexTable.value.d_sortField;
+};
+
+const reorderRows = (event) => {
+    const institutions = event.value;
+    for (const [index, institution] of institutions.entries()) {
+        institution.order = index + 1;
+    }
+    router.post(route("admin.institution.order"), institutions);
+};
 </script>
