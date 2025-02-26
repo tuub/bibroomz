@@ -254,6 +254,15 @@ class HappeningController extends Controller
         CarbonImmutable $end,
         Happening $happening = null,
     ): void {
+
+        // check if user is in allowed user group
+        if (!$resource->resource_group->isAllowedUser($user)) {
+            abort(400, __('happening.errors.not_allowed_user', [
+                'resource_type' => $resource->resource_group->term_singular,
+                'resource_title' => $resource->title,
+            ]));
+        }
+
         // check if resource is closed
         [$closed] = $resource->findClosed($start, $end);
         if ($closed) {

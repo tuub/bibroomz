@@ -74,6 +74,11 @@ class Institution extends Model
             ->using(InstitutionUserRole::class);
     }
 
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function user_groups(): HasMany
+    {
+        return $this->hasMany(UserGroup::class);
+    }
 
     public function closings(): MorphMany
     {

@@ -92,6 +92,14 @@ class User extends Authenticatable implements BannableInterface
             ->using(InstitutionUserRole::class);
     }
 
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function user_groups(): BelongsToMany
+    {
+        return $this->belongsToMany(UserGroup::class, 'user_group_user')
+            ->withPivot('valid_from', 'valid_until')
+            ->using(UserGroupUser::class);
+    }
+
     /*****************************************************************
      * METHODS
      ****************************************************************/
