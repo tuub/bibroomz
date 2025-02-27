@@ -74,13 +74,10 @@ class Utility
             return null;
         }
 
-        switch ($method) {
-            case 1:
-                $username = strtolower($login_name);
-                break;
-            default:
-                $username = $login_name;
-        }
+        $username = match ($method) {
+            1 => strtolower($login_name),
+            default => $login_name,
+        };
 
         return $username;
     }

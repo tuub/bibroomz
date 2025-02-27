@@ -29,7 +29,7 @@ class IpChecker
 
     private static function isIpInRange(string $addr, string $range): bool
     {
-        if (strpos($range, '/') === false) {
+        if (!str_contains($range, '/')) {
             // No mask, so we compare the IP directly
             return $addr == $range;
         }
@@ -46,7 +46,7 @@ class IpChecker
         $range_decimal = ip2long($range);
 
         // Calculate the decimal representation of the wildcard mask and the subnet mask
-        $wildcard_decimal = pow(2, (32 - $netmask)) - 1;
+        $wildcard_decimal = 2 ** (32 - $netmask) - 1;
         $netmask_decimal = ~$wildcard_decimal;
 
         return (($addr_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));

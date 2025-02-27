@@ -80,7 +80,7 @@ class CreateInstitutionCommand extends Command
             return;
         }
 
-        return array(app()->getLocale() => $this->option($key));
+        return [app()->getLocale() => $this->option($key)];
     }
 
     private function booleanOption($key)

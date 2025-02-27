@@ -15,18 +15,13 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Happening $happening;
-    public User $user;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Happening $happening, User $user)
+    public function __construct(public Happening $happening, public User $user)
     {
-        $this->happening = $happening;
-        $this->user = $user;
     }
 
     /**

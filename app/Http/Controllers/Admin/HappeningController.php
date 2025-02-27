@@ -48,7 +48,7 @@ class HappeningController extends Controller
             ->orderBy('start')
             ->get()
             ->filter->isViewableByUser($user)
-            ->map(array($this, 'mapHappeningToView'));
+            ->map($this->mapHappeningToView(...));
 
         return Inertia::render('Admin/Happenings/Index', [
             'happenings' => $happenings->values(),

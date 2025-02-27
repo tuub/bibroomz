@@ -54,7 +54,7 @@ class RolePolicy
 
     public function edit(User $user, Role $role)
     {
-        return $this->update($user, $role);
+        return $this->update($user);
     }
 
     /**

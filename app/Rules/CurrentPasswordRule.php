@@ -9,13 +9,8 @@ use Illuminate\Support\Facades\Hash;
 
 class CurrentPasswordRule implements ValidationRule
 {
-    private string|null $name;
-    private string|null $current_password;
-
-    public function __construct(string|null $name, string|null $current_password)
+    public function __construct(private string|null $name, private string|null $current_password)
     {
-        $this->name = $name;
-        $this->current_password = $current_password;
     }
 
     public function validate(mixed $attribute, mixed $value, Closure $fail): void
