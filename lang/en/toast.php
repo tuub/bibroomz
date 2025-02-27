@@ -31,4 +31,5 @@ return [
         'daily_hours' => 'Daily hours quota limit exceeded: :remaining hours remaining',
     ],
     'concurrent_happening' => 'Only one booking at a time is allowed!',
+    'wrong_user_group' => ':Resource_type :resource_title is not available for your user group.',
 ];

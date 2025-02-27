@@ -50,6 +50,7 @@ class ResourceController extends Controller
                 'isVerificationRequired' => $resource->is_verification_required,
                 'capacity' => $resource->capacity,
                 'location_uri' => $resource->location_uri,
+                'resourceGroup' => $resource->resource_group->id,
                 'translations' => [
                     'title' => $resource->getTranslations('title'),
                     'description' => $resource->getTranslations('description'),

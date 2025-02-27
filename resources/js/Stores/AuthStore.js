@@ -21,6 +21,7 @@ export const useAuthStore = defineStore({
         quotas: {},
         error: null,
         isProcessingLogin: false,
+        allowedResourceGroups: [],
     }),
 
     getters: {
@@ -42,6 +43,7 @@ export const useAuthStore = defineStore({
                 this.isAuthenticated = true;
                 this.isAdmin = response.data.isAdmin;
                 this.permissions = response.data.permissions;
+                this.allowedResourceGroups = response.data.allowedResourceGroups;
 
                 this.fetchUserHappenings();
                 this.subscribe();
@@ -64,6 +66,7 @@ export const useAuthStore = defineStore({
             this.isAuthenticated = true;
             this.isAdmin = response.data.isAdmin;
             this.permissions = response.data.permissions;
+            this.allowedResourceGroups = response.data.allowedResourceGroups;
 
             this.fetchUserHappenings();
             this.subscribe();
@@ -367,6 +370,25 @@ export const useAuthStore = defineStore({
             }
 
             return false;
+        },
+
+        isAllowedForResource(resource) {
+            const isAllowed = this.allowedResourceGroups.includes(resource.resourceGroup);
+
+            if (!isAllowed) {
+                const appStore = useAppStore();
+                const toastStore = useToastStore();
+                const translate = appStore.translate;
+
+                const summary = trans("toast.wrong_user_group", {
+                    resource_type: translate(resource.translations.resourceGroup),
+                    resource_title: translate(resource.translations.title),
+                });
+
+                toastStore.addUserGroupToast({ summary });
+            }
+
+            return isAllowed;
         },
 
         canViewInstitutions() {

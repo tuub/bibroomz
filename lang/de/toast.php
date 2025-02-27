@@ -31,4 +31,5 @@ return [
         'daily_hours' => 'Tägliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
     ],
     'concurrent_happening' => 'Es ist nur eine Buchung zur gleichen Zeit möglich!',
+    'wrong_user_group' => ':Resource_type :resource_title ist für Ihre Nutzer:innengruppe nicht verfügbar.'
 ];

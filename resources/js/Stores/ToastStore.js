@@ -3,11 +3,15 @@ import { useAppStore } from "@/Stores/AppStore";
 import { defineStore } from "pinia";
 import { useToast } from "primevue/usetoast";
 
+function equals(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
+}
+
 export const useToastStore = defineStore({
     id: "toast",
 
     state: () => ({
-        quotaToastMessages: [],
+        toastMessages: [],
     }),
 
     actions: {
@@ -15,8 +19,17 @@ export const useToastStore = defineStore({
             this.toast = useToast();
         },
 
+        addToast(options) {
+            if (this.toastMessages.filter((message) => equals(message, options)).length > 0) {
+                return;
+            }
+
+            this.toastMessages.push(options);
+            this.toast.add(options);
+        },
+
         addAuthToast({ summary, severity = "success" }) {
-            this.toast.add({ life: 3000, severity, summary });
+            this.addToast({ id: "auth", life: 3000, severity, summary });
         },
 
         addHappeningToast({ happening, summary, severity = "success" }) {
@@ -29,24 +42,27 @@ export const useToastStore = defineStore({
             const start = appStore.formatTime(happeningStart);
             const end = appStore.formatTime(happeningEnd);
 
-            const detail = `${date}, ${start} - ${end}`;
+            const message = {
+                detail: `${date}, ${start} - ${end}`,
+                id: "happening",
+                life: 5000,
+                severity,
+                summary,
+            };
 
-            this.toast.add({ life: 5000, severity, summary, detail });
+            this.addToast(message);
         },
 
         addQuotaToast({ summary, severity = "warn" }) {
-            if (this.quotaToastMessages.includes(summary)) {
-                return;
-            }
-
-            this.toast.add({ life: 5000, severity, summary });
-            this.quotaToastMessages.push(summary);
+            this.addToast({ id: "quota", life: 5000, severity, summary });
         },
 
-        removeQuotaToastMessage({ message }) {
-            this.quotaToastMessages = this.quotaToastMessages.filter(
-                (quotaToastMessage) => quotaToastMessage != message.summary,
-            );
+        addUserGroupToast({ summary, severity = "warn" }) {
+            this.addToast({ id: "userGroup", life: 3000, severity, summary });
+        },
+
+        removeToastMessage(params) {
+            this.toastMessages = this.toastMessages.filter((message) => !equals(message, params.message));
         },
     },
 });

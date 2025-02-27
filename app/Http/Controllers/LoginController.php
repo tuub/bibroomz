@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ResourceGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,9 @@ class LoginController extends Controller
             'isAdmin' => $user->isAdmin(),
             'user' => $user->only(['id', 'name', 'email']),
             'permissions' => $user->getPermissions(),
+            'allowedResourceGroups' => ResourceGroup::get()->filter(
+                fn (ResourceGroup $rg) => $rg->isAllowedUser($user)
+            )->pluck('id'),
         ];
     }
     public function login(Request $request)

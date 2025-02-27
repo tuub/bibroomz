@@ -100,9 +100,16 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     }
 
     function isSelectAllow(event) {
-        const now = dayjs.utc();
+        if (authStore.isAuthenticated && !authStore.isAllowedForResource(event.resource.extendedProps)) {
+            return false;
+        }
+
         const tsStart = dayjs(event.startStr);
         const tsEnd = dayjs(event.endStr);
+
+        if (authStore.isAuthenticated && authStore.isExceedingQuotas(tsStart, tsEnd)) {
+            return false;
+        }
 
         const tsLenConfig = resourceGroupSettings["time_slot_length"].split(":");
         const tsLen = {
@@ -110,14 +117,11 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
             minutes: parseInt(tsLenConfig[1]),
         };
 
+        const now = dayjs.utc();
         const isNotPast = tsStart.isSameOrAfter(now);
         const isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
 
         const isValid = tsStart.add(tsLen.hours, "hours").add(tsLen.minutes, "minutes").isAfter(now);
-
-        if (authStore.isAuthenticated && authStore.isExceedingQuotas(tsStart, tsEnd)) {
-            return false;
-        }
 
         return isValid && (isNotPast || isCurrentTimeSlot);
     }

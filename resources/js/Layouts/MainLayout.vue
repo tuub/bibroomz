@@ -9,8 +9,8 @@
 
         <Toast
             position="bottom-right"
-            @close="toastStore.removeQuotaToastMessage"
-            @life-end="toastStore.removeQuotaToastMessage"
+            @close="toastStore.removeToastMessage"
+            @life-end="toastStore.removeToastMessage"
         />
     </section>
     <footer id="footer" class="footer">
