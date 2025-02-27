@@ -153,8 +153,8 @@ class User extends Authenticatable implements BannableInterface
 
         return $this->roles
             ->map(fn (Role $role): array => [
-                "institution" => $role->pivot->institution->id,
-                "permissions" => $role->getPermissionKeys($filter),
+                'institution' => $role->pivot->institution->id,
+                'permissions' => $role->getPermissionKeys($filter),
             ])
             ->reduce(fn (Collection $result, array $value): Collection => $result->mergeRecursive([
                 $value['institution'] => $value['permissions'],
