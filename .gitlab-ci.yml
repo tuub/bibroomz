@@ -81,6 +81,15 @@ prettier:
   script:
     - npx --no -- prettier --list-different resources/js resources/sass
 
+rector:
+  extends: .php
+  stage: lint
+  before_script:
+    - apk add --no-cache git
+  script:
+    - vendor/bin/rector process
+    - git diff --exit-code
+
 stylelint:
   extends: .node
   stage: lint
