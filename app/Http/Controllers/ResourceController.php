@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
-    public static function getResources(Request $request): JsonResponse
+    public function getResources(Request $request): JsonResponse
     {
         $output = [];
 
