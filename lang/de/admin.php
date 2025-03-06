@@ -277,6 +277,11 @@ return [
                     'label' => 'Aktiv?',
                     'hint' => 'Aktiv ja/nein',
                 ],
+                'user_groups' => [
+                    'label' => 'Auf Benutzergruppen eingeschränkt?',
+                    'hint' => 'Soll die Ressource-Gruppe nur für ausgewählte Benutzergruppen verfügbar sein?',
+                    'placeholder' => 'Nicht eingeschränkt',
+                ],
             ],
         ],
     ],

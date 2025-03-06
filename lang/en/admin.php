@@ -277,6 +277,11 @@ return [
                     'label' => 'Active?',
                     'hint' => ' ',
                 ],
+                'user_groups' => [
+                    'label' => 'Restrict to user groups?',
+                    'hint' => 'Should this resource group be restricted to certain user groups?',
+                    'placeholder' => 'Not restricted',
+                ],
             ],
         ],
     ],

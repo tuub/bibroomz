@@ -80,10 +80,37 @@
 
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
-            <ToggleSwitch model="form.is_active" input-id="is_active" />
+            <ToggleSwitch v-model="form.is_active" input-id="is_active" />
             <FormLabel field="is_active" field-key="admin.resource_groups.form.fields.is_active" class="inline-block" />
             <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
+
+        <fieldset :hidden="form.is_admin" class="space-y-4">
+            <legend class="space-y-2">
+                <div class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+                    {{ $t("admin.resource_groups.form.fields.user_groups.label") }}
+                </div>
+
+                <div class="text-xs">
+                    {{ $t("admin.resource_groups.form.fields.user_groups.hint") }}
+                </div>
+            </legend>
+
+            <MultiSelect
+                v-model="form.user_groups"
+                :options="selectedInstitution?.user_groups ?? []"
+                :option-label="(userGroup) => translate(userGroup.title)"
+                :option-value="(userGroup) => userGroup.id"
+                :show-toggle-all="false"
+                :invalid="form.errors.user_groups"
+                :placeholder="$t('admin.resource_groups.form.fields.user_groups.placeholder')"
+                display="chip"
+                input-id="user-groups"
+                class="w-full"
+            />
+
+            <FormValidationError :message="form.errors.user_groups"></FormValidationError>
+        </fieldset>
 
         <FormAction :form="form" model="resource_group" cancel-route="admin.resource_group.index" />
     </FormLayout>
@@ -98,7 +125,7 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
-import ToggleSwitch from "primevue/toggleswitch";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -128,6 +155,7 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
+
 const form = useForm({
     id: props.resource_group?.id ?? "",
     institution_id: props.resource_group?.institution_id ?? "",
@@ -137,5 +165,10 @@ const form = useForm({
     term_plural: props.resource_group?.term_plural ?? {},
     description: props.resource_group?.description ?? {},
     is_active: props.resource_group?.is_active ?? false,
+    user_groups: props.resource_group?.user_groups?.map((userGroup) => userGroup.id) ?? [],
+});
+
+const selectedInstitution = computed(() => {
+    return props.institutions.find((institution) => institution.id === form.institution_id);
 });
 </script>

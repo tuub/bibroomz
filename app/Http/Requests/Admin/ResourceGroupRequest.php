@@ -26,6 +26,8 @@ class ResourceGroupRequest extends FormRequest
             'term_plural' => [new RequiredWithTranslationRule()],
             'description' => [new RequiredWithTranslationRule()],
             'is_active' => ['required', 'boolean'],
+            'user_groups' => ['list'],
+            'user_groups.*' => ['uuid', 'exists:user_groups,id'],
         ];
     }
 }
