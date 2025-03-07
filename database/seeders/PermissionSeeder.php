@@ -86,6 +86,10 @@ class PermissionSeeder extends Seeder
                 'en' => 'Users',
                 'de' => 'Benutzer',
             ],
+            'user_groups' => [
+                'en' => 'User Groups',
+                'de' => 'Benutzergruppen',
+            ],
         ]);
     }
 
@@ -114,6 +118,7 @@ class PermissionSeeder extends Seeder
             'resources',
             'roles',
             'users',
+            'user_groups',
         ]);
 
         $this->createPermissions([

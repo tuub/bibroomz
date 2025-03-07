@@ -787,4 +787,56 @@ return [
             ],
         ],
     ],
+    'user_groups' => [
+        'index' => [
+            'title' => 'User Groups',
+            'description' => 'Create, edit, delete user groups',
+            'table' => [
+                'header' => [
+                    'title' => 'Title',
+                    'institution' => 'Institution',
+                ],
+                'actions' => [
+                    'create' => 'Create user group',
+                    'import' => 'Import',
+                    'edit' => 'Edit',
+                    'delete' => 'Delete',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'User group form',
+            'description' => 'Create / edit a user group',
+            'fields' => [
+                'institution' => [
+                    'label' => 'Institution',
+                    'placeholder' => 'Institution',
+                    'hint' => ' ',
+                ],
+                'title' => [
+                    'label' => 'Title',
+                    'placeholder' => 'Title',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+        'import' => [
+            'title' => 'User Import',
+            'description' => 'Add users to user group :title',
+            'fields' => [
+                'users' => [
+                    'label' => 'Users',
+                    'hint' => 'One user name per line.',
+                ],
+                'valid_from' => [
+                    'label' => 'Valid from',
+                    'hint' => ' ',
+                ],
+                'valid_until' => [
+                    'label' => 'Valid until',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
 ];

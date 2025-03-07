@@ -787,4 +787,56 @@ return [
             ],
         ],
     ],
+    'user_groups' => [
+        'index' => [
+            'title' => 'Benutzergruppen',
+            'description' => 'Benutzergruppen erstellen, bearbeiten, löschen',
+            'table' => [
+                'header' => [
+                    'title' => 'Titel',
+                    'institution' => 'Einrichtung',
+                ],
+                'actions' => [
+                    'create' => 'Benutzergruppe erstellen',
+                    'import' => 'Import',
+                    'edit' => 'Bearbeiten',
+                    'delete' => 'Löschen',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'Formular für Benutzergruppen',
+            'description' => 'Benutzergruppe erstellen / bearbeiten',
+            'fields' => [
+                'institution' => [
+                    'label' => 'Einrichtung',
+                    'placeholder' => 'Einrichtung',
+                    'hint' => ' ',
+                ],
+                'title' => [
+                    'label' => 'Titel',
+                    'placeholder' => 'Titel',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+        'import' => [
+            'title' => 'Benutzer-Import',
+            'description' => 'Benutzer zu Benutzergruppe :title hinzufügen',
+            'fields' => [
+                'users' => [
+                    'label' => 'Benutzer',
+                    'hint' => 'Ein Benutzername pro Zeile.',
+                ],
+                'valid_from' => [
+                    'label' => 'Gültig ab',
+                    'hint' => ' ',
+                ],
+                'valid_until' => [
+                    'label' => 'Gültig bis',
+                    'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
 ];

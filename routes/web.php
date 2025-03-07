@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
+use App\Http\Controllers\Admin\UserGroupController as AdminUSerGroupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -223,6 +224,24 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.permission_group.edit');
         Route::post('/admin/permission_group/update', [AdminPermissionGroupController::class, 'updatePermissionGroup'])
             ->name('admin.permission_group.update');
+
+        /* User Groups */
+        Route::get('/admin/user_groups', [AdminUserGroupController::class, 'getUserGroups'])
+            ->name('admin.user_group.index');
+        Route::get('/admin/user_group/create', [AdminUserGroupController::class, 'createUserGroup'])
+            ->name('admin.user_group.create');
+        Route::get('/admin/user_group/{id}/edit', [AdminUserGroupController::class, 'editUserGroup'])
+            ->name('admin.user_group.edit');
+        Route::post('/admin/user_group/store', [AdminUserGroupController::class, 'storeUserGroup'])
+            ->name('admin.user_group.store');
+        Route::post('/admin/user_group/update', [AdminUserGroupController::class, 'updateUserGroup'])
+            ->name('admin.user_group.update');
+        Route::post('/admin/user_group/delete', [AdminUserGroupController::class, 'deleteUserGroup'])
+            ->name('admin.user_group.delete');
+        Route::get('/admin/user_group/import', [AdminUserGroupController::class, 'importForm'])
+            ->name('admin.user_group.import');
+        Route::post('/admin/user_group/users/import', [AdminUserGroupController::class, 'importUsers'])
+            ->name('admin.user_group.users.import');
 
         Route::get('/admin', [AdminController::class, 'getDashboard']);
     });

@@ -121,6 +121,11 @@ class Institution extends Model
         return $user->can('create', [ResourceGroup::class, $this]);
     }
 
+    public function isUserAbleToCreateUserGroup(User $user): bool
+    {
+        return $user->can('create', [UserGroup::class, $this]);
+    }
+
     public function getHiddenDays()
     {
         return WeekDay::get()

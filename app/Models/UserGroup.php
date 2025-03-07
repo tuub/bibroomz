@@ -57,4 +57,12 @@ class UserGroup extends Model
     {
         return $this->belongsToMany(ResourceGroup::class, 'resource_group_user_group');
     }
+
+    /*****************************************************************
+     * METHODS
+     ****************************************************************/
+    public function isViewableByUser(User $user): bool
+    {
+        return $user->can('view', $this);
+    }
 }

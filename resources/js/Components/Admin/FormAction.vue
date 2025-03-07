@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-6">
+    <div class="mb-6 space-x-1">
         <button
             type="button"
             class="rounded bg-green-400 px-4 py-2 text-white hover:bg-green-700"
@@ -8,6 +8,7 @@
         >
             {{ $t("admin.general.form.submit") }}
         </button>
+
         <button type="button" class="rounded bg-gray-400 px-4 py-2 text-black hover:bg-gray-700" @click="cancelForm">
             {{ $t("admin.general.form.cancel") }}
         </button>
@@ -30,6 +31,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    action: {
+        type: String,
+        default: null,
+    },
     cancelRoute: {
         type: String,
         default: null,
@@ -43,11 +48,9 @@ const props = defineProps({
 const route = inject("ziggyRoute");
 
 const submitForm = () => {
-    if (props.form.id) {
-        props.form.post(route("admin." + props.model + ".update"));
-    } else {
-        props.form.post(route("admin." + props.model + ".store"));
-    }
+    const action = props.action ?? (props.form.id ? "update" : "store");
+
+    props.form.post(route(`admin.${props.model}.${action}`));
 };
 
 const cancelForm = () => {
