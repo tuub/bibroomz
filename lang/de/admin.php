@@ -836,6 +836,12 @@ return [
                     'label' => 'Gültig bis',
                     'hint' => ' ',
                 ],
+                'units' => [
+                    'days' => 'Tag(e)',
+                    'weeks' => 'Woche(n)',
+                    'months' => 'Monat(e)',
+                    'years' => 'Jahr(e)',
+                ]
             ],
         ],
     ],

@@ -105,7 +105,7 @@ class UserGroupController extends Controller
     public function importUsers(ImportUsersRequest $request)
     {
         $id = $request->id;
-        $validated = $request->validated();
+        $validated = $request->safe()->merge($request->only(['valid_from', 'valid_until']))->toArray();
 
         $ug = $this->userGroupService->importUsers($id, $validated);
 

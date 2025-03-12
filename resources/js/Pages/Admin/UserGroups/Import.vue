@@ -5,15 +5,65 @@
     >
         <div class="flex justify-stretch gap-2">
             <div class="w-full space-y-2">
-                <FormLabel field="valid-from" field-key="admin.user_groups.import.fields.valid_from" />
-                <DatePicker v-model="validFrom" show-button-bar show-icon class="w-full" input-id="valid-from" />
-                <FormValidationError :message="form.errors.valid_from" />
+                <FormLabel field="valid-from-date" field-key="admin.user_groups.import.fields.valid_from" />
+
+                <div>
+                    <DatePicker
+                        v-model="validFromDate"
+                        show-button-bar
+                        show-icon
+                        :disabled="!!validFromText"
+                        input-id="valid-from-date"
+                        class="w-full"
+                    />
+                    <FormValidationError :message="form.errors.valid_from_date" />
+                </div>
+
+                <div>
+                    <InputText
+                        id="valid-from-text"
+                        v-model="validFromText"
+                        :disabled="!!validFromDate"
+                        class="w-full"
+                    />
+                    <FormValidationError :message="form.errors.valid_from_text" />
+                </div>
             </div>
 
             <div class="w-full space-y-2">
-                <FormLabel field="valid-until" field-key="admin.user_groups.import.fields.valid_until" />
-                <DatePicker v-model="validUntil" show-button-bar show-icon class="w-full" input-id="valid-until" />
-                <FormValidationError :message="form.errors.valid_until" />
+                <FormLabel field="valid-until-date" field-key="admin.user_groups.import.fields.valid_until" />
+
+                <div>
+                    <DatePicker
+                        v-model="validUntilDate"
+                        show-button-bar
+                        show-icon
+                        :disabled="!!validUntilNumber"
+                        input-id="valid-until-date"
+                        class="w-full"
+                    />
+                    <FormValidationError :message="form.errors.valid_until_date" />
+                </div>
+
+                <div>
+                    <InputGroup>
+                        <InputNumber
+                            v-model="validUntilNumber"
+                            input-id="valid-until-unit"
+                            class="w-1/2"
+                            :disabled="!!validUntilDate"
+                        />
+                        <Select
+                            v-model="validUntilUnit"
+                            :options="units"
+                            option-label="label"
+                            option-value="value"
+                            :disabled="!!validUntilDate"
+                            class="w-1/2"
+                        />
+                    </InputGroup>
+                    <FormValidationError :message="form.errors.valid_until_text" />
+                </div>
             </div>
         </div>
 
@@ -35,6 +85,7 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
+import { trans } from "laravel-vue-i18n";
 import { computed, ref } from "vue";
 
 const translate = useAppStore().translate;
@@ -63,8 +114,20 @@ const props = defineProps({
 // ------------------------------------------------
 const users = ref("");
 
-const validFrom = ref();
-const validUntil = ref();
+const validFromDate = ref();
+const validUntilDate = ref();
+
+const validFromText = ref();
+
+const units = computed(() => [
+    { value: "days", label: trans("admin.user_groups.import.fields.units.days") },
+    { value: "weeks", label: trans("admin.user_groups.import.fields.units.weeks") },
+    { value: "months", label: trans("admin.user_groups.import.fields.units.months") },
+    { value: "years", label: trans("admin.user_groups.import.fields.units.years") },
+]);
+
+const validUntilNumber = ref();
+const validUntilUnit = ref(units.value[0].value);
 
 const form = useForm({
     id: props.user_group.id,
@@ -80,8 +143,13 @@ const form = useForm({
         ),
     ]),
 
-    valid_from: computed(() => toDateString(validFrom.value)),
-    valid_until: computed(() => toDateString(validUntil.value)),
+    valid_from_date: computed(() => toDateString(validFromDate.value)),
+    valid_until_date: computed(() => toDateString(validUntilDate.value)),
+
+    valid_from_text: computed(() => validFromText.value),
+    valid_until_text: computed(() =>
+        validUntilNumber.value ? [validUntilNumber.value, validUntilUnit.value].join(" ") : null,
+    ),
 });
 
 const title = computed(() => translate(props.user_group.title));

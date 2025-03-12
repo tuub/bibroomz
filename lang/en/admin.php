@@ -836,6 +836,12 @@ return [
                     'label' => 'Valid until',
                     'hint' => ' ',
                 ],
+                'units' => [
+                    'days' => 'Day(s)',
+                    'weeks' => 'Week(s)',
+                    'months' => 'Month(s)',
+                    'years' => 'Year(s)',
+                ]
             ],
         ],
     ],
