@@ -587,9 +587,6 @@ class Resource extends Model
         $quota_daily_hours = $settings->where('key', 'quota_daily_hours')->pluck('value')->first();
 
         $happening_block_hours = $start->floatDiffInHours($end);
-        if ($happening_block_hours > $quota_happening_block_hours) {
-            return true;
-        }
 
         $weekly_happenings = 1;
         $weekly_hours = $happening_block_hours;
@@ -617,7 +614,9 @@ class Resource extends Model
             }
         }
 
-        if ($quota_weekly_happenings > 0 && $weekly_happenings > $quota_weekly_happenings) {
+        if ($quota_happening_block_hours > 0 && $happening_block_hours > $quota_happening_block_hours) {
+            return true;
+        } elseif ($quota_weekly_happenings > 0 && $weekly_happenings > $quota_weekly_happenings) {
             return true;
         } elseif ($quota_weekly_hours > 0 && $weekly_hours > $quota_weekly_hours) {
             return true;
