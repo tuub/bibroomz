@@ -1,5 +1,7 @@
 <?php
 
+Illuminate\Foundation\Console\ServeCommand::$passthroughVariables[] = true;
+
 /*
 |--------------------------------------------------------------------------
 | Create The Application
