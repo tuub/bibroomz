@@ -71,6 +71,16 @@
                     {{ $t("navigation.admin.permission_groups") }}
                 </li>
             </NavLink>
+            <NavLink
+                v-if="hasPermission('view_user_groups')"
+                icon="ri-shield-keyhole-fill"
+                :href="route('admin.user_group.index')"
+                :is-active="isPageUserGroups"
+            >
+                <li>
+                    {{ $t("navigation.admin.user_groups") }}
+                </li>
+            </NavLink>
             <NavLink icon="ri-shut-down-line" :href="getExitUri">
                 <li>
                     {{ $t("navigation.admin.exit") }}
@@ -154,6 +164,10 @@ const isPagePermissions = computed(() => {
 
 const isPagePermissionGroups = computed(() => {
     return inertiaPage.component.startsWith("Admin/PermissionGroups");
+});
+
+const isPageUserGroups = computed(() => {
+    return inertiaPage.component.startsWith("Admin/UserGroups");
 });
 
 const getExitUri = computed(() => {

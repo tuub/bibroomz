@@ -21,6 +21,7 @@ return [
         'roles' => 'Roles',
         'permissions' => 'Permissions',
         'permission_groups' => 'Permission Groups',
+        'user_groups' => 'User Groups',
         'stats' => 'Statistics',
         'exit' => 'Leave Administration',
     ],
