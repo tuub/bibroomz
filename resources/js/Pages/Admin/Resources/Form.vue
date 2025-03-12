@@ -63,14 +63,14 @@
 
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
-            <ToggleSwitch model="form.is_active" input-id="is_active" />
+            <ToggleSwitch v-model="form.is_active" input-id="is_active" />
             <FormLabel field="is_active" field-key="admin.resources.form.fields.is_active" class="inline-block" />
             <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
         <!-- Checkbox: Is verification required -->
         <div class="space-x-2">
-            <ToggleSwitch model="form.is_verification_required" input-id="is_verification_required" />
+            <ToggleSwitch v-model="form.is_verification_required" input-id="is_verification_required" />
             <FormLabel
                 field="is_verification_required"
                 field-key="admin.resources.form.fields.is_verification_required"
