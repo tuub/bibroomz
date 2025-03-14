@@ -109,7 +109,7 @@ class ResourceGroup extends Model
                     return true;
                 }
 
-                if ($now->isBetween($valid_from, $valid_until)) {
+                if ($valid_from && $valid_until && $now->isBetween($valid_from, $valid_until)) {
                     return true;
                 }
             }
