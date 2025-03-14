@@ -25,7 +25,8 @@ class ResourceGroupService
             ->without('closings')
             ->get()
             ->filter
-            ->isUserAbleToCreateResourceGroup($user);
+            ->isUserAbleToCreateResourceGroup($user)
+            ->values();
     }
 
     public function getResourceGroupById($id)
