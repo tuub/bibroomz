@@ -25,6 +25,13 @@
                 </IndexRowField>
                 <IndexRowField class="text-right">
                     <LinkGroup>
+                        <RelationLink
+                            v-if="hasPermission('view_user_groups', user_group.institution_id)"
+                            current="user_group"
+                            relation="user"
+                            route="admin.user_group.users"
+                            :params="{ id: user_group.id }"
+                        />
                         <ActionLink
                             v-if="hasPermission('edit_user_groups', user_group.institution_id)"
                             action="import"
@@ -54,6 +61,7 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
 import IndexLayout from "@/Components/Admin/IndexLayout.vue";
 import IndexRow from "@/Components/Admin/IndexRow.vue";

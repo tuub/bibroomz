@@ -20,6 +20,11 @@ return [
         'unban' => [
             'user' => 'Sind Sie sicher, dass Sie diesen Benutzer entsperren wollen?',
         ],
+        'remove' => [
+            'user_group' => [
+                'users' => 'Sind Sie sicher, dass Sie diese Benutzer aus der Gruppe entfernen wollen?',
+            ],
+        ],
     ],
 
     'actions' => [
@@ -27,5 +32,6 @@ return [
         'cancel' => 'Nein, abbrechen',
         'ban' => 'Ja, sperren',
         'unban' => 'Ja, entsperren',
+        'remove' => 'Ja, entfernen',
     ],
 ];

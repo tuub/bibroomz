@@ -103,10 +103,6 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    languages: {
-        type: Array,
-        required: true,
-    },
 });
 
 // ------------------------------------------------

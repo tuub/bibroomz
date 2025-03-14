@@ -20,6 +20,11 @@ return [
         'unban' => [
             'user' => 'Are you sure you want to unban this user?',
         ],
+        'remove' => [
+            'user_group' => [
+                'users' => 'Are you sure you want to remove these users from the group?',
+            ],
+        ],
     ],
 
     'actions' => [
@@ -27,5 +32,6 @@ return [
         'cancel' => 'No, cancel',
         'ban' => 'Yes, ban',
         'unban' => 'Yes, unban',
+        'remove' => 'Yes, remove',
     ],
 ];

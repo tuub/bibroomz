@@ -1,10 +1,7 @@
 <template>
     <button class="font-medium text-red-600 hover:underline dark:text-red-500" @click="openModal">
-        <i v-if="action === 'delete'" class="ri-delete-bin-line"></i>
-        <i v-if="action === 'clone'" class="ri-file-copy-line"></i>
-        <i v-if="action === 'ban'" class="ri-prohibited-line"></i>
-        <i v-if="action === 'unban'" class="ri-arrow-go-back-fill"></i>
-        {{ $t("admin." + model + "s.index.table.actions." + action) }}
+        <i :class="icons[action]"></i>
+        {{ label ?? $t("admin." + model + "s.index.table.actions." + action) }}
     </button>
 </template>
 
@@ -23,7 +20,10 @@ const props = defineProps({
     action: {
         type: String,
         required: true,
-        validator: (value) => ["delete", "clone", "ban", "unban"].includes(value),
+    },
+    label: {
+        type: String,
+        default: null,
     },
     model: {
         type: String,
@@ -40,7 +40,18 @@ const props = defineProps({
 // ------------------------------------------------
 const actions = [];
 
-const openModal = () => {
+const icons = {
+    delete: "ri-delete-bin-line",
+    clone: "ri-file-copy-line",
+    ban: "ri-prohibited-line",
+    unban: "ri-arrow-go-back-fill",
+    remove: "ri-close-circle-line",
+};
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+function openModal() {
     modal.open(
         ConfirmModal,
         {
@@ -49,7 +60,7 @@ const openModal = () => {
         {},
         actions,
     );
-};
+}
 
 // ------------------------------------------------
 // Lifecycle

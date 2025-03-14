@@ -98,7 +98,6 @@ class UserGroupController extends Controller
 
         return Inertia::render('Admin/UserGroups/Import', [
             'user_group' => $ug,
-            'languages' => config('app.supported_locales'),
         ]);
     }
 
@@ -112,5 +111,28 @@ class UserGroupController extends Controller
         $this->adminLoggingService->log('import', $ug);
 
         return redirect()->route('admin.user_group.index');
+    }
+
+    public function getUsers(Request $request)
+    {
+        $id = $request->id;
+
+        $ug = $this->userGroupService->getUserGroupById($id);
+        $users = $this->userGroupService->getUsers($ug);
+
+        return Inertia::render('Admin/UserGroups/Users', [
+            'user_group' => $ug,
+            'users' => $users,
+        ]);
+    }
+
+    public function removeUsers(Request $request)
+    {
+        $id = $request->id;
+        $users = $request->users;
+
+        $this->userGroupService->removeUsers($id, $users);
+
+        return redirect()->route('admin.user_group.users', ['id' => $id]);
     }
 }

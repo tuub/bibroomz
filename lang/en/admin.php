@@ -801,6 +801,7 @@ return [
                     'import' => 'Import',
                     'edit' => 'Edit',
                     'delete' => 'Delete',
+                    'users' => 'Users',
                 ],
             ],
         ],
@@ -844,5 +845,19 @@ return [
                 ]
             ],
         ],
+        'users' => [
+            'title' => 'Users for User Group :title',
+            'table' => [
+                'header' => [
+                    'name' => 'Name',
+                    'email' => 'E-Mail',
+                    'valid_from' => 'Valid from',
+                    'valid_until' => 'Valid until',
+                ],
+                'actions' => [
+                    'remove' => 'Remove',
+                ],
+            ]
+        ]
     ],
 ];

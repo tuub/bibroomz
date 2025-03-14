@@ -240,8 +240,12 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.user_group.delete');
         Route::get('/admin/user_group/import', [AdminUserGroupController::class, 'importForm'])
             ->name('admin.user_group.import');
+        Route::get('/admin/user_group/users', [AdminUserGroupController::class, 'getUsers'])
+            ->name('admin.user_group.users');
         Route::post('/admin/user_group/users/import', [AdminUserGroupController::class, 'importUsers'])
             ->name('admin.user_group.users.import');
+        Route::post('/admin/user_group/users/remove', [AdminUserGroupController::class, 'removeUsers'])
+            ->name('admin.user_group.users.remove');
 
         Route::get('/admin', [AdminController::class, 'getDashboard']);
     });

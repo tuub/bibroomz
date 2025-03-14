@@ -10,8 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-use function Illuminate\Log\log;
-
 class UserGroupService
 {
     public function deleteUserGroup($id)
@@ -77,5 +75,24 @@ class UserGroupService
         }
 
         return $ug;
+    }
+
+    public function getUsers(UserGroup $ug)
+    {
+        $users = $ug->users()
+            ->select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        return $users;
+    }
+
+    public function removeUsers($id, array $users)
+    {
+        $ug = $this->getUserGroupById($id);
+
+        foreach ($users as $user) {
+            $ug->users()->detach($user);
+        }
     }
 }
