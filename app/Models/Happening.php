@@ -137,15 +137,6 @@ class Happening extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    protected static function booted(): void
-    {
-        static::softDeleted(function (Happening $happening) {
-            $happening->update([
-                'verifier' => null,
-            ]);
-        });
-    }
-
     public function getPermissions(?User $user): array
     {
         return [
