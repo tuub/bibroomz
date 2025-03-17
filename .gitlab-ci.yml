@@ -129,7 +129,7 @@ deploy:
   script:
     - ssh "${SSH_USER}@${SSH_HOSTNAME}" \
       "cd $SSH_GIT_DIR
-      && git checkout $CI_DEFAULT_BRANCH && git pull --fast-forward
+      && git checkout $CI_DEFAULT_BRANCH && git pull --ff-only
       && composer install && php artisan migrate --force --seed
       && npm ci && php artisan ziggy:generate && npm run build"
   rules:
