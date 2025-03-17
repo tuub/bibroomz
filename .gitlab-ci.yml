@@ -1,11 +1,13 @@
 workflow:
   rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 stages:
   - build
   - lint
   - test
+  - deploy
 
 include:
   - template: Jobs/SAST.latest.gitlab-ci.yml
@@ -110,3 +112,25 @@ dusk:
     - cp .env.dusk.compose .env
   script:
     - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
+
+### Deploy stage
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --update openssh
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh "${SSH_USER}@${SSH_HOSTNAME}" \
+      "cd $SSH_GIT_DIR
+      && git checkout $CI_DEFAULT_BRANCH && git pull --fast-forward
+      && composer install && php artisan migrate --force --seed
+      && npm ci && php artisan ziggy:generate && npm run build"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
