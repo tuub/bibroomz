@@ -30,7 +30,7 @@ return [
             'weekly_hours' => (int) env('DEFAULT_QUOTA_WEEKLY_HOURS', 12),
             'happening_block_hours' => (int) env('DEFAULT_QUOTA_HAPPENING_BLOCK_HOURS', 4),
         ],
-        'date_format' => env('DEFAULT_DATE_FORMAT', "DD.MM.YYYY"),
+        'date_format' => env('DEFAULT_DATE_FORMAT', 'DD.MM.YYYY'),
         'time_format' => env('DEFAULT_TIME_FORMAT', 'H:i'),
         'timeslot_length' => env('DEFAULT_TIMESLOT_LENGTH', '00:30'),
         'weeks_in_advance' => (int) env('DEFAULT_WEEKS_IN_ADVANCE', 2),
