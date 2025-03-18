@@ -45,6 +45,7 @@ return [
         'login_name_normalization_method' => (int) env('LOGIN_NAME_NORMALIZATION_METHOD', 1),
     ],
     'happenings' => [
+        'anonymize_days' => (int) env('HAPPENING_ANONYMIZE_DAYS', 30),
         'cleanup_days' => (int) env('HAPPENING_CLEANUP_DAYS', 30),
     ],
     'test-accounts' => [

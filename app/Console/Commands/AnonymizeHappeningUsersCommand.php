@@ -34,7 +34,7 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
         $days = $this->option('days');
 
         if (!isset($days)) {
-            $days = config('roomz.happenings.cleanup_days');
+            $days = config('roomz.happenings.anonymize_days');
         }
 
         /** @var Builder */
