@@ -46,7 +46,7 @@ return [
     ],
     'happenings' => [
         'anonymize_days' => (int) env('HAPPENING_ANONYMIZE_DAYS', 30),
-        'cleanup_days' => (int) env('HAPPENING_CLEANUP_DAYS', 30),
+        'cleanup_days' => (int) env('HAPPENING_CLEANUP_DAYS', 1000),
     ],
     'test-accounts' => [
         'is_enabled' => env('IS_TEST_ACCOUNTS_ENABLED', false),
