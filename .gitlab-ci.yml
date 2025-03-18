@@ -23,6 +23,8 @@ include:
         prefix: node
       paths:
         - node_modules/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 .php:
   image: php:8.2-alpine
@@ -33,6 +35,8 @@ include:
         prefix: composer
       paths:
         - vendor/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 ### Build stage
 composer:
@@ -112,6 +116,8 @@ dusk:
     - cp .env.dusk.compose .env
   script:
     - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 ### Deploy stage
 deploy:
