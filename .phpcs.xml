@@ -27,7 +27,12 @@
         <exclude-pattern>tests</exclude-pattern>
     </rule>
 
-    <rule ref="Squiz.Strings.DoubleQuoteUsage" >
+    <!-- Allow long lines for language files -->
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude-pattern>lang</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.Strings.DoubleQuoteUsage">
         <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar" />
     </rule>
 </ruleset>

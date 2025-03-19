@@ -1,5 +1,5 @@
 <template>
-    <div class="events w-full border border-gray-200 bg-white p-4 shadow sm:p-8 dark:border-gray-700 dark:bg-gray-800">
+    <div id="user-happenings">
         <div class="mb-4 flex items-center justify-between">
             <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
                 {{ $t("user_happening.header") }}
@@ -13,7 +13,7 @@
         </div>
         <div class="mt-4">
             <label class="inline-flex cursor-pointer items-center">
-                <ToggleSwitch v-model="hidePast" />
+                <ToggleSwitch v-model="hidePast" class="min-w-10" />
                 <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
                     $t("user_happening.hide_past_happenings")
                 }}</span>
@@ -97,13 +97,7 @@ const isPastHappening = (happening) => {
 const can = authStore.can;
 </script>
 
-<style>
-@media only screen and (max-width: 1150px) {
-    .events {
-        margin-top: 30px;
-    }
-}
-
+<style scoped>
 .list-move, /* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {

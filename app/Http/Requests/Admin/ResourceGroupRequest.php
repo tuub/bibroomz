@@ -28,6 +28,7 @@ class ResourceGroupRequest extends FormRequest
             'is_active' => ['required', 'boolean'],
             'user_groups' => ['list'],
             'user_groups.*' => ['uuid', 'exists:user_groups,id'],
+            'help_uri' => ['nullable', 'url'],
         ];
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'help' => 'Weitere Infos:',
     'header' => 'Meine Buchungen',
     'description' => 'Blablabla',
     'no_happenings' => 'Sie haben keine aktuellen Buchungen.',

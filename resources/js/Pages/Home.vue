@@ -3,19 +3,24 @@
         <PageHead :title="translate(appStore.resourceGroup.title) + ' - ' + translate(appStore.institution.title)" />
 
         <XModal />
+        <div class="mt-[13.5em] flex flex-col gap-4 xl:flex-row">
+            <Calendar @open-modal-component="getModal" />
 
-        <div id="calendar-sidebar-wrapper" class="">
             <div
-                id="calendar"
-                class="calendar-wrapper basis-4/5 md:basis-4/5"
-                :class="{ 'calendar-if-not-logged-in': !isAuthenticated }"
+                class="w-full space-y-6 border border-gray-200 bg-white p-4 shadow xl:mt-[24px] xl:min-w-[30rem] xl:p-8 dark:border-gray-700 dark:bg-gray-800"
             >
-                <Calendar @open-modal-component="getModal"> </Calendar>
-            </div>
-            <div id="sidebar" class="basis-1/5 md:basis-1/5">
-                <div v-if="isAuthenticated">
-                    <UserHappenings :happenings="userHappenings"></UserHappenings>
+                <div v-if="!isAllowed" class="space-y-4">
+                    <div>
+                        {{ translate(resourceGroup.description) }}
+                    </div>
+
+                    <div v-if="helpURI" class="space-x-1">
+                        <span>{{ $t("user_happening.help") }}</span>
+                        <a :href="helpURI" target="_blank" class="text-tub hover:underline"> {{ helpURI }}</a>
+                    </div>
                 </div>
+
+                <UserHappenings v-if="isAuthenticated" :happenings="userHappenings" />
             </div>
         </div>
     </div>
@@ -31,7 +36,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import useModal from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";
-import { onBeforeMount } from "vue";
+import { computed, onBeforeMount } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -65,8 +70,16 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const modal = useModal();
-const { isAuthenticated, userHappenings } = storeToRefs(authStore);
+const { allowedResourceGroups, isAuthenticated, userHappenings } = storeToRefs(authStore);
 const translate = appStore.translate;
+
+const isAllowed = computed(() => {
+    return allowedResourceGroups.value.includes(props.resourceGroup.id);
+});
+
+const helpURI = computed(() => {
+    return props.resourceGroup.help_uri;
+});
 
 // ------------------------------------------------
 // Methods
@@ -82,39 +95,3 @@ onBeforeMount(() => {
     appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, props.isMultiTenancy);
 });
 </script>
-
-<style scoped>
-#sidebar {
-    float: right;
-    margin-top: 24px;
-    margin-bottom: 30px;
-    width: 26%;
-}
-
-#calendar-sidebar-wrapper {
-    display: block;
-    margin-top: 13.5em;
-    width: 100%;
-}
-
-.calendar-wrapper {
-    display: inline-block;
-    position: sticky;
-    width: 72%;
-}
-
-@media only screen and (max-width: 1150px) {
-    #sidebar {
-        display: contents;
-        float: left;
-        margin-top: 30px;
-        margin-bottom: 30px;
-        width: 100%;
-    }
-
-    .calendar-wrapper {
-        display: block;
-        width: 100%;
-    }
-}
-</style>

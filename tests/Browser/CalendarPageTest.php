@@ -74,7 +74,7 @@ class CalendarPageTest extends DuskTestCase
                 ->type('#verifier', $this->verifier->name)
                 ->press(__('modal.create.action.create'))
                 ->waitForText(__('toast.happening.event.created'))
-                ->assertSeeIn('#sidebar', $this->verifier->name);
+                ->assertSeeIn('#user-happenings', $this->verifier->name);
         });
     }
 }

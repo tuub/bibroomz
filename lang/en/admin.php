@@ -273,6 +273,11 @@ return [
                     'placeholder' => 'Description',
                     'hint' => ' ',
                 ],
+                'help_uri' => [
+                    'label' => 'Help URI',
+                    'placeholder' => 'Help URI',
+                    'hint' => 'Will be linked in the sidebar if the resource group is not available for all users.',
+                ],
                 'is_active' => [
                     'label' => 'Active?',
                     'hint' => ' ',

@@ -78,6 +78,14 @@
             rows="4"
         ></TranslatableFormInput>
 
+        <!-- Input: Help URI -->
+        <FormInput
+            v-model="form.help_uri"
+            field="help_uri"
+            field-key="admin.resource_groups.form.fields.help_uri"
+            :error="form.errors.help_uri"
+        />
+
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
             <ToggleSwitch v-model="form.is_active" input-id="is_active" />
@@ -164,6 +172,7 @@ const form = useForm({
     term_singular: props.resource_group?.term_singular ?? {},
     term_plural: props.resource_group?.term_plural ?? {},
     description: props.resource_group?.description ?? {},
+    help_uri: props.resource_group?.help_uri ?? "",
     is_active: props.resource_group?.is_active ?? false,
     user_groups: props.resource_group?.user_groups?.map((userGroup) => userGroup.id) ?? [],
 });

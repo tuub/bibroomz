@@ -273,6 +273,11 @@ return [
                     'placeholder' => 'Die Beschreibung',
                     'hint' => 'Über die Beschreibung',
                 ],
+                'help_uri' => [
+                    'label' => 'Hilfe-URI',
+                    'placeholder' => 'Hilfe-URI',
+                    'hint' => 'Wird in der Sidebar verlinkt, wenn die Ressourcen-Gruppe nicht für alle Benutzer*innen verfügbar ist.',
+                ],
                 'is_active' => [
                     'label' => 'Aktiv?',
                     'hint' => 'Aktiv ja/nein',

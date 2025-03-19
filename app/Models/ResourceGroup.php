@@ -31,7 +31,8 @@ class ResourceGroup extends Model
         'term_singular',
         'term_plural',
         'description',
-        'is_active'
+        'is_active',
+        'help_uri',
     ];
 
     protected $casts = [

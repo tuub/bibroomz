@@ -6,7 +6,11 @@ module.exports = {
         "./node_modules/primevue/**/*.{vue,js,ts,jsx,tsx}",
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                tub: "#c40d1e",
+            },
+        },
     },
     plugins: [
         require("@tailwindcss/typography"),
