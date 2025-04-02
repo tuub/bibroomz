@@ -118,6 +118,7 @@ dusk:
     - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  resource_group: project-pipeline
 
 ### Deploy stage
 deploy:
