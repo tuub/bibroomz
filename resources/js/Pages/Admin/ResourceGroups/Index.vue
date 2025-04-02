@@ -56,7 +56,7 @@
                             :params="{ id: resource_group.id }"
                         />
                         <RelationLink
-                            v-if="hasPermission('edit_institution', resource_group.institution_id)"
+                            v-if="hasPermission('view_settings', resource_group.institution_id)"
                             current="resource_group"
                             relation="setting"
                             :params="{ settingable_type: 'resource_group', settingable_id: resource_group.id }"
