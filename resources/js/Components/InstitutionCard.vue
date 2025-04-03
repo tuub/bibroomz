@@ -1,7 +1,7 @@
 <template>
     <Card class="mx-10 my-5 flex">
         <template #header>
-            <img :src="institution.teaser_uri" />
+            <img class="mx-auto mt-5 w-96" :src="institution.teaser_uri" alt="Teaser Image" />
         </template>
         <template #title>
             <div class="text-center font-bold">
