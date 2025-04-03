@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
@@ -62,8 +63,11 @@ class UserGroupService
     {
         $ug = UserGroup::where('id', $id)->firstOrFail();
 
-        foreach ($data['users'] as $user) {
-            $model = User::firstOrCreate($user, ['password' => Hash::make(Str::password())]);
+        foreach ($data['users'] as ['name' => $name]) {
+            $model = User::firstOrCreate(
+                ['name' => Utility::normalizeLoginName($name)],
+                ['password' => Hash::make(Str::password())],
+            );
 
             $pivot = Arr::only($data, ['valid_from', 'valid_until']);
 
