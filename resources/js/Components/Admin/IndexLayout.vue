@@ -1,8 +1,5 @@
 <template>
     <div>
-        <PageHead :title="title" page-type="admin" />
-        <BodyHead :title="title" :description="description" />
-
         <XModal />
 
         <CreateLink v-if="addCreateButton" :model="model" :params="createParams" />
@@ -28,8 +25,6 @@
 
 <script setup>
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
 
 defineProps({

@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import "dayjs/locale/de";
 import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
@@ -16,6 +17,7 @@ export const useAppStore = defineStore({
             hiddenDays: null,
             isMultiTenancy: false,
             locale: getActiveLanguage(),
+            shortDateFormat: null,
             dateFormat: null,
             timeFormat: null,
             dateTimeFormat: null,
@@ -60,6 +62,20 @@ export const useAppStore = defineStore({
         formatDate(dateTimeStr, isUTC = false) {
             let date = this.getDateTimeFromString(dateTimeStr, isUTC);
             return date.format(this.dateFormat);
+        },
+
+        formatFancyDate(dateTimeStr, isUTC = false) {
+            let date = this.getDateTimeFromString(dateTimeStr, isUTC);
+
+            let months = {
+                de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+                en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            };
+
+            return {
+                month: months[this.locale][date.month()],
+                day: date.date(),
+            };
         },
 
         formatTime(dateTimeStr, isUTC = false, dateTimeStrFormat = null) {

@@ -6,6 +6,7 @@
         :header="modal.content?.title"
         modal
         class="w-[46rem] max-w-[95%]"
+        aria-modal="true"
         @hide="modal.cleanup"
     >
         <!-- Modal content -->

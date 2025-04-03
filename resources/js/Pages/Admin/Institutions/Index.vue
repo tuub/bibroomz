@@ -1,5 +1,4 @@
 <template>
-    <PageHead :title="$t('admin.institutions.index.title')" page-type="admin" />
     <XModal />
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -87,7 +86,6 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";

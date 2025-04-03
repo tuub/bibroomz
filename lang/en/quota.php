@@ -1,16 +1,15 @@
 <?php
 
 return [
+    'header' => 'My quotas',
+    'remaining' => 'remaining',
     'daily_hours' => [
-        'label' => 'Daily Hours',
-        'value' => ':remaining hours remaining',
+        'label' => 'Daily hour|Daily hours',
     ],
     'weekly_hours' => [
-        'label' => 'Weekly Hours',
-        'value' => ':remaining hours remaining',
+        'label' => 'Weekly hour|Weekly hours',
     ],
     'weekly_happenings' => [
-        'label' => 'Weekly Bookings',
-        'value' => ':remaining remaining',
+        'label' => 'Weekly booking|Weekly bookings',
     ],
 ];

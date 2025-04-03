@@ -69,6 +69,7 @@ class HappeningController extends Controller
                 'isVerificationRequired' => $happening->resource->is_verification_required,
                 'resource' => [
                     'resourceGroup' => $happening->resource->resource_group->getTranslations('term_singular'),
+                    'institution' => $happening->resource->resource_group->institution->title,
                 ],
                 'label' => $happening->getTranslations('label'),
             ];

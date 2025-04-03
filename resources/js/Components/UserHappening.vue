@@ -1,4 +1,65 @@
 <template>
+    <div class="flex flex-col border-b pb-2">
+        <div class="flex flex-row" :class="isPast ? 'opacity-50' : 'opacity-100'">
+            <div class="flex w-3/12 items-center justify-center">
+                <FancyDate :happening="happening" :css-class="getStatusClass"></FancyDate>
+            </div>
+            <div class="ml-2 flex w-9/12 flex-col justify-center">
+                <div class="text-xs uppercase">
+                    <span v-if="isPast" class="rounded-r-full bg-gray-100 text-xs">
+                        {{ $t("user_happenings.item.past_happening") }}
+                    </span>
+                    <span v-else-if="isPresent" class="rounded-r-full bg-gray-100 text-xs">
+                        {{ $t("user_happenings.item.present_happening") }}
+                    </span>
+                    <span v-else class="rounded-r-full bg-gray-100 text-xs">
+                        {{ $t("user_happenings.item.future_happening") }}
+                    </span>
+                </div>
+                <div class="text-xs font-bold">
+                    <span class="pr-1">{{ happening.resource.resourceGroup }}</span>
+                    {{ happening.resource.title }}
+                    ({{ happening.resource.institution }})
+                </div>
+                <div v-if="isLabelPresent" class="truncate text-xs italic leading-[1.5]">
+                    {{ translate(happening.label) }}
+                </div>
+                <div class="text-xs">
+                    <!--<i class="pi pi-clock mr-1"></i>-->
+                    {{ happeningStart }} - {{ happeningEnd }}
+                    <SidebarButton
+                        v-if="happening.can.edit"
+                        icon="pi pi-pencil"
+                        type="edit"
+                        :label="$t('user_happenings.item.form.edit')"
+                        @click="editUserHappening(happening)"
+                    />
+                </div>
+                <div class="flex text-xs">
+                    <!--<i class="pi pi-users mr-1"></i>-->
+                    {{ happening.user_01 }}
+                    <template v-if="happening.user_02"> & {{ happening.user_02 }} </template>
+                    <div>
+                        <SidebarButton
+                            v-if="happening.can.verify"
+                            type="verify"
+                            :label="$t('user_happenings.item.form.verify')"
+                            @click="verifyUserHappening(happening)"
+                        />
+                        <SidebarButton
+                            v-if="happening.can.delete"
+                            icon="pi pi-trash"
+                            type="delete"
+                            :label="$t('user_happenings.item.form.delete')"
+                            @click="deleteUserHappening(happening)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
     <div class="flex items-center space-x-4 p-1" :class="[isPresent ? 'rounded-xl border border-pink-300' : '']">
         <div class="min-w-0 flex-1" :class="[isPast ? 'text-gray-400' : 'text-gray-900']">
             <span
@@ -99,9 +160,12 @@
             </p>
         </div>
     </div>
+    -->
 </template>
 
 <script setup>
+import SidebarButton from "@/Components/SidebarButton.vue";
+import FancyDate from "@/Components/UserHappening/FancyDate.vue";
 import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
 import { useModal } from "@/Stores/Modal";
@@ -150,12 +214,9 @@ const happening = computed(() => ({
         location: translate(props.happening.resource.location),
         description: translate(props.happening.resource.description),
         resourceGroup: translate(props.happening.resource.resourceGroup),
+        institution: props.happening.resource.institution,
     },
 }));
-
-const happeningDate = computed(() => {
-    return appStore.formatDate(props.happening.start, true);
-});
 
 const happeningStart = computed(() => {
     return appStore.formatTime(props.happening.start, true);
@@ -165,12 +226,26 @@ const happeningEnd = computed(() => {
     return appStore.formatTime(props.happening.end, true);
 });
 
+//const isPast = computed(() => {
+//    return dayjs(props.happening.end).isBefore(dayjs.utc());
+//});
+
 const isPresent = computed(() => {
     return dayjs(props.happening.start).isBefore(dayjs.utc()) && dayjs(props.happening.end).isAfter(dayjs.utc());
 });
 
 const isLabelPresent = computed(() => {
     return props.happening.label && !Array.isArray(props.happening.label);
+});
+
+const getStatusClass = computed(() => {
+    if (props.isPast) {
+        return "over";
+    } else if (props.happening.isVerified) {
+        return "booked";
+    } else {
+        return "reserved";
+    }
 });
 
 // ------------------------------------------------

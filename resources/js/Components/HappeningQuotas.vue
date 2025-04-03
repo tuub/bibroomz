@@ -1,11 +1,9 @@
 <template>
-    <HappeningQuota
-        v-for="(value, type) in quotas"
-        :key="type"
-        :type="type"
-        :value="value"
-        :setting="getQuotaSetting(type)"
-    ></HappeningQuota>
+    <ul>
+        <li v-for="(value, type) in quotas" :key="type">
+            <HappeningQuota :type="type" :value="value" :setting="getQuotaSetting(type)"></HappeningQuota>
+        </li>
+    </ul>
 </template>
 
 <script setup>

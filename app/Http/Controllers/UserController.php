@@ -42,7 +42,9 @@ class UserController extends Controller
                     'locationUri' => $happening->resource->location_uri,
                     'description' => $happening->resource->getTranslations('description'),
                     'resourceGroup' => $happening->resource->resource_group->getTranslations('term_singular'),
+                    'institution' => $happening->resource->resource_group->institution->title,
                     'institutionId' => $happening->resource->resource_group->institution_id,
+
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),

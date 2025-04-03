@@ -14,6 +14,22 @@ export type ModalAction = {
     callback: (props?: unknown) => Promise<unknown>;
 };
 
+const getBackgroundElements = () => {
+    return document.querySelectorAll("header, main, footer");
+};
+
+const blurBackgroundElements = () => {
+    getBackgroundElements().forEach((element) => {
+        element.classList.add("blur-sm");
+    });
+};
+
+const unblurBackgroundElements = () => {
+    getBackgroundElements().forEach((element) => {
+        element.classList.remove("blur-sm");
+    });
+};
+
 export const useModal = defineStore("modal", {
     state: (): Modal => ({
         view: null,
@@ -32,6 +48,7 @@ export const useModal = defineStore("modal", {
             this.actions = actions;
 
             this.isOpen = true;
+            blurBackgroundElements();
         },
 
         cleanup(): void {
@@ -39,10 +56,13 @@ export const useModal = defineStore("modal", {
             this.content = null;
             this.payload = null;
             this.actions = null;
+
+            unblurBackgroundElements();
         },
 
         close(): void {
             this.isOpen = false;
+            unblurBackgroundElements();
         },
 
         submit(): void {

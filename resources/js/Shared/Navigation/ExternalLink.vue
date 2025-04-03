@@ -1,6 +1,6 @@
 <template>
-    <a target="_blank">
-        <i :class="icon" class="pr-1"></i>
+    <a class="flex" target="_blank">
+        <div v-if="icon" class="mr-2"><i :class="icon"></i></div>
         <slot />
     </a>
 </template>
@@ -12,7 +12,8 @@
 defineProps({
     icon: {
         type: String,
-        required: true,
+        required: false,
+        default: "default",
     },
 });
 </script>

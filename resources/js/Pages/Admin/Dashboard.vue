@@ -1,6 +1,4 @@
 <template>
-    <PageHead title="Admin" page-type="admin" />
-
     <div class="dashboard-card-wrapper">
         <DashboardCard
             v-if="hasPermission('view_happenings')"
@@ -56,7 +54,6 @@
 
 <script setup>
 import DashboardCard from "@/Components/Admin/DashboardCard.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 const authStore = useAuthStore();

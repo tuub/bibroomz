@@ -1,10 +1,12 @@
 <?php
 
 return [
+    'header' => 'Buchungskalender',
     'resource_info' => [
         /* Contains all locales since FullCalendar is unable to use current language by file */
         'de' => 'Info',
         'en' => 'Info',
     ],
-    'browse_resources' => 'Räume durchblättern',
+    'today' => 'Heute',
+    'browse_resources' => 'Räume',
 ];

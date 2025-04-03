@@ -53,7 +53,7 @@ class CalendarPageTest extends DuskTestCase
             $browser
                 ->visit($this->route)
                 ->assertPathIs($this->route)
-                ->assertSee($this->resourceGroup->title);
+                ->assertSee($this->resourceGroup->institution->title . ': ' . $this->resourceGroup->title);
         });
     }
 
@@ -64,8 +64,8 @@ class CalendarPageTest extends DuskTestCase
                 ->loginAs($this->user)
                 ->visit($this->route)
                 ->waitForText($this->resourceGroup->resources->first()->title)
-                ->press('.fc-nextCustom-button')
-                ->waitForTextIn('.fc-toolbar-title', now()->addDay()->dayName)
+                ->press('button#calendar-date-next')
+                ->waitForTextIn('#calendar-date-display', now()->addDay()->format('d.m.Y'))
                 ->drag(
                     $from = 'td.fc-timegrid-slot-lane[data-time="11:00:00"]',
                     $to = 'td.fc-timegrid-slot-lane[data-time="13:00:00"]',

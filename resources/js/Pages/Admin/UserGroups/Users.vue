@@ -1,5 +1,4 @@
 <template>
-    <PageHead :title="$t('admin.user_groups.users.title', { title: translate(user_group.title) })" page-type="admin" />
     <XModal />
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -55,7 +54,6 @@
 <script setup>
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
-import PageHead from "@/Shared/PageHead.vue";
 import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 

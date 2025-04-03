@@ -4,7 +4,8 @@ import "./bootstrap";
 import { Ziggy } from "./ziggy";
 
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
-import Aura from "@primevue/themes/aura";
+//import { definePreset } from "@primevue/themes";
+import Material from "@primevue/themes/material";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
 import { createPinia } from "pinia";
@@ -43,11 +44,25 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
 
+        /*
+        const TubPreset = definePreset(Material, {
+            components: {
+                // custom button tokens and additional style
+                button: {
+                    padding: {
+                        x: '50px',
+                        y: '20px',
+                    },
+                }
+            }
+        });
+        */
+
         app.use(plugin)
             // PrimeVue
             .use(PrimeVue, {
                 theme: {
-                    preset: Aura,
+                    preset: Material,
                     options: {
                         darkModeSelector: "system",
                         cssLayer: {

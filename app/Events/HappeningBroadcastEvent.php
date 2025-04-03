@@ -57,6 +57,7 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcastNow
                     'description' => $resource->getTranslations('description'),
                     'resourceGroup' => $resource->resource_group->getTranslations('term_singular'),
                     'resourceGroupId' => $resource->resource_group_id,
+                    'institution' => $resource->resource_group->institution->title,
                 ],
                 'reservedAt' => Carbon::parse($happening->reserved_at)->format('Y-m-d H:i'),
                 'verifiedAt' => Carbon::parse($happening->verified_at)->format('Y-m-d H:i'),

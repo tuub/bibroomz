@@ -1,16 +1,15 @@
 <?php
 
 return [
+    'header' => 'Meine Kontingente',
+    'remaining' => 'verbleibend',
     'daily_hours' => [
-        'label' => 'Tägliches Stundenkontingent',
-        'value' => ':remaining Stunden verbleibend',
+        'label' => 'Tagesstunde|Tagesstunden',
     ],
     'weekly_hours' => [
-        'label' => 'Wöchentliches Stundenkontingent',
-        'value' => ':remaining Stunden verbleibend',
+        'label' => 'Wochenstunde|Wochenstunden',
     ],
     'weekly_happenings' => [
-        'label' => 'Wöchentliches Buchungskontingent',
-        'value' => ':remaining verbleibend',
+        'label' => 'Wochenbuchung|Wochenbuchungen',
     ],
 ];

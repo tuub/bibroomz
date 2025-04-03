@@ -1,6 +1,6 @@
 <template>
-    <Link class="float-left" :class="{ 'font-extrabold': isActive }">
-        <i v-if="icon" :class="icon" class="pr-1"></i>
+    <Link class="flex" :class="{ 'font-extrabold': isActive }">
+        <div v-if="icon" class="mr-2"><i :class="icon"></i></div>
         <slot />
     </Link>
 </template>

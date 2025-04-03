@@ -8,7 +8,10 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                tub: "#c40d1e",
+                'tub': '#c40d1e',
+            },
+            fontSize: {
+                'tiny': '0.55rem',
             },
         },
     },

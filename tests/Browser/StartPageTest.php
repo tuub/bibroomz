@@ -25,8 +25,8 @@ class StartPageTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visit('/')
-                ->pressAndWaitFor('button.language-switch[title=DE]')
-                ->waitForTextIn('.locale-active', 'DE')
+                ->pressAndWaitFor('#i18n a[title=DE]')
+                ->waitForTextIn('.i18n-active', 'DE')
                 ->assertCookieValue('locale', 'de');
         });
     }
@@ -36,8 +36,8 @@ class StartPageTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visit('/')
-                ->press('button.language-switch[title=EN]')
-                ->waitForTextIn('.locale-active', 'EN')
+                ->press('#i18n a[title=EN]')
+                ->waitForTextIn('.i18n-active', 'EN')
                 ->assertCookieValue('locale', 'en');
         });
     }
@@ -50,11 +50,11 @@ class StartPageTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user, $password) {
             $browser
                 ->visit('/')
-                ->press('.login-logout-button')
+                ->press('#auth')
                 ->type('input#username', $user->name)
                 ->type('input#password', $password)
                 ->keys('input#password', '{enter}')
-                ->waitForTextIn('.current-user', $user->name)
+                ->waitForTextIn('#auth', $user->name)
                 ->assertAuthenticatedAs($user);
         });
     }

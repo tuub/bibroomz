@@ -91,7 +91,7 @@
 </template>
 
 <script setup>
-import NavLink from "@/Shared/NavLink.vue";
+import NavLink from "@/Shared/Navigation/InternalLink.vue";
 import NavigationMenu from "@/Shared/Navigation/NavigationMenu.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";

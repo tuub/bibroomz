@@ -1,4 +1,21 @@
 <template>
+    <div id="status-legend" class="">
+        <template v-for="status in statuses">
+            <Tag
+                v-if="status.isDisplayed"
+                :key="status.label"
+                :value="status.label"
+                :class="status.css"
+                class="mx-0 my-0 rounded-none"
+            >
+                <div class="flex items-center gap-2 px-0">
+                    <span class="text-xs font-normal">{{ status.label }}</span>
+                </div>
+            </Tag>
+        </template>
+    </div>
+
+    <!--
     <div class="legend-item-toggle-button-wrapper">
         <button id="legend-toggle-button" class="legend-item-toggle-button" @click="toggle">
             <i v-if="isOpen" class="ri-arrow-right-double-line"></i>
@@ -27,15 +44,15 @@
             </div>
         </Transition>
     </div>
+    -->
 </template>
 
 <script setup>
-import { useAuthStore } from "../Stores/AuthStore.js";
+import { useAuthStore } from "../../Stores/AuthStore.js";
 
-import LegendItem from "./LegendItem.vue";
-
+import { trans } from "laravel-vue-i18n";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Stores
@@ -47,66 +64,42 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const { isAuthenticated } = storeToRefs(authStore);
 
-const isOpen = ref(true);
-
-// ------------------------------------------------
-// Methods
-// ------------------------------------------------
-const toggle = () => {
-    isOpen.value = !isOpen.value;
-};
+const statuses = computed(() => [
+    {
+        id: "reservation",
+        label: trans("legend.reservation"),
+        css: "reservation",
+        isDisplayed: true,
+    },
+    {
+        id: "booking",
+        label: trans("legend.booking"),
+        css: "booking",
+        isDisplayed: true,
+    },
+    {
+        id: "closing",
+        label: trans("legend.closing"),
+        css: "closing",
+        isDisplayed: true,
+    },
+    {
+        id: "user-reservation",
+        label: trans("legend.user-reservation"),
+        css: "user-reservation",
+        isDisplayed: isAuthenticated.value,
+    },
+    {
+        id: "user-booking",
+        label: trans("legend.user-booking"),
+        css: "user-booking",
+        isDisplayed: isAuthenticated.value,
+    },
+    {
+        id: "user-to-verify",
+        label: trans("legend.user-to-verify"),
+        css: "user-to-verify",
+        isDisplayed: isAuthenticated.value,
+    },
+]);
 </script>
-<style>
-#status-legend {
-    position: fixed;
-    top: 144px;
-    right: 0px;
-    z-index: 9;
-    background: rgba(0, 0, 0, 0%);
-    width: 195px;
-    height: 168px;
-}
-
-#status-legend > span {
-    display: block;
-    float: left;
-    padding: 7px;
-    width: 100%;
-}
-
-.legend-item-toggle-button-wrapper {
-    position: absolute;
-}
-
-.legend-item-toggle-button {
-    position: fixed;
-    top: 120px;
-    right: 0px;
-    rotate: unset;
-    z-index: 9;
-    transition:
-        background 0.25s,
-        color 0.25s;
-    box-shadow: 0 3px 3px rgb(204, 203, 203);
-    background: white;
-    width: 40px;
-    min-width: 2rem;
-    height: 40px;
-    color: #c40d1e;
-    font-weight: 400;
-    font-size: 1.5rem;
-    font-family: Muli, sans-serif, Arial;
-    text-align: center;
-    text-decoration: none;
-}
-
-.v-enter-active,
-.v-leave-active {
-    transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-    opacity: 0;
-}
-</style>

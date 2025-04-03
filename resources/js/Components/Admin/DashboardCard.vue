@@ -36,15 +36,3 @@ defineProps({
     },
 });
 </script>
-<style>
-.dashboard-card {
-    display: inline-block;
-    float: left;
-    margin: 0px 0px 20px 20px;
-    padding: 40px 20px 20px 20px;
-    width: 500px;
-    height: 150px;
-    overflow: hidden;
-    text-align: center;
-}
-</style>

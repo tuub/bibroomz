@@ -1,6 +1,5 @@
 <template>
-    <PageHead :title="$t('privacy_statement.title')" />
-    <BodyHead :title="$t('privacy_statement.title')" :description="$t('privacy_statement.description')" />
+    <Breadcrumbs></Breadcrumbs>
 
     <p>{{ $t("privacy_statement.paragraphs.01") }}</p>
     <p>{{ $t("privacy_statement.paragraphs.02") }}</p>
@@ -10,6 +9,5 @@
 </template>
 
 <script setup>
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import Breadcrumbs from "@/Shared/Breadcrumbs.vue";
 </script>

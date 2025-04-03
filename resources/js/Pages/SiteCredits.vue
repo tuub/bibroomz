@@ -1,6 +1,5 @@
 <template>
-    <PageHead :title="$t('site_credits.title')" />
-    <BodyHead :title="$t('site_credits.title')" :description="$t('site_credits.description')" />
+    <Breadcrumbs></Breadcrumbs>
 
     <h1 class="mt-5 text-xl font-bold">{{ $t("site_credits.paragraphs.contact.header") }}</h1>
     <p>{{ $t("site_credits.paragraphs.contact.content") }}</p>
@@ -19,6 +18,5 @@
 </template>
 
 <script setup>
-import BodyHead from "@/Shared/BodyHead.vue";
-import PageHead from "@/Shared/PageHead.vue";
+import Breadcrumbs from "@/Shared/Breadcrumbs.vue";
 </script>

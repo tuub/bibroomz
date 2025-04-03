@@ -1,0 +1,148 @@
+@use "variables";
+
+/* Firefox fix for now-indicator */
+.fc .fc-timegrid-now-indicator-container {
+    overflow: visible;
+}
+
+a.fc-event,
+a.fc-event:hover {
+    cursor: pointer;
+}
+
+.fc-non-business {
+    background-color: #bebebe !important;
+}
+
+div.fc-timegrid-slots tr {
+    background-color: #ffffff;
+}
+
+.fc-timegrid-axis-frame i.ri-time-line {
+    @apply mx-auto mt-0.5;
+}
+
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
+    width: 21px;
+    height: 25px;
+    font-size: 0.85em;
+}
+
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
+    width: 21px;
+    height: 25px;
+    font-size: 0.85em;
+}
+
+/* Calender header */
+.fc-header-toolbar {
+    h2 {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+}
+
+/* Today */
+.fc-unthemed td.fc-today {
+    background-color: #ffffff !important;
+}
+
+/* Past Days */
+.fc-past {
+    cursor: not-allowed;
+    background-color: variables.$status-closing;
+}
+
+/* Closed timeslots */
+.fc-nonbusiness {
+    cursor: not-allowed;
+    background-color: variables.$status-closing;
+}
+
+/* Background Events: Closings */
+// https://css-tricks.com/stripes-css/
+.fc-bg-event {
+    opacity: 1 !important;
+    cursor: not-allowed;
+    background-color: #ffffff;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(245, 245, 245),
+        rgba(245, 245, 245) 10px,
+        rgba(235, 235, 235) 10px,
+        rgba(235, 235, 235) 20px
+    ) !important;
+    color: black;
+}
+
+/* Room header columns */
+.fc-widget-header th.fc-resource-cell {
+    text-align: center;
+}
+
+.fc-ltr .fc-time-grid .fc-event-container {
+    margin: 0 !important;
+}
+
+a.fc-event {
+    &.past-event {
+        opacity: 0.4;
+        background-color: #cccccc;
+    }
+
+    &.reservation {
+        background-color: variables.$status-reservation;
+        color: #ffffff;
+    }
+
+    &.booking {
+        background-color: variables.$status-booking;
+        color: #ffffff;
+    }
+
+    &.user-reservation {
+        background-color: variables.$status-user-reservation;
+        color: #ffffff;
+    }
+
+    &.user-to-verify {
+        background-color: variables.$status-user-to-verify;
+        color: #ffffff;
+    }
+
+    &.user-booking {
+        background-color: variables.$status-user-booking;
+        color: #ffffff;
+    }
+
+    &.block {
+        background-color: variables.$status-block;
+        pointer-events: none;
+        color: #ffffff;
+    }
+}
+
+.fc-timegrid-slots tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.fc-timegrid-slots tr:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
+    margin: 0;
+    padding: 0;
+}
+
+.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
+    margin: 0;
+    padding: 0;
+}
+
+.fc-next-button .fc-button .fc-button-primary {
+    vertical-align: middle;
+    width: 30px;
+    height: 18px;
+    font-size: 0.4em;
+}

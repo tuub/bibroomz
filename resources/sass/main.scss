@@ -1,5 +1,6 @@
-@import "variables";
-@import "primeicons/primeicons.css";
+@use "variables";
+@use "calendar";
+@use "primeicons/primeicons.css";
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
@@ -11,187 +12,48 @@
     @tailwind utilities;
 }
 
+// Important: Apply formerly body classes to Inertia container
+#app {
+    @apply flex min-h-screen flex-col font-sans;
+}
+
+// Mainly for debug and development
 * {
-    outline: 0 #336699 solid;
+    outline: 0px #336699 dashed;
 }
 
-html {
-    height: 100%;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    background-color: #f8f8f8;
-    min-height: 100%;
-    font-family: "Open Sans", sans-serif;
-}
-
-p {
-    overflow: hidden;
-}
-
-/* Calender header */
-.fc-header-toolbar {
-    h2 {
-        font-weight: 700;
-        font-size: 1rem;
-    }
-}
-
-/* Today */
-.fc-unthemed td.fc-today {
-    background-color: #ffffff !important;
-}
-
-/* Past Days */
-.fc-past {
-    cursor: not-allowed;
-    background-color: $status-closing;
-}
-
-/* Closed timeslots */
-.fc-nonbusiness {
-    cursor: not-allowed;
-    background-color: $status-closing;
-}
-
-/* Background Events: Closings */
-// https://css-tricks.com/stripes-css/
-.fc-bg-event {
-    opacity: 1 !important;
-    cursor: not-allowed;
-    background-color: #ffffff;
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(245, 245, 245),
-        rgba(245, 245, 245) 10px,
-        rgba(235, 235, 235) 10px,
-        rgba(235, 235, 235) 20px
-    ) !important;
-    color: black;
-}
-
-/* Room header columns */
-.fc-widget-header th.fc-resource-cell {
-    text-align: center;
-}
-
-.fc-ltr .fc-time-grid .fc-event-container {
-    margin: 0 !important;
-}
-
-a.fc-event {
-    &.past-event {
-        opacity: 0.4;
-        background-color: #cccccc;
-    }
-
-    &.reservation {
-        background-color: $status-reservation;
+div#status-legend {
+    .reservation {
+        background-color: variables.$status-reservation;
         color: #ffffff;
     }
 
-    &.booking {
-        background-color: $status-booking;
+    .booking {
+        background-color: variables.$status-booking;
         color: #ffffff;
     }
 
-    &.user-reservation {
-        background-color: $status-user-reservation;
+    .user-reservation {
+        background-color: variables.$status-user-reservation;
         color: #ffffff;
     }
 
-    &.user-to-verify {
-        background-color: $status-user-to-verify;
+    .user-to-verify {
+        background-color: variables.$status-user-to-verify;
         color: #ffffff;
     }
 
-    &.user-booking {
-        background-color: $status-user-booking;
+    .user-booking {
+        background-color: variables.$status-user-booking;
+        color: #ffffff;
+    }
+
+    .closing {
+        background-color: variables.$status-closing;
         color: #ffffff;
     }
 
     &.block {
-        background-color: $status-block;
-        pointer-events: none;
-        color: #ffffff;
+        background-color: variables.$status-block;
     }
-}
-
-div#status-legend {
-    margin-top: 1rem;
-
-    span {
-        display: inline-block;
-        flex-wrap: wrap;
-
-        &.reservation {
-            background-color: $status-reservation;
-            color: #ffffff;
-        }
-
-        &.booking {
-            background-color: $status-booking;
-            color: #ffffff;
-        }
-
-        &.user-reservation {
-            background-color: $status-user-reservation;
-            color: #ffffff;
-        }
-
-        &.user-to-verify {
-            background-color: $status-user-to-verify;
-            color: #ffffff;
-        }
-
-        &.user-booking {
-            background-color: $status-user-booking;
-            color: #ffffff;
-        }
-
-        &.closing {
-            background-color: $status-closing;
-            color: #ffffff;
-        }
-
-        &.block {
-            background-color: $status-block;
-        }
-    }
-}
-
-.fc-timegrid-slots tr:nth-child(odd) {
-    background-color: #ffffff;
-}
-
-.fc-timegrid-slots tr:nth-child(even) {
-    background-color: #f6f6f6;
-}
-
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
-    margin: 0;
-    padding: 0;
-}
-
-.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
-    margin: 0;
-    padding: 0;
-}
-
-.fc-next-button .fc-button .fc-button-primary {
-    vertical-align: middle;
-    width: 30px;
-    height: 18px;
-    font-size: 0.4em;
-}
-
-.mt-3px {
-    margin-top: -3px;
-}
-
-.content-wrapper {
-    position: relative;
-    margin: 10em 2em 4em 2em;
 }

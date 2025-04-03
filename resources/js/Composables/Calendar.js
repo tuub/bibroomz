@@ -242,17 +242,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         schedulerLicenseKey: "GPL-My-Project-Is-Open-Source",
         plugins: [interactionPlugin, resourceTimeGridPlugin],
         initialView: "resourceTimeGridDay",
-        headerToolbar: {
-            left: "title",
-            center: "",
-            right: "",
-        },
-        titleFormat: {
-            month: "2-digit",
-            year: "numeric",
-            day: "2-digit",
-            weekday: "long",
-        },
+        headerToolbar: false,
         locale: appStore.locale,
         timeZone: "utc",
         validRange: getValidRange(),
