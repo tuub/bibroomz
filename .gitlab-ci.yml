@@ -124,6 +124,9 @@ dusk:
 deploy:
   stage: deploy
   image: alpine:latest
+  environment:
+    name: staging
+    url: https://roomz.onit-ub.tu-berlin.de
   before_script:
     - apk add --update openssh
     - eval $(ssh-agent -s)
