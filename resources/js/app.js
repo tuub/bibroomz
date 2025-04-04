@@ -49,7 +49,7 @@ createInertiaApp({
                 theme: {
                     preset: Aura,
                     options: {
-                        darkModeSelector: "system",
+                        darkModeSelector: false,
                         cssLayer: {
                             name: "primevue",
                             order: "tailwind-base, primevue, tailwind-utilities",

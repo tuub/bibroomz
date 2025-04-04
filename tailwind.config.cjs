@@ -16,4 +16,5 @@ module.exports = {
         require("@tailwindcss/typography"),
         require("tailwindcss-primeui"),
     ],
+    darkMode: "selector",
 }
