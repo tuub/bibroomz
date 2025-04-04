@@ -51,6 +51,16 @@ class RemoveUsersCommand extends Command implements Isolatable
                 ->whereColumn('user_id', 'users.id');
         });
 
+        // do not delete users that belong to a user group
+        $query->whereNotExists(
+            fn (Builder $query) => $query
+                ->from('user_group_user')
+                ->whereColumn('user_id', 'users.id')
+                ->where(fn (Builder $query) => $query
+                    ->where('valid_until', '=', null)
+                    ->orWhere('valid_until', '>', now()->subDays($days)))
+        );
+
         // find users with no recent happenings
         $query->whereNotExists(function (Builder $query) use ($days) {
             $query->from('happenings')
