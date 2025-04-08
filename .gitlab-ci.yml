@@ -13,6 +13,9 @@ include:
   - template: Jobs/SAST.latest.gitlab-ci.yml
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 
+default:
+  interruptible: true
+
 ### Base images
 .node:
   image: node:20-alpine
@@ -144,3 +147,4 @@ deploy:
       && npm ci && php artisan ziggy:generate && npm run build"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  interruptible: false
