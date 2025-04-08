@@ -13,7 +13,7 @@ services:
       start_period: 5s
   dusk:
     extends:
-      file: docker-compose.yml
+      file: compose.yaml
       service: php-fpm
     command: php artisan dusk --without-tty
     volumes:

@@ -115,7 +115,7 @@ dusk:
     - echo "$DOCKER_REGISTRY_PASS" | docker login --username "$DOCKER_REGISTRY_USER" --password-stdin
     - cp .env.dusk.compose .env
   script:
-    - docker compose --file docker-compose.testing.yml up --abort-on-container-exit --exit-code-from dusk --attach dusk
+    - docker compose --file compose.testing.yaml up --abort-on-container-exit --exit-code-from dusk --attach dusk
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   resource_group: project-pipeline
