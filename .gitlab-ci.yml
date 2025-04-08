@@ -9,10 +9,6 @@ stages:
   - test
   - deploy
 
-include:
-  - template: Jobs/SAST.latest.gitlab-ci.yml
-  - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
-
 default:
   interruptible: true
 
