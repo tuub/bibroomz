@@ -94,6 +94,15 @@ eslint:
   script:
     - npx --no -- eslint resources/js/**/*.{js,ts,vue}
 
+gitleaks:
+  stage: lint
+  image:
+    name: ghcr.io/gitleaks/gitleaks:latest
+    entrypoint: [""]
+  script: gitleaks git --platform=gitlab --log-opts=$CI_MERGE_REQUEST_DIFF_BASE_SHA..
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
 phpcs:
   extends: .php
   stage: lint
