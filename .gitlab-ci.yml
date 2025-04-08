@@ -57,6 +57,7 @@ default:
       git checkout FETCH_HEAD
       scripts/deploy.sh $BUILD_PREFIX
       EOT
+  resource_group: $SSH_HOSTNAME
   interruptible: false
   when: manual
 
