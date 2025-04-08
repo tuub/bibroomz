@@ -91,8 +91,6 @@ commitlint:
   stage: lint
   script:
     - npx --no -- commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
-  rules:
-    - if: $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
 eslint:
   extends: .node
@@ -109,7 +107,6 @@ phpcs:
 prettier:
   extends: .node
   stage: lint
-  image: node:20-alpine
   script:
     - npx --no -- prettier --list-different resources/js resources/sass
 
