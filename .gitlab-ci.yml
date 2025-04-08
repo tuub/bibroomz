@@ -147,8 +147,18 @@ dusk:
   resource_group: project-pipeline
 
 ### Deploy stage
-deploy:
+deploy-staging:
   extends: .deploy
   environment:
     name: staging
     url: https://roomz.onit-ub.tu-berlin.de
+
+deploy-demo:
+  extends: .deploy
+  environment:
+    name: demo
+    url: https://demo.ub.tu-berlin.de/bibroomz
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: never
+  manual_confirmation: Deploy to demo server?
