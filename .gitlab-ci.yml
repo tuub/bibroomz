@@ -41,6 +41,29 @@ default:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
+.deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --update openssh
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      ssh "${SSH_USER}@${SSH_HOSTNAME}" bash -ex <<EOT
+      cd $SSH_GIT_DIR
+      git fetch $CI_REPOSITORY_URL $CI_COMMIT_SHA
+      git checkout FETCH_HEAD
+      scripts/deploy.sh $BUILD_PREFIX
+      EOT
+  interruptible: false
+  when: manual
+
 ### Build stage
 composer:
   extends: .php
@@ -125,26 +148,7 @@ dusk:
 
 ### Deploy stage
 deploy:
-  stage: deploy
-  image: alpine:latest
+  extends: .deploy
   environment:
     name: staging
     url: https://roomz.onit-ub.tu-berlin.de
-  before_script:
-    - apk add --update openssh
-    - eval $(ssh-agent -s)
-    - chmod 400 "$SSH_PRIVATE_KEY"
-    - ssh-add "$SSH_PRIVATE_KEY"
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-  script:
-    - ssh "${SSH_USER}@${SSH_HOSTNAME}" \
-      "cd $SSH_GIT_DIR
-      && git checkout $CI_DEFAULT_BRANCH && git pull --ff-only $CI_REPOSITORY_URL
-      && composer install && php artisan migrate --force --seed
-      && npm ci && php artisan ziggy:generate && npm run build"
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  interruptible: false
