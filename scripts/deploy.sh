@@ -12,4 +12,4 @@ php artisan migrate --force --seed
 
 php artisan ziggy:generate
 
-npm run build --base="$prefix/build"
+npm run build -- --base="$prefix/build"
