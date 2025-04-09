@@ -162,6 +162,5 @@ deploy-demo:
     name: demo
     url: https://demo.ub.tu-berlin.de/bibroomz
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   manual_confirmation: Deploy to demo server?
