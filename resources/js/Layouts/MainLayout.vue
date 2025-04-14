@@ -12,7 +12,7 @@
 
     <!-- MAIN CONTENT START -->
     <main class="flex flex-1 items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300">
-        <section class="w-3/4 flex-grow rounded bg-white p-6 shadow-md">
+        <section id="content" class="w-3/4 flex-grow rounded bg-white p-6 shadow-md">
             <slot />
             <Toast
                 position="bottom-right"

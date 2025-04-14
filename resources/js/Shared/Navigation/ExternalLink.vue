@@ -13,7 +13,7 @@ defineProps({
     icon: {
         type: String,
         required: false,
-        default: "default",
+        default: "",
     },
 });
 </script>

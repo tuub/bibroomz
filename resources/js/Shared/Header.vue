@@ -20,11 +20,20 @@
         <!-- RESPONSIVE START -->
         <div class="block text-tub focus:outline-none lg:hidden">
             <Drawer v-model:visible="isResponsive" header="Navigation" position="full">
-                <NavigationBar
-                    :is-responsive="isResponsive"
-                    :is-privileged="isPrivileged"
-                    :is-multi-tenancy="isMultiTenancy"
-                />
+                <template #header>
+                    BLA
+                </template>
+                <template #closebutton>
+                    FOO
+                </template>
+                <template #container="{ closeCallback }">
+                    <NavigationBar
+                        :is-responsive="isResponsive"
+                        :is-privileged="isPrivileged"
+                        :is-multi-tenancy="isMultiTenancy"
+                        @click="closeCallback"
+                    />
+                </template>
             </Drawer>
             <Button
                 icon="pi pi-bars"

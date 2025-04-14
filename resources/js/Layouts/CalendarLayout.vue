@@ -11,9 +11,10 @@
 
     <!-- MAIN CONTENT START -->
     <main
-        class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 lg:flex-nowrap"
+        class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300
+        lg:flex-nowrap"
     >
-        <section class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4">
+        <section id="content" class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4">
             <div class="flex justify-center">
                 <Button
                     class="mb-2 text-xs lg:hidden"

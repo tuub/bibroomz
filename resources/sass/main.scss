@@ -19,8 +19,26 @@
 
 // Mainly for debug and development
 * {
-    outline: 0px #336699 dashed;
+    outline: 1px #336699 dashed;
 }
+
+main {
+    @apply text-black;
+}
+
+main.dark-mode {
+    @apply bg-black text-white;
+
+    #content {
+        @apply bg-black;
+    }
+
+    #sidebar {
+        @apply bg-black;
+    }
+
+}
+
 
 div#status-legend {
     .reservation {

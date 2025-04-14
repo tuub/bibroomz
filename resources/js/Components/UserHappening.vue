@@ -168,11 +168,11 @@ import SidebarButton from "@/Components/SidebarButton.vue";
 import FancyDate from "@/Components/UserHappening/FancyDate.vue";
 import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
-import { useModal } from "@/Stores/Modal";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { computed } from "vue";
+import HappeningInfo from "@/Components/HappeningInfo.vue";
 
 // ------------------------------------------------
 // Props
@@ -195,7 +195,6 @@ dayjs.extend(utc);
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
-const modal = useModal();
 const appStore = useAppStore();
 
 // ------------------------------------------------

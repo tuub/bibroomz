@@ -3,9 +3,10 @@
         <ul>
             <li :class="isResponsive ? 'block' : 'inline-block'">
                 <InternalLink
+                    :href="route('start')"
                     icon="pi pi-home"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
-                    :href="route('start')"
+                    title="Start"
                 >
                     {{ $t("navigation.home") }}
                 </InternalLink>
@@ -15,15 +16,17 @@
                     :href="$t('navigation.help.uri')"
                     icon="pi pi-question-circle"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    title="Help"
                 >
                     {{ $t("navigation.help.label") }}
                 </ExternalLink>
             </li>
             <li v-if="isPrivileged" :class="isResponsive ? 'block' : 'inline-block'">
                 <InternalLink
+                    :href="route('admin.dashboard')"
                     icon="pi pi-cog"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
-                    :href="route('admin.dashboard')"
+                    title="Admin"
                 >
                     {{ $t("navigation.admin") }}
                 </InternalLink>
@@ -32,10 +35,10 @@
                 <a
                     v-if="isAuthenticated"
                     id="auth"
-                    title="Login"
                     href="#"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
                     @click="logoutUser"
+                    title="Logout"
                 >
                     <i class="pi pi-user"></i>
                     {{ $t("navigation.logout") }}
@@ -44,10 +47,10 @@
                 <a
                     v-else
                     id="auth"
-                    title="Logout"
                     href="#"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
                     @click="loginUser"
+                    title="Login"
                 >
                     <i class="pi pi-user"></i>
                     {{ $t("navigation.login") }}
