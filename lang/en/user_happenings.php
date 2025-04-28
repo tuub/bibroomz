@@ -9,7 +9,7 @@ return [
     'item' => [
         'past_happening' => 'Past Booking',
         'present_happening' => 'Present Booking',
-        'future_happening' => 'Future Buchung',
+        'future_happening' => 'Future Booking',
         'verified' => 'Verified',
         'unverified' => 'Unverified',
         'date_time' => 'Date/Time',

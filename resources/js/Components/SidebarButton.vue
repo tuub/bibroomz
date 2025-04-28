@@ -1,7 +1,7 @@
 <template>
     <button class="space-x-1 px-1" :class="type" :title="label">
         <i v-if="icon" class="text-tiny" :class="icon"></i>
-        <!--<span class="text-tiny">{{ label }}</span>-->
+        <span class="text-tiny">{{ label }}</span>
     </button>
 </template>
 
