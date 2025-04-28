@@ -1,9 +1,8 @@
 <template>
-    <XModal />
-
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
             ref="indexTable"
+            v-model:filters="filters"
             :value="institutions"
             size="medium"
             striped-rows
@@ -18,28 +17,45 @@
                         <div class="text-xl font-bold">{{ $t("admin.institutions.index.title") }}</div>
                         <div class="italic">{{ $t("admin.institutions.index.description") }}</div>
                     </div>
-                    <CreateLink model="institution" />
+                    <div class="flex flex-wrap justify-between gap-2">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                :placeholder="$t('admin.general.table.keyword_search')"
+                            />
+                        </IconField>
+                        <CreateLink model="institution" />
+                    </div>
                 </div>
             </template>
+            <template #empty>{{ $t("admin.general.table.no_records") }}</template>
+            <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
             <Column :row-reorder="!isSortedByColumn()" header-style="width: 3rem" />
-            <Column field="title" sortable :header="$t('admin.institutions.index.table.header.title')">
+            <Column field="title" :sortable="true" :header="$t('admin.institutions.index.table.header.title')">
                 <template #body="slotProps">
                     {{ slotProps.data.title }}
                 </template>
             </Column>
             <Column
                 field="short_title"
-                sortable
+                :sortable="true"
                 :header="$t('admin.institutions.index.table.header.short_title')"
             ></Column>
-            <Column field="slug" sortable :header="$t('admin.institutions.index.table.header.slug')"></Column>
-            <Column field="location" sortable :header="$t('admin.institutions.index.table.header.location')"></Column>
-            <Column field="is_active" sortable :header="$t('admin.institutions.index.table.header.is_active')">
+            <Column field="slug" :sortable="true" :header="$t('admin.institutions.index.table.header.slug')"></Column>
+            <Column
+                field="location"
+                :sortable="true"
+                :header="$t('admin.institutions.index.table.header.location')"
+            ></Column>
+            <Column field="is_active" :sortable="true" :header="$t('admin.institutions.index.table.header.is_active')">
                 <template #body="slotProps">
                     <BooleanField :is-true="slotProps.data.is_active" />
                 </template>
             </Column>
-            <Column :columnheader="$t('admin.general.actions')">
+            <Column :header="$t('admin.general.table.actions')">
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
@@ -86,11 +102,11 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { router } from "@inertiajs/vue3";
+import { FilterMatchMode } from "@primevue/core/api";
 import { inject, ref, watch } from "vue";
 
 // ------------------------------------------------
@@ -115,6 +131,10 @@ const appStore = useAppStore();
 const route = inject("route");
 const { hasPermission } = authStore;
 const indexTable = ref({});
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 
 // ------------------------------------------------
 // Watchers

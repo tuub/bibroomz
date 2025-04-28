@@ -10,6 +10,7 @@
         "@commitlint/cli": "^19.3.0",
         "@commitlint/config-conventional": "^19.2.2",
         "@primevue/auto-import-resolver": "^4.0.0-beta.5",
+        "@primevue/core": "^4.3.3",
         "@trivago/prettier-plugin-sort-imports": "^4.2.0",
         "@typescript-eslint/eslint-plugin": "^7.16.0",
         "@typescript-eslint/parser": "^7.16.0",
@@ -37,7 +38,7 @@
         "tailwindcss": "^3.1.8",
         "typescript": "^5.0.4",
         "unplugin-vue-components": "^0.27.2",
-        "vite": "^6.2.3"
+        "vite": "6.2.6"
     },
     "dependencies": {
         "@fullcalendar/core": "^6.1.14",

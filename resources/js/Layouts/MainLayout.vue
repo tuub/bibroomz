@@ -1,7 +1,7 @@
 <template>
     <Head>
         <title>{{ appName }}</title>
-        <meta type="description" :content="appName" head-key="description" />
+        <meta type="description" :content="appName" />
         <!--<link rel="icon" type="image/x-icon" :href="`${baseUrl}/images/1797769.png`" />-->
         <link rel="icon" type="image/x-icon" :href="`${baseUrl}/favicon.ico`" />
     </Head>
@@ -25,11 +25,16 @@
     <!-- FOOTER START -->
     <Footer />
     <!-- FOOTER END -->
+
+    <!-- MODAL START -->
+    <XModal />
+    <!-- MODAL END -->
 </template>
 
 <script setup>
 import Footer from "@/Shared/Footer.vue";
 import Header from "@/Shared/Header.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useToastStore } from "@/Stores/ToastStore";

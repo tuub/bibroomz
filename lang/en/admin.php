@@ -14,6 +14,9 @@ return [
         'table' => [
             'actions' => 'Actions',
             'not_required' => 'Not required',
+            'keyword_search' => 'Keyword',
+            'no_records' => 'No records found.',
+            'loading_records' => 'Loading records ...'
         ],
         'week_days' => [
             'monday' => [
