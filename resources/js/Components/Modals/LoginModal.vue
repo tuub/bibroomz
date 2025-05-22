@@ -16,6 +16,7 @@
                         type="text"
                         name="username"
                         autocomplete="username"
+                        autofocus
                         :placeholder="$t('login.form.username.placeholder')"
                     />
                 </label>
