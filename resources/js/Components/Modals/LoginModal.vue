@@ -104,9 +104,3 @@ const passwordError = computed(() => {
     return error.value?.data?.errors?.password;
 });
 </script>
-<style>
-.login-wapper {
-    float: left;
-    width: 100%;
-}
-</style>
