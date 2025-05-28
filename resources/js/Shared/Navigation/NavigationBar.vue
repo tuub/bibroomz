@@ -1,5 +1,37 @@
+<script setup>
+import { useLogin } from "@/Composables/Login";
+import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
+import InternalLink from "@/Shared/Navigation/InternalLink.vue";
+import LanguageSwitch from "@/Shared/Navigation/LanguageSwitch.vue";
+import { useAuthStore } from "@/Stores/AuthStore";
+
+import { storeToRefs } from "pinia";
+import { inject } from "vue";
+
+// ------------------------------------------------
+// Props
+// ------------------------------------------------
+defineProps({
+    isResponsive: {
+        type: Boolean,
+        default: false,
+    },
+    isPrivileged: {
+        type: Boolean,
+        default: false,
+    },
+    isMultiTenancy: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+const route = inject("ziggyRoute");
+const { isAuthenticated, user: currentUser } = storeToRefs(useAuthStore());
+const { loginUser, logoutUser } = useLogin();
+</script>
 <template>
-    <nav id="menu">
+    <nav id="menu" role="navigation" :aria-label="$t('accessibility.aria_label.navigation.regular')">
         <ul>
             <li :class="isResponsive ? 'block' : 'inline-block'">
                 <InternalLink
@@ -37,8 +69,8 @@
                     id="auth"
                     href="#"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
-                    @click="logoutUser"
                     title="Logout"
+                    @click="logoutUser"
                 >
                     <i class="pi pi-user"></i>
                     {{ $t("navigation.logout") }}
@@ -49,8 +81,8 @@
                     id="auth"
                     href="#"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
-                    @click="loginUser"
                     title="Login"
+                    @click="loginUser"
                 >
                     <i class="pi pi-user"></i>
                     {{ $t("navigation.login") }}
@@ -64,36 +96,3 @@
         </ul>
     </nav>
 </template>
-
-<script setup>
-import { useLogin } from "@/Composables/Login";
-import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
-import InternalLink from "@/Shared/Navigation/InternalLink.vue";
-import LanguageSwitch from "@/Shared/Navigation/LanguageSwitch.vue";
-import { useAuthStore } from "@/Stores/AuthStore";
-
-import { storeToRefs } from "pinia";
-import { inject } from "vue";
-
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
-defineProps({
-    isResponsive: {
-        type: Boolean,
-        default: false,
-    },
-    isPrivileged: {
-        type: Boolean,
-        default: false,
-    },
-    isMultiTenancy: {
-        type: Boolean,
-        default: false,
-    },
-});
-
-const route = inject("ziggyRoute");
-const { isAuthenticated, user: currentUser } = storeToRefs(useAuthStore());
-const { loginUser, logoutUser } = useLogin();
-</script>

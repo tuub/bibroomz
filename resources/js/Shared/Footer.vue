@@ -1,5 +1,16 @@
+<script setup>
+import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
+import InternalLink from "@/Shared/Navigation/InternalLink.vue";
+
+import { inject } from "vue";
+
+const route = inject("ziggyRoute");
+</script>
 <template>
-    <footer class="mt-auto flex items-center justify-center bg-gray-800 p-4 text-center text-white">
+    <footer
+        class="mt-auto flex items-center justify-center bg-gray-800 p-4 text-center text-white"
+        :aria-label="$t('accessibility.aria_label.footer')"
+    >
         <div class="">
             <ExternalLink href="https://www.tu.berlin/datenschutz">
                 {{ $t("navigation.privacy_statement") }}
@@ -13,11 +24,3 @@
         </div>
     </footer>
 </template>
-<script setup>
-import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
-import InternalLink from "@/Shared/Navigation/InternalLink.vue";
-
-import { inject } from "vue";
-
-const route = inject("ziggyRoute");
-</script>
