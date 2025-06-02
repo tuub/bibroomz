@@ -57,10 +57,10 @@ onUnmounted(() => {
     <!-- HEADER END -->
 
     <!-- MAIN CONTENT START -->
-    <main
+    <div
         class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 lg:flex-nowrap"
     >
-        <section id="content" class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4">
+        <main id="content" class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4">
             <div class="flex justify-center">
                 <Button
                     class="mb-2 text-xs lg:hidden"
@@ -78,13 +78,16 @@ onUnmounted(() => {
                 @close="toastStore.removeToastMessage"
                 @life-end="toastStore.removeToastMessage"
             />
-        </section>
+        </main>
+        <!-- MAIN CONTENT END -->
+        <!-- SIDEBAR CONTENT START -->
         <aside
             id="sidebar"
             class="order-last m-2 w-full rounded bg-white p-5 shadow-md md:order-none lg:w-2/5 xl:w-1/4"
         ></aside>
-    </main>
-    <!-- MAIN CONTENT END -->
+        <!-- SIDEBAR CONTENT END -->
+    </div>
+
     <!-- FOOTER START -->
     <Footer />
     <!-- FOOTER END -->
