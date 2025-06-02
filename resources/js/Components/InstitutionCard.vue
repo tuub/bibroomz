@@ -15,7 +15,7 @@ const appStore = useAppStore();
 const translate = appStore.translate;
 </script>
 <template>
-    <Card class="mx-10 my-5 flex w-3/4 lg:w-1/5">
+    <Card class="mx-10 my-5 flex max-w-full md:max-w-96">
         <template #header>
             <img class="mx-auto mt-5 w-96" :src="institution.teaser_uri" alt="Teaser Image" />
         </template>

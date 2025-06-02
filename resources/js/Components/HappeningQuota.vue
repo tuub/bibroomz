@@ -1,5 +1,14 @@
 <template>
-    <div>
+    <div class="flex rounded text-xs uppercase">
+        <div class="flex bg-gray-600 px-2 py-1 font-bold text-white">
+            {{ remaining }}
+        </div>
+        <div class="flex bg-gray-500 px-2 py-1 text-white">
+            {{ $tChoice("quota." + type + ".label", remaining) }}
+        </div>
+    </div>
+
+    <!--
         <Chip class="my-1 py-0 pl-0 uppercase">
             <span
                 v-if="isPrivileged"
@@ -19,13 +28,11 @@
                 {{ $t("quota.remaining") }}
             </span>
         </Chip>
-    </div>
+            </div>
+        -->
 </template>
 
 <script setup>
-import { useAuthStore } from "@/Stores/AuthStore";
-
-import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
 const props = defineProps({
@@ -42,9 +49,6 @@ const props = defineProps({
         default: 0,
     },
 });
-
-const authStore = useAuthStore();
-const { isPrivileged } = storeToRefs(authStore);
 
 const remaining = computed(() => {
     let remainingTime = props.setting - props.value;

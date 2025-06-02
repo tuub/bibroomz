@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'header' => 'My quotas',
-    'remaining' => 'remaining',
     'daily_hours' => [
         'label' => 'Daily hour|Daily hours',
     ],

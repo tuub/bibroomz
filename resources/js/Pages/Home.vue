@@ -24,7 +24,7 @@ import { onBeforeMount } from "vue";
 import { useAppStore } from "@/Stores/AppStore";
 import useModal from "@/Stores/Modal";
 import Calendar from "@/Components/Calendar/Calendar.vue";
-import Sidebar from "@/Components/Sidebar.vue";
+import Sidebar from "@/Components/Sidebar/Sidebar.vue";
 import XModal from "@/Shared/XModal.vue";
 
 // ------------------------------------------------

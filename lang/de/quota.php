@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'header' => 'Meine Kontingente',
-    'remaining' => 'verbleibend',
     'daily_hours' => [
         'label' => 'Tagesstunde|Tagesstunden',
     ],
