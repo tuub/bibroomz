@@ -4,5 +4,9 @@
         "local>ub/onit/renovate-config",
         "security:only-security-updates",
         ":approveMajorUpdates"
+    ],
+    "baseBranchPatterns": [
+        "$default",
+        "/^release[/-].*/"
     ]
 }
