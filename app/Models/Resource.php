@@ -106,7 +106,7 @@ class Resource extends Model
     /**
      * @param CarbonImmutable $start
      * @param CarbonImmutable $end
-     * @return array
+     * @return array{bool, CarbonImmutable, CarbonImmutable}
      */
     public function findClosed(CarbonImmutable $start, CarbonImmutable $end)
     {
