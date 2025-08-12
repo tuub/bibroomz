@@ -5,11 +5,6 @@
     overflow: visible;
 }
 
-a.fc-event,
-a.fc-event:hover {
-    cursor: pointer;
-}
-
 .fc-non-business {
     background-color: #bebebe !important;
 }
@@ -50,13 +45,15 @@ div.fc-timegrid-slots tr {
 /* Past Days */
 .fc-past {
     cursor: not-allowed;
-    background-color: variables.$status-closing;
+    background-color: variables.$status-closing-bg;
+    color: variables.$status-closing-fg;
 }
 
 /* Closed timeslots */
 .fc-nonbusiness {
     cursor: not-allowed;
-    background-color: variables.$status-closing;
+    background-color: variables.$status-closing-bg;
+    color: variables.$status-closing-fg;
 }
 
 /* Background Events: Closings */
@@ -85,40 +82,55 @@ div.fc-timegrid-slots tr {
 }
 
 a.fc-event {
+    cursor: pointer;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    .fc-event-main {
+        color: unset;
+    }
+
     &.past-event {
         opacity: 0.4;
         background-color: #cccccc;
     }
 
     &.reservation {
-        background-color: variables.$status-reservation;
-        color: #ffffff;
+        opacity: 0.75;
+        background-color: variables.$status-reservation-bg;
+        color: variables.$status-reservation-fg;
     }
 
     &.booking {
-        background-color: variables.$status-booking;
-        color: #ffffff;
+        opacity: 0.75;
+        background-color: variables.$status-booking-bg;
+        color: variables.$status-booking-fg;
     }
 
+    /*
     &.user-reservation {
-        background-color: variables.$status-user-reservation;
-        color: #ffffff;
+        background-color: variables.$status-reservation-bg;
+        color: variables.$status-reservation-fg !important;
     }
 
     &.user-to-verify {
-        background-color: variables.$status-user-to-verify;
-        color: #ffffff;
+        background-color: variables.$status-user-to-verify-bg;
+        color: variables.$status-user-to-verify-fg;
     }
 
     &.user-booking {
-        background-color: variables.$status-user-booking;
-        color: #ffffff;
+        background-color: variables.$status-user-booking-bg;
+        color: variables.$status-user-booking-fg;
+        //background-image: url('../../public/images/1797769.png');
     }
+    */
 
     &.block {
-        background-color: variables.$status-block;
+        background-color: variables.$status-block-bg;
         pointer-events: none;
-        color: #ffffff;
+        color: variables.$status-block-fg;
     }
 }
 
@@ -130,11 +142,7 @@ a.fc-event {
     background-color: #f6f6f6;
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
-    margin: 0;
-    padding: 0;
-}
-
+.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child),
 .fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
     margin: 0;
     padding: 0;

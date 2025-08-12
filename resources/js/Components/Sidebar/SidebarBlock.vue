@@ -13,9 +13,9 @@ defineProps({
 
 <template>
     <div class="rounded bg-white p-5 shadow-md">
-        <h2 class="block text-sm font-bold uppercase">
+        <h3 class="block text-sm font-bold uppercase">
             {{ title }}
-        </h2>
+        </h3>
         <slot />
     </div>
 </template>

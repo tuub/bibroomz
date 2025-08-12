@@ -109,9 +109,9 @@ const getStatusClass = computed(() => {
     if (props.isPast) {
         return "over";
     } else if (props.happening.isVerified) {
-        return "booked";
+        return "status-booking";
     } else {
-        return "reserved";
+        return "status-reservation";
     }
 });
 </script>

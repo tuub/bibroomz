@@ -1,11 +1,24 @@
 // Status Colors
-$status-reservation: #00a6b3;
-$status-booking: #8f13fc;
-$status-user-reservation: #b2cce5;
-$status-user-to-verify: #47cb3f;
-$status-user-booking: #ff8000;
-$status-block: #ce1e17;
-$status-closing: #939393;
+$status-reservation-bg: #f6d32d;
+$status-reservation-fg: #000000;
+$status-booking-bg: #1659ac;
+$status-booking-fg: #ffffff;
+
+/*
+$status-user-reservation-bg: #1659AC;
+$status-user-reservation-fg: #000;
+
+$status-user-to-verify-bg: #47cb3f;
+$status-user-to-verify-fg: #000;
+
+$status-user-booking-bg: #33D17A;
+$status-user-booking-fg: #000;
+*/
+
+$status-block-bg: #ce1e17;
+$status-block-fg: #000000;
+$status-closing-bg: #525252;
+$status-closing-fg: #ffffff;
 
 /*
 open color.fc .fc-toolbar.fc-header-toolbar

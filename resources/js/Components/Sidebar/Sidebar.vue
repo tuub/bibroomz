@@ -49,9 +49,9 @@ const helpURI = computed(() => {
 </script>
 
 <template>
-    <h1 class="sr-only mb-2 block text-xl font-bold">
+    <h2 class="sr-only mb-2 block text-xl font-bold">
         {{ $t("sidebar.header") }}
-    </h1>
+    </h2>
     <div class="flex flex-col space-y-5">
         <SidebarBlock :title="$t('sidebar.about', { resource_group: translate(resourceGroup.title) })">
             <p class="mb-2 text-sm italic">

@@ -5,7 +5,6 @@
                 {{ resourceGroupTitle }}
             </h1>
         </div>
-
         <div class="my-2 flex flex-wrap justify-between">
             <!-- BROWSE DATE -->
             <div id="calendar-date-browser" class="mb-2 flex w-full justify-start lg:mb-0 lg:w-1/5">
@@ -15,10 +14,11 @@
                         id="calendar-date-previous"
                         :disabled="date?.isSame(validRange?.start, 'day')"
                         :class="{ 'opacity-25': date?.isSame(validRange?.start, 'day') }"
-                        @click="datePrev"
                         title="Go to previous calendar date"
+                        @click="datePrev"
                     >
                         <i class="ri-arrow-left-s-line ri-xl"></i>
+                        <span class="sr-only">Go to previous calendar date</span>
                     </button>
                 </div>
                 <!-- DATE DISPLAY -->
@@ -31,10 +31,11 @@
                         id="calendar-date-next"
                         :disabled="date?.isSame(validRange?.end, 'day')"
                         :class="{ 'opacity-25': date?.isSame(validRange?.end, 'day') }"
-                        @click="dateNext"
                         title="Go to next calendar date"
+                        @click="dateNext"
                     >
                         <i class="ri-arrow-right-s-line ri-xl"></i>
+                        <span class="sr-only">Go to next calendar date</span>
                     </button>
                 </div>
             </div>
@@ -52,17 +53,15 @@
                         id="calendar-resources-previous"
                         :disabled="!pagination.previousPage"
                         :class="{ 'opacity-25': !pagination.previousPage }"
-                        @click="resourcesPrev"
                         title="Go to previous calendar resources"
+                        @click="resourcesPrev"
                     >
                         <i class="ri-arrow-left-s-line ri-xl"></i>
+                        <span class="sr-only">Go to previous calendar resources</span>
                     </button>
                 </div>
                 <!-- RESOURCE DISPLAY -->
-                <div
-                    id="calendar-resources-previous"
-                    class="flex w-full items-center justify-center text-center lg:w-4/6"
-                >
+                <div class="flex w-full items-center justify-center text-center lg:w-4/6">
                     {{ $t("calendar.browse_resources") }}
                 </div>
                 <!-- ARROW RIGHT -->
@@ -71,10 +70,11 @@
                         id="calendar-resources-next"
                         :disabled="!pagination.nextPage"
                         :class="{ 'opacity-25': !pagination.nextPage }"
-                        @click="resourcesNext"
                         title="Go to next calendar resources"
+                        @click="resourcesNext"
                     >
                         <i class="ri-arrow-right-s-line ri-xl"></i>
+                        <span class="sr-only">Go to next calendar resources</span>
                     </button>
                 </div>
             </div>
@@ -86,7 +86,27 @@
                     <div v-if="arg.event.display === 'background'" class="border-b-2 pt-5 text-xl">
                         {{ translate(arg.event.extendedProps.description) }}
                     </div>
-                    <b>{{ arg.timeText }}</b>
+
+                    <!-- EVENT TIME DISPLAY START -->
+                    <i
+                        v-if="
+                            arg.event.extendedProps.status &&
+                            (arg.event.extendedProps.status.type === 'user-reservation' ||
+                                arg.event.extendedProps.status.type === 'user-booking')
+                        "
+                        class="ri-user-fill"
+                    ></i>
+                    <span class="text-sm">{{ arg.timeText }}</span>
+                    <i
+                        v-if="
+                            arg.event.extendedProps.status &&
+                            (arg.event.extendedProps.status.type === 'user-reservation' ||
+                                arg.event.extendedProps.status.type === 'user-booking')
+                        "
+                        class="ri-user-fill"
+                    ></i>
+                    <!-- EVENT TIME DISPLAY END -->
+
                     <div class="px-1">{{ translate(arg.event.extendedProps.label) }}</div>
                 </div>
             </template>

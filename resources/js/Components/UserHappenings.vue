@@ -47,12 +47,10 @@ const isPastHappening = (happening) => {
 
 <template>
     <!-- PAST HAPPENINGS TOGGLE START -->
-    <div class="text-sm font-medium">
-        <label class="inline-flex cursor-pointer items-center">
-            <ToggleSwitch v-model="hidePast" />
-            <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
-                $t("user_happenings.hide_past_happenings")
-            }}</span>
+    <div class="inline-flex cursor-pointer items-center text-sm font-medium">
+        <ToggleSwitch name="toggle_past_happenings" v-model="hidePast" />
+        <label for="toggle_past_happenings" class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+            {{ $t("user_happenings.hide_past_happenings") }}
         </label>
     </div>
     <!-- PAST HAPPENINGS TOGGLE END -->

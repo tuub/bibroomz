@@ -38,38 +38,39 @@ main.dark-mode {
     }
 }
 
-div#status-legend {
-    .reservation {
-        background-color: variables.$status-reservation;
-        color: #ffffff;
-    }
+.status-reservation {
+    background-color: variables.$status-reservation-bg;
+    color: variables.$status-reservation-fg;
+}
 
-    .booking {
-        background-color: variables.$status-booking;
-        color: #ffffff;
-    }
+.status-booking {
+    background-color: variables.$status-booking-bg;
+    color: variables.$status-booking-fg;
+}
 
-    .user-reservation {
-        background-color: variables.$status-user-reservation;
-        color: #ffffff;
-    }
+/*
+.status-user-reservation {
+    background-color: variables.$status-user-reservation-bg;
+    color: variables.$status-user-reservation-fg;
+}
 
-    .user-to-verify {
-        background-color: variables.$status-user-to-verify;
-        color: #ffffff;
-    }
+.status-user-to-verify {
+    background-color: variables.$status-user-to-verify-bg;
+    color: variables.$status-user-to-verify-fg;
+}
 
-    .user-booking {
-        background-color: variables.$status-user-booking;
-        color: #ffffff;
-    }
+.status-user-booking {
+    background-color: variables.$status-user-booking-bg;
+    color: variables.$status-user-booking-fg;
+}
+*/
 
-    .closing {
-        background-color: variables.$status-closing;
-        color: #ffffff;
-    }
+.status-closing {
+    background-color: variables.$status-closing-bg;
+    color: variables.$status-closing-fg;
+}
 
-    &.block {
-        background-color: variables.$status-block;
-    }
+.status-block {
+    background-color: variables.$status-block-bg;
+    color: variables.$status-block-fg;
 }
