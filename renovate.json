@@ -5,7 +5,7 @@
         "security:only-security-updates",
         ":approveMajorUpdates"
     ],
-    "baseBranchPatterns": [
+    "baseBranches": [
         "$default",
         "/^release[/-].*/"
     ]
