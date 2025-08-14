@@ -10,3 +10,6 @@
 "*.php":
   - "php -l"
   - "vendor/bin/phpcs"
+
+"renovate.json":
+  - renovate-config-validator --strict

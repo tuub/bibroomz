@@ -125,6 +125,14 @@ rector:
     - vendor/bin/rector process
     - git diff --exit-code
 
+renovate:
+  extends: .node
+  stage: lint
+  script:
+    - npx --no --package renovate -- renovate-config-validator --strict
+  rules:
+    - changes: [renovate.json]
+
 stylelint:
   extends: .node
   stage: lint
