@@ -130,9 +130,6 @@ renovate:
   stage: lint
   script:
     - npx --no --package renovate -- renovate-config-validator --strict
-  rules:
-    - changes: [renovate.json]
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 stylelint:
   extends: .node
