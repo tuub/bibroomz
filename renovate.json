@@ -1,12 +1,5 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "local>ub/onit/renovate-config",
-        "security:only-security-updates",
-        ":approveMajorUpdates"
-    ],
-    "baseBranches": [
-        "$default",
-        "/^release[/-].*/"
-    ]
+    "extends": ["local>ub/onit/renovate-config", "security:only-security-updates", ":approveMajorUpdates"],
+    "baseBranchPatterns": ["$default", "/^release[/-].*/"]
 }
