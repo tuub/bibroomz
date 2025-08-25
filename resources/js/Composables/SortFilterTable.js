@@ -92,10 +92,13 @@ export function useSortFilterTable({
             paginator.currentPage < paginator.lastPage ? paginator.currentPage + 1 : paginator.currentPage;
         paginator.prevPage = paginator.currentPage > 1 ? paginator.currentPage - 1 : paginator.currentPage;
 
-        paginator.data = filteredData.value.slice(
-            paginator.perPage * (paginator.currentPage - 1),
-            paginator.perPage * paginator.currentPage,
-        );
+        paginator.data =
+            paginator.perPage > 0
+                ? filteredData.value.slice(
+                      paginator.perPage * (paginator.currentPage - 1),
+                      paginator.perPage * paginator.currentPage,
+                  )
+                : filteredData.value;
     });
 
     // ------------------------------------------------
