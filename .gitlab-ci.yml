@@ -2,6 +2,10 @@ workflow:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'schedule'
+
+include:
+  component: $CI_SERVER_FQDN/ub/onit/gitlab-ci-components/dependency-scanning@main
 
 stages:
   - build
