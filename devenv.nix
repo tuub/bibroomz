@@ -59,7 +59,7 @@ in
 
     php = {
       enable = true;
-      package = pkgs.php83.buildEnv { extensions = { all, enabled }: enabled ++ [ all.redis ]; };
+      package = pkgs.php84.buildEnv { extensions = { all, enabled }: enabled ++ [ all.redis ]; };
     };
   };
 
