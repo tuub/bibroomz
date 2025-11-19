@@ -47,6 +47,9 @@ in
   cachix.enable = false;
   dotenv.enable = false;
 
+  enterShell = lib.mkForce "";
+  tasks = lib.mkDefault { };
+
   languages = {
     javascript = {
       enable = true;
