@@ -54,7 +54,7 @@ in
     javascript = {
       enable = true;
       npm.enable = true;
-      package = pkgs.nodejs_22;
+      package = pkgs.nodejs_24;
     };
 
     php = {
