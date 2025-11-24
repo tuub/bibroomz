@@ -64,8 +64,7 @@ onUnmounted(() => {
             <div class="flex justify-center">
                 <Button
                     class="mb-2 text-xs lg:hidden"
-                    variant="outlined"
-                    severity="info"
+                    severity="contrast"
                     size="small"
                     icon="pi pi-arrow-circle-down"
                     :label="$t('navigation.jump_to_sidebar')"

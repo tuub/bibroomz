@@ -1,5 +1,9 @@
 @use "variables";
 
+.fc-timegrid-body {
+    cursor: grab;
+}
+
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {
     overflow: visible;
