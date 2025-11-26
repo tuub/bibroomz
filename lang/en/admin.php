@@ -12,6 +12,7 @@ return [
             'cancel' => 'Cancel',
         ],
         'table' => [
+            'relations' => 'Relations',
             'actions' => 'Actions',
             'not_required' => 'Not required',
             'keyword_search' => 'Keyword',
@@ -151,6 +152,7 @@ return [
                 'actions' => [
                     'create' => 'Create institution',
                     'edit' => 'Edit',
+                    'resource_groups' => 'Resource Groups',
                     'closings' => 'Closings',
                     'settings' => 'Settings',
                     'mails' => 'Emails',

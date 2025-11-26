@@ -22,13 +22,10 @@ class InstitutionController extends Controller
     public function getInstitutions()
     {
         return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => Institution::with(['closings'])
+            'institutions' => Institution::with(['closings', 'resource_groups'])
                 ->orderBy('order')
                 ->get()
                 ->filter->isViewableByUser(auth()->user())
-                ->transform(function ($item) {
-                    return $item->withoutTranslations();
-                })
         ]);
     }
 

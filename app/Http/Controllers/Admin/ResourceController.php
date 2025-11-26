@@ -30,9 +30,11 @@ class ResourceController extends Controller
             ->orderBy('title')->get()
             ->filter->isViewableByUser(auth()->user());
 
+        $resource_group = ResourceGroup::with('institution')->findOrFail($request->resource_group_id);
+
         return Inertia::render('Admin/Resources/Index', [
-            'resourceGroup' => ResourceGroup::findOrFail($request->resource_group_id),
             'resources' => $resources,
+            'resourceGroup' => $resource_group,
         ]);
     }
 
@@ -108,7 +110,9 @@ class ResourceController extends Controller
 
         $this->adminLoggingService->log('updated', $resource);
 
-        return redirect()->route('admin.resource.index', ['resource_group_id' => $resource->resource_group_id]);
+        return redirect()->route('admin.resource.index', [
+            'resource_group_id' => $resource->resource_group_id
+        ]);
     }
 
     public function deleteResource(Request $request): RedirectResponse

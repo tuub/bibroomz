@@ -1,107 +1,18 @@
-<template>
-    <IndexLayout model="user" :title="$t('admin.users.index.title')" :description="$t('admin.users.index.description')">
-        <template #header>
-            <IndexHeaderField
-                v-for="field in fields"
-                :key="field"
-                v-model:filter="filters[field]"
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === field"
-                is-filter-field
-                @sort="sortField = field"
-                @toggle-filter="toggleFilter(field)"
-            >
-                {{ $t("admin.users.index.table.header." + field) }}
-            </IndexHeaderField>
-            <IndexHeaderField :is-label-visible="false">
-                {{ $t("admin.general.table.actions") }}
-            </IndexHeaderField>
-        </template>
-
-        <template #body>
-            <IndexRow v-for="user in paginator.data" :key="user.id">
-                <IndexRowHeaderField>
-                    {{ user.name }}
-                </IndexRowHeaderField>
-                <IndexRowField>
-                    {{ user.email }}
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="user.is_system_user" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="user.is_admin" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="user.is_privileged" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="user.is_logged_in" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="user.is_banned" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    {{ user.happenings_count }}
-                </IndexRowField>
-                <IndexRowField class="text-right">
-                    <LinkGroup>
-                        <PopupLink
-                            v-if="hasPermission('edit_users')"
-                            :action="user.is_banned ? 'unban' : 'ban'"
-                            model="user"
-                            :params="{ id: user.id }"
-                        />
-                        <ActionLink
-                            v-if="hasPermission('edit_users')"
-                            action="edit"
-                            model="user"
-                            :params="{ id: user.id }"
-                        />
-                        <PopupLink
-                            v-if="hasPermission('delete_users')"
-                            action="delete"
-                            model="user"
-                            :params="{ id: user.id }"
-                        />
-                    </LinkGroup>
-                </IndexRowField>
-            </IndexRow>
-        </template>
-
-        <template #footer>
-            <Paginator
-                v-model:per-page="paginator.perPage"
-                :current-page="paginator.currentPage"
-                :last-page="paginator.lastPage"
-                :next-page="paginator.nextPage.toString()"
-                :prev-page="paginator.prevPage.toString()"
-                @page-changed="paginator.jumpToPage($event)"
-            />
-        </template>
-    </IndexLayout>
-</template>
-
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
-import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
-import IndexLayout from "@/Components/Admin/IndexLayout.vue";
-import IndexRow from "@/Components/Admin/IndexRow.vue";
-import IndexRowField from "@/Components/Admin/IndexRowField.vue";
-import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
-import Paginator from "@/Components/Admin/Paginator.vue";
-import { useSortFilterTable } from "@/Composables/SortFilterTable";
 import { useAuthStore } from "@/Stores/AuthStore";
 
-import { ref, watch } from "vue";
+import { FilterMatchMode } from "@primevue/core/api";
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
+defineProps({
     users: {
         type: Object,
         default: () => ({}),
@@ -118,33 +29,112 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 
-const fields = [
-    "name",
-    "email",
-    "is_system_user",
-    "is_admin",
-    "is_privileged",
-    "is_logged_in",
-    "is_banned",
-    "happenings_count",
-];
-
-const users = ref(props.users);
-
-const { filters, paginator, sortField, sortDirection, toggleFilter } = useSortFilterTable({
-    data: users,
-    initialSortField: "name",
-    initialSortDirection: "asc",
-    nonNumericFields: ["name", "email"],
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
-
-// ------------------------------------------------
-// Watchers
-// ------------------------------------------------
-watch(
-    () => props.users,
-    () => {
-        users.value = props.users;
-    },
-);
 </script>
+
+<template>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <DataTable
+            ref="indexTable"
+            v-model:filters="filters"
+            :value="users"
+            size="medium"
+            striped-rows
+            show-gridlines
+            removable-sort
+            table-style="min-width: 50rem"
+            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+        >
+            <template #header>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xl font-bold">{{ $t("admin.users.index.title") }}</div>
+                        <div class="italic">{{ $t("admin.users.index.description") }}</div>
+                    </div>
+                    <div class="flex flex-wrap justify-between gap-2">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                :placeholder="$t('admin.general.table.keyword_search')"
+                            />
+                        </IconField>
+                        <CreateLink model="user" />
+                    </div>
+                </div>
+            </template>
+            <template #empty>{{ $t("admin.general.table.no_records") }}</template>
+            <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
+            <Column field="name" :sortable="true" :header="$t('admin.users.index.table.header.name')" />
+            <Column field="email" :sortable="true" :header="$t('admin.users.index.table.header.email')">
+                <template #body="slotProps">
+                    <a :href="'mailto:' + slotProps.data.email" class="text-blue-600 hover:underline">
+                        {{ slotProps.data.email }}
+                    </a>
+                </template>
+            </Column>
+            <Column
+                field="is_system_user"
+                :sortable="true"
+                :header="$t('admin.users.index.table.header.is_system_user')"
+            >
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_system_user" />
+                </template>
+            </Column>
+            <Column field="is_admin" :sortable="true" :header="$t('admin.users.index.table.header.is_admin')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_admin" />
+                </template>
+            </Column>
+            <Column field="is_privileged" :sortable="true" :header="$t('admin.users.index.table.header.is_privileged')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_privileged" />
+                </template>
+            </Column>
+            <Column field="is_logged_in" :sortable="true" :header="$t('admin.users.index.table.header.is_logged_in')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_logged_in" />
+                </template>
+            </Column>
+            <Column field="is_banned" :sortable="true" :header="$t('admin.users.index.table.header.is_banned')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_banned" />
+                </template>
+            </Column>
+            <Column
+                field="happenings_count"
+                :sortable="true"
+                :header="$t('admin.users.index.table.header.happenings_count')"
+            />
+            <Column :header="$t('admin.general.table.actions')">
+                <template #body="slotProps">
+                    <LinkGroup>
+                        <PopupLink
+                            v-if="hasPermission('edit_users')"
+                            :action="slotProps.data.is_banned ? 'unban' : 'ban'"
+                            model="user"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <ActionLink
+                            v-if="hasPermission('edit_users')"
+                            action="edit"
+                            model="user"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_users')"
+                            action="delete"
+                            model="user"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                    </LinkGroup>
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+</template>

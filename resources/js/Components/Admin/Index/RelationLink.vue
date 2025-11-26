@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { inject } from "vue";
+import { computed, inject } from "vue";
 
 // eslint-disable-next-line vue/no-dupe-keys
 const route = inject("ziggyRoute");
@@ -30,13 +30,16 @@ const props = defineProps({
     },
 });
 
+const href = computed(() => {
+    return route(props.route ?? `admin.${props.relation}.index`, props.params);
+});
+
 const icons = {
     closing: "ri-calendar-close-fill",
     mail: "ri-mail-line",
     resource: "ri-calendar-line",
+    resource_group: "ri-folder-4-fill",
     setting: "ri-settings-5-fill",
     user: "ri-group-line",
 };
-
-const href = route(props.route ?? `admin.${props.relation}.index`, props.params);
 </script>

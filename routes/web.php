@@ -104,10 +104,18 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('admin.institution.delete');
 
         /* Resource Groups */
-        Route::get('/admin/resource_groups', [AdminResourceGroupController::class, 'getResourceGroups'])
-            ->name('admin.resource_group.index');
-        Route::get('/admin/resource_group/create', [AdminResourceGroupController::class, 'createResourceGroup'])
-            ->name('admin.resource_group.create');
+        Route::get(
+            '/admin/institution/{institution_id}/resource_groups',
+            [AdminResourceGroupController::class, 'getResourceGroups'],
+        )->name('admin.resource_group.index');
+        Route::get(
+            '/admin/institituion/{institution_id}/resource_group/create',
+            [AdminResourceGroupController::class, 'createResourceGroup'],
+        )->name('admin.resource_group.create');
+        #Route::get('/admin/resource_groups', [AdminResourceGroupController::class, 'getResourceGroups'])
+        #    ->name('admin.resource_group.index');
+        #Route::get('/admin/resource_group/create', [AdminResourceGroupController::class, 'createResourceGroup'])
+        #    ->name('admin.resource_group.create');
         Route::get('/admin/resource_group/{id}/edit', [AdminResourceGroupController::class, 'editResourceGroup'])
             ->name('admin.resource_group.edit');
         Route::post('/admin/resource_group/store', [AdminResourceGroupController::class, 'storeResourceGroup'])

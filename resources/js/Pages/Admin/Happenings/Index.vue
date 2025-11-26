@@ -1,146 +1,16 @@
-<template>
-    <IndexLayout
-        model="happening"
-        :title="$t('admin.happenings.index.title')"
-        :description="$t('admin.happenings.index.description')"
-    >
-        <template #header>
-            <IndexHeaderField
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === 'date'"
-                @sort="sortField = 'date'"
-            >
-                {{ $t("admin.happenings.index.table.header.date") }}
-            </IndexHeaderField>
-            <IndexHeaderField
-                v-for="field in ['institution', 'resource_group', 'resource']"
-                :key="field"
-                v-model:filter="filters[field]"
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === field"
-                is-filter-field
-                @sort="sortField = field"
-                @toggle-filter="toggleFilter(field)"
-            >
-                {{ $t("admin.happenings.index.table.header." + field) }}
-            </IndexHeaderField>
-            <IndexHeaderField
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === 'start'"
-                @sort="sortField = 'start'"
-            >
-                {{ $t("admin.happenings.index.table.header.start_time") }}
-            </IndexHeaderField>
-            <IndexHeaderField
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === 'end'"
-                @sort="sortField = 'end'"
-            >
-                {{ $t("admin.happenings.index.table.header.end_time") }}
-            </IndexHeaderField>
-            <IndexHeaderField
-                v-for="field in ['user1', 'user2', 'label', 'is_verified', 'is_over']"
-                :key="field"
-                v-model:filter="filters[field]"
-                v-model:sort-direction="sortDirection"
-                :is-sort-field="sortField === field"
-                is-filter-field
-                @sort="sortField = field"
-                @toggle-filter="toggleFilter(field)"
-            >
-                {{ $t("admin.happenings.index.table.header." + field) }}
-            </IndexHeaderField>
-            <IndexHeaderField :is-label-visible="false">
-                {{ $t("admin.general.table.actions") }}
-            </IndexHeaderField>
-        </template>
-
-        <template #body>
-            <IndexRow v-for="happening in paginator.data" :key="happening.id">
-                <IndexRowHeaderField>
-                    {{ getHappeningDate(happening.date) }}
-                </IndexRowHeaderField>
-                <IndexRowField>
-                    {{ happening.institution }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ happening.resource_group }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ happening.resource }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ getHappeningTime(happening.start) }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ getHappeningTime(happening.end) }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ happening.user1 }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ happening.user2 ? happening.user2 : $t("admin.general.table.not_required") }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ happening.label }}
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="happening.is_verified" />
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="happening.is_over" />
-                </IndexRowField>
-                <IndexRowField class="text-right">
-                    <LinkGroup>
-                        <ActionLink
-                            v-if="hasPermission('edit_happenings', happening.institution_id)"
-                            action="edit"
-                            model="happening"
-                            :params="{ id: happening.id }"
-                        />
-                        <PopupLink
-                            v-if="hasPermission('delete_happenings', happening.institution_id)"
-                            action="delete"
-                            model="happening"
-                            :params="{ id: happening.id }"
-                        />
-                    </LinkGroup>
-                </IndexRowField>
-            </IndexRow>
-        </template>
-
-        <template #footer>
-            <Paginator
-                v-model:per-page="paginator.perPage"
-                :current-page="paginator.currentPage"
-                :last-page="paginator.lastPage"
-                :next-page="paginator.nextPage.toString()"
-                :prev-page="paginator.prevPage.toString()"
-                @page-changed="paginator.jumpToPage($event)"
-            />
-        </template>
-    </IndexLayout>
-</template>
-
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
-import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
-import IndexLayout from "@/Components/Admin/IndexLayout.vue";
-import IndexRow from "@/Components/Admin/IndexRow.vue";
-import IndexRowField from "@/Components/Admin/IndexRowField.vue";
-import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
-import Paginator from "@/Components/Admin/Paginator.vue";
-import { useSortFilterTable } from "@/Composables/SortFilterTable";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
+import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { storeToRefs } from "pinia";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -148,7 +18,7 @@ import { ref, watch } from "vue";
 const props = defineProps({
     happenings: {
         type: Object,
-        required: true,
+        default: () => ({}),
     },
 });
 
@@ -160,17 +30,20 @@ dayjs.extend(utc);
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
+const authStore = useAuthStore();
 const appStore = useAppStore();
-const { locale } = storeToRefs(appStore);
-const { formatDate, formatTime, translate } = appStore;
-
-const { hasPermission } = useAuthStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const { hasPermission } = authStore;
+const { formatDate, formatTime, translate } = appStore;
+
 const happenings = ref(mapHappenings(props.happenings));
-const { filters, paginator, sortField, sortDirection, toggleFilter } = getPaginator(happenings);
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 
 // ------------------------------------------------
 // Methods
@@ -200,20 +73,103 @@ function mapHappenings(happenings) {
         is_over: isPastHappening(happening),
     }));
 }
-
-function getPaginator(happenings) {
-    return useSortFilterTable({
-        data: happenings,
-        initialSortField: "date",
-        initialSortDirection: "asc",
-        nonNumericFields: ["institution", "resource_group", "resource", "user1", "user2", "label"],
-    });
-}
-
-// ------------------------------------------------
-// Watchers
-// ------------------------------------------------
-watch(locale, () => {
-    happenings.value = mapHappenings(props.happenings);
-});
 </script>
+
+<template>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <DataTable
+            v-model:filters="filters"
+            :value="happenings"
+            size="medium"
+            striped-rows
+            show-gridlines
+            removable-sort
+            table-style="min-width: 50rem"
+            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+        >
+            <template #header>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xl font-bold">{{ $t("admin.happenings.index.title") }}</div>
+                        <div class="italic">{{ $t("admin.happenings.index.description") }}</div>
+                    </div>
+                    <div class="flex flex-wrap justify-between gap-2">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                :placeholder="$t('admin.general.table.keyword_search')"
+                            />
+                        </IconField>
+                        <CreateLink model="happening" />
+                    </div>
+                </div>
+            </template>
+            <template #empty>{{ $t("admin.general.table.no_records") }}</template>
+            <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
+            <Column field="date" :sortable="true" :header="$t('admin.happenings.index.table.header.date')">
+                <template #body="slotProps">
+                    {{ getHappeningDate(slotProps.data.date) }}
+                </template>
+            </Column>
+            <Column
+                field="institution"
+                :sortable="true"
+                :header="$t('admin.happenings.index.table.header.institution')"
+            />
+            <Column
+                field="resource_group"
+                :sortable="true"
+                :header="$t('admin.happenings.index.table.header.resource_group')"
+            />
+            <Column field="resource" :sortable="true" :header="$t('admin.happenings.index.table.header.resource')" />
+            <Column field="start" :sortable="true" :header="$t('admin.happenings.index.table.header.start_time')">
+                <template #body="slotProps">
+                    {{ getHappeningTime(slotProps.data.start) }}
+                </template>
+            </Column>
+            <Column field="end" :sortable="true" :header="$t('admin.happenings.index.table.header.end_time')">
+                <template #body="slotProps">
+                    {{ getHappeningTime(slotProps.data.end) }}
+                </template>
+            </Column>
+            <Column field="user1" :sortable="true" :header="$t('admin.happenings.index.table.header.user1')" />
+            <Column field="user2" :sortable="true" :header="$t('admin.happenings.index.table.header.user2')" />
+            <Column field="label" :sortable="true" :header="$t('admin.happenings.index.table.header.label')" />
+            <Column
+                field="is_verified"
+                :sortable="true"
+                :header="$t('admin.happenings.index.table.header.is_verified')"
+            >
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_verified" />
+                </template>
+            </Column>
+            <Column field="is_over" :sortable="true" :header="$t('admin.happenings.index.table.header.is_over')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_over" />
+                </template>
+            </Column>
+            <Column :header="$t('admin.general.table.actions')">
+                <template #body="slotProps">
+                    <LinkGroup>
+                        <ActionLink
+                            v-if="hasPermission('edit_happening', slotProps.data.id)"
+                            action="edit"
+                            model="happening"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_happening', slotProps.data.id)"
+                            action="delete"
+                            model="happening"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                    </LinkGroup>
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+</template>

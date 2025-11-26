@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import "dayjs/locale/de";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
+
+dayjs.extend(customParseFormat);
 
 export const useAppStore = defineStore({
     id: "app",

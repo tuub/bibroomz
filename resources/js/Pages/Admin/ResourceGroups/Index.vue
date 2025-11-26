@@ -1,99 +1,25 @@
-<template>
-    <IndexLayout
-        model="resource_group"
-        :title="$t('admin.resource_groups.index.title')"
-        :description="$t('admin.resource_groups.index.description')"
-    >
-        <template #header>
-            <IndexHeaderField>
-                {{ $t("admin.resource_groups.index.table.header.title") }}
-            </IndexHeaderField>
-            <IndexHeaderField>
-                {{ $t("admin.resource_groups.index.table.header.slug") }}
-            </IndexHeaderField>
-            <IndexHeaderField>
-                {{ $t("admin.resource_groups.index.table.header.institution") }}
-            </IndexHeaderField>
-            <IndexHeaderField>
-                {{ $t("admin.resource_groups.index.table.header.description") }}
-            </IndexHeaderField>
-            <IndexHeaderField>
-                {{ $t("admin.resource_groups.index.table.header.is_active") }}
-            </IndexHeaderField>
-            <IndexHeaderField :is-label-visible="false">
-                {{ $t("admin.general.table.actions") }}
-            </IndexHeaderField>
-        </template>
-        <template #body>
-            <IndexRow v-for="resource_group in resource_groups" :key="resource_group.id">
-                <IndexRowHeaderField>
-                    {{ translate(resource_group.title) }}
-                </IndexRowHeaderField>
-                <IndexRowField>
-                    {{ resource_group.slug }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ translate(resource_group.institution.title) }}
-                </IndexRowField>
-                <IndexRowField>
-                    {{ translate(resource_group.description) }}
-                </IndexRowField>
-                <IndexRowField class="text-center">
-                    <BooleanField :is-true="resource_group.is_active" />
-                </IndexRowField>
-                <IndexRowField class="text-right">
-                    <LinkGroup>
-                        <ActionLink
-                            v-if="hasPermission('edit_resource_groups', resource_group.institution_id)"
-                            action="edit"
-                            model="resource_group"
-                            :params="{ id: resource_group.id }"
-                        />
-                        <RelationLink
-                            v-if="hasPermission('view_resources', resource_group.institution_id)"
-                            current="resource_group"
-                            relation="resource"
-                            :params="{ id: resource_group.id }"
-                        />
-                        <RelationLink
-                            v-if="hasPermission('view_settings', resource_group.institution_id)"
-                            current="resource_group"
-                            relation="setting"
-                            :params="{ settingable_type: 'resource_group', settingable_id: resource_group.id }"
-                        />
-                        <PopupLink
-                            v-if="hasPermission('delete_resource_groups', resource_group.institution_id)"
-                            action="delete"
-                            model="resource_group"
-                            :params="{ id: resource_group.id }"
-                        />
-                    </LinkGroup>
-                </IndexRowField>
-            </IndexRow>
-        </template>
-    </IndexLayout>
-</template>
-
 <script setup>
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
+import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
-import IndexHeaderField from "@/Components/Admin/IndexHeaderField.vue";
-import IndexLayout from "@/Components/Admin/IndexLayout.vue";
-import IndexRow from "@/Components/Admin/IndexRow.vue";
-import IndexRowField from "@/Components/Admin/IndexRowField.vue";
-import IndexRowHeaderField from "@/Components/Admin/IndexRowHeaderField.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+
+import { FilterMatchMode } from "@primevue/core/api";
+import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
-    resource_groups: {
+    institution: {
+        type: Object,
+        default: () => ({}),
+    },
+    resourceGroups: {
         type: Object,
         default: () => ({}),
     },
@@ -108,6 +34,103 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const translate = appStore.translate;
 const { hasPermission } = authStore;
+const { translate } = appStore;
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 </script>
+
+<template>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <DataTable
+            v-model:filters="filters"
+            :value="resourceGroups"
+            size="medium"
+            striped-rows
+            show-gridlines
+            removable-sort
+            table-style="min-width: 50rem"
+            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+        >
+            <template #header>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xl font-bold">
+                            {{ translate(institution.title) }}
+                            <i class="pi pi-angle-double-right"></i>
+                            {{ $t("admin.resource_groups.index.title") }}
+                        </div>
+                        <div class="italic">{{ $t("admin.resource_groups.index.description") }}</div>
+                    </div>
+                    <div class="flex flex-wrap justify-between gap-2">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                :placeholder="$t('admin.general.table.keyword_search')"
+                            />
+                        </IconField>
+                        <CreateLink model="resource_group" />
+                    </div>
+                </div>
+            </template>
+            <template #empty>{{ $t("admin.general.table.no_records") }}</template>
+            <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
+            <Column
+                :field="(r) => translate(r.title)"
+                :sortable="true"
+                :header="$t('admin.resource_groups.index.table.header.title')"
+            />
+            <Column
+                :field="(r) => translate(r.description)"
+                :sortable="true"
+                :header="$t('admin.resource_groups.index.table.header.description')"
+            />
+            <Column field="is_active" :sortable="true" :header="$t('admin.institutions.index.table.header.is_active')">
+                <template #body="slotProps">
+                    <BooleanField :is-true="slotProps.data.is_active" />
+                </template>
+            </Column>
+            <Column :header="$t('admin.general.table.actions')">
+                <template #body="slotProps">
+                    <LinkGroup>
+                        <ActionLink
+                            v-if="hasPermission('edit_resource_group', slotProps.data.id)"
+                            action="edit"
+                            model="resource_group"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <PopupLink
+                            v-if="hasPermission('delete_resource_group', slotProps.data.id)"
+                            action="delete"
+                            model="resource_group"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                    </LinkGroup>
+                </template>
+            </Column>
+            <Column :header="$t('admin.general.table.relations')">
+                <template #body="slotProps">
+                    <LinkGroup>
+                        <RelationLink
+                            v-if="hasPermission('view_resources', slotProps.data.id)"
+                            current="resource_group"
+                            relation="resource"
+                            :params="{ resource_group_id: slotProps.data.id }"
+                        />
+                        <RelationLink
+                            v-if="hasPermission('edit_resource_group', slotProps.data.id)"
+                            current="resource_group"
+                            relation="setting"
+                            :params="{ settingable_type: 'resource_group', settingable_id: slotProps.data.id }"
+                        />
+                    </LinkGroup>
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+</template>

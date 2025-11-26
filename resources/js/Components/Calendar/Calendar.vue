@@ -266,7 +266,9 @@ const getResourceGroupInfo = (resourceGroup) => {
         }),
     );
 };
- */
+
+//https://github.com/fullcalendar/fullcalendar/issues/4816
+*/
 
 const setResourceCountFromScreen = () => {
     if (windowWidth.value < 600) {
@@ -290,6 +292,8 @@ const convertTimeToMinutes = (time) => {
     const timeParts = time.split(":");
     return Number(timeParts[0]) * 60 + Number(timeParts[1]);
 };
+
+//https://github.com/fullcalendar/fullcalendar/issues/4816
 
 const countLines = (event) => {
     const milliseconds = event.end - event.start;

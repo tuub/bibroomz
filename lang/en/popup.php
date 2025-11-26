@@ -5,6 +5,7 @@ return [
     'content' => [
         'delete' => [
             'user' => 'Are you sure you want to delete this user?',
+            'user_group' => 'Are you sure you want to delete this user group?',
             'institution' => 'Are you sure you want to delete this institution?',
             'resource_group' => 'Are you sure you want to delete this resource group?',
             'resource' => 'Are you sure you want to delete this resource?',

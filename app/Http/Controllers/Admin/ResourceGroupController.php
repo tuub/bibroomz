@@ -10,6 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Institution;
+use App\Models\ResourceGroup;
 
 class ResourceGroupController extends Controller
 {
@@ -19,25 +21,23 @@ class ResourceGroupController extends Controller
     ) {
     }
 
-    public function getResourceGroups(): Response
+    public function getResourceGroups(Request $request): Response
     {
-        $user = auth()->user();
-
-        $rgs = $this->resourceGroupService->getResourceGroupsForUser($user);
+        $resource_groups = ResourceGroup::with(['resources'])
+            ->where('institution_id', $request->institution_id)
+            ->orderBy('title')->get()
+            ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/ResourceGroups/Index', [
-            'resource_groups' => $rgs,
+            'institution' => Institution::findOrFail($request->institution_id),
+            'resource_groups' => $resource_groups,
         ]);
     }
 
-    public function createResourceGroup(): Response
+    public function createResourceGroup(Request $request): Response
     {
-        $user = auth()->user();
-
-        $institutions = $this->resourceGroupService->getInstitutionsForUser($user);
-
         return Inertia::render('Admin/ResourceGroups/Form', [
-            'institutions' => $institutions,
+            'institution' => Institution::findOrFail($request->institution_id),
             'languages' => config('app.supported_locales'),
         ]);
     }
@@ -77,7 +77,9 @@ class ResourceGroupController extends Controller
 
         $this->adminLoggingService->log('updated', $rg);
 
-        return redirect()->route('admin.resource_group.index');
+        return redirect()->route('admin.resource_group.index', [
+            'institution_id' => $request->institution_id,
+        ]);
     }
 
     public function deleteResourceGroup(Request $request): RedirectResponse

@@ -5,6 +5,7 @@ return [
     'content' => [
         'delete' => [
             'user' => 'Sind Sie sicher, dass Sie diesen Benutzer löschen wollen?',
+            'user_group' => 'Sind Sie sicher, dass Sie diese Benutzergruppe löschen wollen?',
             'institution' => 'Sind Sie sicher, dass Sie diese Einrichtung löschen wollen?',
             'resource_group' => 'Sind Sie sicher, dass Sie diese Ressourcengruppe löschen wollen?',
             'resource' => 'Sind Sie sicher, dass Sie diese Ressource löschen wollen?',

@@ -1,15 +1,17 @@
 <template>
-    <Link
-        :href="route('admin.' + model + '.' + action, params)"
-        class="font-medium text-red-600 hover:underline dark:text-red-500"
-    >
+    <Link :href="href" class="font-medium text-red-600 hover:underline dark:text-red-500">
         <i :class="icons[action]"></i>
         {{ $t("admin." + model + "s.index.table.actions." + action) }}
     </Link>
 </template>
 
 <script setup>
-defineProps({
+import { computed, inject } from "vue";
+
+// eslint-disable-next-line vue/no-dupe-keys
+const route = inject("ziggyRoute");
+
+const props = defineProps({
     action: {
         type: String,
         required: true,
@@ -22,6 +24,10 @@ defineProps({
         type: Object,
         default: () => ({}),
     },
+});
+
+const href = computed(() => {
+    return route(`admin.${props.model}.${props.action}`, props.params);
 });
 
 const icons = {
