@@ -236,14 +236,18 @@ class AlmaUserProvider implements UserProvider
             $response = XmlToArray::convert($response);
 
             if ($response['result']['code'] == 0) {
-                Log::info('ALMA: Successful login for user: ' . json_encode($credentials['uid']));
+                if ($response['result']['email_address']) {
+                    Log::info('ALMA: Successful login for user: ' . json_encode($credentials['uid']));
 
-                return [
-                    'name' => Utility::normalizeLoginName($credentials['uid']),
-                    'email' => $response['result']['email_address'],
-                    'password' => Hash::make('Test123!'),
-                    'is_admin' => false,
-                ];
+                    return [
+                        'name' => Utility::normalizeLoginName($credentials['uid']),
+                        'email' => $response['result']['email_address'],
+                        'password' => Hash::make('Test123!'),
+                        'is_admin' => false,
+                    ];
+                } else {
+                    Log::error('ALMA: Empty email for user: ' . json_encode($credentials['uid']), ['response' => $response]);
+                }
             } else {
                 Log::info('ALMA: Wrong username/password for user: ' . json_encode($credentials['uid']));
             }
