@@ -46,7 +46,7 @@
         "@fullcalendar/resource-timegrid": "^6.1.19",
         "@fullcalendar/resource-timeline": "^6.1.1",
         "@fullcalendar/vue3": "^6.1.19",
-        "@inertiajs/vue3": "^1.0.2",
+        "@inertiajs/vue3": "^2.3.17",
         "@primevue/themes": "^4.0.0-rc.2",
         "@tailwindcss/typography": "^0.5.9",
         "@vitejs/plugin-vue": "^5.2.1",
