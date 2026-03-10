@@ -10,7 +10,7 @@
         "cybercog/laravel-ban": "^4.8",
         "fakerphp/faker": "^1.23",
         "guzzlehttp/guzzle": "^7.2",
-        "inertiajs/inertia-laravel": "^1.0",
+        "inertiajs/inertia-laravel": "^2.0",
         "ixudra/curl": "^6.22",
         "laravel/framework": "^11.0",
         "laravel/prompts": "^0.1.8",
