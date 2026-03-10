@@ -30,9 +30,6 @@ COPY . .
 COPY --from=php-build /var/www/vendor /var/www/vendor
 COPY --from=php-build /var/www/resources/js/ziggy.js /var/www/resources/js/ziggy.js
 
-RUN mkdir -p /var/www/public/vendor \
-    && cp -r /var/www/vendor/laravel/telescope/public /var/www/public/vendor/telescope
-
 ARG CACHEBUST
 RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
 
