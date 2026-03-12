@@ -37,13 +37,6 @@ const { hasPermission, canViewInstitutions } = authStore;
             icon="ri-group-line"
         />
         <DashboardCard
-            v-if="hasPermission('view_permissions')"
-            :title="$t('admin.permissions.index.title')"
-            :description="$t('admin.permissions.index.description')"
-            :link="route('admin.permission.index')"
-            icon="ri-door-lock-fill"
-        />
-        <DashboardCard
             v-if="hasPermission('view_user_groups')"
             :title="$t('admin.user_groups.index.title')"
             :description="$t('admin.user_groups.index.description')"

@@ -19,7 +19,8 @@ defineProps({
         type: Object,
         default: () => ({}),
     },
-    resourceGroups: {
+    // eslint-disable-next-line vue/prop-name-casing
+    resource_groups: {
         type: Object,
         default: () => ({}),
     },
@@ -46,7 +47,7 @@ const filters = ref({
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
             v-model:filters="filters"
-            :value="resourceGroups"
+            :value="resource_groups"
             size="medium"
             striped-rows
             show-gridlines

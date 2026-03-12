@@ -15,7 +15,8 @@ import { ref } from "vue";
 // Props
 // ------------------------------------------------
 defineProps({
-    userGroups: {
+    // eslint-disable-next-line vue/prop-name-casing
+    user_groups: {
         type: Object,
         default: () => ({}),
     },
@@ -51,7 +52,7 @@ const filters = ref({
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
             v-model:filters="filters"
-            :value="userGroups"
+            :value="user_groups"
             size="medium"
             striped-rows
             show-gridlines
