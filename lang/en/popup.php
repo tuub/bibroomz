@@ -26,6 +26,9 @@ return [
                 'users' => 'Are you sure you want to remove these users from the group?',
             ],
         ],
+        'clone' => [
+            'resource' => 'Are you sure you want to clone this resource?',
+        ],
     ],
 
     'actions' => [
@@ -34,5 +37,6 @@ return [
         'ban' => 'Yes, ban',
         'unban' => 'Yes, unban',
         'remove' => 'Yes, remove',
+        'clone' => 'Yes, clone',
     ],
 ];

@@ -26,6 +26,9 @@ return [
                 'users' => 'Sind Sie sicher, dass Sie diese Benutzer aus der Gruppe entfernen wollen?',
             ],
         ],
+        'clone' => [
+            'resource' => 'Sind Sie sicher, dass Sie diese Ressource klonen wollen?',
+        ],
     ],
 
     'actions' => [
@@ -34,5 +37,6 @@ return [
         'ban' => 'Ja, sperren',
         'unban' => 'Ja, entsperren',
         'remove' => 'Ja, entfernen',
+        'clone' => 'Ja, klonen',
     ],
 ];
