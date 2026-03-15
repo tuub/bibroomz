@@ -32,6 +32,7 @@ class ResourceGroup extends Model
         'term_plural',
         'description',
         'is_active',
+        'order',
         'help_uri',
     ];
 

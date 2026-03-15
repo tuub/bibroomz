@@ -86,6 +86,14 @@
             :error="form.errors.help_uri"
         />
 
+        <!-- Input: Order -->
+        <FormInput
+            v-model="form.order"
+            field="order"
+            field-key="admin.resource_groups.form.fields.order"
+            :error="form.errors.order"
+        />
+
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
             <ToggleSwitch v-model="form.is_active" input-id="is_active" />
@@ -174,6 +182,7 @@ const form = useForm({
     description: props.resource_group?.description ?? {},
     help_uri: props.resource_group?.help_uri ?? "",
     is_active: props.resource_group?.is_active ?? false,
+    order: props.resource_group?.order ?? "0",
     user_groups: props.resource_group?.user_groups?.map((userGroup) => userGroup.id) ?? [],
 });
 

@@ -8,13 +8,14 @@ import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
+import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
     institution: {
         type: Object,
         default: () => ({}),
@@ -35,17 +36,38 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const route = inject("route");
 const { hasPermission } = authStore;
 const { translate } = appStore;
+const indexTable = ref({});
+const routeParams = {
+    institution_id: props.institution.id,
+};
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
+
+// ------------------------------------------------
+// Methods
+// ------------------------------------------------
+const isSortedByColumn = () => {
+    return !!indexTable.value.d_sortField;
+};
+
+const reorderRows = (event) => {
+    const resource_groups = event.value;
+    for (const [index, resource_group] of resource_groups.entries()) {
+        resource_group.order = index + 1;
+    }
+    router.post(route("admin.resource_group.order"), resource_groups);
+};
 </script>
 
 <template>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
+            ref="indexTable"
             v-model:filters="filters"
             :value="resource_groups"
             size="medium"
@@ -54,6 +76,7 @@ const filters = ref({
             removable-sort
             table-style="min-width: 50rem"
             class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+            @row-reorder="reorderRows"
         >
             <template #header>
                 <div class="flex flex-wrap items-center justify-between gap-2">
@@ -75,12 +98,13 @@ const filters = ref({
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="resource_group" />
+                        <CreateLink model="resource_group" :params="routeParams" />
                     </div>
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
             <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
+            <Column :row-reorder="!isSortedByColumn()" header-style="width: 3rem" />
             <Column
                 :field="(r) => translate(r.title)"
                 :sortable="true"

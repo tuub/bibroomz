@@ -25,13 +25,25 @@ class ResourceGroupController extends Controller
     {
         $resource_groups = ResourceGroup::with(['resources'])
             ->where('institution_id', $request->institution_id)
-            ->orderBy('title')->get()
+            ->orderBy('order')
+            ->get()
             ->filter->isViewableByUser(auth()->user());
 
         return Inertia::render('Admin/ResourceGroups/Index', [
             'institution' => Institution::findOrFail($request->institution_id),
             'resource_groups' => $resource_groups,
         ]);
+    }
+
+    public function orderResourceGroups(Request $request): void
+    {
+        foreach ($request->input() as $row) {
+            $resource_group = ResourceGroup::findOrFail($row['id']);
+            $resource_group->update([
+                'order' => $row['order'],
+            ]);
+            $this->adminLoggingService->log('reordered resource group', $resource_group);
+        }
     }
 
     public function createResourceGroup(Request $request): Response
