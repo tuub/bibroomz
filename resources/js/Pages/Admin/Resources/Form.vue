@@ -61,6 +61,14 @@
             <FormValidationError v-if="form.errors.capacity" :message="form.errors.capacity"></FormValidationError>
         </div>
 
+        <!-- Input: Order -->
+        <FormInput
+            v-model="form.order"
+            field="order"
+            field-key="admin.resources.form.fields.order"
+            :error="form.errors.order"
+        />
+
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
             <ToggleSwitch v-model="form.is_active" input-id="is_active" />
@@ -109,6 +117,7 @@
         <FormAction
             :form="form"
             model="resource"
+            :route-params="routeParams"
             cancel-route="admin.resource.index"
             :cancel-route-params="{ resource_group_id: resourceGroup.id }"
         />
@@ -159,10 +168,15 @@ const form = useForm({
     description: props.resource?.description ?? {},
     capacity: props.resource?.capacity ?? "0",
     is_active: props.resource?.is_active ?? false,
+    order: props.resource?.order ?? "0",
     is_verification_required: props.resource?.is_verification_required ?? true,
     business_hours: props.resource?.business_hours ?? [],
     resource_group_id: props.resourceGroup.id,
 });
+
+const routeParams = {
+    resource_group_id: props.resourceGroup.id,
+};
 
 // ------------------------------------------------
 // Methods

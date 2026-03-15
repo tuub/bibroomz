@@ -3,7 +3,7 @@
 
     <div id="calendar">
         <h1 class="sr-only mb-2 block text-xl font-bold">{{ $t("calendar.header") }}</h1>
-        <Calendar @open-modal-component="getModal"> </Calendar>
+        <Calendar @open-modal-component="getModal"></Calendar>
     </div>
 
     <Teleport defer to="aside#sidebar">

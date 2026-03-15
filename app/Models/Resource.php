@@ -39,6 +39,7 @@ class Resource extends Model
         'description',
         'capacity',
         'is_active',
+        'order',
         'is_verification_required',
     ];
 

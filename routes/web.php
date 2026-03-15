@@ -126,6 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/resource_group/{resource_group_id}/resources',
             [AdminResourceController::class, 'getResources'],
         )->name('admin.resource.index');
+        Route::post('/admin/resource/order', [AdminResourceController::class, 'orderResources'])
+            ->name('admin.resource.order');
         Route::get(
             '/admin/resource_group/{resource_group_id}/resource/create',
             [AdminResourceController::class, 'createResource'],

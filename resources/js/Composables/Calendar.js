@@ -52,6 +52,8 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
                 pagination.previousPage = response.data.pagination.previousPage;
                 pagination.nextPage = response.data.pagination.nextPage;
 
+                console.log(response.data.resources);
+
                 successCallback(response.data.resources);
             })
             .catch((error) => {
@@ -250,7 +252,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         events: fetchHappenings,
         slotMinTime: resourceGroupSettings["start_time_slot"],
         slotMaxTime: resourceGroupSettings["end_time_slot"],
-        resourceOrder: "title",
+        resourceOrder: "order",
         height: "auto",
         contentHeight: "auto",
         stickyHeaderDates: true,

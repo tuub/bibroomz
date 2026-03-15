@@ -35,6 +35,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    routeParams: {
+        type: Object,
+        default: () => ({}),
+    },
     cancelRoute: {
         type: String,
         default: null,
@@ -49,8 +53,8 @@ const route = inject("ziggyRoute");
 
 const submitForm = () => {
     const action = props.action ?? (props.form.id ? "update" : "store");
-
-    props.form.post(route(`admin.${props.model}.${action}`));
+    console.log(props.routeParams);
+    props.form.post(route(`admin.${props.model}.${action}`, props.routeParams));
 };
 
 const cancelForm = () => {

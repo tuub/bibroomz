@@ -8,13 +8,14 @@ import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
+import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
     resourceGroup: {
         type: Object,
         default: () => ({}),
@@ -34,8 +35,13 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const route = inject("route");
 const { hasPermission } = authStore;
 const { formatDate, formatTime, translate } = appStore;
+const indexTable = ref({});
+const routeParams = {
+    resource_group_id: props.resourceGroup.id,
+};
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -69,11 +75,24 @@ const formatBusinessHourDates = (startDate, endDate) => {
 
     return formatString;
 };
+
+const isSortedByColumn = () => {
+    return !!indexTable.value.d_sortField;
+};
+
+const reorderRows = (event) => {
+    const resources = event.value;
+    for (const [index, resource] of resources.entries()) {
+        resource.order = index + 1;
+    }
+    router.post(route("admin.resource.order"), resources);
+};
 </script>
 
 <template>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
+            ref="indexTable"
             v-model:filters="filters"
             :value="resources"
             size="medium"
@@ -82,6 +101,7 @@ const formatBusinessHourDates = (startDate, endDate) => {
             removable-sort
             table-style="min-width: 50rem"
             class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+            @row-reorder="reorderRows"
         >
             <!-- HEADER -->
             <template #header>
@@ -106,13 +126,13 @@ const formatBusinessHourDates = (startDate, endDate) => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="resource" />
+                        <CreateLink model="resource" :params="routeParams" />
                     </div>
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
             <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
-
+            <Column :row-reorder="!isSortedByColumn()" header-style="width: 3rem" />
             <!-- DATA COLUMNS -->
             <Column
                 :field="(r) => translate(r.title)"

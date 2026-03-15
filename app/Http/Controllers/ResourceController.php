@@ -24,7 +24,7 @@ class ResourceController extends Controller
 
         $resources = Resource::active()
             ->where('resource_group_id', $resource_group->id)
-            ->orderBy('title')
+            ->orderBy('order')
             ->paginate($request->count)
             ->withPath($request->url() . '?count=' . $request->count . '&date=' . $date->format('Y-m-d'));
 
@@ -51,6 +51,7 @@ class ResourceController extends Controller
                 'capacity' => $resource->capacity,
                 'location_uri' => $resource->location_uri,
                 'resourceGroup' => $resource->resource_group->id,
+                'order' => $resource->order,
                 'translations' => [
                     'title' => $resource->getTranslations('title'),
                     'description' => $resource->getTranslations('description'),

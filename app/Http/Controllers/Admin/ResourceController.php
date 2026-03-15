@@ -27,7 +27,8 @@ class ResourceController extends Controller
     {
         $resources = Resource::with(['resource_group', 'business_hours', 'business_hours.week_days', 'closings'])
             ->where('resource_group_id', $request->resource_group_id)
-            ->orderBy('title')->get()
+            ->orderBy('order')
+            ->get()
             ->filter->isViewableByUser(auth()->user());
 
         $resource_group = ResourceGroup::with('institution')->findOrFail($request->resource_group_id);
@@ -36,6 +37,17 @@ class ResourceController extends Controller
             'resources' => $resources,
             'resourceGroup' => $resource_group,
         ]);
+    }
+
+    public function orderResources(Request $request): void
+    {
+        foreach ($request->input() as $row) {
+            $resource = Resource::findOrFail($row['id']);
+            $resource->update([
+                'order' => $row['order'],
+            ]);
+            $this->adminLoggingService->log('reordered resource', $resource);
+        }
     }
 
     public function createResource(Request $request): Response
@@ -77,6 +89,7 @@ class ResourceController extends Controller
                     'location_uri',
                     'capacity',
                     'is_active',
+                    'order',
                     'is_verification_required',
                 ]),
                 'title' => $resource->getTranslations('title'),
