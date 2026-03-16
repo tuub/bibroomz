@@ -203,12 +203,6 @@ const reorderRows = (event) => {
                             relation="closing"
                             :params="{ closable_type: 'resource', closable_id: slotProps.data.id }"
                         />
-                        <RelationLink
-                            v-if="hasPermission('edit_resource_group', slotProps.data.id)"
-                            current="resource_group"
-                            relation="setting"
-                            :params="{ settingable_type: 'resource_group', settingable_id: slotProps.data.id }"
-                        />
                     </LinkGroup>
                 </template>
             </Column>
