@@ -9,12 +9,13 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { ref } from "vue";
+import { transChoice } from "laravel-vue-i18n";
+import { computed, ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
     roles: {
         type: Object,
         default: () => ({}),
@@ -37,9 +38,14 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
+const indexTable = ref({});
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const recordsCount = computed(() => {
+    return indexTable.value.processedData ? indexTable.value.processedData.length : props.roles.length;
 });
 
 // ------------------------------------------------
@@ -50,6 +56,7 @@ const filters = ref({
 <template>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
+            ref="indexTable"
             v-model:filters="filters"
             :value="roles"
             size="medium"
@@ -77,6 +84,9 @@ const filters = ref({
                         </IconField>
                         <CreateLink model="role" />
                     </div>
+                </div>
+                <div class="mt-2 text-right text-xs">
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

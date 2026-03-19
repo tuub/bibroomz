@@ -78,6 +78,14 @@
             :error="form.errors.teaser_uri"
         />
 
+        <!-- Input: Order -->
+        <FormInput
+            v-model="form.order"
+            field="order"
+            field-key="admin.institutions.form.fields.order"
+            :error="form.errors.order"
+        />
+
         <!-- Checkbox: Is active -->
         <div class="space-x-2">
             <ToggleSwitch v-model="form.is_active" input-id="is_active" />
@@ -139,6 +147,7 @@ const form = useForm({
     email: props.institution?.email ?? "",
     logo_uri: props.institution?.logo_uri ?? "",
     teaser_uri: props.institution?.teaser_uri ?? "",
+    order: props.institution?.order?.toString() ?? "0",
     is_active: props.institution?.is_active ?? false,
 });
 

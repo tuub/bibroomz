@@ -13,12 +13,8 @@
                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
                 required
             >
-                <option value="">
-                    {{ $t("admin.general.form.choose") }}
-                </option>
-
-                <option v-for="institution in institutions" :key="institution.id" :value="institution.id">
-                    {{ translate(institution.title) }}
+                <option v-for="i in institutions" :key="i.id" :value="i.id">
+                    {{ translate(i.title) }}
                 </option>
             </select>
             <FormValidationError
@@ -148,6 +144,10 @@ import { computed } from "vue";
 // ------------------------------------------------
 const props = defineProps({
     // eslint-disable-next-line vue/prop-name-casing
+    institution: {
+        type: Object,
+        default: () => ({}),
+    },
     resource_group: {
         type: Object,
         default: () => ({}),
@@ -174,7 +174,7 @@ const translate = appStore.translate;
 
 const form = useForm({
     id: props.resource_group?.id ?? "",
-    institution_id: props.resource_group?.institution_id ?? "",
+    institution_id: props.resource_group?.institution_id ?? props.institution.id,
     title: props.resource_group?.title ?? {},
     slug: props.resource_group?.slug ?? "",
     term_singular: props.resource_group?.term_singular ?? {},
@@ -182,7 +182,7 @@ const form = useForm({
     description: props.resource_group?.description ?? {},
     help_uri: props.resource_group?.help_uri ?? "",
     is_active: props.resource_group?.is_active ?? false,
-    order: props.resource_group?.order ?? "0",
+    order: props.resource_group?.order?.toString() ?? "0",
     user_groups: props.resource_group?.user_groups?.map((userGroup) => userGroup.id) ?? [],
 });
 

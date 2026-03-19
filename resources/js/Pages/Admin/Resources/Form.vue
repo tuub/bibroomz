@@ -168,7 +168,7 @@ const form = useForm({
     description: props.resource?.description ?? {},
     capacity: props.resource?.capacity ?? "0",
     is_active: props.resource?.is_active ?? false,
-    order: props.resource?.order ?? "0",
+    order: props.resource?.order?.toString() ?? "0",
     is_verification_required: props.resource?.is_verification_required ?? true,
     business_hours: props.resource?.business_hours ?? [],
     resource_group_id: props.resourceGroup.id,

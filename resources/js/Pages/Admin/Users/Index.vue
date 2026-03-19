@@ -7,12 +7,13 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { FilterMatchMode } from "@primevue/core/api";
-import { ref } from "vue";
+import { transChoice } from "laravel-vue-i18n";
+import { computed, ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
+const props = defineProps({
     users: {
         type: Object,
         default: () => ({}),
@@ -28,9 +29,14 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const { hasPermission } = authStore;
+const indexTable = ref({});
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const recordsCount = computed(() => {
+    return indexTable.value.processedData ? indexTable.value.processedData.length : props.users.length;
 });
 </script>
 
@@ -65,6 +71,9 @@ const filters = ref({
                         </IconField>
                         <CreateLink model="user" />
                     </div>
+                </div>
+                <div class="mt-2 text-right text-xs">
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

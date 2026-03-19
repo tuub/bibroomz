@@ -10,7 +10,8 @@ import { useAuthStore } from "@/Stores/AuthStore";
 
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
-import { inject, ref } from "vue";
+import { transChoice } from "laravel-vue-i18n";
+import { computed, inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -46,6 +47,10 @@ const routeParams = {
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const recordsCount = computed(() => {
+    return indexTable.value.processedData ? indexTable.value.processedData.length : props.resource_groups.length;
 });
 
 // ------------------------------------------------
@@ -101,6 +106,9 @@ const reorderRows = (event) => {
                         <CreateLink model="resource_group" :params="routeParams" />
                     </div>
                 </div>
+                <div class="mt-2 text-right text-xs">
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
             <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
@@ -114,6 +122,11 @@ const reorderRows = (event) => {
                 :field="(r) => translate(r.description)"
                 :sortable="true"
                 :header="$t('admin.resource_groups.index.table.header.description')"
+            />
+            <Column
+                field="resources_count"
+                :sortable="true"
+                :header="$t('admin.institutions.index.table.header.resources_count')"
             />
             <Column field="is_active" :sortable="true" :header="$t('admin.institutions.index.table.header.is_active')">
                 <template #body="slotProps">
@@ -149,6 +162,7 @@ const reorderRows = (event) => {
                         />
                         <RelationLink
                             v-if="hasPermission('edit_resource_group', slotProps.data.id)"
+                            inject
                             current="resource_group"
                             relation="setting"
                             :params="{ settingable_type: 'resource_group', settingable_id: slotProps.data.id }"

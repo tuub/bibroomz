@@ -24,6 +24,7 @@ class ResourceGroupController extends Controller
     public function getResourceGroups(Request $request): Response
     {
         $resource_groups = ResourceGroup::with(['resources'])
+            ->withCount('resources')
             ->where('institution_id', $request->institution_id)
             ->orderBy('order')
             ->get()
@@ -50,6 +51,7 @@ class ResourceGroupController extends Controller
     {
         return Inertia::render('Admin/ResourceGroups/Form', [
             'institution' => Institution::findOrFail($request->institution_id),
+            'institutions' => Institution::active()->get(),
             'languages' => config('app.supported_locales'),
         ]);
     }
@@ -57,6 +59,7 @@ class ResourceGroupController extends Controller
     public function storeResourceGroup(ResourceGroupRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        Log::debug('Validated ResourceGroup data', $validated);
 
         $rg = $this->resourceGroupService->storeResourceGroup($validated);
 

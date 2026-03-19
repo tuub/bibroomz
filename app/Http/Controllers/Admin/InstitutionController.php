@@ -23,6 +23,7 @@ class InstitutionController extends Controller
     {
         return Inertia::render('Admin/Institutions/Index', [
             'institutions' => Institution::with(['closings', 'resource_groups'])
+                ->withCount('resource_groups', 'resources')
                 ->orderBy('order')
                 ->get()
                 ->filter->isViewableByUser(auth()->user())

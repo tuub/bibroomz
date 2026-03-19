@@ -10,7 +10,8 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { ref } from "vue";
+import { transChoice } from "laravel-vue-i18n";
+import { computed, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -38,11 +39,16 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { formatDate, formatTime, translate } = appStore;
+const indexTable = ref({});
 
 const happenings = ref(mapHappenings(props.happenings));
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const recordsCount = computed(() => {
+    return indexTable.value.processedData ? indexTable.value.processedData.length : props.happenings.length;
 });
 
 // ------------------------------------------------
@@ -78,6 +84,7 @@ function mapHappenings(happenings) {
 <template>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <DataTable
+            ref="indexTable"
             v-model:filters="filters"
             :value="happenings"
             size="medium"
@@ -105,6 +112,9 @@ function mapHappenings(happenings) {
                         </IconField>
                         <CreateLink model="happening" />
                     </div>
+                </div>
+                <div class="mt-2 text-right text-xs">
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

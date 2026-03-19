@@ -216,6 +216,10 @@ return [
                     'placeholder' => 'URI to a teaser image',
                     'hint' => 'About the teaser URI',
                 ],
+                'order' => [
+                    'label' => 'Order',
+                    'hint' => 'At which position should the institution appear in the list? The higher the number, the further down.',
+                ],
                 'is_active' => [
                     'label' => 'Is active?',
                     'hint' => 'About the is active',
@@ -282,6 +286,10 @@ return [
                     'label' => 'Help URI',
                     'placeholder' => 'Help URI',
                     'hint' => 'Will be linked in the sidebar if the resource group is not available for all users.',
+                ],
+                'order' => [
+                    'label' => 'Order',
+                    'hint' => 'At which position should the resource group appear in the list? The higher the number, the further down.',
                 ],
                 'is_active' => [
                     'label' => 'Active?',
@@ -350,6 +358,10 @@ return [
                 'capacity' => [
                     'label' => 'Capacity',
                     'hint' => 'About the capacity',
+                ],
+                'order' => [
+                    'label' => 'Order',
+                    'hint' => 'At which position should the resource appear in the list? The higher the number, the further down.',
                 ],
                 'is_active' => [
                     'label' => 'Is active?',

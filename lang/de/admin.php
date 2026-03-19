@@ -2,6 +2,7 @@
 
 return [
     'general' => [
+        'records_count' => '{0} Keine Datensätze|{1} :count Datensatz|[2,*] :count Datensätze',
         'label' => [
             'clone' => '(KOPIE)'
         ],
@@ -146,7 +147,8 @@ return [
                     'short_title' => 'Kurztitel',
                     'slug' => 'URI-Slug',
                     'location' => 'Standort',
-                    'resources' => 'Ressourcen',
+                    'resource_groups_count' => 'Ressource-Gruppen',
+                    'resources_count' => 'Ressourcen',
                     'is_active' => 'Aktiv?',
                 ],
                 'actions' => [
@@ -216,6 +218,10 @@ return [
                     'placeholder' => 'URI zu einem Vorschaubild',
                     'hint' => 'Über die Teaser-URI',
                 ],
+                'order' => [
+                    'label' => 'Reihenfolge',
+                    'hint' => 'An welcher Stelle soll die Einrichtung in der Liste erscheinen? Je höher die Zahl, desto weiter unten.',
+                ],
                 'is_active' => [
                     'label' => 'Aktiv?',
                     'hint' => 'Aktiv ja/nein',
@@ -233,6 +239,7 @@ return [
                     'slug' => 'Slug',
                     'institution' => 'Einrichtung',
                     'description' => 'Beschreibung',
+                    'resources_count' => 'Ressourcen',
                     'is_active' => 'Aktiv?',
                 ],
                 'actions' => [
@@ -282,6 +289,10 @@ return [
                     'label' => 'Hilfe-URI',
                     'placeholder' => 'Hilfe-URI',
                     'hint' => 'Wird in der Sidebar verlinkt, wenn die Ressourcen-Gruppe nicht für alle Benutzer*innen verfügbar ist.',
+                ],
+                'order' => [
+                    'label' => 'Reihenfolge',
+                    'hint' => 'An welcher Stelle soll die Ressoure-Gruppe in der Liste erscheinen? Je höher die Zahl, desto weiter unten.',
                 ],
                 'is_active' => [
                     'label' => 'Aktiv?',
@@ -350,6 +361,10 @@ return [
                 'capacity' => [
                     'label' => 'Kapazität',
                     'hint' => 'Über die Kapazität',
+                ],
+                'order' => [
+                    'label' => 'Reihenfolge',
+                    'hint' => 'An welcher Stelle soll die Ressource in der Liste erscheinen? Je höher die Zahl, desto weiter unten.',
                 ],
                 'is_active' => [
                     'label' => 'Aktiv?',
@@ -475,7 +490,7 @@ return [
         'types' => [
             'institution' => 'Einrichtung',
             'resource_group' => 'Ressourcen-Gruppe',
-            'resource' => 'Resource',
+            'resource' => 'Ressource',
         ],
         'index' => [
             'title' => 'Schließungen für :type ":title"',

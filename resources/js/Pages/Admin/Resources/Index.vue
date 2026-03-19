@@ -10,7 +10,8 @@ import { useAuthStore } from "@/Stores/AuthStore";
 
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
-import { inject, ref } from "vue";
+import { transChoice } from "laravel-vue-i18n";
+import { computed, inject, ref } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -45,6 +46,10 @@ const routeParams = {
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+const recordsCount = computed(() => {
+    return indexTable.value.processedData ? indexTable.value.processedData.length : props.resources.length;
 });
 
 // ------------------------------------------------
@@ -128,6 +133,9 @@ const reorderRows = (event) => {
                         </IconField>
                         <CreateLink model="resource" :params="routeParams" />
                     </div>
+                </div>
+                <div class="mt-2 text-right text-xs">
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
