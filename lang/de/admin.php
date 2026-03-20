@@ -597,7 +597,7 @@ return [
             ],
             'is_label_enabled' => [
                 'label' => 'Buchungslabels aktiviert?',
-                'description' => 'Auf "1" setzen, um Buchungeslabels zu aktivieren.',
+                'description' => 'Auf "1" setzen, um Buchungslabels zu aktivieren.',
             ],
             'allowed_ips' => [
                 'label' => 'Erlaubte IPs',
@@ -609,6 +609,7 @@ return [
             'description' => 'Einstellungen bearbeiten',
             'table' => [
                 'header' => [
+                    'label' => 'Bezeichnung',
                     'key' => 'Schlüssel',
                     'description' => 'Beschreibung',
                     'value' => 'Wert',

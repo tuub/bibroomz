@@ -2,6 +2,7 @@
 
 return [
     'general' => [
+        'records_count' => '{0} No records|{1} :count record|[2,*] :count records',
         'label' => [
             'clone' => '(COPY)'
         ],
@@ -606,6 +607,7 @@ return [
             'description' => 'Edit settings',
             'table' => [
                 'header' => [
+                    'label' => 'Label',
                     'key' => 'Key',
                     'description' => 'Description',
                     'value' => 'Value',

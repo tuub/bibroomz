@@ -53,7 +53,6 @@ const route = inject("ziggyRoute");
 
 const submitForm = () => {
     const action = props.action ?? (props.form.id ? "update" : "store");
-    console.log(props.routeParams);
     props.form.post(route(`admin.${props.model}.${action}`, props.routeParams));
 };
 

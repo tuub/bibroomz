@@ -1,7 +1,5 @@
 <template>
     <FormLayout :title="title" :description="$t('admin.settings.form.description')">
-        <FormInput v-model="form.key" field="key" field-key="admin.settings.form.fields.key" :error="form.errors.key" />
-
         <FormInput
             v-model="form.value"
             field="value"
@@ -40,7 +38,6 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
-
     // eslint-disable-next-line vue/prop-name-casing
     settingable_type: {
         type: String,
