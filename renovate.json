@@ -1,5 +1,28 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["local>ub/onit/renovate-config", "security:only-security-updates", ":approveMajorUpdates"],
-    "baseBranchPatterns": ["$default", "/^release[/-].*/"]
+    "extends": [
+        "local>ub/onit/renovate-config",
+        ":automergeMinor",
+        ":combinePatchMinorReleases",
+        ":maintainLockFilesWeekly",
+        ":noUnscheduledUpdates",
+        "schedule:weekends",
+        ":timezone(Europe/Berlin)"
+    ],
+    "baseBranchPatterns": [
+        "$default",
+        "/^release[/-].*/"
+    ],
+    "packageRules": [
+        {
+            "description": "Only security updates on release branches",
+            "matchBaseBranches": [
+                "/^release[/-].*/"
+            ],
+            "extends": [
+                "schedule:nonOfficeHours",
+                "security:only-security-updates"
+            ]
+        }
+    ]
 }
