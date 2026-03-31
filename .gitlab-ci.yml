@@ -126,7 +126,7 @@ node:
   before_script:
     - apk add --no-cache git
   script:
-    - npm ci
+    - npm ci --ignore-scripts
 
 ### Lint stage
 commitlint:
