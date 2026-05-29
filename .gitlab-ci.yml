@@ -183,9 +183,9 @@ stylelint:
 ### Test stage
 dusk:
   stage: test
-  image: ${DOCKERHUB_IMAGE_PREFIX}docker:26.1.4-cli@sha256:f13cbf1ea352bdbdc825a9233fc56716bdf818e4f608f63280a1aa0b3dc1f2f7
+  image: ${DOCKERHUB_IMAGE_PREFIX}docker:29.5.2-cli@sha256:9ba8e32bfc35a2c7ae2feb1e3241b2778ae21dee80f4dcd31d04e1cfdea86ea2
   services:
-    - ${DOCKERHUB_IMAGE_PREFIX}docker:26.1.4-dind@sha256:dd43b430341a40d88f4f30edb03865daa9d6fa39c9b1da70f27e2a89cec3eae1
+    - ${DOCKERHUB_IMAGE_PREFIX}docker:29.5.2-dind@sha256:6b9cd914eb9c6b342c040a49a27a5eb3804453bae6ecc90f7ff96133595a95e8
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""

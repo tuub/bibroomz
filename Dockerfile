@@ -24,7 +24,7 @@ RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env \
 
 ###
 
-FROM ${DOCKERHUB_IMAGE_PREFIX}node:20.20.2-bookworm@sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5 AS node-build
+FROM ${DOCKERHUB_IMAGE_PREFIX}node:22.22.3-bookworm@sha256:1031993481795705055273f2eef0c24597abdcb277d6e058c82f78cbbdef92a6 AS node-build
 
 WORKDIR /var/www
 COPY package.json package-lock.json ./
