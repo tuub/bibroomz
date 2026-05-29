@@ -184,7 +184,12 @@ dusk:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - echo "$DOCKER_REGISTRY_PASS" | docker login --username "$DOCKER_REGISTRY_USER" --password-stdin
+    - |
+      if [ -n "${DOCKER_REGISTRY_USER:-}" ] && [ -n "${DOCKER_REGISTRY_PASS:-}" ]; then
+        printf '%s' "$DOCKER_REGISTRY_PASS" | docker login --username "$DOCKER_REGISTRY_USER" --password-stdin
+      else
+        echo "Skipping Docker registry login; DOCKER_REGISTRY_USER/PASS not available in this pipeline."
+      fi
     - cp .env.dusk.compose .env
   script:
     - docker compose --file compose.testing.yaml up --abort-on-container-exit --exit-code-from dusk --attach dusk
