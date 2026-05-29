@@ -21,7 +21,7 @@ default:
 ### Automation stage
 dependabot:
   stage: automation
-  image: alpine:latest
+  image: alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
   script:
     - apk add --no-cache curl jq
     - |
@@ -60,7 +60,7 @@ dependabot:
 
 ### Base images
 .node:
-  image: node:22-alpine
+  image: node:22.22.3-alpine3.23@sha256:968df39aedcea65eeb078fb336ed7191baf48f972b4479711397108be0966920
   cache:
     - key:
         files:
@@ -72,7 +72,7 @@ dependabot:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 .php:
-  image: php:8.3-alpine
+  image: php:8.3.31-alpine3.23@sha256:2e6b46e0c087cc1c17cfd91172112d8d9db5cbf9503b20e3418c10bd198748b5
   cache:
     - key:
         files:
@@ -85,7 +85,7 @@ dependabot:
 
 .deploy:
   stage: deploy
-  image: alpine:latest
+  image: alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
   before_script:
     - apk add --update openssh
     - eval $(ssh-agent -s)
@@ -144,7 +144,7 @@ eslint:
 gitleaks:
   stage: lint
   image:
-    name: ghcr.io/gitleaks/gitleaks:latest
+    name: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
     entrypoint: [""]
   script: gitleaks git --platform=gitlab --log-opts=$CI_MERGE_REQUEST_DIFF_BASE_SHA..
   rules:
@@ -177,9 +177,9 @@ stylelint:
 ### Test stage
 dusk:
   stage: test
-  image: docker:26-cli
+  image: docker:26.1.4-cli@sha256:f13cbf1ea352bdbdc825a9233fc56716bdf818e4f608f63280a1aa0b3dc1f2f7
   services:
-    - docker:26-dind
+    - docker:26.1.4-dind@sha256:dd43b430341a40d88f4f30edb03865daa9d6fa39c9b1da70f27e2a89cec3eae1
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""

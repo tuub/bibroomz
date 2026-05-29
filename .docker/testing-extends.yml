@@ -1,6 +1,6 @@
 services:
   chromium:
-    image: selenium/standalone-chromium
+    image: selenium/standalone-chromium:148.0.7778.178-chromedriver-148.0.7778.178-grid-4.44.0-20260505@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
     volumes:
       - /dev/shm:/dev/shm
     ports:
