@@ -222,7 +222,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         };
 
         const title = document.createElement("span");
-        title.innerHTML = translate(resourceInfo.resource.extendedProps.translations.title);
+        title.textContent = translate(resourceInfo.resource.extendedProps.translations.title);
 
         return { domNodes: [title, link] };
     }
