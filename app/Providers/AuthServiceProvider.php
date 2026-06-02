@@ -17,7 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        'App\Model\Happening' => 'App\Policy\HappeningPolicy'
+        'App\Model\Happening' => 'App\Policy\HappeningPolicy',
     ];
 
     /**
@@ -44,7 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::before(function (User $user, string $ability, array $args) {
             $institution = collect($args)->first();
 
-            if (!$institution instanceof Institution) {
+            if (! $institution instanceof Institution) {
                 // check global permissions
                 if ($user->roles->contains->hasPermission($ability)) {
                     return true;
@@ -63,8 +63,8 @@ class AuthServiceProvider extends ServiceProvider
             return $user->isAdmin();
         });
 
-        Auth::provider('alma', function () {
-            return new AlmaUserProvider(new User());
+        Auth::provider('alma', function ($app) {
+            return new AlmaUserProvider(new User(), $app['hash']);
         });
     }
 }

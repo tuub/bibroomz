@@ -2,15 +2,17 @@
 
 namespace App\Auth;
 
-use App\Models\User;
 use App\Library\Utility;
+use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Ixudra\Curl\Facades\Curl;
-use Exception;
 use Vyuldashev\XmlToArray\XmlToArray;
 
 /*
@@ -26,13 +28,15 @@ class AlmaUserProvider implements UserProvider
 {
     public $user;
 
+    private Hasher $hasher;
+
     /**
-     * @param User $user
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(User $user, Hasher $hasher)
     {
         $this->user = $user;
+        $this->hasher = $hasher;
     }
 
     /**
@@ -49,59 +53,59 @@ class AlmaUserProvider implements UserProvider
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array  $credentials
      * @return Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $is_user_found = false;
+        $existingUser = $this->findUserByLoginName($credentials['username']);
 
-        // Check local users
-        if (!$is_user_found) {
-            $user_data = $this->getLocalUserInfo($credentials);
-            if ($user_data) {
-                $is_user_found = true;
+        if ($existingUser?->isSystemUser()) {
+            $userData = $this->getLocalUserInfo($credentials)
+                ?? $this->getSystemUserInfo($credentials);
+
+            if (! $userData) {
+                return null;
             }
+
+            return $this->upsertAuthenticatedUser($userData, $existingUser);
         }
 
-        // Check system users
-        if (!$is_user_found) {
-            $user_data = $this->getSystemUserInfo($credentials);
-            if ($user_data) {
-                $is_user_found = true;
-            }
+        $userData = $this->getLocalUserInfo($credentials);
+
+        if ($userData) {
+            return $this->upsertAuthenticatedUser($userData, $existingUser);
         }
 
-        // Check API users
-        if (!$is_user_found) {
-            $user_data = $this->getRemoteUserInfo($credentials);
-            if ($user_data) {
-                $is_user_found = true;
-            }
-        }
+        $userData = $this->getRemoteUserInfo($credentials);
 
-        if (!$is_user_found) {
+        if (! $userData) {
             return null;
         }
 
-        $user = User::where('name', $user_data['name'])->first();
+        return $this->upsertAuthenticatedUser($userData, $existingUser);
+    }
 
+    private function upsertAuthenticatedUser(array $userData, ?User $user): ?User
+    {
         if ($user) {
             $user->update([
-                'email' => $user_data['email'],
+                'email' => $userData['email'],
                 'last_login' => Carbon::now(),
+                'is_system_user' => $userData['is_system_user'],
             ]);
         } else {
             try {
                 $user = User::create([
-                    'name' => $user_data['name'],
-                    'email' => $user_data['email'],
-                    'password' => $user_data['password'],
-                    'is_admin' => $user_data['is_admin'],
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'password' => $userData['password'],
+                    'is_admin' => $userData['is_admin'],
+                    'is_system_user' => $userData['is_system_user'],
                     'last_login' => Carbon::now(),
                 ]);
             } catch (Exception $exc) {
                 Log::error($exc);
+
                 return null;
             }
         }
@@ -115,11 +119,16 @@ class AlmaUserProvider implements UserProvider
         return $user;
     }
 
+    private function findUserByLoginName(string $loginName): ?User
+    {
+        return User::query()
+            ->whereRaw('LOWER(name) = ?', [strtolower(Utility::normalizeLoginName($loginName))])
+            ->first();
+    }
+
     /**
      * Validate a user against the given credentials.
      *
-     * @param  Authenticatable  $user
-     * @param  array  $credentials
      * @return bool
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
@@ -130,8 +139,7 @@ class AlmaUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param Authenticatable $user
-     * @param string $token
+     * @param  string  $token
      * @return void
      */
     public function updateRememberToken(Authenticatable $user, $token)
@@ -141,8 +149,8 @@ class AlmaUserProvider implements UserProvider
     /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
-     * @param mixed $identifier
-     * @param string $token
+     * @param  mixed  $identifier
+     * @param  string  $token
      * @return Authenticatable|null
      */
     public function retrieveByToken($identifier, $token)
@@ -151,7 +159,7 @@ class AlmaUserProvider implements UserProvider
 
     private function getLocalUserInfo($credentials)
     {
-        if (!config('roomz.test-accounts.is_enabled')) {
+        if (! config('roomz.test-accounts.is_enabled')) {
             return null;
         }
 
@@ -160,10 +168,11 @@ class AlmaUserProvider implements UserProvider
             && $credentials['password'] == config('roomz.test-accounts.admin.password')
         ) {
             return [
-                'name' => config('roomz.test-accounts.admin.username'),
+                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.admin.username')),
                 'password' => Hash::make(config('roomz.test-accounts.admin.password')),
                 'email' => config('roomz.test-accounts.admin.email'),
                 'is_admin' => true,
+                'is_system_user' => true,
             ];
         }
 
@@ -172,10 +181,11 @@ class AlmaUserProvider implements UserProvider
             && $credentials['password'] == config('roomz.test-accounts.test1.password')
         ) {
             return [
-                'name' => config('roomz.test-accounts.test1.username'),
+                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.test1.username')),
                 'password' => Hash::make(config('roomz.test-accounts.test1.password')),
                 'email' => config('roomz.test-accounts.test1.email'),
                 'is_admin' => false,
+                'is_system_user' => true,
             ];
         }
 
@@ -184,10 +194,11 @@ class AlmaUserProvider implements UserProvider
             && $credentials['password'] == config('roomz.test-accounts.test2.password')
         ) {
             return [
-                'name' => config('roomz.test-accounts.test2.username'),
+                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.test2.username')),
                 'password' => Hash::make(config('roomz.test-accounts.test2.password')),
                 'email' => config('roomz.test-accounts.test2.email'),
                 'is_admin' => false,
+                'is_system_user' => true,
             ];
         }
 
@@ -196,14 +207,15 @@ class AlmaUserProvider implements UserProvider
 
     private function getSystemUserInfo($credentials)
     {
-        $user = User::where('name', $credentials['username'])->first();
+        $user = $this->findUserByLoginName($credentials['username']);
 
-        if ($user && Hash::check($credentials['password'], $user->password)) {
+        if ($user && $user->isSystemUser() && Hash::check($credentials['password'], $user->password)) {
             return [
                 'name' => $user->name,
                 'email' => $user->email,
                 'password' => $user->password,
                 'is_admin' => $user->is_admin,
+                'is_system_user' => true,
             ];
         }
 
@@ -217,18 +229,22 @@ class AlmaUserProvider implements UserProvider
             'pw' => $credentials['password'],
         ];
 
-        $response = Curl::to(config('roomz.auth.api.endpoint'))
+        $curl = Curl::to(config('roomz.auth.api.endpoint'))
             ->withData($credentials)
             ->withTimeout(config('roomz.auth.api.timeout'))
             ->withConnectTimeout(config('roomz.auth.api.timeout'))
             ->withOption('SSL_VERIFYHOST', 2)
             ->withOption('SSL_VERIFYPEER', 1)
             ->withOption('POST', 1)
-            ->withOption('RETURNTRANSFER', true)
-            ->enableDebug(storage_path(config('roomz.auth.api.log_file')))
-            ->post();
+            ->withOption('RETURNTRANSFER', true);
 
-        if (empty($response) || !str_starts_with($response, '<result')) {
+        if (config('roomz.auth.api.is_debug')) {
+            $curl->enableDebug(storage_path(config('roomz.auth.api.log_file')));
+        }
+
+        $response = $curl->post();
+
+        if (empty($response) || ! str_starts_with($response, '<result')) {
             Log::info('ALMA: failed call to API for user: ' . json_encode($credentials['uid']));
             Log::info($response);
         } else {
@@ -241,8 +257,9 @@ class AlmaUserProvider implements UserProvider
                 return [
                     'name' => Utility::normalizeLoginName($credentials['uid']),
                     'email' => $response['result']['email_address'],
-                    'password' => Hash::make('Test123!'),
+                    'password' => Hash::make(Str::random(64)),
                     'is_admin' => false,
+                    'is_system_user' => false,
                 ];
             } else {
                 Log::info('ALMA: Wrong username/password for user: ' . json_encode($credentials['uid']));

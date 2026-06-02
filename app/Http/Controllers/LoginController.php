@@ -22,6 +22,7 @@ class LoginController extends Controller
             )->pluck('id'),
         ];
     }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -36,7 +37,7 @@ class LoginController extends Controller
 
         $auth = Auth::attempt($credentials);
 
-        if (!$auth) {
+        if (! $auth) {
             $response = [
                 'message' => __('auth.errors.user_not_found'),
             ];
@@ -44,11 +45,14 @@ class LoginController extends Controller
             return response()->json($response, Response::HTTP_UNAUTHORIZED);
         }
 
+        $request->session()->regenerate();
+
         Auth::user()->update([
             'is_logged_in' => true,
         ]);
 
         $response = $this->userStatus();
+
         return response()->json($response, Response::HTTP_OK);
     }
 
@@ -60,12 +64,15 @@ class LoginController extends Controller
 
         Auth::logout();
 
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
         return response()->noContent();
     }
 
     public function check()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $response = [
                 'message' => __('auth.errors.no_auth'),
             ];
@@ -74,6 +81,7 @@ class LoginController extends Controller
         }
 
         $response = $this->userStatus();
+
         return response()->json($response, Response::HTTP_OK);
     }
 }

@@ -1,21 +1,21 @@
 <?php
 
-use App\Http\Controllers\HappeningController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ResourceController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
-use App\Http\Controllers\Admin\ResourceGroupController as AdminResourceGroupController;
-use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
-use App\Http\Controllers\Admin\RoleController as AdminRoleController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
-use App\Http\Controllers\Admin\UserGroupController as AdminUSerGroupController;
+use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
+use App\Http\Controllers\Admin\ResourceGroupController as AdminResourceGroupController;
+use App\Http\Controllers\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\UserGroupController as AdminUserGroupController;
+use App\Http\Controllers\HappeningController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +41,7 @@ Route::post('/switch-lang', [HomeController::class, 'switchLanguage'])
 Route::post('/check', [LoginController::class, 'check'])
     ->name('check');
 Route::post('/login', [LoginController::class, 'login'])
+    ->middleware('throttle:login')
     ->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
@@ -161,7 +162,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         /* Settings */
         Route::get('/admin/{settingable_type}/{settingable_id}/settings', [
-            AdminSettingController::class, 'getSettings'
+            AdminSettingController::class, 'getSettings',
         ])
             ->name('admin.setting.index');
         Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])

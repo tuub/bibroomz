@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Library\Utility;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //$this->configureRateLimiting();
+        $this->configureRateLimiting();
 
         $this->routes(function () {
             Route::middleware('api')
@@ -47,6 +48,13 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('login', function (Request $request) {
+            $username = Utility::normalizeLoginName((string) $request->input('username'));
+            $key = sprintf('%s|%s', $username, $request->ip());
+
+            return Limit::perMinute(5)->by($key);
         });
     }
 }
