@@ -11,6 +11,21 @@ class UserGroupPolicy
 {
     use HandlesAuthorization;
 
+    public function viewAny(User $user): bool
+    {
+        return $this->hasAnyPermission($user, [
+            'view_user_groups',
+            'create_user_groups',
+            'edit_user_groups',
+            'delete_user_groups',
+        ]);
+    }
+
+    public function createAny(User $user): bool
+    {
+        return $this->hasAnyPermission($user, ['create_user_groups']);
+    }
+
     public function view(User $user, UserGroup $userGroup)
     {
         return $user->can('view_user_groups', $userGroup->institution);
@@ -45,5 +60,10 @@ class UserGroupPolicy
         if ($user->can('edit_user_groups', $userGroup->institution)) {
             return true;
         }
+    }
+
+    private function hasAnyPermission(User $user, array $permissions): bool
+    {
+        return $user->getPermissions($permissions)->flatten()->isNotEmpty();
     }
 }
