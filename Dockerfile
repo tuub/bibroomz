@@ -2,14 +2,30 @@ ARG DOCKERHUB_IMAGE_PREFIX=
 
 FROM ${DOCKERHUB_IMAGE_PREFIX}composer:2.10.0@sha256:1b73755de4f19775ba6087fd5313664493e06fab72b6fc27dc2044e87bb7c4c3 AS composer-bin
 
-FROM ${DOCKERHUB_IMAGE_PREFIX}php:8.3.31-cli-trixie@sha256:861deb86c83e92f416ebdb1a1d15c957474d2f39e112c7edea4446070afd8055 AS php-build
+FROM ${DOCKERHUB_IMAGE_PREFIX}dunglas/frankenphp:1.12.3-php8.3.31-trixie@sha256:f70becba75acdba38d5d3da7ed07400d2e070e950f988a65623a5d1276265e4a AS frankenphp-base
+
+RUN install-php-extensions \
+    bcmath \
+    intl \
+    opcache \
+    pcntl \
+    pcov \
+    pdo_mysql \
+    pdo_sqlite \
+    redis \
+    sockets \
+    sqlite3 \
+    zip
+
+###
+
+FROM frankenphp-base AS php-build
 
 COPY --from=composer-bin /usr/bin/composer /usr/bin/composer
 
-RUN apt-get -y update
-RUN apt-get -y install --no-install-recommends git libzip-dev unzip
-RUN pecl install redis && docker-php-ext-enable redis
-RUN docker-php-ext-install bcmath zip
+RUN apt-get --yes update \
+    && apt-get --yes install --no-install-recommends git unzip \
+    && rm --recursive --force /var/lib/apt/lists/*
 
 WORKDIR /var/www
 COPY composer.json composer.lock ./
@@ -40,12 +56,7 @@ RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
 
 ###
 
-FROM ${DOCKERHUB_IMAGE_PREFIX}php:8.3.31-fpm-trixie@sha256:b1a1333bc68ab2b55f6422e31a34d3feefa0865f486fc14004b22f87236aa2d3 AS php-fpm
-
-RUN apt-get -y update
-RUN apt-get -y install --no-install-recommends libicu-dev
-RUN pecl install redis && docker-php-ext-enable redis
-RUN docker-php-ext-install intl pcntl pdo_mysql
+FROM frankenphp-base AS frankenphp
 
 WORKDIR /var/www
 COPY . .
@@ -55,9 +66,3 @@ COPY --from=php-build /var/www/vendor /var/www/vendor
 
 RUN chown www-data: /var/www/bootstrap/cache \
     && chown -R www-data: /var/www/storage
-
-###
-
-FROM ${DOCKERHUB_IMAGE_PREFIX}caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9 AS caddy
-
-COPY --from=node-build /var/www/public /var/www/public

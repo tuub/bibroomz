@@ -1,4 +1,6 @@
 {
+    skip_install_trust
+
     servers {
         listener_wrappers {
             http_redirect

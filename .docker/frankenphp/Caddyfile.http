@@ -1,7 +1,8 @@
 {$APP_URL} {
     root * /var/www/public
-    php_fastcgi unix//var/run/php/php-fpm.sock
-    file_server
+    encode zstd br gzip
+
+    php_server
 
     reverse_proxy /app/* reverb:6001
 
