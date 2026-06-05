@@ -3,6 +3,7 @@ import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
 
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { withBaseUrl } from "@/baseUrl";
 
 import {
     useHappeningCreateModal,
@@ -37,8 +38,6 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
     const authStore = useAuthStore();
     const { isAuthenticated } = storeToRefs(authStore);
 
-    const baseUrl = import.meta.env.VITE_API_URL;
-
     function fetchResources(fetchInfo, successCallback, failureCallback) {
         if (!pagination.currentPage) {
             return;
@@ -69,7 +68,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
 
         axios({
             method: "GET",
-            url: baseUrl + "/" + institution.slug + "/" + resourceGroup.slug + "/happenings",
+            url: withBaseUrl(`/${institution.slug}/${resourceGroup.slug}/happenings`),
             params: payload,
         })
             .then((response) => {

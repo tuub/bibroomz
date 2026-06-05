@@ -122,6 +122,7 @@ import { useCalendar } from "@/Composables/Calendar";
 //import { useResourceGroupInfoModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { withBaseUrl } from "@/baseUrl";
 
 import dayjs from "dayjs";
 import "dayjs/locale/de";
@@ -148,12 +149,12 @@ const resourceCount = ref(0);
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const baseUrl = import.meta.env.VITE_API_URL;
 const resourceGroup = appStore.resourceGroup;
 
-const initialPage = computed(
-    () =>
-        `${baseUrl}/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
+const initialPage = computed(() =>
+    withBaseUrl(
+        `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
+    ),
 );
 
 const resourceGroupTitle = computed(() => {

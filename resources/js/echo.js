@@ -1,7 +1,12 @@
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 
-const baseUrl = new URL(import.meta.env.VITE_API_URL);
+const baseUrlString =
+    document.querySelector('meta[name="api-base-url"]')?.getAttribute("content") ||
+    import.meta.env.VITE_API_URL ||
+    window.location.origin;
+
+const baseUrl = new URL(baseUrlString, window.location.origin);
 const protocol = baseUrl.protocol.replace(":", "");
 
 const authEndpoint = [baseUrl.pathname.replace(/\/$/, ""), "broadcasting/auth"].join("/");

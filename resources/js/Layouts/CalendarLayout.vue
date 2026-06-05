@@ -4,6 +4,7 @@ import Header from "@/Shared/Header.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useToastStore } from "@/Stores/ToastStore";
+import { withBaseUrl } from "@/baseUrl";
 
 import Toast from "primevue/toast";
 import { onBeforeMount, onMounted, onUnmounted } from "vue";
@@ -19,7 +20,6 @@ const toastStore = useToastStore();
 // Variables
 // ------------------------------------------------
 const appName = appStore.appName;
-const baseUrl = import.meta.env.VITE_API_URL;
 
 // ------------------------------------------------
 // Methods
@@ -49,7 +49,7 @@ onUnmounted(() => {
     <Head>
         <title>{{ appName }}</title>
         <meta type="description" :content="appName" />
-        <link rel="icon" type="image/x-icon" :href="`${baseUrl}/favicon.ico`" />
+        <link rel="icon" type="image/x-icon" :href="withBaseUrl('/favicon.ico')" />
     </Head>
 
     <!-- HEADER START -->

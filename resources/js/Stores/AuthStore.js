@@ -1,13 +1,12 @@
 import { useAppStore } from "@/Stores/AppStore";
 import { useToastStore } from "@/Stores/ToastStore";
+import { withBaseUrl } from "@/baseUrl";
 
 import { router } from "@inertiajs/vue3";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { trans } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
-
-const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 dayjs.extend(isoWeek);
 
@@ -35,12 +34,12 @@ export const useAuthStore = defineStore({
 
     actions: {
         async csrf() {
-            return await axios.get(`${baseUrl}/sanctum/csrf-cookie`);
+            return await axios.get(withBaseUrl("/sanctum/csrf-cookie"));
         },
 
         async check() {
             try {
-                const response = await axios.post(`${baseUrl}/check`);
+                const response = await axios.post(withBaseUrl("/check"));
 
                 this.user = response.data.user;
                 this.isAuthenticated = true;
@@ -60,7 +59,7 @@ export const useAuthStore = defineStore({
 
             // await this.csrf();
 
-            const response = await axios.post(`${baseUrl}/login`, {
+            const response = await axios.post(withBaseUrl("/login"), {
                 username,
                 password,
             });
@@ -81,7 +80,7 @@ export const useAuthStore = defineStore({
             const toastStore = useToastStore();
 
             try {
-                await axios.post(`${baseUrl}/logout`);
+                await axios.post(withBaseUrl("/logout"));
 
                 this.unsubscribe();
                 this.$reset();
@@ -107,7 +106,7 @@ export const useAuthStore = defineStore({
             }
 
             try {
-                const response = await axios.get(`${baseUrl}/my/happenings`, {
+                const response = await axios.get(withBaseUrl("/my/happenings"), {
                     params: {
                         resource_group_id: resourceGroup.id,
                     },

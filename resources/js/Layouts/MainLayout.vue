@@ -5,6 +5,7 @@ import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useToastStore } from "@/Stores/ToastStore";
+import { withBaseUrl } from "@/baseUrl";
 
 import Toast from "primevue/toast";
 import { onBeforeMount, onMounted, onUnmounted } from "vue";
@@ -20,7 +21,6 @@ const toastStore = useToastStore();
 // Variables
 // ------------------------------------------------
 const appName = appStore.appName;
-const baseUrl = import.meta.env.VITE_API_URL;
 
 // ------------------------------------------------
 // Hooks
@@ -39,8 +39,7 @@ onUnmounted(() => {
     <Head>
         <title>{{ appName }}</title>
         <meta type="description" :content="appName" />
-        <!--<link rel="icon" type="image/x-icon" :href="`${baseUrl}/images/1797769.png`" />-->
-        <link rel="icon" type="image/x-icon" :href="`${baseUrl}/favicon.ico`" />
+        <link rel="icon" type="image/x-icon" :href="withBaseUrl('/favicon.ico')" />
     </Head>
 
     <!-- HEADER START -->

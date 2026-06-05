@@ -6,6 +6,8 @@
 </template>
 
 <script setup>
+import { withBaseUrl } from "@/baseUrl";
+
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
@@ -19,6 +21,5 @@ const props = defineProps({
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const baseUrl = import.meta.env.VITE_API_URL;
-const imageUrl = baseUrl + "/images/spinner_" + props.size + ".gif";
+const imageUrl = withBaseUrl(`/images/spinner_${props.size}.gif`);
 </script>
