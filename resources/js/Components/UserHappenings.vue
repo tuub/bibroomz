@@ -48,25 +48,18 @@ const isPastHappening = (happening) => {
 <template>
     <!-- PAST HAPPENINGS TOGGLE START -->
     <div class="inline-flex cursor-pointer items-center text-sm font-medium">
-        <ToggleSwitch v-model="hidePast" name="toggle_past_happenings" />
-        <label for="toggle_past_happenings" class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+        <ToggleSwitch v-model="hidePast" input-id="toggle-past-happenings" name="toggle_past_happenings" />
+        <label
+            for="toggle-past-happenings"
+            data-testid="toggle-past-happenings-label"
+            class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >
             {{ $t("user_happenings.hide_past_happenings") }}
         </label>
     </div>
     <!-- PAST HAPPENINGS TOGGLE END -->
 
-    <SidebarBlock v-for="(item, index) in happenings" id="user-happenings" :key="index">
+    <SidebarBlock v-for="item in happenings" :key="item.id" :data-testid="`user-happening-${item.id}`">
         <UserHappening :happening="item" />
     </SidebarBlock>
-
-    <!-- USER HAPPENINGS START -->
-    <!--
-    <div id="user-happenings">
-        <UserHappening
-            v-for="(item, index) in happenings"
-            :key="index"
-            :happening="item">
-        </UserHappening>
-    </div>
-    -->
 </template>

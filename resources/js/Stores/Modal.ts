@@ -11,6 +11,7 @@ export type Modal = {
 
 export type ModalAction = {
     label: string;
+    testId?: string;
     callback: (props?: unknown) => Promise<unknown>;
 };
 

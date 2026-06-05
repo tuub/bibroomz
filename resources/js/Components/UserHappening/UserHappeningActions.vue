@@ -43,6 +43,7 @@ const deleteUserHappening = (happening) => {
             icon="pi pi-check"
             type="verify"
             :label="$t('user_happenings.item.form.verify')"
+            :data-testid="`user-happening-${happening.id}-verify`"
             @click="verifyUserHappening(happening)"
         />
         <SidebarButton
@@ -50,6 +51,7 @@ const deleteUserHappening = (happening) => {
             icon="pi pi-pencil"
             type="edit"
             :label="$t('user_happenings.item.form.edit')"
+            :data-testid="`user-happening-${happening.id}-edit`"
             @click="editUserHappening(happening)"
         />
         <SidebarButton
@@ -57,6 +59,7 @@ const deleteUserHappening = (happening) => {
             icon="pi pi-trash"
             type="delete"
             :label="$t('user_happenings.item.form.delete')"
+            :data-testid="`user-happening-${happening.id}-delete`"
             @click="deleteUserHappening(happening)"
         />
     </div>

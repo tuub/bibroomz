@@ -43,6 +43,7 @@ const translate = appStore.translate;
                     v-for="resource_group in institution.resource_groups"
                     :key="resource_group.id"
                     :label="translate(resource_group.title)"
+                    :data-testid="`institution-${institution.id}-resource-group-${resource_group.id}`"
                     :href="
                         route('home', { institution_slug: institution.slug, resource_group_slug: resource_group.slug })
                     "

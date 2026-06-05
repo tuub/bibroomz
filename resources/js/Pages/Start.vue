@@ -67,6 +67,7 @@ onBeforeMount(() => {
                 <a
                     v-if="!isAuthenticated"
                     href="#"
+                    data-testid="start-login-link"
                     class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
                     aria-haspopup="dialog"
                     @click="loginUser"

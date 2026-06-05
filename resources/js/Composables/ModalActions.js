@@ -67,6 +67,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
         if (can.verify && editable) {
             actions.push({
                 label: trans("modal.verify.action.verify"),
+                testId: "modal-action-verify",
                 callback: happeningCallback((happening) => {
                     return happeningStore.verifyHappening(happening);
                 }),
@@ -76,6 +77,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
         if (can.edit && editable) {
             actions.push({
                 label: trans("modal.edit.action.update"),
+                testId: "modal-action-update",
                 callback: happeningCallback((happening) => {
                     return happeningStore.editHappening(happening);
                 }),
@@ -85,6 +87,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
         if (can.delete) {
             actions.push({
                 label: trans("modal.delete.action.delete"),
+                testId: "modal-action-delete",
                 callback: happeningCallback((happening) => {
                     return happeningStore.deleteHappening(happening.id);
                 }),
@@ -93,6 +96,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
     } else if (editable) {
         actions.push({
             label: trans("modal.create.action.create"),
+            testId: "modal-action-create",
             callback: happeningCallback((happening) => {
                 return happeningStore.addHappening(happening);
             }),
@@ -102,6 +106,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
     if (actions.length < 1) {
         actions.push({
             label: trans("modal.info.action.ok"),
+            testId: "modal-action-ok",
             callback: () => {
                 modal.close();
             },
@@ -179,6 +184,7 @@ export function useResourceGroupInfoModal(resourceGroup) {
         actions: [
             {
                 label: trans("modal.resource_group_info.action.ok"),
+                testId: "modal-action-resource-group-info-ok",
                 callback: () => {
                     modal.close();
                 },
@@ -204,6 +210,7 @@ export function useResourceInfoModal(resource) {
         actions: [
             {
                 label: trans("modal.resource_info.action.ok"),
+                testId: "modal-action-resource-info-ok",
                 callback: () => {
                     modal.close();
                 },
@@ -227,6 +234,7 @@ export function useLoginModal(happeningModalCallback) {
         actions: [
             {
                 label: trans("login.form.submit.label"),
+                testId: "modal-action-login",
                 callback: callLogin({
                     loginCallback: ({ username, password }) => authStore.login(username, password),
                     happeningModalCallback,
