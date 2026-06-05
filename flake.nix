@@ -1,36 +1,44 @@
 {
-  inputs = {
-    devenv = {
-      url = "github:cachix/devenv";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    systems.url = "github:nix-systems/default";
-  };
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
   outputs =
-    { self, ... }@inputs:
+    { nixpkgs, ... }:
     let
-      forEachSystem = inputs.nixpkgs.lib.genAttrs (import inputs.systems);
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      forEachSystem = nixpkgs.lib.genAttrs systems;
     in
     {
-      inherit (inputs) nixpkgs;
-
-      packages = forEachSystem (system: {
-        devenv-up = self.devShells.${system}.default.config.procfileScript;
-      });
-
       devShells = forEachSystem (
         system:
         let
-          pkgs = import inputs.nixpkgs { inherit system; };
+          pkgs = import nixpkgs { inherit system; };
+          php = pkgs.php83.buildEnv {
+            extensions =
+              { all, enabled }:
+              enabled
+              ++ [
+                all.pcov
+                all.redis
+              ];
+          };
         in
         {
-          default = inputs.devenv.lib.mkShell {
-            inherit inputs pkgs;
-
-            modules = [ ./devenv.nix ];
+          default = pkgs.mkShell {
+            packages = [
+              php
+              php.packages.composer
+              pkgs.nodejs_24
+            ];
+            shellHook = ''
+              export PATH="$PWD/vendor/bin:$PWD/node_modules/.bin:$PATH"
+              export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright.browsers}"
+              export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; }}"
+            '';
           };
         }
       );
