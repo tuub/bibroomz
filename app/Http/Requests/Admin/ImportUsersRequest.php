@@ -7,13 +7,21 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use Carbon\Exceptions\InvalidFormatException;
 use Closure;
-use Illuminate\Foundation\Http\FormRequest;
 
-class ImportUsersRequest extends FormRequest
+class ImportUsersRequest extends AdminRouteRequest
 {
-    public function rules()
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
     {
         $date = function (string $attribute, mixed $value, Closure $fail) {
+            if (! is_string($value)) {
+                $fail("The {$attribute} is invalid.");
+
+                return;
+            }
+
             try {
                 CarbonImmutable::parseFromLocale($value, app()->getLocale());
             } catch (InvalidFormatException) {
@@ -22,6 +30,7 @@ class ImportUsersRequest extends FormRequest
         };
 
         return [
+            'id' => ['required', 'uuid', 'exists:user_groups,id'],
             'users' => ['required', 'array'],
             'users.*.name' => ['required', 'string'],
 
@@ -33,41 +42,64 @@ class ImportUsersRequest extends FormRequest
         ];
     }
 
-    protected function passedValidation()
+    protected function passedValidation(): void
     {
         $locale = app()->getLocale();
 
-        $valid_from_date = $this->input('valid_from_date');
-        $valid_until_date = $this->input('valid_until_date');
+        $validFromDate = $this->inputString('valid_from_date');
+        $validUntilDate = $this->inputString('valid_until_date');
 
-        $valid_from_text = $this->input('valid_from_text');
-        $valid_until_text = $this->input('valid_until_text');
+        $validFromText = $this->inputString('valid_from_text');
+        $validUntilText = $this->inputString('valid_until_text');
 
-        if ($valid_from_date) {
-            $valid_from = CarbonImmutable::parse($valid_from_date);
-        } elseif ($valid_from_text) {
-            $valid_from = CarbonImmutable::parseFromLocale($valid_from_text, $locale);
+        if ($validFromDate !== null) {
+            $validFrom = CarbonImmutable::parse($validFromDate);
+        } elseif ($validFromText !== null) {
+            $validFrom = CarbonImmutable::parseFromLocale($validFromText, $locale);
         } else {
-            $valid_from = CarbonImmutable::now();
+            $validFrom = CarbonImmutable::now();
         }
 
-        if ($valid_until_date) {
-            $valid_until = CarbonImmutable::parse($valid_until_date);
-        } elseif ($valid_until_text) {
-            $interval = CarbonInterval::parseFromLocale($valid_until_text, $locale);
-            $valid_until = $valid_from->locale($locale)->add($interval);
+        if ($validUntilDate !== null) {
+            $validUntil = CarbonImmutable::parse($validUntilDate);
+        } elseif ($validUntilText !== null) {
+            $interval = CarbonInterval::parseFromLocale($validUntilText, $locale);
+            $validUntil = $validFrom->add($interval);
         } else {
-            $valid_until = null;
+            $validUntil = null;
         }
 
         $this->merge([
-            'valid_from' => $valid_from,
-            'valid_until' => $valid_until,
+            'valid_from' => $validFrom,
+            'valid_until' => $validUntil,
         ]);
     }
 
-    public function authorize()
+    public function authorize(): bool
     {
-        return $this->user()->can('import', UserGroup::find($this->id));
+        $user = $this->userModel();
+        $userGroup = $this->userGroupOrNull();
+
+        return $user !== null && $userGroup !== null && $user->can('import', $userGroup);
+    }
+
+    public function userGroup(): UserGroup
+    {
+        return $this->findModelOrFail(UserGroup::class);
+    }
+
+    public function userGroupOrNull(): ?UserGroup
+    {
+        return $this->findModel(UserGroup::class);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function importData(): array
+    {
+        return $this->normalizeStringKeyedArray($this->safe()
+            ->merge($this->only(['valid_from', 'valid_until']))
+            ->all());
     }
 }

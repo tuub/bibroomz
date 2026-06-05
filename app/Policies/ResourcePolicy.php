@@ -11,78 +11,33 @@ class ResourcePolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can view the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Resource  $resource
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function view(User $user, Resource $resource)
+    public function view(User $user, Resource $resource): bool
     {
-        if ($user->can('view_resources', $resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('view_resources', $resource->resource_group->institution);
     }
 
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Institution  $institution
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function create(User $user, Institution $institution)
+    public function create(User $user, Institution $institution): bool
     {
-        if ($user->can('create_resources', $institution)) {
-            return true;
-        }
+        return $user->can('create_resources', $institution);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Resource  $resource
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function update(User $user, Resource $resource)
+    public function update(User $user, Resource $resource): bool
     {
-        if ($user->can('edit_resources', $resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('edit_resources', $resource->resource_group->institution);
     }
 
-    public function edit(User $user, Resource $resource)
+    public function edit(User $user, Resource $resource): bool
     {
         return $this->update($user, $resource);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Resource  $resource
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function delete(User $user, Resource $resource)
+    public function delete(User $user, Resource $resource): bool
     {
-        if ($user->can('delete_resources', $resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('delete_resources', $resource->resource_group->institution);
     }
 
-    /**
-     * Determine whether the user can clone the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Resource  $resource
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function clone(User $user, Resource $resource)
+    public function clone(User $user, Resource $resource): bool
     {
-        if ($user->can('create_resources', $resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('create_resources', $resource->resource_group->institution);
     }
 }

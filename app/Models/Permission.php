@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
-    use HasFactory, HasUuids, HasTranslations;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, HasTranslations;
 
     public $incrementing = false;
 
@@ -21,16 +23,25 @@ class Permission extends Model
         'description',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'name',
         'description',
     ];
 
+    /**
+     * @return BelongsToMany<Role, $this>
+     */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
 
+    /**
+     * @return BelongsTo<PermissionGroup, $this>
+     */
     public function group(): BelongsTo
     {
         return $this->belongsTo(PermissionGroup::class);

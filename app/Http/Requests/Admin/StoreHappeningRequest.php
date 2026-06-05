@@ -7,15 +7,13 @@ use App\Models\Resource;
 
 class StoreHappeningRequest extends HappeningRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        $resource = Resource::findOrFail($this->resource_id);
+        $resource = $this->resource();
+        $user = $this->userModel();
 
-        return $this->user()->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
+        return $user !== null
+            && $resource !== null
+            && $user->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
     }
 }

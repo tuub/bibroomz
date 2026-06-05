@@ -4,24 +4,37 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\UserGroup;
 use App\Rules\RequiredWithTranslationRule;
-use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUserGroupRequest extends FormRequest
+class UpdateUserGroupRequest extends AdminRouteRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        $userGroup = UserGroup::find($this->id);
+        $user = $this->userModel();
+        $userGroup = $this->userGroupOrNull();
 
-        return $userGroup
-            ? $this->user()->can('update', $userGroup)
-            : false;
+        return $user !== null
+            && $userGroup !== null
+            && $user->can('update', $userGroup);
     }
 
-    public function rules()
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
     {
         return [
             'id' => ['required', 'uuid', 'exists:user_groups,id'],
             'title' => [new RequiredWithTranslationRule()],
         ];
+    }
+
+    public function userGroup(): UserGroup
+    {
+        return $this->findModelOrFail(UserGroup::class);
+    }
+
+    public function userGroupOrNull(): ?UserGroup
+    {
+        return $this->findModel(UserGroup::class);
     }
 }

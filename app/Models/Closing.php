@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,10 +12,17 @@ use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
+/**
+ * @property-read Institution|Resource|null $closable
+ */
 class Closing extends Model
 {
-    use HasFactory, HasUuids, HasTranslations, Prunable, SoftDeletes;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, HasTranslations, Prunable, SoftDeletes;
 
     /*****************************************************************
      * OPTIONS
@@ -36,6 +44,9 @@ class Closing extends Model
         'end' => 'datetime',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'description',
     ];
@@ -44,11 +55,17 @@ class Closing extends Model
      * RELATIONS
      ****************************************************************/
 
+    /**
+     * @return BelongsTo<Institution, $this>
+     */
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function closable(): MorphTo
     {
         return $this->morphTo();
@@ -58,35 +75,68 @@ class Closing extends Model
      * METHODS
      ****************************************************************/
 
-    public static function getClosableModel(string $closableType)
+    public static function getClosableModel(string $closableType): Institution|Resource
     {
-        $modelName = array_map('ucfirst', explode('_', $closableType));
-        $fullModelName = __NAMESPACE__ . '\\' . implode('', $modelName);
-
-        return new $fullModelName();
+        return match ($closableType) {
+            'institution', Institution::class => new Institution(),
+            'resource', Resource::class => new Resource(),
+            default => throw new InvalidArgumentException("Unsupported closable type [{$closableType}]."),
+        };
     }
 
-    public function getHappeningsAffected()
+    /**
+     * @return Institution|Resource
+     */
+    public function getClosingSubject(): ClosingSubject
     {
-        return $this->closable->getHappenings()
+        $closable = $this->closable;
+
+        if (! $closable instanceof ClosingSubject) {
+            throw new InvalidArgumentException('Unsupported closing subject.');
+        }
+
+        return $closable;
+    }
+
+    public function getInstitution(): Institution
+    {
+        return $this->getClosingSubject()->institutionForClosings();
+    }
+
+    /**
+     * @return Collection<int, Happening>
+     */
+    public function getHappeningsAffected(): Collection
+    {
+        return $this->getClosingSubject()->getHappenings()
             ->where('end', '>', $this->start)
             ->where('start', '<', $this->end);
     }
 
-    public function getUsersAffected()
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsersAffected(): Collection
     {
-        return $this->getHappeningsAffected()->flatMap(function ($happening) {
-            return $happening->users();
-        })->unique();
+        return $this->getHappeningsAffected()
+            ->flatMap(fn (Happening $happening): Collection => $happening->users())
+            ->unique('id')
+            ->values();
     }
 
-    public function getUserHappeningsAffected(User $user)
+    /**
+     * @return Collection<int, Happening>
+     */
+    public function getUserHappeningsAffected(User $user): Collection
     {
-        return $this->getHappeningsAffected()->filter(function ($happening) use ($user) {
+        return $this->getHappeningsAffected()->filter(function (Happening $happening) use ($user): bool {
             return $happening->isBelongingTo($user);
         });
     }
 
+    /**
+     * @return Builder<self>
+     */
     public function prunable(): Builder
     {
         return static::onlyTrashed();

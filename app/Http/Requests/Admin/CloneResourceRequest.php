@@ -3,31 +3,29 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Resource;
-use Illuminate\Foundation\Http\FormRequest;
 
-class CloneResourceRequest extends FormRequest
+class CloneResourceRequest extends AdminRouteRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        $resource = Resource::find($this->id);
+        $resource = $this->findModel(Resource::class);
+        $user = $this->userModel();
 
-        return $this->user()->can('clone', $resource);
+        return $resource !== null && $user !== null && $user->can('clone', $resource);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'id' => ['required', 'exists:resources'],
+            'id' => ['required', 'uuid', 'exists:resources,id'],
         ];
+    }
+
+    public function resource(): Resource
+    {
+        return $this->findModelOrFail(Resource::class);
     }
 }

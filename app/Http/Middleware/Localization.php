@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Http\LocalePreferenceManager;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 
 class Localization
 {
@@ -17,11 +17,7 @@ class Localization
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Cookie::has('locale')) {
-            app()->setLocale(Cookie::get('locale'));
-        } else {
-            Cookie::queue('locale', app()->getLocale(), 600);
-        }
+        app(LocalePreferenceManager::class)->applyFromRequest($request);
 
         return $next($request);
     }

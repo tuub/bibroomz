@@ -2,13 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Institution;
-use App\Models\ResourceGroup;
+use App\Services\Console\ResourceGroupRestrictionInputCollector;
+use App\Services\Console\RestrictResourceGroupAction;
 use Illuminate\Console\Command;
 
 use function Laravel\Prompts\error;
-use function Laravel\Prompts\multiselect;
-use function Laravel\Prompts\select;
 
 class RestrictResourceGroup extends Command
 {
@@ -26,32 +24,21 @@ class RestrictResourceGroup extends Command
      */
     protected $description = 'Restrict a resource group to users of one or more user groups';
 
+    public function __construct(
+        private ResourceGroupRestrictionInputCollector $inputCollector,
+        private RestrictResourceGroupAction $restrictResourceGroupAction,
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         app()->setLocale('en');
 
-        $institution_id = select(
-            'Select an institution',
-            Institution::orderBy('title')->pluck('title', 'id'),
-        );
-
-        $institution = Institution::findOrFail($institution_id);
-
-        $resource_group_id = select(
-            label: 'Select a resource group',
-            options: $institution->resource_groups->pluck('title', 'id'),
-        );
-
-        $resource_group = ResourceGroup::findOrFail($resource_group_id);
-
-        $user_groups = multiselect(
-            label: 'Select some user groups to restrict this resource group to',
-            options: $institution->user_groups->pluck('title', 'id'),
-            default: $resource_group->user_groups->pluck('id'),
-        );
+        $input = $this->inputCollector->collect();
 
         if (!$this->confirm('Are you sure you want to restrict this resource group to the selected user groups?')) {
             error('⚠ Cancelled.');
@@ -59,8 +46,13 @@ class RestrictResourceGroup extends Command
             return Command::INVALID;
         }
 
-        $resource_group->user_groups()->sync($user_groups);
+        $this->restrictResourceGroupAction->execute(
+            $input['resource_group'],
+            $input['user_group_ids'],
+        );
 
-        info('Success.');
+        $this->info('Success.');
+
+        return Command::SUCCESS;
     }
 }

@@ -4,19 +4,23 @@ namespace App\Http\Requests;
 
 use App\Models\Happening;
 use App\Models\Resource;
+use App\Models\User;
 use App\Library\Utility;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddHappeningRequest extends FormRequest
 {
+    private ?Resource $resourceModel = null;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return $this->user()->can('create', Happening::class);
+        return $this->user()?->can('create', Happening::class) ?? false;
     }
 
     /**
@@ -24,31 +28,76 @@ class AddHappeningRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $resource = Resource::find($this->resource['id']);
-        $institution = $resource->institution;
-
+        $resource = $this->resource();
         $user = $this->user();
-
-        $is_verification_required = $resource->isVerificationRequired()
-            && !$user->hasPermission('no_verifier', $institution);
+        $isVerificationRequired = $resource->isVerificationRequired()
+            && $user instanceof User
+            && ! $user->hasPermission('no_verifier', $resource->resource_group->institution);
+        $normalizedUserName = $user instanceof User
+            ? Utility::normalizeLoginName($user->name)
+            : null;
 
         return [
-            'resource' => ['required'],
-            'start' => ['required'],
-            'end' => ['required'],
+            'resource' => ['required', 'array'],
+            'resource.id' => ['required', 'uuid', 'exists:resources,id'],
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
             'verifier' => [
-                $is_verification_required ? 'required' : '', 'not_in:' . Utility::normalizeLoginName($user->name),
+                $isVerificationRequired ? 'required' : 'nullable',
+                'string',
+                'not_in:' . $normalizedUserName,
             ],
-            'label' => [''],
+            'label' => ['nullable'],
         ];
     }
 
-    protected function prepareForValidation()
+    public function resource(): Resource
     {
+        if ($this->resourceModel instanceof Resource) {
+            return $this->resourceModel;
+        }
+
+        $resourceId = $this->input('resource.id');
+
+        return $this->resourceModel = Resource::query()
+            ->with('resource_group.institution')
+            ->findOrFail(is_string($resourceId) ? $resourceId : null);
+    }
+
+    public function startAt(): CarbonImmutable
+    {
+        $start = $this->input('start');
+
+        return CarbonImmutable::parse(is_string($start) ? $start : null);
+    }
+
+    public function endAt(): CarbonImmutable
+    {
+        $end = $this->input('end');
+
+        return CarbonImmutable::parse(is_string($end) ? $end : null);
+    }
+
+    public function label(): mixed
+    {
+        return $this->input('label');
+    }
+
+    public function verifier(): ?string
+    {
+        $verifier = $this->input('verifier');
+
+        return is_string($verifier) && $verifier !== '' ? $verifier : null;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $verifier = $this->input('verifier');
+
         $this->merge([
-            'verifier' => Utility::normalizeLoginName($this->verifier),
+            'verifier' => is_string($verifier) ? Utility::normalizeLoginName($verifier) : null,
         ]);
     }
 }

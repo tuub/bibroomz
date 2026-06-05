@@ -2,17 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Institution;
-use App\Models\UserGroup;
-use App\Rules\RequiredWithTranslationRule;
+use App\Services\Console\CreateUserGroupAction;
+use App\Services\Console\UserGroupInputCollector;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
-use function Laravel\Prompts\select;
-use function Laravel\Prompts\text;
 
 class CreateUserGroup extends Command
 {
@@ -30,23 +26,26 @@ class CreateUserGroup extends Command
      */
     protected $description = 'Create a user group';
 
+    public function __construct(
+        private UserGroupInputCollector $inputCollector,
+        private CreateUserGroupAction $createUserGroupAction,
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         app()->setLocale('en');
 
-        $input = $this->collectInput();
+        $input = $this->inputCollector->collect();
 
         try {
-            $this->validate($input);
+            $validated = $this->createUserGroupAction->validateInput($input->all());
         } catch (ValidationException $exception) {
-            foreach ($exception->errors() as $error) {
-                foreach ($error as $message) {
-                    error('⚠ ' . $message);
-                }
-            }
+            $this->renderValidationErrors($exception);
 
             return Command::FAILURE;
         }
@@ -57,45 +56,25 @@ class CreateUserGroup extends Command
             return Command::INVALID;
         }
 
-        UserGroup::create($input->toArray());
+        $this->createUserGroupAction->execute($validated);
 
         info('User group created.');
+
+        return Command::SUCCESS;
     }
 
-    private function translatableTextInput($label)
+    private function renderValidationErrors(ValidationException $exception): void
     {
-        $input = [];
+        foreach ($exception->errors() as $messages) {
+            if (! is_array($messages)) {
+                continue;
+            }
 
-        foreach (['de', 'en'] as $lang) {
-            $input[$lang] = text($label . ' (' . $lang . ')');
+            foreach ($messages as $message) {
+                if (is_string($message)) {
+                    error('⚠ ' . $message);
+                }
+            }
         }
-
-        return $input;
-    }
-
-    private function collectInput()
-    {
-        info('Please enter the following information to create a user group:');
-
-        return collect()
-            ->put('title', $this->translatableTextInput('Title'))
-            ->put(
-                'institution_id',
-                select(
-                    label: 'Which institution does this user group belong to?',
-                    options: Institution::orderBy('title')->pluck('title', 'id')
-                )
-            );
-    }
-
-    private function validate($input): array
-    {
-        return Validator::make(
-            $input->toArray(),
-            [
-                'title' => [new RequiredWithTranslationRule()],
-                'institution_id' => ['required', 'exists:institutions,id'],
-            ]
-        )->validate();
     }
 }

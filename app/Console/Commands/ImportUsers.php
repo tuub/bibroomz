@@ -2,22 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
-use App\Models\UserGroup;
+use App\Services\Console\ImportUsersAction;
+use App\Services\Console\ImportUsersColumnsResolver;
+use App\Services\Console\ImportUsersCsvReader;
+use App\Services\Console\ImportUsersDefaultsParser;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Console\Command;
-use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
-use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class ImportUsers extends Command
@@ -36,13 +30,29 @@ class ImportUsers extends Command
      */
     protected $description = 'Import users from a file and add them to a user group';
 
+    /**
+     * @var list<string>
+     */
     private array $modelKeys = ['name', 'email'];
+
+    /**
+     * @var list<string>
+     */
     private array $relationKeys = ['valid_from', 'valid_until'];
+
+    public function __construct(
+        private ImportUsersDefaultsParser $defaultsParser,
+        private ImportUsersColumnsResolver $columnsResolver,
+        private ImportUsersCsvReader $csvReader,
+        private ImportUsersAction $importUsersAction,
+    ) {
+        parent::__construct();
+    }
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         app()->setLocale('en');
 
@@ -52,14 +62,17 @@ class ImportUsers extends Command
             required: true,
         );
 
-        if (!is_file($path) or !is_readable($path)) {
+        if (! is_file($path) || ! is_readable($path)) {
             error('⚠ File does not exist or is not readable.');
 
             return Command::FAILURE;
         }
 
         try {
-            $defaults = $this->parseDefaults();
+            $defaults = $this->defaultsParser->parse(
+                $this->option('from'),
+                $this->option('until'),
+            );
         } catch (InvalidFormatException $exception) {
             error('⚠ Invalid date format.');
 
@@ -68,149 +81,51 @@ class ImportUsers extends Command
 
         $file = fopen($path, 'r');
 
+        if (! is_resource($file)) {
+            error('⚠ File could not be opened.');
+
+            return Command::FAILURE;
+        }
+
         try {
-            $columns = $this->parseAndValidateColumns($file);
-            $users = $this->parseAndValidateUsers($file, $columns);
+            $columns = $this->columnsResolver->resolve(
+                $file,
+                $this->modelKeys,
+                $this->relationKeys,
+                $this->option('columns'),
+                $this->option('header'),
+            );
+            $users = $this->csvReader->readAndValidate($file, $columns);
         } catch (ValidationException $exception) {
+            fclose($file);
+
             return $this->handleValidationException($exception);
         }
 
         fclose($file);
 
-        $this->addUsersToGroup($users, $defaults);
+        $group = $this->importUsersAction->resolveGroup($this->option('group'));
+        $this->importUsersAction->execute($users, $defaults, $group);
 
         info('Import completed successfully.');
-    }
 
-    private function parseDefaults(): array
-    {
-        $defaults = [];
-
-        $from = $this->option('from');
-        $until = $this->option('until');
-
-        if ($from) {
-            $defaults['valid_from'] = Carbon::parse($from)->format('Y-m-d');
-        }
-
-        if ($until) {
-            $defaults['valid_until'] = Carbon::parse($until)->format('Y-m-d');
-        }
-
-        return $defaults;
-    }
-
-    private function parseColumns($file, array $options): array
-    {
-        if ($this->option('columns')) {
-            if ($this->option('header')) {
-                fgetcsv($file);
-            }
-
-            return explode(',', $this->option('columns'));
-        }
-
-        if ($this->option('header') || confirm('Does the file include a CSV header?')) {
-            return fgetcsv($file);
-        }
-
-        $columns = [];
-
-        for ($index = 0; $index < count($options); $index++) {
-            if (Arr::sort(array_intersect($this->modelKeys, $columns)) === Arr::sort($this->modelKeys)) {
-                if (!confirm('Does the file have additional columns?')) {
-                    break;
-                }
-            }
-
-
-            $columns[] = select('Column ' . $index + 1 . ':', options: array_values(array_diff($options, $columns)));
-        }
-
-        return $columns;
-    }
-
-    private function parseAndValidateColumns($file): array
-    {
-        $options = array_merge($this->modelKeys, $this->relationKeys);
-
-        $columns = $this->parseColumns($file, $options);
-
-        $this->validate(['columns' => $columns], [
-            'columns' => ['contains:' . implode(',', $this->modelKeys)],
-            'columns.*' => 'string|in:' . implode(',', $options),
-        ]);
-
-        return $columns;
-    }
-
-    private function parseUsers($file, array $columns): Collection
-    {
-        $users = collect();
-
-        while ($line = fgetcsv($file)) {
-            $user = [];
-
-            foreach ($line as $index => $value) {
-                $user[$columns[$index]] = trim($value);
-            }
-
-            $users->add($user);
-        }
-
-        return $users;
-    }
-
-    private function parseAndValidateUsers($file, array $columns): Collection
-    {
-        $users = $this->parseUsers($file, $columns);
-
-        $this->validate(['users' => $users->toArray()], [
-            'users' => ['list', 'min:1'],
-            'users.*.name' => ['required', 'string'],
-            'users.*.email' => ['required', 'string'],
-            'users.*.valid_from' => ['filled', 'date'],
-            'users.*.valid_until' => ['filled', 'date'],
-        ]);
-
-        return $users;
-    }
-
-    private function addUsersToGroup(Collection $users, array $defaults): void
-    {
-        $options = UserGroup::with('institution')->get()->sortBy('institution.title')->mapWithKeys(fn ($group) =>
-             [$group->id => "{$group->title} ({$group->institution->title})"]);
-
-        $group = UserGroup::findOrFail(
-            $this->option('group') ?? select('Select a user group to add the users to:', $options)
-        );
-
-        foreach ($users as $user) {
-            $model = User::firstOrCreate(Arr::only($user, $this->modelKeys), ['password' => Str::password()]);
-
-            $attributes = Arr::only(array_merge($defaults, $user), $this->relationKeys);
-
-            try {
-                $group->users()->attach($model, $attributes);
-            } catch (UniqueConstraintViolationException) {
-                $group->users()->updateExistingPivot($model, $attributes);
-            }
-        }
+        return Command::SUCCESS;
     }
 
     private function handleValidationException(ValidationException $exception): int
     {
-        foreach ($exception->errors() as $error) {
-            foreach ($error as $message) {
-                error('⚠ ' . $message);
+        foreach ($exception->errors() as $messages) {
+            if (! is_array($messages)) {
+                continue;
+            }
+
+            foreach ($messages as $message) {
+                if (is_string($message)) {
+                    error('⚠ ' . $message);
+                }
             }
         }
 
         return Command::FAILURE;
-    }
-
-    private function validate($input, $rules): array
-    {
-        return Validator::make($input, $rules)->validate();
     }
 }

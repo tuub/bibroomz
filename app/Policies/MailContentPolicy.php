@@ -11,44 +11,36 @@ class MailContentPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user, Institution $institution)
+    public function viewAny(User $user, Institution $institution): bool
     {
-        if ($user->can('view_mails', $institution)) {
-            return true;
-        }
+        return $user->can('view_mails', $institution);
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, MailContent $mailContent)
+    public function view(User $user, MailContent $mailContent): bool
     {
-        if ($user->can('view_mails', $mailContent->institution)) {
-            return true;
-        }
+        return $user->can('view_mails', $mailContent->institution);
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Institution $institution)
+    public function create(User $user, Institution $institution): bool
     {
-        if ($user->can('create_mails', $institution)) {
-            return true;
-        }
+        return $user->can('create_mails', $institution);
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, MailContent $mailContent)
+    public function update(User $user, MailContent $mailContent): bool
     {
-        if ($user->can('edit_mails', $mailContent->institution)) {
-            return true;
-        }
+        return $user->can('edit_mails', $mailContent->institution);
     }
 
-    public function edit(User $user, MailContent $mailContent)
+    public function edit(User $user, MailContent $mailContent): bool
     {
         return $this->update($user, $mailContent);
     }
@@ -56,10 +48,8 @@ class MailContentPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, MailContent $mailContent)
+    public function delete(User $user, MailContent $mailContent): bool
     {
-        if ($user->can('delete_mails', $mailContent->institution)) {
-            return true;
-        }
+        return $user->can('delete_mails', $mailContent->institution);
     }
 }

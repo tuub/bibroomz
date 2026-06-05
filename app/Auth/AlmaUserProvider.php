@@ -24,70 +24,86 @@ use Vyuldashev\XmlToArray\XmlToArray;
  * http://semantic-portal.net/concept:794
  */
 
+/**
+ * @phpstan-type Credentials array{username: string, password: string}
+ * @phpstan-type AuthUserData array{
+ *     name: string,
+ *     email: string,
+ *     password: string,
+ *     is_admin: bool,
+ *     is_system_user: bool
+ * }
+ */
 class AlmaUserProvider implements UserProvider
 {
-    public $user;
-
     private Hasher $hasher;
 
-    /**
-     * @return void
-     */
-    public function __construct(User $user, Hasher $hasher)
+    public function __construct(Hasher $hasher)
     {
-        $this->user = $user;
         $this->hasher = $hasher;
     }
 
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param  mixed  $identifier
-     * @return Authenticatable|null
+     * @param mixed $identifier
      */
-    public function retrieveByID($identifier)
+    public function retrieveById($identifier): ?Authenticatable
     {
+        if (! is_int($identifier) && ! is_string($identifier)) {
+            return null;
+        }
+
         return User::find($identifier);
     }
 
     /**
      * Retrieve a user by the given credentials.
      *
-     * @return Authenticatable|null
+     * @param array<string, mixed> $credentials
      */
-    public function retrieveByCredentials(array $credentials)
+    public function retrieveByCredentials(array $credentials): ?Authenticatable
     {
-        $existingUser = $this->findUserByLoginName($credentials['username']);
+        $resolvedCredentials = $this->extractCredentials($credentials);
+
+        if ($resolvedCredentials === null) {
+            return null;
+        }
+
+        $existingUser = $this->findUserByLoginName($resolvedCredentials['username']);
 
         if ($existingUser?->isSystemUser()) {
-            $userData = $this->getLocalUserInfo($credentials)
-                ?? $this->getSystemUserInfo($credentials);
+            $userData = $this->getLocalUserInfo($resolvedCredentials)
+                ?? $this->getSystemUserInfo($resolvedCredentials);
 
-            if (! $userData) {
+            if ($userData === null) {
                 return null;
             }
 
             return $this->upsertAuthenticatedUser($userData, $existingUser);
         }
 
-        $userData = $this->getLocalUserInfo($credentials);
+        $userData = $this->getLocalUserInfo($resolvedCredentials);
 
-        if ($userData) {
+        if ($userData !== null) {
             return $this->upsertAuthenticatedUser($userData, $existingUser);
         }
 
-        $userData = $this->getRemoteUserInfo($credentials);
+        $userData = $this->getRemoteUserInfo($resolvedCredentials);
 
-        if (! $userData) {
+        if ($userData === null) {
             return null;
         }
 
         return $this->upsertAuthenticatedUser($userData, $existingUser);
     }
 
+    /**
+     * @param AuthUserData $userData
+     */
     private function upsertAuthenticatedUser(array $userData, ?User $user): ?User
     {
-        if ($user) {
+        if ($user !== null) {
             $user->update([
                 'email' => $userData['email'],
                 'last_login' => Carbon::now(),
@@ -103,35 +119,39 @@ class AlmaUserProvider implements UserProvider
                     'is_system_user' => $userData['is_system_user'],
                     'last_login' => Carbon::now(),
                 ]);
-            } catch (Exception $exc) {
-                Log::error($exc);
+            } catch (Exception $exception) {
+                Log::error($exception);
 
                 return null;
             }
         }
 
-        $session_data = [
+        session()->put([
             'auth_message' => 'Logged in!',
-        ];
-
-        session()->put($session_data);
+        ]);
 
         return $user;
     }
 
     private function findUserByLoginName(string $loginName): ?User
     {
+        $normalizedLoginName = Utility::normalizeLoginName($loginName);
+
+        if ($normalizedLoginName === null) {
+            return null;
+        }
+
         return User::query()
-            ->whereRaw('LOWER(name) = ?', [strtolower(Utility::normalizeLoginName($loginName))])
+            ->whereRaw('LOWER(name) = ?', [strtolower($normalizedLoginName)])
             ->first();
     }
 
     /**
      * Validate a user against the given credentials.
      *
-     * @return bool
+     * @param array<string, mixed> $credentials
      */
-    public function validateCredentials(Authenticatable $user, array $credentials)
+    public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
         return true;
     }
@@ -139,77 +159,76 @@ class AlmaUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  string  $token
-     * @return void
+     * @param string $token
      */
-    public function updateRememberToken(Authenticatable $user, $token)
+    public function updateRememberToken(Authenticatable $user, $token): void
     {
     }
 
     /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
-     * @param  mixed  $identifier
-     * @param  string  $token
-     * @return Authenticatable|null
+     * @param mixed $identifier
+     * @param string $token
      */
-    public function retrieveByToken($identifier, $token)
+    public function retrieveByToken($identifier, $token): ?Authenticatable
     {
+        return null;
     }
 
-    private function getLocalUserInfo($credentials)
+    /**
+     * @param Credentials $credentials
+     * @return AuthUserData|null
+     */
+    private function getLocalUserInfo(array $credentials): ?array
     {
-        if (! config('roomz.test-accounts.is_enabled')) {
+        if (! $this->configBool('roomz.test-accounts.is_enabled')) {
             return null;
         }
 
-        if (
-            $credentials['username'] == config('roomz.test-accounts.admin.username')
-            && $credentials['password'] == config('roomz.test-accounts.admin.password')
-        ) {
-            return [
-                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.admin.username')),
-                'password' => Hash::make(config('roomz.test-accounts.admin.password')),
-                'email' => config('roomz.test-accounts.admin.email'),
-                'is_admin' => true,
-                'is_system_user' => true,
-            ];
-        }
+        $accounts = [
+            'admin' => true,
+            'test1' => false,
+            'test2' => false,
+        ];
 
-        if (
-            $credentials['username'] == config('roomz.test-accounts.test1.username')
-            && $credentials['password'] == config('roomz.test-accounts.test1.password')
-        ) {
-            return [
-                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.test1.username')),
-                'password' => Hash::make(config('roomz.test-accounts.test1.password')),
-                'email' => config('roomz.test-accounts.test1.email'),
-                'is_admin' => false,
-                'is_system_user' => true,
-            ];
-        }
+        foreach ($accounts as $accountKey => $isAdmin) {
+            $userData = $this->buildTestAccountUserData($accountKey, $isAdmin);
 
-        if (
-            $credentials['username'] == config('roomz.test-accounts.test2.username')
-            && $credentials['password'] == config('roomz.test-accounts.test2.password')
-        ) {
-            return [
-                'name' => Utility::normalizeLoginName(config('roomz.test-accounts.test2.username')),
-                'password' => Hash::make(config('roomz.test-accounts.test2.password')),
-                'email' => config('roomz.test-accounts.test2.email'),
-                'is_admin' => false,
-                'is_system_user' => true,
-            ];
+            if ($userData === null) {
+                continue;
+            }
+
+            $username = $this->configString("roomz.test-accounts.$accountKey.username");
+            $password = $this->configString("roomz.test-accounts.$accountKey.password");
+
+            if (
+                $username !== null
+                && $password !== null
+                && $credentials['username'] === $username
+                && $credentials['password'] === $password
+            ) {
+                return $userData;
+            }
         }
 
         return null;
     }
 
-    private function getSystemUserInfo($credentials)
+    /**
+     * @param Credentials $credentials
+     * @return AuthUserData|null
+     */
+    private function getSystemUserInfo(array $credentials): ?array
     {
         $user = $this->findUserByLoginName($credentials['username']);
 
-        if ($user && $user->isSystemUser() && Hash::check($credentials['password'], $user->password)) {
+        if (
+            $user !== null
+            && is_string($user->email)
+            && $user->isSystemUser()
+            && Hash::check($credentials['password'], $user->password)
+        ) {
             return [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -222,61 +241,205 @@ class AlmaUserProvider implements UserProvider
         return null;
     }
 
-    private function getRemoteUserInfo($credentials)
+    /**
+     * @param Credentials $credentials
+     * @return AuthUserData|null
+     */
+    private function getRemoteUserInfo(array $credentials): ?array
     {
-        $credentials = [
+        $endpoint = $this->configString('roomz.auth.api.endpoint');
+
+        if ($endpoint === null) {
+            return null;
+        }
+
+        $requestCredentials = [
             'uid' => $credentials['username'],
             'pw' => $credentials['password'],
         ];
 
-        $curl = Curl::to(config('roomz.auth.api.endpoint'))
-            ->withData($credentials)
-            ->withTimeout(config('roomz.auth.api.timeout'))
-            ->withConnectTimeout(config('roomz.auth.api.timeout'))
+        $curl = Curl::to($endpoint)
+            ->withData($requestCredentials)
+            ->withTimeout($this->configFloat('roomz.auth.api.timeout'))
+            ->withConnectTimeout($this->configFloat('roomz.auth.api.timeout'))
             ->withOption('SSL_VERIFYHOST', 2)
             ->withOption('SSL_VERIFYPEER', 1)
             ->withOption('POST', 1)
             ->withOption('RETURNTRANSFER', true);
 
-        if (config('roomz.auth.api.is_debug')) {
-            $curl->enableDebug(storage_path(config('roomz.auth.api.log_file')));
+        if ($this->configBool('roomz.auth.api.is_debug')) {
+            $logFile = $this->configString('roomz.auth.api.log_file');
+
+            if ($logFile !== null) {
+                $curl->enableDebug(storage_path($logFile));
+            }
         }
 
         $response = $curl->post();
 
-        if (empty($response) || ! str_starts_with($response, '<result')) {
-            Log::info('ALMA: failed call to API for user: ' . json_encode($credentials['uid']));
-            Log::info($response);
-        } else {
-            $response = preg_replace('/[\n\r]|\s{2,}/', '', $response);
-            $response = XmlToArray::convert($response);
+        if (! is_string($response) || $response === '' || ! str_starts_with($response, '<result')) {
+            Log::info('ALMA: failed call to API for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+            Log::info(is_string($response) ? $response : $this->jsonEncodeForLog($response));
 
-            if ($response['result']['code'] == 0) {
-                Log::info('ALMA: Successful login for user: ' . json_encode($credentials['uid']));
-
-                return [
-                    'name' => Utility::normalizeLoginName($credentials['uid']),
-                    'email' => $response['result']['email_address'],
-                    'password' => Hash::make(Str::random(64)),
-                    'is_admin' => false,
-                    'is_system_user' => false,
-                ];
-            } else {
-                Log::info('ALMA: Wrong username/password for user: ' . json_encode($credentials['uid']));
-            }
+            return null;
         }
 
-        return null;
+        $cleanResponse = preg_replace('/[\n\r]|\s{2,}/', '', $response);
+
+        if (! is_string($cleanResponse)) {
+            return null;
+        }
+
+        $xml = XmlToArray::convert($cleanResponse);
+
+        $result = $xml['result'] ?? null;
+
+        if (! is_array($result)) {
+            return null;
+        }
+
+        $code = $result['code'] ?? null;
+
+        if (! is_int($code) && ! is_string($code)) {
+            return null;
+        }
+
+        if ((string) $code !== '0') {
+            Log::info('ALMA: Wrong username/password for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+
+            return null;
+        }
+
+        $normalizedName = Utility::normalizeLoginName($requestCredentials['uid']);
+        $email = $result['email_address'] ?? null;
+
+        if ($normalizedName === null || ! is_string($email)) {
+            return null;
+        }
+
+        Log::info('ALMA: Successful login for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+
+        return [
+            'name' => $normalizedName,
+            'email' => $email,
+            'password' => Hash::make(Str::random(64)),
+            'is_admin' => false,
+            'is_system_user' => false,
+        ];
     }
 
+    /**
+     * @param array<string, mixed> $credentials
+     */
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
     {
         if (! $this->hasher->needsRehash($user->getAuthPassword()) && ! $force) {
             return;
         }
 
+        $password = $credentials['password'] ?? null;
+
+        if (! is_string($password)) {
+            return;
+        }
+
         $user->forceFill([
-            $user->getAuthPasswordName() => $this->hasher->make($credentials['password']),
+            $user->getAuthPasswordName() => $this->hasher->make($password),
         ])->save();
+    }
+
+    /**
+     * @param array<string, mixed> $credentials
+     * @return Credentials|null
+     */
+    private function extractCredentials(array $credentials): ?array
+    {
+        $username = $credentials['username'] ?? null;
+        $password = $credentials['password'] ?? null;
+
+        if (! is_string($username) || ! is_string($password)) {
+            return null;
+        }
+
+        return [
+            'username' => $username,
+            'password' => $password,
+        ];
+    }
+
+    /**
+     * @return AuthUserData|null
+     */
+    private function buildTestAccountUserData(string $accountKey, bool $isAdmin): ?array
+    {
+        $username = $this->configString("roomz.test-accounts.$accountKey.username");
+        $password = $this->configString("roomz.test-accounts.$accountKey.password");
+        $email = $this->configString("roomz.test-accounts.$accountKey.email");
+
+        if ($username === null || $password === null || $email === null) {
+            return null;
+        }
+
+        $normalizedName = Utility::normalizeLoginName($username);
+
+        if ($normalizedName === null) {
+            return null;
+        }
+
+        return [
+            'name' => $normalizedName,
+            'password' => Hash::make($password),
+            'email' => $email,
+            'is_admin' => $isAdmin,
+            'is_system_user' => true,
+        ];
+    }
+
+    private function configBool(string $key): bool
+    {
+        $value = config($key);
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value !== 0;
+        }
+
+        if (is_string($value)) {
+            return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false;
+        }
+
+        return false;
+    }
+
+    private function configFloat(string $key): float
+    {
+        $value = config($key);
+
+        if (is_float($value) || is_int($value)) {
+            return (float) $value;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return (float) $value;
+        }
+
+        return 0.0;
+    }
+
+    private function configString(string $key): ?string
+    {
+        $value = config($key);
+
+        return is_string($value) ? $value : null;
+    }
+
+    private function jsonEncodeForLog(mixed $value): string
+    {
+        $encoded = json_encode($value);
+
+        return is_string($encoded) ? $encoded : 'null';
     }
 }

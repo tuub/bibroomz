@@ -2,133 +2,88 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DeleteResourceGroupRequest;
+use App\Http\Requests\Admin\InstitutionContextRequest;
 use App\Http\Requests\Admin\ResourceGroupRequest;
+use App\Http\Requests\Admin\ResourceGroupIdRequest;
+use App\Http\Requests\Admin\ResourceGroupOrderRequest;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
-use App\Services\AdminLoggingService;
-use App\Services\ResourceGroupService;
+use App\Services\Admin\ResourceGroupAdminService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class ResourceGroupController extends Controller
+class ResourceGroupController extends AdminController
 {
-    public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private ResourceGroupService $resourceGroupService
-    ) {
+    public function __construct(private ResourceGroupAdminService $resourceGroupAdminService)
+    {
     }
 
-    public function getResourceGroups(Request $request): Response
+    public function getResourceGroups(InstitutionContextRequest $request): Response
     {
-        $institution = Institution::findOrFail($request->institution_id);
+        $institution = $request->institution();
 
         $this->authorize('viewAny', [ResourceGroup::class, $institution]);
 
-        $resource_groups = ResourceGroup::with(['resources'])
-            ->withCount('resources')
-            ->where('institution_id', $request->institution_id)
-            ->orderBy('order')
-            ->get();
-
-        return Inertia::render('Admin/ResourceGroups/Index', [
-            'institution' => $institution,
-            'resource_groups' => $resource_groups,
-        ]);
+        return Inertia::render('Admin/ResourceGroups/Index', $this->resourceGroupAdminService->getIndexData(
+            $institution,
+        ));
     }
 
-    public function orderResourceGroups(Request $request): void
+    public function orderResourceGroups(ResourceGroupOrderRequest $request): void
     {
-        $validated = $request->validate([
-            '*.id' => ['required', 'uuid', 'exists:resource_groups,id'],
-            '*.order' => ['required', 'integer'],
-        ]);
-
-        foreach ($request->input() as $row) {
-            $resource_group = ResourceGroup::findOrFail($row['id']);
-            $this->authorize('update', $resource_group);
-            $resource_group->update([
-                'order' => $row['order'],
-            ]);
-            $this->adminLoggingService->log('reordered resource group', $resource_group);
-        }
+        $this->resourceGroupAdminService->reorder($request->rows()->all());
     }
 
-    public function createResourceGroup(Request $request): Response
+    public function createResourceGroup(InstitutionContextRequest $request): Response
     {
-        $institution = Institution::findOrFail($request->institution_id);
+        $institution = $request->institution();
         $this->authorize('create', [ResourceGroup::class, $institution]);
 
-        return Inertia::render('Admin/ResourceGroups/Form', [
-            'institution' => $institution,
-            'institutions' => $this->resourceGroupService->getInstitutionsForUser(auth()->user()),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/ResourceGroups/Form', $this->resourceGroupAdminService->getCreateFormData(
+            $institution,
+            $this->authenticatedUser(),
+        ));
     }
 
     public function storeResourceGroup(ResourceGroupRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        $rg = $this->resourceGroupService->storeResourceGroup($validated);
-
-        $this->adminLoggingService->log('created', $rg);
+        $rg = $this->resourceGroupAdminService->store($request->validated());
 
         return redirect()->route('admin.resource_group.index', [
             'institution_id' => $rg->institution_id,
         ]);
     }
 
-    public function editResourceGroup(Request $request)
+    public function editResourceGroup(ResourceGroupIdRequest $request): Response
     {
-        $id = $request->id;
-        $user = auth()->user();
+        $resourceGroup = $request->resourceGroup()->load('user_groups');
+        $this->authorize('edit', $resourceGroup);
 
-        $rg = $this->resourceGroupService->getResourceGroupById($id);
-        $this->authorize('edit', $rg);
-        $rg->loadMissing('institution.user_groups');
-
-        $institutions = $this->resourceGroupService->getInstitutionsForUser($user)
-            ->prepend($rg->institution)
-            ->unique('id')
-            ->values();
-
-        return Inertia::render('Admin/ResourceGroups/Form', [
-            'resource_group' => $rg,
-            'institutions' => $institutions,
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/ResourceGroups/Form', $this->resourceGroupAdminService->getEditFormData(
+            $resourceGroup,
+            $this->authenticatedUser(),
+        ));
     }
 
     public function updateResourceGroup(ResourceGroupRequest $request): RedirectResponse
     {
-        $id = $request->id;
-        $validated = $request->validated();
-
-        $rg = $this->resourceGroupService->updateResourceGroup($id, $validated);
-
-        $this->adminLoggingService->log('updated', $rg);
+        $resourceGroup = $request->resourceGroup();
+        $updated = $this->resourceGroupAdminService->update($resourceGroup, $request->validated());
 
         return redirect()->route('admin.resource_group.index', [
-            'institution_id' => $request->institution_id,
+            'institution_id' => $updated->institution_id,
         ]);
     }
 
-    public function deleteResourceGroup(Request $request): RedirectResponse
+    public function deleteResourceGroup(DeleteResourceGroupRequest $request): RedirectResponse
     {
-        $id = $request->id;
-
-        $rg = $this->resourceGroupService->getResourceGroupById($id);
-        $this->authorize('delete', $rg);
-
-        $this->resourceGroupService->deleteResourceGroup($id);
-
-        $this->adminLoggingService->log('deleted', $rg);
+        $resourceGroup = $request->resourceGroup()->load('user_groups');
+        $this->resourceGroupAdminService->delete($resourceGroup);
 
         return redirect()->route('admin.resource_group.index', [
-            'institution_id' => $rg->institution_id,
+            'institution_id' => $resourceGroup->institution_id,
         ]);
     }
 }

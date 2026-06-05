@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Services\Console\RemoveUsersAction;
+use App\Services\Console\RemoveUsersQueryBuilder;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
-use Illuminate\Database\Query\Builder;
 
 class RemoveUsersCommand extends Command implements Isolatable
 {
@@ -26,89 +27,78 @@ class RemoveUsersCommand extends Command implements Isolatable
      */
     protected $description = 'Remove users with no recent happenings';
 
+    public function __construct(
+        private RemoveUsersQueryBuilder $queryBuilder,
+        private RemoveUsersAction $removeUsersAction,
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $days = config('roomz.user.cleanup_days');
-
-        if ($this->option('days')) {
-            $days = $this->option('days');
-        }
+        $days = $this->resolveDays();
 
         $this->info("Removing users with no happenings more recent than $days days ago.");
 
-        /** @var Builder $query */
-        $query = User::query()
-            ->where('is_admin', '=', false);
+        $query = $this->queryBuilder->build($days);
+        $users = $this->queryBuilder->candidates($days);
 
-        // do not delete privileged users
-        $query->whereNotExists(function (Builder $query) {
-            $query->from('institution_user_role')
-                ->whereColumn('user_id', 'users.id');
-        });
-
-        // do not delete users that belong to a user group
-        $query->whereNotExists(
-            fn (Builder $query) => $query
-                ->from('user_group_user')
-                ->whereColumn('user_id', 'users.id')
-                ->where(fn (Builder $query) => $query
-                    ->where('valid_until', '=', null)
-                    ->orWhere('valid_until', '>', now()->subDays($days)))
-        );
-
-        // find users with no recent happenings
-        $query->whereNotExists(function (Builder $query) use ($days) {
-            $query->from('happenings')
-                ->where('end', '>', now()->subDays($days))
-                ->where(function (Builder $query) {
-                    $query->whereColumn('user_id_01', 'users.id')
-                        ->orWhereColumn('user_id_02', 'users.id');
-                });
-        });
-
-        $users = $query->get()->filter(fn (User $user) => !$user->isLoggedIn());
-
-        // print count
         $this->info('Found ' . $users->count() . ' users to remove.');
 
-        // abort if no users to remove
         if ($users->count() === 0) {
             $this->info('Nothing to do.');
+
             return Command::SUCCESS;
         }
 
-        // print users to be removed
         if ($this->output->isVerbose()) {
             $this->line($query->toRawSql());
 
-            $users->each(function (User $user) {
+            $users->each(function (User $user): void {
                 $this->line($user->toJson(JSON_PRETTY_PRINT));
             });
         }
 
-        // abort if dry run
         if ($this->option('dry-run')) {
             $this->info('Nothing to do.');
+
             return Command::SUCCESS;
         }
 
-        // ask for confirmation
         if (!$this->option('force') && !$this->confirm('Do you want to proceed?')) {
             $this->info('Nothing to do.');
+
             return Command::INVALID;
         }
 
-        // remove users
-        $users->each(function (User $user) {
-            $user->delete();
-        });
+        $this->removeUsersAction->execute($users);
 
         $this->info('Done.');
+
         return Command::SUCCESS;
+    }
+
+    private function resolveDays(): int
+    {
+        $optionValue = $this->option('days');
+
+        if (is_string($optionValue) && $optionValue !== '') {
+            return (int) $optionValue;
+        }
+
+        $configValue = config('roomz.user.cleanup_days');
+
+        if (is_int($configValue)) {
+            return $configValue;
+        }
+
+        if (is_string($configValue) && $configValue !== '') {
+            return (int) $configValue;
+        }
+
+        return 0;
     }
 }

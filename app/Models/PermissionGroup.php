@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PermissionGroup extends Model
 {
-    use HasFactory, HasUuids, HasTranslations;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, HasTranslations;
 
     public $incrementing = false;
 
@@ -19,11 +21,17 @@ class PermissionGroup extends Model
         'description',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'name',
         'description',
     ];
 
+    /**
+     * @return HasMany<Permission, $this>
+     */
     public function permissions(): HasMany
     {
         return $this->hasMany(Permission::class);

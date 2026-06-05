@@ -2,26 +2,53 @@
 
 namespace App\Traits;
 
-use App;
+use Illuminate\Support\Facades\App;
 use Spatie\Translatable\HasTranslations as BaseHasTranslations;
 
 trait HasTranslations
 {
     use BaseHasTranslations;
 
-    public function withoutTranslations()
+    /**
+     * @return array<string, mixed>
+     */
+    public function withoutTranslations(): array
     {
-        $attributes = parent::toArray();
+        $attributes = $this->normalizeAttributes(parent::toArray());
 
         foreach ($this->getTranslatableAttributes() as $field) {
+            if (! is_string($field)) {
+                continue;
+            }
+
             $attributes[$field] = $this->getTranslation($field, App::getLocale());
         }
 
         return $attributes;
     }
 
-    public function withTranslations()
+    /**
+     * @return array<string, mixed>
+     */
+    public function withTranslations(): array
     {
-        return parent::toArray();
+        return $this->normalizeAttributes(parent::toArray());
+    }
+
+    /**
+     * @param array<mixed> $attributes
+     * @return array<string, mixed>
+     */
+    private function normalizeAttributes(array $attributes): array
+    {
+        $normalized = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }

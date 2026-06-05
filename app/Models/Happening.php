@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
-use App\Events\HappeningsChangedEvent;
+use App\Events\HappeningBroadcastEvent;
 use App\Library\Utility;
+use App\Services\Happenings\HappeningAudienceResolver;
+use App\Services\Happenings\HappeningBroadcaster;
+use App\Services\Happenings\HappeningStatusCalculator;
+use App\Services\Resources\ResourceAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,14 +18,22 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
+/**
+ * @property-read Resource $resource
+ * @property-read User|null $user1
+ * @property-read User|null $user2
+ */
 class Happening extends Model
 {
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUuids, SoftDeletes, MassPrunable, HasTranslations;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, SoftDeletes, MassPrunable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -52,6 +64,9 @@ class Happening extends Model
         'verified_at' => 'datetime',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'label',
     ];
@@ -60,16 +75,25 @@ class Happening extends Model
      * RELATIONS
      ****************************************************************/
 
+    /**
+     * @return BelongsTo<Resource, $this>
+     */
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user1(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id_01', 'id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user2(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id_02', 'id');
@@ -82,8 +106,8 @@ class Happening extends Model
     /**
      * Get only happenings that are within the current week.
      *
-     * @param Builder $query
-     * @return Builder
+     * @param Builder<self> $query
+     * @return Builder<self>
      * @throws InvalidArgumentException
      */
     public function scopeWeekly(Builder $query): Builder
@@ -94,9 +118,9 @@ class Happening extends Model
     /**
      * Get only happenings belonging to a given user.
      *
-     * @param Builder $query
+     * @param Builder<self> $query
      * @param User $user
-     * @return Builder
+     * @return Builder<self>
      */
     public function scopeUser(Builder $query, User $user): Builder
     {
@@ -110,9 +134,9 @@ class Happening extends Model
     /**
      * Get only happenings belonging to a given resource group.
      *
-     * @param Builder $query
+     * @param Builder<self> $query
      * @param ResourceGroup $resourceGroup
-     * @return Builder
+     * @return Builder<self>
      */
     public function scopeResourceGroup(Builder $query, ResourceGroup $resourceGroup): Builder
     {
@@ -124,8 +148,8 @@ class Happening extends Model
     /**
      * Get only happenings belonging to an active resource.
      *
-     * @param Builder $query
-     * @return Builder
+     * @param Builder<self> $query
+     * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
     {
@@ -137,6 +161,9 @@ class Happening extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
+    /**
+     * @return array{verify: bool, edit: bool, delete: bool}
+     */
     public function getPermissions(?User $user): array
     {
         return [
@@ -144,16 +171,6 @@ class Happening extends Model
             'edit' => $user ? $user->can('update', $this) : false,
             'delete' => $user ? $user->can('delete', $this) : false,
         ];
-    }
-
-    private function isMine(): bool
-    {
-        return auth()->user()->id === $this->user_id_01 || auth()->user()->id === $this->user_id_02;
-    }
-
-    private function isMyToVerify(): bool
-    {
-        return auth()->user()->name === $this->verifier;
     }
 
     public function isVerified(): bool
@@ -176,76 +193,33 @@ class Happening extends Model
         return $this->start < Utility::getCarbonNow() && $this->end > Utility::getCarbonNow();
     }
 
+    /**
+     * @return array{
+     *   type?: string,
+     *   user: array{reservation?: string, verification?: string}
+     * }
+     */
     public function getStatus(): array
     {
-        $status = [
-            'user' => [],
-        ];
+        $viewer = auth()->user();
 
-        if (auth()->check()) {
-            if ($this->isVerified()) {
-                if ($this->isMine()) {
-                    $status['type'] = 'user-booking';
-                    $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['verification'] = $this->user2?->name;
-                } else {
-                    $status['type'] = 'booking';
-                }
-            } else {
-                if ($this->isMine()) {
-                    $status['type'] = 'user-reservation';
-                    $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['verification'] = $this->verifier;
-                } elseif ($this->isMyToVerify()) {
-                    $status['type'] = 'user-to-verify';
-                    $status['user']['reservation'] = $this->user1->name;
-                    $status['user']['verification'] = $this->verifier;
-                } else {
-                    $status['type'] = 'reservation';
-                }
-            }
-        } else {
-            if ($this->isVerified()) {
-                $status['type'] = 'booking';
-            } else {
-                $status['type'] = 'reservation';
-            }
-        }
-
-        return $status;
+        return app(HappeningStatusCalculator::class)->calculate($this, $viewer instanceof User ? $viewer : null);
     }
 
-    public function users()
+    /**
+     * @return Collection<int, User>
+     */
+    public function users(): Collection
     {
-        $users = collect();
-
-        $user1 = $this->user1;
-        $user2 = $this->user2;
-
-        if ($user1) {
-            $users->push($user1);
-        }
-
-        if ($user2) {
-            $users->push($user2);
-        }
-
-        $verifier = User::where('name', $this->verifier)->first();
-
-        if ($verifier) {
-            $users->push($verifier);
-        }
-
-        return $users;
+        return app(HappeningAudienceResolver::class)->resolve($this);
     }
 
+    /**
+     * @param class-string<HappeningBroadcastEvent> $broadcastEvent
+     */
     public function broadcast(string $broadcastEvent): void
     {
-        foreach ($this->users() as $user) {
-            $broadcastEvent::dispatch($this, $user);
-        }
-
-        HappeningsChangedEvent::dispatch();
+        app(HappeningBroadcaster::class)->broadcast($this, $broadcastEvent);
     }
 
     public function isConcurrent(CarbonImmutable $start, CarbonImmutable $end): bool
@@ -263,32 +237,39 @@ class Happening extends Model
         return $user->can('adminView', $this);
     }
 
+    /**
+     * @return Builder<self>
+     */
     public function prunable(): Builder
     {
-        return static::where('end', '<=', now()->subDays(config('roomz.happenings.cleanup_days')));
+        $cleanupDays = config('roomz.happenings.cleanup_days');
+
+        return static::where('end', '<=', now()->subDays(is_int($cleanupDays) ? $cleanupDays : 0));
     }
 
     public function withAdjustedStartEndTimes(): ?self
     {
+        $availabilityService = app(ResourceAvailabilityService::class);
         $start = CarbonImmutable::parse($this->start);
         $end = CarbonImmutable::parse($this->end);
 
-        [, $start, $end] = $this->resource->findOpen($start, $end);
-        [, $start, $end] = $this->resource->findClosed($start, $end);
+        [, $start, $end] = $availabilityService->findOpen($this->resource, $start, $end);
+        [, $start, $end] = $availabilityService->findClosed($this->resource, $start, $end);
 
-        $this->start = $start;
-        $this->end = $end;
+        $this->start = Carbon::instance($start->toDateTime());
+        $this->end = Carbon::instance($end->toDateTime());
 
         return $this;
     }
 
     public function isResourceOpen(): bool
     {
+        $availabilityService = app(ResourceAvailabilityService::class);
         $start = CarbonImmutable::parse($this->start);
         $end = CarbonImmutable::parse($this->end);
 
-        [$is_open] = $this->resource->findOpen($start, $end);
-        [$is_closed] = $this->resource->findClosed($start, $end);
+        [$is_open] = $availabilityService->findOpen($this->resource, $start, $end);
+        [$is_closed] = $availabilityService->findClosed($this->resource, $start, $end);
 
         return $is_open && !$is_closed;
     }

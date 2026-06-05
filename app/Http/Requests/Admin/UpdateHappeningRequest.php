@@ -7,20 +7,30 @@ use App\Models\Resource;
 
 class UpdateHappeningRequest extends HappeningRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        $happening = Happening::findOrFail($this->id);
-        $resource = Resource::findOrFail($this->resource_id);
+        $user = $this->userModel();
+        $happening = $this->happeningOrNull();
+        $resource = $this->resource();
 
-        if ($happening->resource->resource_group_id === $resource->resource_group_id) {
-            return $this->user()->can('adminUpdate', $happening);
+        if ($user === null || $happening === null || $resource === null) {
+            return false;
         }
 
-        return $this->user()->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
+        if ($happening->resource->resource_group_id === $resource->resource_group_id) {
+            return $user->can('adminUpdate', $happening);
+        }
+
+        return $user->can('adminCreate', [Happening::class, $resource->resource_group->institution]);
+    }
+
+    public function happening(): Happening
+    {
+        return $this->findModelOrFail(Happening::class);
+    }
+
+    public function happeningOrNull(): ?Happening
+    {
+        return $this->findModel(Happening::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\SettingSubject;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Setting extends Model
 {
-    use HasFactory, HasUuids;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids;
 
     /*****************************************************************
      * OPTIONS
@@ -23,6 +26,9 @@ class Setting extends Model
      * RELATIONS
      ****************************************************************/
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function settingable(): MorphTo
     {
         return $this->morphTo();
@@ -31,14 +37,32 @@ class Setting extends Model
     /*****************************************************************
      * METHODS
      ****************************************************************/
-    public static function getSettingableModel(string $settingableType)
+    public static function getSettingableModel(string $settingableType): Institution|ResourceGroup
     {
-        $modelName = array_map('ucfirst', explode('_', $settingableType));
-        $fullModelName = __NAMESPACE__ . '\\' . implode('', $modelName);
-
-        return new $fullModelName();
+        return match ($settingableType) {
+            'institution', Institution::class => new Institution(),
+            'resource_group', ResourceGroup::class => new ResourceGroup(),
+            default => throw new \InvalidArgumentException("Unsupported settingable type [{$settingableType}]."),
+        };
     }
 
+    public function getInstitution(): Institution
+    {
+        $settingable = $this->settingable;
+
+        if (! $settingable instanceof SettingSubject) {
+            throw new \InvalidArgumentException('Unsupported settingable model.');
+        }
+
+        return $settingable->institutionForSettings();
+    }
+
+    /**
+     * @return array{
+     *   institution: array<string, mixed>,
+     *   resource_group: array<string, mixed>
+     * }
+     */
     public static function getInitialValues(): array
     {
         return [

@@ -2,56 +2,43 @@
 
 namespace App\Policies;
 
+use App\Contracts\ClosingSubject;
 use App\Models\Closing;
-use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Database\Eloquent\Model;
 
 class ClosingPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(User $user, Model $closable)
+    /**
+     * @param \App\Models\Institution|\App\Models\Resource $closable
+     */
+    public function viewAny(User $user, ClosingSubject $closable): bool
     {
-        $institution = $closable instanceof Institution ? $closable : $closable->institution;
-
-        if ($user->can('view_closings', $institution)) {
-            return true;
-        }
+        return $user->can('view_closings', $closable->institutionForClosings());
     }
 
-    public function create(User $user, Model $closable)
+    /**
+     * @param \App\Models\Institution|\App\Models\Resource $closable
+     */
+    public function create(User $user, ClosingSubject $closable): bool
     {
-        $institution = $closable instanceof Institution ? $closable : $closable->institution;
-
-        if ($user->can('create_closings', $institution)) {
-            return true;
-        }
+        return $user->can('create_closings', $closable->institutionForClosings());
     }
 
-    public function update(User $user, Closing $closing)
+    public function update(User $user, Closing $closing): bool
     {
-        $closable = $closing->closable;
-        $institution = $closable instanceof Institution ? $closable : $closable->institution;
-
-        if ($user->can('edit_closings', $institution)) {
-            return true;
-        }
+        return $user->can('edit_closings', $closing->getInstitution());
     }
 
-    public function edit(User $user, Closing $closing)
+    public function edit(User $user, Closing $closing): bool
     {
         return $this->update($user, $closing);
     }
 
-    public function delete(User $user, Closing $closing)
+    public function delete(User $user, Closing $closing): bool
     {
-        $closable = $closing->closable;
-        $institution = $closable instanceof Institution ? $closable : $closable->institution;
-
-        if ($user->can('delete_closings', $institution)) {
-            return true;
-        }
+        return $user->can('delete_closings', $closing->getInstitution());
     }
 }

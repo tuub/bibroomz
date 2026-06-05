@@ -8,6 +8,9 @@ use InvalidArgumentException;
 
 class IpChecker
 {
+    /**
+     * @param list<string> $allowed_ranges
+     */
     public function __construct(private array $allowed_ranges)
     {
     }

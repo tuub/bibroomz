@@ -3,33 +3,58 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
-use App\Rules\RequiredWithTranslationRule;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Collection;
 
-class InstitutionOrderRequest extends FormRequest
+class InstitutionOrderRequest extends AdminRouteRequest
 {
+    public function authorize(): bool
+    {
+        $user = $this->userModel();
+
+        if ($user === null) {
+            return false;
+        }
+
+        $institutions = Institution::query()
+            ->whereIn('id', $this->rows()->pluck('id'))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($this->rows() as $row) {
+            $institution = $institutions->get($row['id']);
+
+            if ($institution === null || ! $user->can('update', $institution)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $institution = Institution::find($this->id);
-
         return [
-            'title' => [new RequiredWithTranslationRule()],
-            'short_title' => ['required'],
-            'slug' => ['required', Rule::unique('institutions')->ignore($institution?->id)],
-            'location' => [],
-            'week_days' => ['required_if:is_active,true'],
-            'home_uri' => ['url'],
-            'logo_uri' => ['url'],
-            'teaser_uri' => ['url'],
-            'email' => ['email'],
-            'is_active' => ['required', 'boolean'],
-            'order' => ['required', 'boolean'],
+            '*.id' => ['required', 'uuid', 'exists:institutions,id'],
+            '*.order' => ['required', 'integer'],
         ];
+    }
+
+    /**
+     * @return Collection<int, array{id: string, order: int}>
+     */
+    public function rows(): Collection
+    {
+        return collect($this->all())
+            ->filter(fn (mixed $value): bool => is_array($value) && isset($value['id'], $value['order']))
+            ->map(fn (array $value): array => [
+                'id' => is_string($value['id']) ? $value['id'] : '',
+                'order' => is_int($value['order'])
+                    ? $value['order']
+                    : (is_string($value['order']) && is_numeric($value['order']) ? (int) $value['order'] : 0),
+            ])
+            ->values();
     }
 }

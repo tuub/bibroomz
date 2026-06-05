@@ -4,10 +4,10 @@ namespace App\Mail;
 
 use App\Models\Happening;
 use App\Models\MailContent;
+use App\Services\Notifications\MailEnvelopeFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -16,15 +16,19 @@ class HappeningMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    public Happening $happening;
+
+    public MailContent $content;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(
-        public Happening $happening,
-        public MailContent $content,
-    ) {
+    public function __construct(public HappeningMailData $data)
+    {
+        $this->happening = $data->happening;
+        $this->content = $data->content;
         $this->locale(app()->getLocale());
     }
 
@@ -33,19 +37,9 @@ class HappeningMail extends Mailable implements ShouldQueue
      *
      * @return \Illuminate\Mail\Mailables\Envelope
      */
-    public function envelope()
+    public function envelope(): Envelope
     {
-        return new Envelope(
-            from: new Address(
-                $this->happening->resource->resource_group->institution->email,
-                $this->happening->resource->resource_group->institution->email
-            ),
-            replyTo: new Address(
-                $this->happening->resource->resource_group->institution->email,
-                $this->happening->resource->resource_group->institution->email
-            ),
-            subject: $this->content->subject,
-        );
+        return app(MailEnvelopeFactory::class)->make($this->data->envelope, $this->content->subject);
     }
 
     /**
@@ -53,7 +47,7 @@ class HappeningMail extends Mailable implements ShouldQueue
      *
      * @return \Illuminate\Mail\Mailables\Content
      */
-    public function content()
+    public function content(): Content
     {
         return new Content(
             text: 'emails.text.mail',
@@ -64,9 +58,9 @@ class HappeningMail extends Mailable implements ShouldQueue
     /**
      * Get the attachments for the message.
      *
-     * @return array
+     * @return array<int, mixed>
      */
-    public function attachments()
+    public function attachments(): array
     {
         return [];
     }

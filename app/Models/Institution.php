@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Contracts\ClosingSubject;
+use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,10 +14,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
-class Institution extends Model
+/**
+ * @implements ClosingSubject<$this>
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Closing> $closings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ResourceGroup> $resource_groups
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Setting> $settings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WeekDay> $week_days
+ */
+class Institution extends Model implements ClosingSubject, SettingSubject
 {
-    use HasFactory, HasUuids, HasTranslations;
+    /** @use HasFactory<\Database\Factories\InstitutionFactory> */
+    use HasFactory;
+    use HasUuids, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -36,12 +49,15 @@ class Institution extends Model
         'order',
     ];
 
-    protected $morphClass = 'institution';
+    protected string $morphClass = 'institution';
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'title',
     ];
@@ -50,23 +66,35 @@ class Institution extends Model
      * RELATIONS
      ****************************************************************/
 
+    /**
+     * @return HasMany<ResourceGroup, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function resource_groups(): HasMany
     {
         return $this->hasMany(ResourceGroup::class);
     }
 
+    /**
+     * @return BelongsToMany<WeekDay, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function week_days(): BelongsToMany
     {
         return $this->belongsToMany(WeekDay::class);
     }
 
+    /**
+     * @return HasManyThrough<Resource, ResourceGroup, $this>
+     */
     public function resources(): HasManyThrough
     {
         return $this->hasManyThrough(Resource::class, ResourceGroup::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this, InstitutionUserRole>
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'institution_user_role')
@@ -74,17 +102,26 @@ class Institution extends Model
             ->using(InstitutionUserRole::class);
     }
 
+    /**
+     * @return HasMany<UserGroup, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function user_groups(): HasMany
     {
         return $this->hasMany(UserGroup::class);
     }
 
+    /**
+     * @return MorphMany<Closing, $this>
+     */
     public function closings(): MorphMany
     {
         return $this->morphMany(Closing::class, 'closable');
     }
 
+    /**
+     * @return MorphMany<Setting, $this>
+     */
     public function settings(): MorphMany
     {
         return $this->morphMany(Setting::class, 'settingable');
@@ -93,7 +130,11 @@ class Institution extends Model
     /*****************************************************************
      * SCOPES
      ****************************************************************/
-    public function scopeActive($query)
+    /**
+     * @param Builder<self> $query
+     * @return Builder<self>
+     */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
@@ -126,16 +167,30 @@ class Institution extends Model
         return $user->can('create', [UserGroup::class, $this]);
     }
 
-    public function getHiddenDays()
+    /**
+     * @return Collection<int, int>
+     */
+    public function getHiddenDays(): Collection
     {
-        return WeekDay::get()
-            ->diff($this->week_days)
-            ->map(function ($week_day) {
-                return $week_day->day_of_week;
-            });
+        $hiddenDays = [];
+
+        foreach (
+            WeekDay::query()
+            ->whereNotIn('id', $this->week_days()->pluck('week_days.id'))
+            ->pluck('day_of_week') as $dayOfWeek
+        ) {
+            if (is_int($dayOfWeek)) {
+                $hiddenDays[] = $dayOfWeek;
+            }
+        }
+
+        return collect($hiddenDays);
     }
 
-    public function getHappenings()
+    /**
+     * @return EloquentCollection<int, Happening>
+     */
+    public function getHappenings(): EloquentCollection
     {
         return Happening::whereHas(
             'resource',
@@ -144,5 +199,15 @@ class Institution extends Model
                 fn (Builder $q) => $q->where('institution_id', $this->id)
             )
         )->get();
+    }
+
+    public function institutionForClosings(): Institution
+    {
+        return $this;
+    }
+
+    public function institutionForSettings(): Institution
+    {
+        return $this;
     }
 }

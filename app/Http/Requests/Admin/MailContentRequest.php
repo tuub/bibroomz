@@ -2,28 +2,38 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Institution;
+use App\Models\MailContent;
 
-class MailContentRequest extends FormRequest
+class MailContentRequest extends AdminRouteRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true;
+        $user = $this->userModel();
+        $mail = $this->mailContentOrNull();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if ($mail !== null) {
+            return $user->can('edit', $mail);
+        }
+
+        $institution = $this->institutionOrNull();
+
+        return $institution !== null && $user->can('create', [MailContent::class, $institution]);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
+            'id' => ['nullable', 'uuid', 'exists:mail_contents,id'],
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
-            'mail_type_id' => ['required'],
+            'mail_type_id' => ['required', 'exists:mail_types,id'],
             'subject' => ['required'],
             'title' => [],
             'salutation' => [],
@@ -34,5 +44,25 @@ class MailContentRequest extends FormRequest
             'farewell' => [],
             'is_active' => ['required', 'boolean'],
         ];
+    }
+
+    public function institution(): Institution
+    {
+        return $this->findModelOrFail(Institution::class, 'institution_id');
+    }
+
+    public function institutionOrNull(): ?Institution
+    {
+        return $this->findModel(Institution::class, 'institution_id');
+    }
+
+    public function mailContent(): MailContent
+    {
+        return $this->findModelOrFail(MailContent::class);
+    }
+
+    public function mailContentOrNull(): ?MailContent
+    {
+        return $this->findModel(MailContent::class);
     }
 }

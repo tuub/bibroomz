@@ -13,10 +13,15 @@ class RequiredWithTranslationRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $languages = config('app.supported_locales');
-        $translations = collect($value);
+
+        if (! is_array($languages) || ! is_array($value)) {
+            $fail('validation.required')->translate();
+
+            return;
+        }
 
         foreach ($languages as $language) {
-            if ($translations->get($language)) {
+            if (is_string($language) && ($value[$language] ?? null)) {
                 return;
             }
         }

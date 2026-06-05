@@ -3,8 +3,13 @@
 namespace App\Providers;
 
 use App\Auth\AlmaUserProvider;
+use App\Models\Happening;
 use App\Models\Institution;
+use App\Models\Role;
 use App\Models\User;
+use App\Policies\HappeningPolicy;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -17,7 +22,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        'App\Model\Happening' => 'App\Policy\HappeningPolicy',
+        Happening::class => HappeningPolicy::class,
     ];
 
     /**
@@ -27,13 +32,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Gate::define('view-admin-panel', function (User $user) {
-            if ($user->getPermissions()->isNotEmpty()) {
-                return true;
-            }
-        });
+        Gate::define('view-admin-panel', fn (User $user): bool => $user->getPermissions()->isNotEmpty());
 
-        Gate::after(function (User $user) {
+        Gate::after(function (User $user): bool {
             if ($user->isAdmin()) {
                 return true;
             }
@@ -41,30 +42,34 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
 
-        Gate::before(function (User $user, string $ability, array $args) {
+        Gate::before(function (User $user, string $ability, array $args): ?bool {
             $institution = collect($args)->first();
 
             if (! $institution instanceof Institution) {
                 // check global permissions
-                if ($user->roles->contains->hasPermission($ability)) {
+                if ($user->roles->contains(fn (Role $role): bool => $role->hasPermission($ability))) {
                     return true;
                 }
 
-                return;
+                return null;
             }
 
             // check institution scoped permissions
-            if ($user->roles->contains->hasPermission($ability, $institution)) {
+            if (
+                $user->roles->contains(
+                    fn (Role $role): bool => $role->hasPermission($ability, $institution)
+                )
+            ) {
                 return true;
             }
+
+            return null;
         });
 
-        Gate::define('viewPulse', function (User $user) {
-            return $user->isAdmin();
-        });
+        Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
 
-        Auth::provider('alma', function ($app) {
-            return new AlmaUserProvider(new User(), $app['hash']);
+        Auth::provider('alma', function (Application $app): AlmaUserProvider {
+            return new AlmaUserProvider($app->make(Hasher::class));
         });
     }
 }

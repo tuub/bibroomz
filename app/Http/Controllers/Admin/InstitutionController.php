@@ -2,117 +2,72 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DeleteInstitutionRequest;
+use App\Http\Requests\Admin\InstitutionIdRequest;
+use App\Http\Requests\Admin\InstitutionOrderRequest;
 use App\Http\Requests\Admin\InstitutionRequest;
 use App\Models\Institution;
-use App\Models\Setting;
-use App\Models\WeekDay;
-use App\Services\AdminLoggingService;
+use App\Services\Admin\InstitutionAdminService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class InstitutionController extends Controller
+class InstitutionController extends AdminController
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
+    public function __construct(private InstitutionAdminService $institutionAdminService)
     {
     }
 
-    public function getInstitutions()
+    public function getInstitutions(): Response
     {
-        return Inertia::render('Admin/Institutions/Index', [
-            'institutions' => Institution::with(['closings', 'resource_groups'])
-                ->withCount('resource_groups', 'resources')
-                ->orderBy('order')
-                ->get()
-                ->filter->isViewableByUser(auth()->user())
-        ]);
+        return Inertia::render('Admin/Institutions/Index', $this->institutionAdminService->getIndexData());
     }
 
-    public function orderInstitutions(Request $request): void
+    public function orderInstitutions(InstitutionOrderRequest $request): void
     {
-        foreach ($request->input() as $row) {
-            $institution = Institution::findOrFail($row['id']);
-            $institution->update([
-                'order' => $row['order'],
-            ]);
-            $this->adminLoggingService->log('reordered institution', $institution);
-        }
+        $this->institutionAdminService->reorder($request->rows()->all());
     }
 
     public function createInstitution(): Response
     {
         $this->authorize('create', Institution::class);
 
-        $days_of_week = WeekDay::get();
-
-        return Inertia::render('Admin/Institutions/Form', [
-            'daysOfWeek' => $days_of_week,
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/Institutions/Form', $this->institutionAdminService->getCreateFormData());
     }
 
     public function storeInstitution(InstitutionRequest $request): RedirectResponse
     {
         $this->authorize('create', Institution::class);
 
-        $validated = $request->safe();
-        $institution = Institution::create($validated->except('week_days'));
-
-        $institution->week_days()->sync($validated->week_days);
-
-        // Init settings
-        $settings = Setting::getInitialValues();
-        foreach ($settings['institution'] as $key => $value) {
-            $setting = new Setting([
-                'key' => $key,
-                'value' => $value,
-            ]);
-            $institution->settings()->save($setting);
-        }
-
-        $this->adminLoggingService->log('created', $institution);
+        $this->institutionAdminService->store($request->institutionData(), $request->weekDays());
 
         return redirect()->route('admin.institution.index');
     }
 
-    public function editInstitution(Request $request): Response
+    public function editInstitution(InstitutionIdRequest $request): Response
     {
-        $institution = Institution::where('id', $request->id)->with('closings', 'week_days:id')->firstOrFail();
+        $institution = $request->institution()->load('closings', 'week_days:id');
 
         $this->authorize('edit', $institution);
 
-        return Inertia::render('Admin/Institutions/Form', [
-            'institution' => $institution,
-            'daysOfWeek' => WeekDay::get(),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render(
+            'Admin/Institutions/Form',
+            $this->institutionAdminService->getEditFormData($institution),
+        );
     }
 
     public function updateInstitution(InstitutionRequest $request): RedirectResponse
     {
-        $institution = Institution::findOrFail($request->id);
-
-        $this->authorize('update', $institution);
-
-        $validated = $request->safe();
-
-        $institution->update($validated->except('week_days'));
-        $institution->week_days()->sync($validated->week_days);
-
-        $this->adminLoggingService->log('updated', $institution);
+        $institution = $request->institution();
+        $this->institutionAdminService->update($institution, $request->institutionData(), $request->weekDays());
 
         return redirect()->route('admin.institution.index');
     }
 
-    public function deleteInstitution(Request $request): RedirectResponse
+    public function deleteInstitution(DeleteInstitutionRequest $request): RedirectResponse
     {
-        $institution = Institution::findOrFail($request->id);
-        $this->authorize('delete', $institution);
-        $institution->delete();
-
-        $this->adminLoggingService->log('deleted', $institution);
+        $institution = $request->institution();
+        $this->institutionAdminService->delete($institution);
 
         return redirect()->route('admin.institution.index');
     }

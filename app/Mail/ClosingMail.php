@@ -3,13 +3,13 @@
 namespace App\Mail;
 
 use App\Models\Closing;
-use App\Models\Institution;
+use App\Models\Happening;
 use App\Models\MailContent;
+use App\Services\Notifications\MailEnvelopeFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -18,17 +18,25 @@ class ClosingMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    public Closing $closing;
+
+    /**
+     * @var Collection<int, Happening>
+     */
+    public Collection $happenings;
+
+    public MailContent $content;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(
-        public Closing $closing,
-        public Collection $happenings,
-        public MailContent $content,
-    ) {
-        //
+    public function __construct(public ClosingMailData $data)
+    {
+        $this->closing = $data->closing;
+        $this->happenings = $data->happenings;
+        $this->content = $data->content;
     }
 
     /**
@@ -36,26 +44,9 @@ class ClosingMail extends Mailable implements ShouldQueue
      *
      * @return \Illuminate\Mail\Mailables\Envelope
      */
-    public function envelope()
+    public function envelope(): Envelope
     {
-        $closable = $this->closing->closable;
-        if ($closable instanceof Institution) {
-            $from_email = $closable->email;
-        } else {
-            $from_email = $closable->resource_group->institution->email;
-        }
-
-        return new Envelope(
-            from: new Address(
-                $from_email,
-                $from_email
-            ),
-            replyTo: new Address(
-                $from_email,
-                $from_email
-            ),
-            subject: $this->content->subject,
-        );
+        return app(MailEnvelopeFactory::class)->make($this->data->envelope, $this->content->subject);
     }
 
     /**
@@ -63,7 +54,7 @@ class ClosingMail extends Mailable implements ShouldQueue
      *
      * @return \Illuminate\Mail\Mailables\Content
      */
-    public function content()
+    public function content(): Content
     {
         return new Content(
             text: 'emails.text.mail',
@@ -74,9 +65,9 @@ class ClosingMail extends Mailable implements ShouldQueue
     /**
      * Get the attachments for the message.
      *
-     * @return array
+     * @return array<int, mixed>
      */
-    public function attachments()
+    public function attachments(): array
     {
         return [];
     }

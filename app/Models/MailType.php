@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MailType extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
     use HasFactory;
 
     /*****************************************************************
@@ -26,8 +27,11 @@ class MailType extends Model
      * RELATIONS
      ****************************************************************/
 
+    /**
+     * @return HasMany<MailContent, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    public function mail_contents(): hasMany
+    public function mail_contents(): HasMany
     {
         return $this->hasMany(MailContent::class);
     }

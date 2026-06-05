@@ -5,27 +5,22 @@ namespace App\Http\Requests\Admin;
 use App\Library\Utility;
 use App\Models\Resource;
 use App\Models\User;
-use Illuminate\Foundation\Http\FormRequest;
 
-abstract class HappeningRequest extends FormRequest
+abstract class HappeningRequest extends AdminRouteRequest
 {
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        /** @var User */
-        $user1 = User::find($this->user_id_01);
+        $user1 = $this->findModel(User::class, 'user_id_01');
+        $resource = $this->findModel(Resource::class, 'resource_id');
 
-        /** @var Resource */
-        $resource = Resource::find($this->resource_id);
-
-        $is_admin = $user1?->hasPermission('no_verifier', $resource?->resource_group->institution);
-        $is_verification_required = !$is_admin && $resource?->is_verification_required;
+        $isAdmin = $user1?->hasPermission('no_verifier', $resource?->resource_group->institution) ?? false;
+        $isVerificationRequired = ! $isAdmin && (bool) $resource?->is_verification_required;
 
         return [
+            'id' => ['sometimes', 'nullable', 'uuid', 'exists:happenings,id'],
             'start_date' => ['required', 'date_format:d.m.Y'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_date' => ['required', 'date_format:d.m.Y'],
@@ -36,12 +31,12 @@ abstract class HappeningRequest extends FormRequest
                 'sometimes',
                 'nullable',
                 'uuid',
-                $is_verification_required ? 'required_if:is_verified,true' : '',
+                $isVerificationRequired ? 'required_if:is_verified,true' : '',
                 'exclude_if:is_verified,false',
                 'exists:users,id',
             ],
             'verifier' => [
-                $is_verification_required ? 'required_if:is_verified,false' : '',
+                $isVerificationRequired ? 'required_if:is_verified,false' : '',
                 'exclude_if:is_verified,true',
                 'not_in:' . $user1?->name,
             ],
@@ -53,23 +48,41 @@ abstract class HappeningRequest extends FormRequest
         ];
     }
 
-    public function sanitized()
+    public function userOne(): ?User
     {
-        return $this->safe()->collect()
+        return $this->findModel(User::class, 'user_id_01');
+    }
+
+    public function resource(): ?Resource
+    {
+        return $this->findModel(Resource::class, 'resource_id');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function sanitized(): array
+    {
+        $startDate = $this->validated('start_date');
+        $startTime = $this->validated('start_time');
+        $endDate = $this->validated('end_date');
+        $endTime = $this->validated('end_time');
+
+        return $this->normalizeStringKeyedArray($this->safe()->collect()
             ->merge([
                 'start' => Utility::createCarbonDateTime(
-                    $this->start_date,
-                    $this->start_time,
+                    is_string($startDate) ? $startDate : '',
+                    is_string($startTime) ? $startTime : '',
                 )->toIsoString(),
                 'end' => Utility::createCarbonDateTime(
-                    $this->end_date,
-                    $this->end_time,
-                )->toIsoString()
+                    is_string($endDate) ? $endDate : '',
+                    is_string($endTime) ? $endTime : '',
+                )->toIsoString(),
             ])->except([
                 'start_date',
                 'start_time',
                 'end_date',
                 'end_time',
-            ]);
+            ])->all());
     }
 }

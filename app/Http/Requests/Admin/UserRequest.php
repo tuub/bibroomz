@@ -5,42 +5,49 @@ namespace App\Http\Requests\Admin;
 use App\Models\Institution;
 use App\Models\User;
 use App\Rules\CurrentPasswordRule;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-class UserRequest extends FormRequest
+class UserRequest extends AdminRouteRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        foreach ($this->roles as $role) {
-            $institution = Institution::find($role['institution_id']);
+        $user = $this->userModel();
 
-            if (!$this->user()->can('edit', $institution)) {
+        if ($user === null) {
+            return false;
+        }
+
+        foreach ($this->inputRoles() as $role) {
+            if (! isset($role['institution_id']) || ! is_string($role['institution_id'])) {
+                return false;
+            }
+
+            $institution = Institution::query()->find($role['institution_id']);
+
+            if ($institution === null || ! $user->can('edit', $institution)) {
                 return false;
             }
         }
 
-        if (!$this->id) {
-            return $this->user()->can('create', User::class);
+        if (! $this->input('id')) {
+            return $user->can('create', User::class);
         }
 
-        return $this->user()->can('update', User::find($this->id));
+        $targetUser = $this->targetUserOrNull();
+
+        return $targetUser !== null && $user->can('update', $targetUser);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
+        $canEditAdminUsers = $this->userModel()?->can('edit_admin_users') ?? false;
+
         return [
-            'id' => ['nullable', 'uuid'],
+            'id' => ['nullable', 'uuid', 'exists:users,id'],
             'is_system_user' => ['required', 'boolean'],
             'name' => ['required_if_accepted:is_system_user', 'string', 'min:3'],
             'email' => ['required_if_accepted:is_system_user', 'email'],
@@ -51,7 +58,7 @@ class UserRequest extends FormRequest
                 }),
                 'nullable',
                 'string',
-                new CurrentPasswordRule($this->input('name'), $this->input('current_password'))
+                new CurrentPasswordRule($this->inputString('name'), $this->inputString('current_password')),
             ],
             'password' => [
                 'required_if_accepted:is_set_password',
@@ -67,7 +74,7 @@ class UserRequest extends FormRequest
             'is_admin' => [
                 'required',
                 'boolean',
-                Rule::when(!$this->user()->can('edit admin users'), 'declined'),
+                Rule::when(! $canEditAdminUsers, 'declined'),
             ],
             'roles' => ['array'],
             'roles.*' => ['array:role_id,institution_id'],
@@ -79,7 +86,73 @@ class UserRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'roles' => $this->input('roles', []),
+            'roles' => $this->inputRoles(),
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function inputRoles(): array
+    {
+        $roles = $this->input('roles', []);
+
+        if (! is_array($roles)) {
+            return [];
+        }
+
+        $normalizedRoles = [];
+
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                $normalizedRoles[] = $this->normalizeStringKeyedArray($role);
+            }
+        }
+
+        return $normalizedRoles;
+    }
+
+    /**
+     * @return array<int, array{role_id: string, institution_id: string}>
+     */
+    public function roles(): array
+    {
+        /** @var array<int, array{role_id: string, institution_id: string}> $roles */
+        $roles = $this->validated('roles', []);
+
+        return $roles;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function userData(): array
+    {
+        return $this->normalizeStringKeyedArray(collect($this->validated())
+            ->except(['roles', 'password_confirm'])
+            ->except(['current_password', 'is_set_password'])
+            ->when(
+                $this->boolean('is_set_password'),
+                fn ($data) => $data->merge(['password' => Hash::make($this->validatedString('password'))]),
+            )
+            ->when(
+                ! $this->boolean('is_set_password'),
+                fn ($data) => $data->except(['password']),
+            )
+            ->when(
+                ! $this->boolean('is_system_user'),
+                fn ($data) => $data->except(['email', 'password']),
+            )
+            ->all());
+    }
+
+    public function targetUser(): User
+    {
+        return $this->findModelOrFail(User::class);
+    }
+
+    public function targetUserOrNull(): ?User
+    {
+        return $this->findModel(User::class);
     }
 }

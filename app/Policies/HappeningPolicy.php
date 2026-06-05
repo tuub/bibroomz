@@ -14,33 +14,28 @@ class HappeningPolicy
     /**
      * Perform pre-authorization checks.
      */
-    public function before(User $user)
+    public function before(User $user): ?bool
     {
         if ($user->isBanned()) {
             return false;
         }
+
+        return null;
     }
 
-    /**
-     * Determine if a happening can be created by the user.
-     *
-     * @param User $user
-     * @return bool
-     */
     public function create(): bool
     {
         return true;
     }
 
-    /**
-     * Determine if the given happening can be updated by the user.
-     *
-     * @param User $user
-     * @param Happening $happening
-     * @return bool
-     */
     public function update(User $user, Happening $happening): bool
     {
+        $user1 = $happening->user1;
+
+        if (! $user1 instanceof User) {
+            return false;
+        }
+
         if ($happening->isPast()) {
             return false;
         }
@@ -49,7 +44,7 @@ class HappeningPolicy
             return false;
         }
 
-        if ($user->getKey() === $happening->user1->getKey()) {
+        if ($user->getKey() === $user1->getKey()) {
             return true;
         }
 
@@ -64,25 +59,11 @@ class HappeningPolicy
         return false;
     }
 
-    /**
-     * Determine if the given happening can be deleted by the user.
-     *
-     * @param User $user
-     * @param Happening $happening
-     * @return bool
-     */
     public function delete(User $user, Happening $happening): bool
     {
         return $this->update($user, $happening);
     }
 
-    /**
-     * Determine if the given happening can be verified by the user.
-     *
-     * @param User $user
-     * @param Happening $happening
-     * @return bool
-     */
     public function verify(User $user, Happening $happening): bool
     {
         if ($happening->isPast()) {
@@ -100,31 +81,23 @@ class HappeningPolicy
         return false;
     }
 
-    public function adminView(User $user, Happening $happening)
+    public function adminView(User $user, Happening $happening): bool
     {
-        if ($user->can('view_happenings', $happening->resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('view_happenings', $happening->resource->resource_group->institution);
     }
 
-    public function adminCreate(User $user, Institution $institution)
+    public function adminCreate(User $user, Institution $institution): bool
     {
-        if ($user->can('create_happenings', $institution)) {
-            return true;
-        }
+        return $user->can('create_happenings', $institution);
     }
 
-    public function adminUpdate(User $user, Happening $happening)
+    public function adminUpdate(User $user, Happening $happening): bool
     {
-        if ($user->can('edit_happenings', $happening->resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('edit_happenings', $happening->resource->resource_group->institution);
     }
 
-    public function adminDelete(User $user, Happening $happening)
+    public function adminDelete(User $user, Happening $happening): bool
     {
-        if ($user->can('delete_happenings', $happening->resource->resource_group->institution)) {
-            return true;
-        }
+        return $user->can('delete_happenings', $happening->resource->resource_group->institution);
     }
 }

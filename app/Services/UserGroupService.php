@@ -8,12 +8,13 @@ use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class UserGroupService
 {
-    public function deleteUserGroup($id)
+    public function deleteUserGroup(string $id): UserGroup
     {
         $ug = UserGroup::where('id', $id)->firstOrFail();
         $ug->deleteOrFail();
@@ -21,7 +22,10 @@ class UserGroupService
         return $ug;
     }
 
-    public function getInstitutionsForUser(User $user)
+    /**
+     * @return Collection<int, Institution>
+     */
+    public function getInstitutionsForUser(User $user): Collection
     {
         return Institution::active()
             ->orderBy('title')
@@ -31,12 +35,15 @@ class UserGroupService
             ->isUserAbleToCreateUserGroup($user);
     }
 
-    public function getUserGroupById($id)
+    public function getUserGroupById(string $id): UserGroup
     {
         return UserGroup::where('id', $id)->firstOrFail();
     }
 
-    public function getUserGroupsForUser(User $user)
+    /**
+     * @return Collection<int, UserGroup>
+     */
+    public function getUserGroupsForUser(User $user): Collection
     {
         return UserGroup::with(['institution'])
             ->orderBy('institution_id')
@@ -46,12 +53,18 @@ class UserGroupService
             ->isViewableByUser($user);
     }
 
-    public function storeUserGroup(array $data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function storeUserGroup(array $data): UserGroup
     {
         return UserGroup::create($data);
     }
 
-    public function updateUserGroup($id, array $data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function updateUserGroup(string $id, array $data): UserGroup
     {
         $ug = UserGroup::where('id', $id)->firstOrFail();
         $ug->updateOrFail($data);
@@ -59,17 +72,20 @@ class UserGroupService
         return $ug;
     }
 
-    public function importUsers($id, array $data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function importUsers(string $id, array $data): UserGroup
     {
         $ug = UserGroup::where('id', $id)->firstOrFail();
+        $users = $this->extractImportUsers($data);
+        $pivot = Arr::only($data, ['valid_from', 'valid_until']);
 
-        foreach ($data['users'] as ['name' => $name]) {
+        foreach ($users as $name) {
             $model = User::firstOrCreate(
                 ['name' => Utility::normalizeLoginName($name)],
                 ['password' => Hash::make(Str::password())],
             );
-
-            $pivot = Arr::only($data, ['valid_from', 'valid_until']);
 
             try {
                 $ug->users()->attach($model, $pivot);
@@ -81,22 +97,57 @@ class UserGroupService
         return $ug;
     }
 
-    public function getUsers(UserGroup $ug)
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(UserGroup $ug): Collection
     {
-        $users = $ug->users()
+        return $ug->users()
             ->select('id', 'name', 'email')
             ->orderBy('name')
-            ->get();
-
-        return $users;
+            ->get()
+            ->map(static fn (User $user): User => $user)
+            ->values();
     }
 
-    public function removeUsers($id, array $users)
+    /**
+     * @param list<string> $users
+     */
+    public function removeUsers(string $id, array $users): void
     {
         $ug = $this->getUserGroupById($id);
 
         foreach ($users as $user) {
             $ug->users()->detach($user);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return list<string>
+     */
+    private function extractImportUsers(array $data): array
+    {
+        $users = $data['users'] ?? [];
+
+        if (! is_array($users)) {
+            return [];
+        }
+
+        $names = [];
+
+        foreach ($users as $user) {
+            if (! is_array($user)) {
+                continue;
+            }
+
+            $name = $user['name'] ?? null;
+
+            if (is_string($name)) {
+                $names[] = $name;
+            }
+        }
+
+        return $names;
     }
 }

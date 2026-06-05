@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MailContent extends Model
 {
-    use HasFactory, HasUuids, HasTranslations;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -37,6 +39,9 @@ class MailContent extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'subject',
         'title',
@@ -49,11 +54,17 @@ class MailContent extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    /**
+     * @return BelongsTo<Institution, $this>
+     */
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
     }
 
+    /**
+     * @return BelongsTo<MailType, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function mail_type(): BelongsTo
     {

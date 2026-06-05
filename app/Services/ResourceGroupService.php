@@ -6,10 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 class ResourceGroupService
 {
-    public function deleteResourceGroup($id)
+    public function deleteResourceGroup(string $id): ResourceGroup
     {
         $rg = ResourceGroup::where('id', $id)->firstOrFail();
         $rg->deleteOrFail();
@@ -17,7 +19,10 @@ class ResourceGroupService
         return $rg;
     }
 
-    public function getInstitutionsForUser(User $user)
+    /**
+     * @return Collection<int, Institution>
+     */
+    public function getInstitutionsForUser(User $user): Collection
     {
         return Institution::active()
             ->orderBy('title')
@@ -29,12 +34,15 @@ class ResourceGroupService
             ->values();
     }
 
-    public function getResourceGroupById($id)
+    public function getResourceGroupById(string $id): ResourceGroup
     {
         return ResourceGroup::where('id', $id)->with('user_groups')->firstOrFail();
     }
 
-    public function getResourceGroupsForUser(User $user)
+    /**
+     * @return Collection<int, ResourceGroup>
+     */
+    public function getResourceGroupsForUser(User $user): Collection
     {
         return ResourceGroup::with(['institution'])
             ->orderBy('institution_id')
@@ -44,12 +52,13 @@ class ResourceGroupService
             ->isViewableByUser($user);
     }
 
-    public function storeResourceGroup(array $data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function storeResourceGroup(array $data): ResourceGroup
     {
-        $rg = ResourceGroup::create($data);
-        $settings = Setting::getInitialValues();
-
-        foreach ($settings['resource_group'] as $key => $value) {
+        $rg = ResourceGroup::create($this->extractAttributes($data));
+        foreach (Setting::getInitialValues()['resource_group'] as $key => $value) {
             $setting = new Setting([
                 'key' => $key,
                 'value' => $value,
@@ -58,18 +67,53 @@ class ResourceGroupService
             $rg->settings()->save($setting);
         }
 
-        $rg->user_groups()->sync($data['user_groups']);
+        $rg->user_groups()->sync($this->extractUserGroups($data));
 
         return $rg;
     }
 
-    public function updateResourceGroup($id, array $data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function updateResourceGroup(string $id, array $data): ResourceGroup
     {
         $rg = ResourceGroup::where('id', $id)->firstOrFail();
-        $rg->updateOrFail($data);
+        $rg->updateOrFail($this->extractAttributes($data));
 
-        $rg->user_groups()->sync($data['user_groups']);
+        $rg->user_groups()->sync($this->extractUserGroups($data));
 
         return $rg;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return list<string>
+     */
+    private function extractUserGroups(array $data): array
+    {
+        $userGroups = $data['user_groups'] ?? [];
+
+        if (! is_array($userGroups)) {
+            return [];
+        }
+
+        return array_values(array_filter($userGroups, 'is_string'));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function extractAttributes(array $data): array
+    {
+        $attributes = [];
+
+        foreach (Arr::except($data, ['user_groups']) as $key => $value) {
+            if (is_string($key)) {
+                $attributes[$key] = $value;
+            }
+        }
+
+        return $attributes;
     }
 }

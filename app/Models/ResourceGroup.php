@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -13,9 +14,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
-class ResourceGroup extends Model
+/**
+ * @property-read Institution $institution
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Resource> $resources
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Setting> $settings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserGroup> $user_groups
+ */
+class ResourceGroup extends Model implements SettingSubject
 {
-    use HasFactory, HasUuids, HasTranslations;
+    /** @use HasFactory<\Database\Factories\ResourceGroupFactory> */
+    use HasFactory;
+    use HasUuids, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
@@ -40,6 +49,9 @@ class ResourceGroup extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $translatable = [
         'title',
         'term_singular',
@@ -50,21 +62,33 @@ class ResourceGroup extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    /**
+     * @return BelongsTo<Institution, $this>
+     */
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
     }
 
+    /**
+     * @return HasMany<Resource, $this>
+     */
     public function resources(): HasMany
     {
         return $this->hasMany(Resource::class);
     }
 
+    /**
+     * @return MorphMany<Setting, $this>
+     */
     public function settings(): MorphMany
     {
         return $this->morphMany(Setting::class, 'settingable');
     }
 
+    /**
+     * @return BelongsToMany<UserGroup, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function user_groups(): BelongsToMany
     {
@@ -74,9 +98,18 @@ class ResourceGroup extends Model
     /*****************************************************************
      * SCOPES
      ****************************************************************/
-    public function scopeActive(Builder $query)
+    /**
+     * @param Builder<self> $query
+     * @return Builder<self>
+     */
+    public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true)->whereHas('institution', fn ($query) => $query->active());
+        return $query
+            ->where('is_active', true)
+            ->whereHas(
+                'institution',
+                fn (Builder $institutionQuery): Builder => $institutionQuery->where('is_active', true),
+            );
     }
 
     /*****************************************************************
@@ -87,6 +120,11 @@ class ResourceGroup extends Model
         return $user->can('view', $this);
     }
 
+    public function institutionForSettings(): Institution
+    {
+        return $this->institution;
+    }
+
     public function isAllowedUser(User $user): bool
     {
         if ($this->user_groups->isEmpty()) {
@@ -95,9 +133,15 @@ class ResourceGroup extends Model
 
         foreach ($user->user_groups as $user_group) {
             if ($this->user_groups->contains($user_group->id)) {
+                $pivot = $user_group->pivot;
+
+                if (! $pivot instanceof UserGroupUser) {
+                    continue;
+                }
+
                 $now = Carbon::now();
-                $valid_from = $user_group->pivot->valid_from;
-                $valid_until = $user_group->pivot->valid_until;
+                $valid_from = $pivot->valid_from;
+                $valid_until = $pivot->valid_until;
 
                 if ($valid_from === null && $valid_until === null) {
                     return true;

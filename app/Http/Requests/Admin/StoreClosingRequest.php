@@ -2,16 +2,24 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Closing;
+use App\Models\Institution;
+use App\Models\Resource;
 
-class StoreClosingRequest extends FormRequest
+class StoreClosingRequest extends AdminRouteRequest
 {
+    public function authorize(): bool
+    {
+        $closable = $this->closable();
+        $user = $this->userModel();
+
+        return $user !== null && $closable !== null && $user->can('create', [Closing::class, $closable]);
+    }
+
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'closable_id' => ['required', 'uuid'],
@@ -22,5 +30,27 @@ class StoreClosingRequest extends FormRequest
             'end_time' => ['required', 'date_format:H:i'],
             'description' => [''],
         ];
+    }
+
+    public function closable(): Institution|Resource|null
+    {
+        $type = $this->inputString('closable_type');
+        $id = $this->inputString('closable_id');
+
+        if ($type === null || $id === null) {
+            return null;
+        }
+
+        return app(\App\Services\Admin\ClosableResolver::class)->resolve($type, $id);
+    }
+
+    public function closableType(): string
+    {
+        return $this->validatedString('closable_type');
+    }
+
+    public function closableId(): string
+    {
+        return $this->validatedString('closable_id');
     }
 }

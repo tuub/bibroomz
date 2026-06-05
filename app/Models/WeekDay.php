@@ -16,12 +16,18 @@ class WeekDay extends Model
 
     protected $hidden = ['pivot'];
 
+    /**
+     * @return BelongsToMany<BusinessHour, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function business_hours(): BelongsToMany
     {
         return $this->belongsToMany(BusinessHour::class);
     }
 
+    /**
+     * @return BelongsToMany<Institution, $this>
+     */
     public function institutions(): BelongsToMany
     {
         return $this->belongsToMany(Institution::class);

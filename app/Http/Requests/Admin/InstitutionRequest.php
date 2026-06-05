@@ -4,21 +4,35 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
 use App\Rules\RequiredWithTranslationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class InstitutionRequest extends FormRequest
+class InstitutionRequest extends AdminRouteRequest
 {
+    public function authorize(): bool
+    {
+        $user = $this->userModel();
+        $institution = $this->institutionOrNull();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if ($institution === null) {
+            return $user->can('create', Institution::class);
+        }
+
+        return $user->can('update', $institution);
+    }
+
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $institution = Institution::find($this->id);
+        $institution = $this->institutionOrNull();
 
         return [
+            'id' => ['nullable', 'uuid', 'exists:institutions,id'],
             'title' => [new RequiredWithTranslationRule()],
             'short_title' => ['required'],
             'slug' => ['required', Rule::unique('institutions')->ignore($institution?->id)],
@@ -30,5 +44,41 @@ class InstitutionRequest extends FormRequest
             'email' => ['email'],
             'is_active' => ['required', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'week_days' => $this->input('week_days', []),
+        ]);
+    }
+
+    public function institution(): Institution
+    {
+        return $this->findModelOrFail(Institution::class);
+    }
+
+    public function institutionOrNull(): ?Institution
+    {
+        return $this->findModel(Institution::class);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function institutionData(): array
+    {
+        return $this->normalizeStringKeyedArray(collect($this->validated())->except('week_days')->all());
+    }
+
+    /**
+     * @return array<int, int|string>
+     */
+    public function weekDays(): array
+    {
+        /** @var array<int, int|string> $weekDays */
+        $weekDays = $this->validated('week_days', []);
+
+        return $weekDays;
     }
 }

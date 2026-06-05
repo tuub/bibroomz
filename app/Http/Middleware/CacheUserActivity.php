@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
+use App\Services\Http\UserActivityRecorder;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,14 +17,15 @@ class CacheUserActivity
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return $next($request);
         }
 
-        $key = 'user_activity_' . $request->user()->getKey();
-        $ttl = now()->addMinutes(config('session.lifetime'));
+        $user = $request->user();
 
-        cache()->put($key, now(), $ttl);
+        if ($user instanceof User) {
+            app(UserActivityRecorder::class)->record($user);
+        }
 
         return $next($request);
     }

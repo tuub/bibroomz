@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Http\InertiaSharedDataBuilder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -33,17 +33,10 @@ class HandleInertiaRequests extends Middleware
      *
      * @see https://inertiajs.com/shared-data
      * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return array<string, mixed>
      */
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
-            'route' => $request->route() ? $request->route()->getName() : null,
-            'auth' => Auth::user() ? [
-                'user' => [
-                    'name' => Auth::user()->name,
-                ],
-            ] : null,
-        ]);
+        return array_merge(parent::share($request), app(InertiaSharedDataBuilder::class)->build($request));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Happening;
+use App\Services\Console\AnonymizeHappeningUsersAction;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,71 +27,88 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
      */
     protected $description = 'Anonymize past happenings';
 
+    public function __construct(private AnonymizeHappeningUsersAction $anonymizeHappeningUsersAction)
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
-        $days = $this->option('days');
-
-        if (!isset($days)) {
-            $days = config('roomz.happenings.anonymize_days');
-        }
-
-        /** @var Builder */
-        $query = Happening::withTrashed()
-            ->where('end', '<=', now()->subDays($days))
-            ->where(function (Builder $query) {
-                return $query
-                    ->where('user_id_01', '!=', null)
-                    ->orWhere('user_id_02', '!=', null)
-                    ->orWhere('verifier', '!=', null);
-            });
+        $query = $this->anonymizeHappeningUsersAction->query($this->resolveDays());
 
         if ($this->output->isVerbose()) {
-            // print sql with bindings
             $this->line($query->toRawSql());
-
-            // print happenings to be removed
             $this->prettyPrintHappenings($query);
         }
 
-        // print count
         $this->info('Found ' . $query->count() . ' happenings to anonymize.');
 
-        // abort if no happenings to remove
         if ($query->count() === 0) {
             $this->info('Nothing to do.');
+
             return Command::SUCCESS;
         }
 
-        // abort if dry run
         if ($this->option('dry-run')) {
             $this->info('Nothing to do.');
+
             return Command::SUCCESS;
         }
 
-        // ask for confirmation
         if (!$this->option('force') && !$this->confirm('Do you want to proceed?')) {
             $this->info('Nothing to do.');
+
             return Command::INVALID;
         }
 
-        // anonymize happenings
-        $query->lazy()->each(function (Happening $happening) {
-            $happening->user1()->dissociate();
-            $happening->user2()->dissociate();
-            $happening->verifier = null;
-            $happening->save();
-        });
+        $this->anonymizeHappeningUsersAction->execute($query);
 
         $this->info('Done.');
+
         return Command::SUCCESS;
     }
 
+    private function resolveDays(): int
+    {
+        $optionDays = $this->parseDaysValue($this->option('days'));
+
+        if ($optionDays !== null) {
+            return $optionDays;
+        }
+
+        $configDays = $this->parseDaysValue(config('roomz.happenings.anonymize_days'));
+
+        if ($configDays !== null) {
+            return $configDays;
+        }
+
+        return 30;
+    }
+
+    private function parseDaysValue(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+
+        if (! is_string($value) || $value === '' || ! preg_match('/^\d+$/', $value)) {
+            return null;
+        }
+
+        $days = (int) $value;
+
+        return $days > 0 ? $days : null;
+    }
+
+    /**
+     * @param Builder<Happening> $query
+     */
     private function prettyPrintHappenings(Builder $query): void
     {
-        $query->lazy()->each(function (Happening $happening) {
+        $query->each(function (Happening $happening): void {
             $this->line($happening->toJson(JSON_PRETTY_PRINT));
         });
     }

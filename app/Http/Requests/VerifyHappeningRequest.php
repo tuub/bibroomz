@@ -3,21 +3,21 @@
 namespace App\Http\Requests;
 
 use App\Models\Happening;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VerifyHappeningRequest extends FormRequest
 {
+    private ?Happening $happeningModel = null;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        /** @var Happening */
-        $happening = Happening::findOrFail($this->id);
-
-        return $this->user()->can('verify', $happening);
+        return $this->user()?->can('verify', $this->happening()) ?? false;
     }
 
     /**
@@ -25,12 +25,62 @@ class VerifyHappeningRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'id' => ['required', 'uuid'],
-            'start' => ['required'],
-            'end' => ['required'],
+            'id' => ['required', 'uuid', 'exists:happenings,id'],
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function validationData(): array
+    {
+        return $this->normalizeStringKeyedArray(array_merge($this->all(), $this->route()?->parameters() ?? []));
+    }
+
+    public function happening(): Happening
+    {
+        if ($this->happeningModel instanceof Happening) {
+            return $this->happeningModel;
+        }
+
+        $happeningId = $this->route('id') ?? $this->input('id');
+
+        return $this->happeningModel = Happening::query()->findOrFail(is_string($happeningId) ? $happeningId : null);
+    }
+
+    public function startAt(): CarbonImmutable
+    {
+        $start = $this->input('start');
+
+        return CarbonImmutable::parse(is_string($start) ? $start : null);
+    }
+
+    public function endAt(): CarbonImmutable
+    {
+        $end = $this->input('end');
+
+        return CarbonImmutable::parse(is_string($end) ? $end : null);
+    }
+
+    /**
+     * @param array<mixed> $values
+     * @return array<string, mixed>
+     */
+    private function normalizeStringKeyedArray(array $values): array
+    {
+        $normalized = [];
+
+        foreach ($values as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }

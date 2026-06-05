@@ -5,24 +5,32 @@ namespace App\Http\Requests\Admin;
 use App\Models\Institution;
 use App\Models\UserGroup;
 use App\Rules\RequiredWithTranslationRule;
-use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserGroupRequest extends FormRequest
+class StoreUserGroupRequest extends AdminRouteRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        $institution = Institution::find($this->institution_id);
+        $institution = $this->institution();
+        $user = $this->userModel();
 
-        return $institution
-            ? $this->user()->can('create', [UserGroup::class, $institution])
-            : false;
+        return $user !== null
+            && $institution !== null
+            && $user->can('create', [UserGroup::class, $institution]);
     }
 
-    public function rules()
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
     {
         return [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
             'title' => [new RequiredWithTranslationRule()],
         ];
+    }
+
+    public function institution(): ?Institution
+    {
+        return $this->findModel(Institution::class, 'institution_id');
     }
 }

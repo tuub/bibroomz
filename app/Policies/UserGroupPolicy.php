@@ -26,42 +26,39 @@ class UserGroupPolicy
         return $this->hasAnyPermission($user, ['create_user_groups']);
     }
 
-    public function view(User $user, UserGroup $userGroup)
+    public function view(User $user, UserGroup $userGroup): bool
     {
         return $user->can('view_user_groups', $userGroup->institution);
     }
 
-    public function create(User $user, Institution $institution)
+    public function create(User $user, Institution $institution): bool
     {
-        if ($user->can('create_user_groups', $institution)) {
-            return true;
-        }
+        return $user->can('create_user_groups', $institution);
     }
 
-    public function update(User $user, UserGroup $userGroup)
+    public function update(User $user, UserGroup $userGroup): bool
     {
         return $user->can('edit_user_groups', $userGroup->institution);
     }
 
-    public function edit(User $user, UserGroup $userGroup)
+    public function edit(User $user, UserGroup $userGroup): bool
     {
         return $this->update($user, $userGroup);
     }
 
-    public function delete(User $user, UserGroup $userGroup)
+    public function delete(User $user, UserGroup $userGroup): bool
     {
-        if ($user->can('delete_user_groups', $userGroup->institution)) {
-            return true;
-        }
+        return $user->can('delete_user_groups', $userGroup->institution);
     }
 
-    public function import(User $user, UserGroup $userGroup)
+    public function import(User $user, UserGroup $userGroup): bool
     {
-        if ($user->can('edit_user_groups', $userGroup->institution)) {
-            return true;
-        }
+        return $user->can('edit_user_groups', $userGroup->institution);
     }
 
+    /**
+     * @param list<string> $permissions
+     */
     private function hasAnyPermission(User $user, array $permissions): bool
     {
         return $user->getPermissions($permissions)->flatten()->isNotEmpty();

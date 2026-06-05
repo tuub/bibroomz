@@ -6,25 +6,26 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Validation\Rule;
 
-class ResourceGroupRequest extends FormRequest
+class ResourceGroupRequest extends AdminRouteRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        $institution = Institution::find($this->institution_id);
-        $resourceGroup = ResourceGroup::find($this->id);
+        $user = $this->userModel();
+        $institution = $this->institution();
+        $resourceGroup = $this->resourceGroupOrNull();
 
-        if (! $institution) {
+        if ($user === null || $institution === null) {
             return false;
         }
 
-        if (! $resourceGroup) {
-            return $this->user()->can('create', [ResourceGroup::class, $institution]);
+        if ($resourceGroup === null) {
+            return $user->can('create', [ResourceGroup::class, $institution]);
         }
 
-        if (! $this->user()->can('update', $resourceGroup)) {
+        if (! $user->can('update', $resourceGroup)) {
             return false;
         }
 
@@ -32,22 +33,22 @@ class ResourceGroupRequest extends FormRequest
             return true;
         }
 
-        return $this->user()->can('create', [ResourceGroup::class, $institution]);
+        return $user->can('create', [ResourceGroup::class, $institution]);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $resource_group = ResourceGroup::find($this->id);
+        $resourceGroup = $this->resourceGroupOrNull();
+        $institutionId = $this->inputString('institution_id') ?? '';
 
         return [
+            'id' => ['nullable', 'uuid', 'exists:resource_groups,id'],
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
             'title' => [new RequiredWithTranslationRule()],
-            'slug' => ['required', new UniqueResourceGroupAttributeRule($this->institution_id, $resource_group?->id)],
+            'slug' => ['required', new UniqueResourceGroupAttributeRule($institutionId, $resourceGroup?->id)],
             'term_singular' => [new RequiredWithTranslationRule()],
             'term_plural' => [new RequiredWithTranslationRule()],
             'description' => [new RequiredWithTranslationRule()],
@@ -55,10 +56,9 @@ class ResourceGroupRequest extends FormRequest
             'user_groups' => ['list'],
             'user_groups.*' => [
                 'uuid',
-                Rule::exists('user_groups', 'id')->where(fn ($query) => $query->where(
-                    'institution_id',
-                    $this->institution_id,
-                )),
+                Rule::exists('user_groups', 'id')->where(
+                    fn (Builder $query): Builder => $query->where('institution_id', $institutionId),
+                ),
             ],
             'help_uri' => ['nullable', 'url'],
         ];
@@ -66,8 +66,25 @@ class ResourceGroupRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $userGroups = $this->input('user_groups', []);
+
         $this->merge([
-            'user_groups' => $this->input('user_groups', []),
+            'user_groups' => is_array($userGroups) ? $userGroups : [],
         ]);
+    }
+
+    public function institution(): ?Institution
+    {
+        return $this->findModel(Institution::class, 'institution_id');
+    }
+
+    public function resourceGroup(): ResourceGroup
+    {
+        return $this->findModelOrFail(ResourceGroup::class);
+    }
+
+    public function resourceGroupOrNull(): ?ResourceGroup
+    {
+        return $this->findModel(ResourceGroup::class);
     }
 }

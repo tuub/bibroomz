@@ -2,86 +2,71 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ResourceGroup;
+use App\Http\Requests\LoginRequest;
+use App\Models\User;
+use App\Services\Http\CurrentUserStatusBuilder;
+use App\Services\Http\LoginAction;
+use App\Services\Http\LogoutAction;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class LoginController extends Controller
 {
-    private function userStatus()
-    {
-        $user = Auth::user()->refresh();
-
-        return [
-            'isAdmin' => $user->isAdmin(),
-            'user' => $user->only(['id', 'name', 'email']),
-            'permissions' => $user->getPermissions(),
-            'allowedResourceGroups' => ResourceGroup::get()->filter(
-                fn (ResourceGroup $rg) => $rg->isAllowedUser($user)
-            )->pluck('id'),
-        ];
+    public function __construct(
+        private CurrentUserStatusBuilder $currentUserStatusBuilder,
+        private LoginAction $loginAction,
+        private LogoutAction $logoutAction
+    ) {
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-        ]);
+        $user = $this->loginAction->execute($request, $request->credentials());
 
-        $credentials = [
-            'username' => $request->username,
-            'password' => $request->password,
-        ];
-
-        $auth = Auth::attempt($credentials);
-
-        if (! $auth) {
+        if ($user === null) {
             $response = [
                 'message' => __('auth.errors.user_not_found'),
             ];
 
-            return response()->json($response, Response::HTTP_UNAUTHORIZED);
+            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
         }
 
-        $request->session()->regenerate();
+        $response = $this->currentUserStatusBuilder->build($user);
 
-        Auth::user()->update([
-            'is_logged_in' => true,
-        ]);
-
-        $response = $this->userStatus();
-
-        return response()->json($response, Response::HTTP_OK);
+        return response()->json($response, SymfonyResponse::HTTP_OK);
     }
 
-    public function logout()
+    public function logout(Request $request): Response
     {
-        Auth::user()->update([
-            'is_logged_in' => false,
-        ]);
-
-        Auth::logout();
-
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+        $this->logoutAction->execute($request);
 
         return response()->noContent();
     }
 
-    public function check()
+    public function check(): JsonResponse
     {
         if (! auth()->check()) {
             $response = [
                 'message' => __('auth.errors.no_auth'),
             ];
 
-            return response()->json($response, Response::HTTP_UNAUTHORIZED);
+            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
         }
 
-        $response = $this->userStatus();
+        $user = auth()->user();
 
-        return response()->json($response, Response::HTTP_OK);
+        if (! $user instanceof User) {
+            $response = [
+                'message' => __('auth.errors.no_auth'),
+            ];
+
+            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $response = $this->currentUserStatusBuilder->build($user->refresh());
+
+        return response()->json($response, SymfonyResponse::HTTP_OK);
     }
 }

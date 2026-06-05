@@ -10,16 +10,23 @@ use Laravel\Sanctum\HasApiTokens;
 use Carbon\CarbonImmutable;
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserGroup> $user_groups
+ */
 class User extends Authenticatable implements BannableInterface
 {
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasApiTokens, HasFactory, hasUuids, Notifiable;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory;
+    use HasApiTokens, HasUuids, Notifiable;
     use Bannable;
 
     /*****************************************************************
@@ -31,7 +38,7 @@ class User extends Authenticatable implements BannableInterface
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -47,7 +54,7 @@ class User extends Authenticatable implements BannableInterface
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -73,11 +80,17 @@ class User extends Authenticatable implements BannableInterface
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Happening, $this>
+     */
     public function happenings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Happening::class, 'user_id_01', 'id');
     }
 
+    /**
+     * @return BelongsToMany<Institution, $this, InstitutionUserRole>
+     */
     public function institutions(): BelongsToMany
     {
         return $this->belongsToMany(Institution::class, 'institution_user_role')
@@ -85,6 +98,9 @@ class User extends Authenticatable implements BannableInterface
             ->using(InstitutionUserRole::class);
     }
 
+    /**
+     * @return BelongsToMany<Role, $this, InstitutionUserRole>
+     */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'institution_user_role')
@@ -92,6 +108,9 @@ class User extends Authenticatable implements BannableInterface
             ->using(InstitutionUserRole::class);
     }
 
+    /**
+     * @return BelongsToMany<UserGroup, $this, UserGroupUser>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function user_groups(): BelongsToMany
     {
@@ -117,10 +136,13 @@ class User extends Authenticatable implements BannableInterface
 
     public function isSystemUser(): bool
     {
-        return $this->is_system_user;
+        return (bool) $this->is_system_user;
     }
 
-    public function getHappenings()
+    /**
+     * @return EloquentCollection<int, Happening>
+     */
+    public function getHappenings(): EloquentCollection
     {
         return Happening::where('user_id_01', $this->getKey())
             ->orWhere('user_id_02', $this->getKey())
@@ -137,10 +159,13 @@ class User extends Authenticatable implements BannableInterface
             ->isNotEmpty();
     }
 
+    /**
+     * @return EloquentCollection<int, Happening>
+     */
     public function getOtherUserHappeningsForResourceGroup(
-        ResourceGroup $resource_group = null,
-        Happening $happening = null
-    ): Collection {
+        ?ResourceGroup $resource_group = null,
+        ?Happening $happening = null
+    ): EloquentCollection {
         return Happening::whereHas(
             'resource',
             fn (Builder $query) => $query->where('resource_group_id', $resource_group?->getKey()),
@@ -151,28 +176,57 @@ class User extends Authenticatable implements BannableInterface
             ->get();
     }
 
-    public function getPermissions(array $filter = null): Collection
+    /**
+     * @param list<string>|null $filter
+     * @return Collection<string, Collection<int, string>>
+     */
+    public function getPermissions(?array $filter = null): Collection
     {
         if ($this->isAdmin()) {
-            return Institution::all()->pluck('id')->flatMap(fn ($id): array => [
-                $id => Permission::all()->pluck('key')->intersect($filter)->values(),
-            ]);
+            $permissionKeys = Permission::query()
+                ->when($filter !== null, fn (Builder $query): Builder => $query->whereIn('key', $filter))
+                ->pluck('key')
+                ->filter(fn (mixed $key): bool => is_string($key))
+                ->values();
+
+            $permissionsByInstitution = [];
+
+            foreach (Institution::query()->pluck('id') as $id) {
+                if (! is_string($id) && ! is_int($id)) {
+                    continue;
+                }
+
+                $permissionsByInstitution[(string) $id] = $permissionKeys->values();
+            }
+
+            return collect($permissionsByInstitution);
         }
 
-        return $this->roles
-            ->map(fn (Role $role): array => [
-                'institution' => $role->pivot->institution->id,
-                'permissions' => $role->getPermissionKeys($filter),
-            ])
-            ->reduce(fn (Collection $result, array $value): Collection => $result->mergeRecursive([
-                $value['institution'] => $value['permissions'],
-            ]), collect([]))
+        $permissionsByInstitution = [];
+
+        foreach ($this->roles as $role) {
+            $pivot = $role->pivot;
+
+            if (! $pivot instanceof InstitutionUserRole) {
+                continue;
+            }
+
+            $institutionId = (string) $pivot->institution_id;
+            $permissionsByInstitution[$institutionId] ??= [];
+
+            foreach ($role->getPermissionKeys($filter) as $permissionKey) {
+                $permissionsByInstitution[$institutionId][] = $permissionKey;
+            }
+        }
+
+        return collect($permissionsByInstitution)
             ->map(fn (array $permissions): Collection => collect($permissions)->unique()->values());
     }
 
     public function hasPermission(string $permission, Institution $institution = null): bool
     {
-        return $this->isAdmin() || $this->roles->contains->hasPermission($permission, $institution);
+        return $this->isAdmin()
+            || $this->roles->contains(fn (Role $role): bool => $role->hasPermission($permission, $institution));
     }
 
     public function isLoggedIn(): bool
@@ -181,7 +235,9 @@ class User extends Authenticatable implements BannableInterface
             return false;
         }
 
-        if (cache()->has('user_activity_' . $this->getKey())) {
+        $userKey = $this->getKey();
+
+        if ((is_string($userKey) || is_int($userKey)) && cache()->has('user_activity_' . $userKey)) {
             return true;
         }
 

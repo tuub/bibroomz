@@ -2,155 +2,100 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DeleteUserGroupRequest;
 use App\Http\Requests\Admin\ImportUsersRequest;
+use App\Http\Requests\Admin\RemoveUsersFromUserGroupRequest;
 use App\Http\Requests\Admin\StoreUserGroupRequest;
 use App\Http\Requests\Admin\UpdateUserGroupRequest;
+use App\Http\Requests\Admin\UserGroupIdRequest;
 use App\Models\UserGroup;
-use App\Services\AdminLoggingService;
-use App\Services\UserGroupService;
+use App\Services\Admin\UserGroupAdminService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class UserGroupController extends Controller
+class UserGroupController extends AdminController
 {
-    public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private UserGroupService $userGroupService
-    ) {
+    public function __construct(private UserGroupAdminService $userGroupAdminService)
+    {
     }
 
     public function getUserGroups(): Response
     {
         $this->authorize('viewAny', UserGroup::class);
 
-        $user = auth()->user();
-
-        $ugs = $this->userGroupService->getUserGroupsForUser($user);
-
-        return Inertia::render('Admin/UserGroups/Index', [
-            'user_groups' => $ugs,
-        ]);
+        return Inertia::render(
+            'Admin/UserGroups/Index',
+            $this->userGroupAdminService->getIndexData($this->authenticatedUser()),
+        );
     }
 
     public function createUserGroup(): Response
     {
         $this->authorize('createAny', UserGroup::class);
 
-        $user = auth()->user();
-
-        $institutions = $this->userGroupService->getInstitutionsForUser($user);
-
-        return Inertia::render('Admin/UserGroups/Form', [
-            'institutions' => $institutions,
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/UserGroups/Form', $this->userGroupAdminService->getCreateFormData(
+            $this->authenticatedUser(),
+        ));
     }
 
     public function storeUserGroup(StoreUserGroupRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        $ug = $this->userGroupService->storeUserGroup($validated);
-
-        $this->adminLoggingService->log('created', $ug);
+        $this->userGroupAdminService->store($request->validated());
 
         return redirect()->route('admin.user_group.index');
     }
 
-    public function editUserGroup(Request $request)
+    public function editUserGroup(UserGroupIdRequest $request): Response
     {
-        $id = $request->id;
+        $userGroup = $request->userGroup();
+        $this->authorize('edit', $userGroup);
 
-        $ug = $this->userGroupService->getUserGroupById($id);
-        $this->authorize('edit', $ug);
-
-        return Inertia::render('Admin/UserGroups/Form', [
-            'user_group' => $ug,
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/UserGroups/Form', $this->userGroupAdminService->getEditFormData($userGroup));
     }
 
     public function updateUserGroup(UpdateUserGroupRequest $request): RedirectResponse
     {
-        $id = $request->id;
-        $validated = $request->validated();
-
-        $ug = $this->userGroupService->updateUserGroup($id, $validated);
-
-        $this->adminLoggingService->log('updated', $ug);
+        $userGroup = $request->userGroup();
+        $this->userGroupAdminService->update($userGroup, $request->validated());
 
         return redirect()->route('admin.user_group.index');
     }
 
-    public function deleteUserGroup(Request $request): RedirectResponse
+    public function deleteUserGroup(DeleteUserGroupRequest $request): RedirectResponse
     {
-        $id = $request->id;
-
-        $ug = $this->userGroupService->getUserGroupById($id);
-        $this->authorize('delete', $ug);
-
-        $this->userGroupService->deleteUserGroup($id);
-
-        $this->adminLoggingService->log('deleted', $ug);
+        $this->userGroupAdminService->delete($request->userGroup());
 
         return redirect()->route('admin.user_group.index');
     }
 
-    public function importForm(Request $request)
+    public function importForm(UserGroupIdRequest $request): Response
     {
-        $id = $request->id;
+        $userGroup = $request->userGroup();
+        $this->authorize('import', $userGroup);
 
-        $ug = $this->userGroupService->getUserGroupById($id);
-        $this->authorize('import', $ug);
-
-        return Inertia::render('Admin/UserGroups/Import', [
-            'user_group' => $ug,
-        ]);
+        return Inertia::render('Admin/UserGroups/Import', $this->userGroupAdminService->getImportFormData($userGroup));
     }
 
-    public function importUsers(ImportUsersRequest $request)
+    public function importUsers(ImportUsersRequest $request): RedirectResponse
     {
-        $id = $request->id;
-        $validated = $request->safe()->merge($request->only(['valid_from', 'valid_until']))->toArray();
-
-        $ug = $this->userGroupService->importUsers($id, $validated);
-
-        $this->adminLoggingService->log('import', $ug);
+        $this->userGroupAdminService->importUsers($request->userGroup(), $request->importData());
 
         return redirect()->route('admin.user_group.index');
     }
 
-    public function getUsers(Request $request)
+    public function getUsers(UserGroupIdRequest $request): Response
     {
-        $id = $request->id;
+        $userGroup = $request->userGroup();
+        $this->authorize('import', $userGroup);
 
-        $ug = $this->userGroupService->getUserGroupById($id);
-        $this->authorize('import', $ug);
-        $users = $this->userGroupService->getUsers($ug);
-
-        return Inertia::render('Admin/UserGroups/Users', [
-            'user_group' => $ug,
-            'users' => $users,
-        ]);
+        return Inertia::render('Admin/UserGroups/Users', $this->userGroupAdminService->getUsersData($userGroup));
     }
 
-    public function removeUsers(Request $request)
+    public function removeUsers(RemoveUsersFromUserGroupRequest $request): RedirectResponse
     {
-        $id = $request->id;
-        $validated = $request->validate([
-            'id' => ['required', 'uuid', 'exists:user_groups,id'],
-            'users' => ['required', 'array'],
-            'users.*' => ['uuid', 'exists:users,id'],
-        ]);
+        $this->userGroupAdminService->removeUsers($request->userGroup(), $request->userIds());
 
-        $ug = $this->userGroupService->getUserGroupById($id);
-        $this->authorize('import', $ug);
-
-        $this->userGroupService->removeUsers($id, $validated['users']);
-
-        return redirect()->route('admin.user_group.users', ['id' => $id]);
+        return redirect()->route('admin.user_group.users', ['id' => $request->userGroup()->id]);
     }
 }

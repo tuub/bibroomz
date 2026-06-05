@@ -2,27 +2,40 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 
 class UpdateResourceRequest extends ResourceRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        $resource = Resource::findOrFail($this->id);
-        $resource_group = ResourceGroup::findOrFail($this->resource_group_id);
+        $user = $this->userModel();
+        $resource = $this->resourceOrNull();
+        $resourceGroup = $this->resourceGroup();
 
-
-        if ($resource->resource_group_id === $resource_group->id) {
-            return $this->user()->can('edit', $resource);
+        if ($user === null || $resource === null || $resourceGroup === null) {
+            return false;
         }
 
-        return $this->user()->can('create', [Resource::class, $resource_group->institution]);
+        if ($resource->resource_group_id === $resourceGroup->id) {
+            return $user->can('edit', $resource);
+        }
+
+        return $user->can('create', [Resource::class, $resourceGroup->institution]);
+    }
+
+    public function resource(): Resource
+    {
+        return $this->findModelOrFail(Resource::class);
+    }
+
+    public function resourceOrNull(): ?Resource
+    {
+        return $this->findModel(Resource::class);
+    }
+
+    public function resourceGroup(): ?ResourceGroup
+    {
+        return $this->findModel(ResourceGroup::class, 'resource_group_id');
     }
 }

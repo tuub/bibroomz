@@ -2,89 +2,62 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DeleteRoleRequest;
+use App\Http\Requests\Admin\RoleIdRequest;
 use App\Http\Requests\Admin\RoleRequest;
-use App\Models\Permission;
-use App\Models\PermissionGroup;
 use App\Models\Role;
-use App\Services\AdminLoggingService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use App\Services\Admin\RoleAdminService;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class RoleController extends Controller
+class RoleController extends AdminController
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
+    public function __construct(private RoleAdminService $roleAdminService)
     {
     }
 
-    public function getRoles()
+    public function getRoles(): Response
     {
         $this->authorize('viewAny', Role::class);
 
-        return Inertia::render('Admin/Roles/Index', [
-            'roles' => Role::with(['permissions'])->orderBy('name')->get()
-        ]);
+        return Inertia::render('Admin/Roles/Index', $this->roleAdminService->getIndexData());
     }
 
     public function createRole(): Response
     {
         $this->authorize('create', Role::class);
 
-        return Inertia::render('Admin/Roles/Form', [
-            'permissions' => Permission::orderBy('name')->get(),
-            'groups' => PermissionGroup::orderBy('name')->get(),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/Roles/Form', $this->roleAdminService->getFormData());
     }
 
     public function storeRole(RoleRequest $request): RedirectResponse
     {
-        $this->authorize('create', Role::class);
-
-        $role = Role::create($request->validated());
-        $role->permissions()->sync($request->permissions);
-
-        $this->adminLoggingService->log('created', $role);
+        $this->roleAdminService->store($request->roleData(), $request->permissions());
 
         return redirect()->route('admin.role.index');
     }
 
-    public function editRole(Request $request)
+    public function editRole(RoleIdRequest $request): Response
     {
-        $role = Role::findOrFail($request->id);
+        $role = $request->role();
         $this->authorize('edit', $role);
 
-        return Inertia::render('Admin/Roles/Form', [
-            'role' => $role->load('permissions'),
-            'permissions' => Permission::orderBy('name')->get(),
-            'groups' => PermissionGroup::orderBy('name')->get(),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/Roles/Form', $this->roleAdminService->getFormData($role));
     }
 
     public function updateRole(RoleRequest $request): RedirectResponse
     {
-        $role = Role::findOrFail($request->id);
-        $this->authorize('edit', $role);
-
-        $role->update($request->validated());
-        $role->permissions()->sync($request->permissions);
-
-        $this->adminLoggingService->log('updated', $role);
+        $role = $request->role();
+        $this->roleAdminService->update($role, $request->roleData(), $request->permissions());
 
         return redirect()->route('admin.role.index');
     }
 
-    public function deleteRole(Request $request): RedirectResponse
+    public function deleteRole(DeleteRoleRequest $request): RedirectResponse
     {
-        $role = Role::findOrFail($request->id);
-        $this->authorize('delete', $role);
-
-        $role->delete();
-
-        $this->adminLoggingService->log('deleted', $role);
+        $role = $request->role();
+        $this->roleAdminService->delete($role);
 
         return redirect()->route('admin.role.index');
     }

@@ -7,10 +7,11 @@ namespace App\Library;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 class Utility
 {
-    public static function carbonize($date): Carbon
+    public static function carbonize(Carbon|string $date): Carbon
     {
         if (is_string($date)) {
             return Carbon::parse($date);
@@ -21,23 +22,35 @@ class Utility
 
     public static function getCarbonNow(): CarbonImmutable
     {
-        $tz_offset = CarbonImmutable::now(config('roomz.app.timezone'))->offsetHours;
-        return CarbonImmutable::now()->addHours($tz_offset);
+        $timezone = config('roomz.app.timezone');
+        $tzOffset = CarbonImmutable::now(is_string($timezone) ? $timezone : null)->offsetHours;
+
+        return CarbonImmutable::now()->addHours($tzOffset);
     }
 
-    public static function createCarbonDateTime($date, $time): Carbon
+    public static function createCarbonDateTime(string $date, string $time): Carbon
     {
-        return Carbon::createFromFormat('d.m.Y H:i', $date . ' ' . $time);
+        $dateTime = Carbon::createFromFormat('d.m.Y H:i', $date . ' ' . $time);
+
+        if ($dateTime === null) {
+            throw new InvalidArgumentException('Invalid date/time combination.');
+        }
+
+        return $dateTime;
     }
 
-    public static function sendToLog(string $channel, array $data, string $level = null): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function sendToLog(string $channel, array $data, ?string $level = null): void
     {
-        if ($level == null) {
-            $level = config('roomz.log.level');
+        if ($level === null) {
+            $configuredLevel = config('roomz.log.level');
+            $level = is_string($configuredLevel) ? $configuredLevel : 'info';
         }
 
         $callingMethod = debug_backtrace(
-            !DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS,
+            DEBUG_BACKTRACE_IGNORE_ARGS,
             2
         )[1]['function'];
 
@@ -48,9 +61,17 @@ class Utility
         );
     }
 
-    public static function getTimeValuesFromEnvTimeString($envTimeValue): array
+    /**
+     * @return array{hour: int, minute: int}
+     */
+    public static function getTimeValuesFromEnvTimeString(string $envTimeValue): array
     {
-        return array_combine(['hour', 'minute'], array_map('intval', explode(':', $envTimeValue)));
+        $parts = explode(':', $envTimeValue);
+
+        return [
+            'hour' => (int) $parts[0],
+            'minute' => isset($parts[1]) ? (int) $parts[1] : 0,
+        ];
     }
 
     public static function getDateTimeFromStrings(string $date_str, string $time_str): Carbon
@@ -58,12 +79,14 @@ class Utility
         $date = Carbon::parse($date_str);
         $time_arr = explode(':', $time_str);
 
-        return $date->hour(str($time_arr[0]))->minute(str($time_arr[1]));
+        return $date->hour((int) $time_arr[0])->minute((int) $time_arr[1]);
     }
 
     public static function convertCamelCaseToSnakeCase(string $camel_case): string
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $camel_case));
+        $snakeCase = preg_replace('/(?<!^)[A-Z]/', '_$0', $camel_case);
+
+        return strtolower(is_string($snakeCase) ? $snakeCase : $camel_case);
     }
 
     public static function normalizeLoginName(?string $login_name): ?string
@@ -82,18 +105,27 @@ class Utility
         return $username;
     }
 
-    public static function getTranslatable($value): array
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getTranslatable(mixed $value): array
     {
-        $saved_locale = app()->getLocale();
-        $supported_locales = config('app.supported_locales');
+        $savedLocale = app()->getLocale();
+        $supportedLocales = config('app.supported_locales');
 
         $output = [];
-        foreach ($supported_locales as $locale) {
-            app()->setLocale($locale);
-            $output[$locale] = $value;
+        if (is_array($supportedLocales)) {
+            foreach ($supportedLocales as $locale) {
+                if (! is_string($locale)) {
+                    continue;
+                }
+
+                app()->setLocale($locale);
+                $output[$locale] = $value;
+            }
         }
 
-        app()->setLocale($saved_locale);
+        app()->setLocale($savedLocale);
 
         return $output;
     }

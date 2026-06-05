@@ -10,12 +10,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WeekDay> $week_days
+ */
 class BusinessHour extends Model
 {
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    use HasFactory, HasUuids, Cloneable;
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    use HasFactory;
+    use HasUuids, Cloneable;
 
     /*****************************************************************
      * OPTIONS
@@ -39,6 +44,9 @@ class BusinessHour extends Model
         'end_date' => 'datetime',
     ];
 
+    /**
+     * @var list<string>
+     */
     protected $cloneable_relations = [
         'week_days',
     ];
@@ -46,11 +54,17 @@ class BusinessHour extends Model
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
+    /**
+     * @return BelongsTo<Resource, $this>
+     */
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
     }
 
+    /**
+     * @return BelongsToMany<WeekDay, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function week_days(): BelongsToMany
     {
@@ -61,17 +75,17 @@ class BusinessHour extends Model
      * METHODS
      ****************************************************************/
 
-    public function isOpenOnDayOfWeek($dayOfWeek)
+    public function isOpenOnDayOfWeek(int $dayOfWeek): bool
     {
         return $this->week_days->pluck('day_of_week')->contains($dayOfWeek);
     }
 
-    public function isFallback()
+    public function isFallback(): bool
     {
         return $this->start_date === null && $this->end_date === null;
     }
 
-    public function isValidForDate(CarbonImmutable $date)
+    public function isValidForDate(CarbonImmutable $date): bool
     {
         if ($this->start_date && $this->end_date) {
             return $date->startOfDay()->isBetween($this->start_date, $this->end_date);
@@ -88,7 +102,10 @@ class BusinessHour extends Model
         return false;
     }
 
-    public function isOpen(CarbonImmutable $start, CarbonImmutable $end)
+    /**
+     * @return array{0: bool, 1: CarbonImmutable, 2: CarbonImmutable}
+     */
+    public function isOpen(CarbonImmutable $start, CarbonImmutable $end): array
     {
         $is_open = false;
 

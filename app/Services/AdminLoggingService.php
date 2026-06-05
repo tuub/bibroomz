@@ -2,17 +2,25 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class AdminLoggingService
 {
-    public function log($action, $model)
+    public function log(string $action, Model $model): void
     {
-        $user = Auth::user();
+        $userId = Auth::id();
+        $modelId = $model->getKey();
         $modelName = $model::class;
 
         Log::channel('admin')
-            ->info('user ' . $user->getKey() . ' ' . $action . ' ' . $modelName . ' ' . $model->getKey());
+            ->info(sprintf(
+                'user %s %s %s %s',
+                is_int($userId) || is_string($userId) ? (string) $userId : 'unknown',
+                $action,
+                $modelName,
+                is_int($modelId) || is_string($modelId) ? (string) $modelId : 'unknown',
+            ));
     }
 }

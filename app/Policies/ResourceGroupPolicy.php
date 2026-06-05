@@ -6,13 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 
 class ResourceGroupPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(User $user, Institution $institution)
+    public function viewAny(User $user, Institution $institution): bool
     {
         foreach (
             [
@@ -26,70 +25,37 @@ class ResourceGroupPolicy
                 return true;
             }
         }
+
+        return false;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     *
-     * @return Response|bool
-     */
-    public function view(User $user, ResourceGroup $resource_group)
+    public function view(User $user, ResourceGroup $resource_group): bool
     {
-        if ($user->can('view_resource_groups', $resource_group->institution)) {
-            return true;
-        }
+        return $user->can('view_resource_groups', $resource_group->institution);
     }
 
-    /**
-     * Determine whether the user can create models.
-     *
-     * @return Response|bool
-     */
-    public function create(User $user, Institution $institution)
+    public function create(User $user, Institution $institution): bool
     {
-        if ($user->can('create_resource_groups', $institution)) {
-            return true;
-        }
+        return $user->can('create_resource_groups', $institution);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @return Response|bool
-     */
-    public function update(User $user, ResourceGroup $resource_group)
+    public function update(User $user, ResourceGroup $resource_group): bool
     {
-        if ($user->can('edit_resource_groups', $resource_group->institution)) {
-            return true;
-        }
+        return $user->can('edit_resource_groups', $resource_group->institution);
     }
 
-    public function edit(User $user, ResourceGroup $resource_group)
+    public function edit(User $user, ResourceGroup $resource_group): bool
     {
         return $this->update($user, $resource_group);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @return Response|bool
-     */
-    public function delete(User $user, ResourceGroup $resource_group)
+    public function delete(User $user, ResourceGroup $resource_group): bool
     {
-        if ($user->can('delete_resource_groups', $resource_group->institution)) {
-            return true;
-        }
+        return $user->can('delete_resource_groups', $resource_group->institution);
     }
 
-    /**
-     * Determine whether the user can clone the model.
-     *
-     * @return Response|bool
-     */
-    public function clone(User $user, ResourceGroup $resource_group)
+    public function clone(User $user, ResourceGroup $resource_group): bool
     {
-        if ($user->can('create_resource_groups', $resource_group->institution)) {
-            return true;
-        }
+        return $user->can('create_resource_groups', $resource_group->institution);
     }
 }

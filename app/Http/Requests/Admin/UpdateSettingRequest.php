@@ -2,31 +2,49 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Setting;
 
-class UpdateSettingRequest extends FormRequest
+class UpdateSettingRequest extends AdminRouteRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        $user = $this->userModel();
+        $setting = $this->settingOrNull();
+
+        return $user !== null && $setting !== null && $user->can('edit', $setting);
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'id' => ['required', 'uuid'],
+            'settingable_id' => ['required', 'uuid'],
+            'settingable_type' => ['required', 'string'],
             'key' => ['required'],
             'value' => ['required'],
         ];
+    }
+
+    public function setting(): Setting
+    {
+        return $this->findModelOrFail(Setting::class);
+    }
+
+    public function settingOrNull(): ?Setting
+    {
+        return $this->findModel(Setting::class);
+    }
+
+    public function settingableId(): string
+    {
+        return $this->validatedString('settingable_id');
+    }
+
+    public function settingableType(): string
+    {
+        return $this->validatedString('settingable_type');
     }
 }

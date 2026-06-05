@@ -10,7 +10,7 @@ class UserGroupUser extends Pivot
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'valid_from',
@@ -27,11 +27,17 @@ class UserGroupUser extends Pivot
         'valid_until' => 'date',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<UserGroup, $this>
+     */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function user_group(): BelongsTo
     {

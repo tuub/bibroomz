@@ -16,7 +16,11 @@ class CurrentPasswordRule implements ValidationRule
     public function validate(mixed $attribute, mixed $value, Closure $fail): void
     {
         $user = User::where('name', $this->name)->first();
-        if ($user && !Hash::check($this->current_password, $user->password)) {
+
+        if (
+            $user !== null && is_string($this->current_password)
+            && ! Hash::check($this->current_password, $user->password)
+        ) {
             $fail(trans('validation.current_password'));
         }
     }

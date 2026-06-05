@@ -2,121 +2,76 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DeleteMailContentRequest;
+use App\Http\Requests\Admin\InstitutionContextRequest;
+use App\Http\Requests\Admin\MailContentIdRequest;
 use App\Http\Requests\Admin\MailContentRequest;
-use App\Models\Institution;
 use App\Models\MailContent;
-use App\Models\MailType;
-use App\Services\AdminLoggingService;
+use App\Services\Admin\MailAdminService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class MailController extends Controller
+class MailController extends AdminController
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
+    public function __construct(private MailAdminService $mailAdminService)
     {
     }
 
-    public function getMails(Request $request): Response
+    public function getMails(InstitutionContextRequest $request): Response
     {
-        $institution = Institution::findOrFail($request->institution_id);
+        $institution = $request->institution();
 
         $this->authorize('viewAny', [MailContent::class, $institution]);
 
-        $mails = MailContent::with(['mail_type', 'institution'])->where('institution_id', $institution->id)->get()
-            ->filter->isViewableByUser(auth()->user());
-
-        return Inertia::render('Admin/Mails/Index', [
-            'institution' => $institution,
-            'mails' => $mails,
-        ]);
+        return Inertia::render('Admin/Mails/Index', $this->mailAdminService->getIndexData($institution));
     }
 
-    public function createMail(Request $request): Response
+    public function createMail(InstitutionContextRequest $request): Response
     {
-        $institution = Institution::findOrFail($request->institution_id);
+        $institution = $request->institution();
 
         $this->authorize('create', [MailContent::class, $institution]);
 
-        $mail_types = $this->getMissingMailTypes($institution->id);
-
-        return Inertia::render('Admin/Mails/Form', [
-            'institution_id' => $institution->id,
-            'mail_types' => $mail_types->values(),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/Mails/Form', $this->mailAdminService->getCreateFormData($institution));
     }
 
     public function storeMail(MailContentRequest $request): RedirectResponse
     {
-        $institution = Institution::findOrFail($request->institution_id);
-        $this->authorize('create', [MailContent::class, $institution]);
-
-        $validated = $request->validated();
-        $mail = MailContent::create($validated);
-
-        $this->adminLoggingService->log('created', $mail);
+        $institution = $request->institution();
+        $this->mailAdminService->store($request->validated());
 
         return redirect()->route('admin.mail.index', [
             'institution_id' => $institution->id,
         ]);
     }
 
-    public function editMail(Request $request): Response
+    public function editMail(MailContentIdRequest $request): Response
     {
-        $mail = MailContent::where('id', $request->id)->with(['mail_type', 'institution'])->firstOrFail();
+        $mail = $request->mailContent()->load(['mail_type', 'institution']);
 
         $this->authorize('edit', $mail);
 
-        $mail_types = $this->getMissingMailTypes($mail->institution_id);
-
-        return Inertia::render('Admin/Mails/Form', [
-            'mail' => $mail,
-            'institution_id' => $mail->institution_id,
-            'mail_types' => $mail_types->values(),
-            'languages' => config('app.supported_locales'),
-        ]);
+        return Inertia::render('Admin/Mails/Form', $this->mailAdminService->getEditFormData($mail));
     }
 
     public function updateMail(MailContentRequest $request): RedirectResponse
     {
-        $mail = MailContent::find($request->id);
-
-        $this->authorize('edit', $mail);
-
-        $validated = $request->validated();
-        $mail->update($validated);
-
-        $this->adminLoggingService->log('updated', $mail);
+        $mail = $request->mailContent();
+        $this->mailAdminService->update($mail, $request->validated());
 
         return redirect()->route('admin.mail.index', [
-            'institution_id' => $request->institution_id,
+            'institution_id' => $request->institution()->id,
         ]);
     }
 
-    public function deleteMail(Request $request): RedirectResponse
+    public function deleteMail(DeleteMailContentRequest $request): RedirectResponse
     {
-        $mail = MailContent::findOrFail($request->id);
-
-        $this->authorize('delete', $mail);
-        $mail->delete();
-
-        $this->adminLoggingService->log('deleted', $mail);
+        $mail = $request->mailContent();
+        $this->mailAdminService->delete($mail);
 
         return redirect()->route('admin.mail.index', [
             'institution_id' => $mail->institution_id,
         ]);
-    }
-
-
-    private function getMissingMailTypes(string $institution_id)
-    {
-        return MailType::orderBy('key')->get()->filter(function ($mail_type) use ($institution_id) {
-            return MailContent::where('institution_id', $institution_id)
-                ->pluck('mail_type_id')
-                ->contains($mail_type->id) === false;
-        });
     }
 }
