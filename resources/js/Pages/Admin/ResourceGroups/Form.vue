@@ -143,11 +143,12 @@ import { computed } from "vue";
 // Props
 // ------------------------------------------------
 const props = defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
     institution: {
         type: Object,
         default: () => ({}),
     },
+    // Inertia provides this page prop in snake_case from the backend contract.
+    // eslint-disable-next-line vue/prop-name-casing
     resource_group: {
         type: Object,
         default: () => ({}),

@@ -8,7 +8,6 @@
 <script setup>
 import { computed, inject } from "vue";
 
-// eslint-disable-next-line vue/no-dupe-keys
 const route = inject("ziggyRoute");
 
 const props = defineProps({

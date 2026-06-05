@@ -172,7 +172,7 @@ eslint:
   extends: .nix
   stage: lint
   script:
-    - nix develop --command node_modules/.bin/eslint resources/js/**/*.{js,ts,vue}
+    - nix develop --command node_modules/.bin/eslint resources/
 
 gitleaks:
   image:

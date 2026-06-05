@@ -6,5 +6,5 @@ if from=$(git rev-parse --abbrev-ref '@{push}'); then
 fi
 
 if [ "$from" ] && [ "$to" = main ]; then
-    npx --no -- commitlint --from="$from" --to="$to"
+    node_modules/.bin/commitlint --from="$from" --to="$to"
 fi

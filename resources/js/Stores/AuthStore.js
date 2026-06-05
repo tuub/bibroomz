@@ -49,7 +49,7 @@ export const useAuthStore = defineStore({
 
                 this.fetchUserHappenings();
                 this.subscribe();
-            } catch (error) {
+            } catch {
                 this.$reset();
             }
         },
@@ -88,7 +88,7 @@ export const useAuthStore = defineStore({
                 router.visit("/");
 
                 toastStore.addAuthToast({ summary: trans("toast.logout.success") });
-            } catch (error) {
+            } catch {
                 toastStore.addAuthToast({ severity: "error", summary: trans("toast.logout.error") });
             }
         },

@@ -10,6 +10,7 @@
         "scss/at-rule-no-unknown": null,
         "declaration-block-no-shorthand-property-overrides": null,
         "length-zero-no-unit": null,
-        "color-function-notation": "legacy"
+        "color-function-notation": "legacy",
+        "color-function-alias-notation": null
     }
 }
