@@ -1,6 +1,7 @@
 <script setup>
 import Footer from "@/Shared/Footer.vue";
 import Header from "@/Shared/Header.vue";
+import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useToastStore } from "@/Stores/ToastStore";
@@ -90,4 +91,8 @@ onUnmounted(() => {
     <!-- FOOTER START -->
     <Footer />
     <!-- FOOTER END -->
+
+    <!-- MODAL START -->
+    <XModal />
+    <!-- MODAL END -->
 </template>

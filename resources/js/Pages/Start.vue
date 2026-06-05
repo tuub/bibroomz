@@ -2,7 +2,6 @@
 import InstitutionCard from "@/Components/InstitutionCard.vue";
 import { useLogin } from "@/Composables/Login";
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
-import XModal from "@/Shared/XModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
@@ -48,7 +47,6 @@ onBeforeMount(() => {
 </script>
 <template>
     <Head :title="'Start :: ' + appName" />
-    <XModal />
 
     <div class="bg-white px-6 py-6 md:px-12 lg:px-20 dark:bg-black">
         <div class="flex flex-col items-center gap-4 text-center text-black dark:text-white">
