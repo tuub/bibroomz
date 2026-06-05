@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -20,6 +21,9 @@ class UserFactory extends Factory
             'name' => fake()->userName(),
             'email' => fake()->safeEmail(),
             'password' => bcrypt(fake()->password()),
+            'is_admin' => false,
+            'is_system_user' => false,
+            'is_logged_in' => false,
         ];
     }
 }

@@ -1,0 +1,20 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+        - scripts
+    excludePaths:
+        - app/Exceptions/Handler.php
+        - app/Providers/TelescopeServiceProvider.php
+        - app/Http/Controllers/Controller.php
+        - app/Http/Kernel.php
+        - app/Http/Middleware/PreventRequestsDuringMaintenance.php
+        - app/Http/Middleware/TrimStrings.php
+        - app/Http/Middleware/TrustHosts.php
+        - app/Http/Middleware/TrustProxies.php
+        - app/Http/Middleware/ValidateSignature.php
+    tmpDir: /tmp/phpstan-roomz
+    reportUnmatchedIgnoredErrors: true

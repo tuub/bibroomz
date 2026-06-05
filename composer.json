@@ -9,7 +9,7 @@
         "bkwld/cloner": "^3.15.0",
         "cybercog/laravel-ban": "^4.11",
         "fakerphp/faker": "^1.24.1",
-        "guzzlehttp/guzzle": "^7.10.5",
+        "guzzlehttp/guzzle": "^7.11.0",
         "inertiajs/inertia-laravel": "^2.0.24",
         "ixudra/curl": "^6.23",
         "laravel/framework": "^11.54",
@@ -25,14 +25,17 @@
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.4.0",
+        "larastan/larastan": "^3.10",
         "laravel-lang/common": "^3.1.1",
-        "laravel/dusk": "^8.6.0",
         "laravel/pint": "^1.29.1",
         "laravel/sail": "^1.61.0",
         "laravel/telescope": "^5.20",
         "mockery/mockery": "^1.6.12",
         "nunomaduro/collision": "^8.9.4",
-        "phpunit/phpunit": "^11.5.55",
+        "pestphp/pest": "^4.7.2",
+        "pestphp/pest-plugin-browser": "^4.3.1",
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "pestphp/pest-plugin-type-coverage": "^4.0",
         "rector/rector": "^2.4.5",
         "spatie/laravel-ignition": "^2.12",
         "squizlabs/php_codesniffer": "^3.13.5"
@@ -54,6 +57,27 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
+        "test:browser": [
+            "@php scripts/test-browser.php"
+        ],
+        "test:feature": [
+            "@pest --testsuite=Feature"
+        ],
+        "test:unit": [
+            "@pest --testsuite=Unit"
+        ],
+        "coverage:feature": [
+            "@pest --testsuite=Feature --coverage --coverage-cobertura build/coverage/cobertura-feature.xml"
+        ],
+        "coverage:unit": [
+            "@pest --testsuite=Unit --coverage --coverage-cobertura build/coverage/cobertura-unit.xml"
+        ],
+        "mutate:feature": [
+            "@pest --testsuite=Feature --mutate --covered-only --parallel"
+        ],
+        "mutate:unit": [
+            "@pest --testsuite=Unit --mutate --covered-only --parallel"
+        ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
@@ -62,6 +86,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "pest": [
+            "pest --cache-directory=/tmp/phpunit-cache --display-all-issues --parallel"
         ]
     },
     "extra": {

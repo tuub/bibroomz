@@ -5,6 +5,7 @@ namespace App\Services\Http;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class HomePageDataBuilder
 {
@@ -24,9 +25,11 @@ class HomePageDataBuilder
             ->whereHas('resource_groups', fn (Builder $query): Builder => $query->where('is_active', true))
             ->with([
                 'settings',
-                'resource_groups' => fn ($query) => $query
-                    ->where('is_active', true)
-                    ->orderBy('order'),
+                'resource_groups' => static function (Relation $relation): void {
+                    $relation
+                        ->where('is_active', true)
+                        ->orderBy('order');
+                },
             ])
             ->orderBy('order')
             ->get();

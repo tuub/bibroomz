@@ -10,6 +10,7 @@
     <file>app</file>
     <file>database</file>
     <file>routes</file>
+    <file>scripts</file>
     <file>tests</file>
 
     <exclude-pattern>*.blade.php</exclude-pattern>
@@ -22,17 +23,13 @@
         <exclude name="PSR12.Traits.UseDeclaration.MultipleImport" />
     </rule>
 
-    <!-- Allow snake cased method names for tests -->
-    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+    <!-- Pest test files mix uses() side effects with helper function declarations -->
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <exclude-pattern>tests</exclude-pattern>
     </rule>
 
     <!-- Allow long lines for language files -->
     <rule ref="Generic.Files.LineLength.TooLong">
         <exclude-pattern>lang</exclude-pattern>
-    </rule>
-
-    <rule ref="Squiz.Strings.DoubleQuoteUsage">
-        <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar" />
     </rule>
 </ruleset>

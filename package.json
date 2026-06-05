@@ -1,6 +1,7 @@
 {
     "name": "bibroomz",
     "private": true,
+    "packageManager": "npm@11.12.1",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
@@ -23,6 +24,7 @@
         "laravel-echo": "^1.16.1",
         "lint-staged": "^15.2.10",
         "lodash": "^4.17.21",
+        "playwright": "^1.59.1",
         "postcss": "^8.4.16",
         "postcss-html": "^1.5.0",
         "prettier": "^3.0.3",

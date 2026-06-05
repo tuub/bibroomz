@@ -25,6 +25,12 @@
                 all.pcov
                 all.redis
               ];
+            extraConfig = ''
+              memory_limit=-1
+
+              pcov.enabled=1
+              pcov.directory=app/
+            '';
           };
         in
         {

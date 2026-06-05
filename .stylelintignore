@@ -1,0 +1,9 @@
+*.js
+*.php
+*.ts
+
+*.gif
+*.png
+*.svg
+
+resources/views/vendor/mail/html/themes/default.css

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
     bootstrap="vendor/autoload.php" colors="true" cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="Unit">
@@ -13,6 +13,7 @@
     <coverage />
     <php>
         <env name="APP_ENV" value="testing" />
+        <env name="APP_KEY" value="base64:TF9u2T3Sw37w0oo3Ax8hn7XJWrD8mBcndOwWw7AkGXQ=" />
         <env name="BCRYPT_ROUNDS" value="4" />
         <env name="CACHE_DRIVER" value="array" />
         <env name="DB_CONNECTION" value="sqlite"/>

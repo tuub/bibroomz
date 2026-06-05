@@ -1,0 +1,10 @@
+workflow:
+  rules:
+    - if: $GITLAB_CI == 'false'
+
+variables:
+  DOCKERHUB_IMAGE_PREFIX: ""
+
+.nix:
+  rules:
+    - if: $GITLAB_CI == 'false'
