@@ -32,6 +32,25 @@ export default defineConfig({
             "ziggy-js": path.resolve("vendor/tightenco/ziggy"),
         },
     },
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (!id.includes("node_modules")) return;
+                    if (id.includes("/primevue/") || id.includes("/@primevue/")) return "vendor-primevue";
+                    if (id.includes("/@fullcalendar/")) return "vendor-fullcalendar";
+                    if (
+                        id.includes("/vue/") ||
+                        id.includes("/@vue/") ||
+                        id.includes("/@inertiajs/") ||
+                        id.includes("/pinia")
+                    )
+                        return "vendor-vue";
+                },
+            },
+        },
+    },
     server: {
         watch: {
             ignored: ["**/.devenv/**", "**/.direnv/**", "**/vendor/**"],
