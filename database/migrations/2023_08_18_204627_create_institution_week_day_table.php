@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('institution_week_day', function (Blueprint $table) {
+        Schema::create('institution_week_day', function (Blueprint $table): void {
             $table->uuid('institution_id')->index();
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
 
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('institutions_week_days');
     }

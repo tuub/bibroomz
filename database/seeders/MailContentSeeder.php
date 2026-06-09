@@ -39,14 +39,18 @@ class MailContentSeeder extends Seeder
         }
     }
 
-    public function getDefaultTranslatable($mail_type, $field): array
+    /**
+     * @return array<string, string>
+     */
+    public function getDefaultTranslatable(string $mail_type, string $field): array
     {
-        $locales = config('app.supported_locales');
+        /** @var array<string> $locales */
+        $locales = config('app.supported_locales', []);
 
         $output = [];
         foreach ($locales as $locale) {
             App::setLocale($locale);
-            $output[$locale] = trans('email.defaults.' . $mail_type . '.' . $field);
+            $output[$locale] = trans('email.defaults.'.$mail_type.'.'.$field);
         }
 
         return $output;

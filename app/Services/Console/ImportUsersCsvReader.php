@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Validator;
 class ImportUsersCsvReader
 {
     /**
-     * @param resource $file
-     * @param array<int, string> $columns
+     * @param  resource  $file
+     * @param  array<int, string>  $columns
      * @return Collection<int, array<string, string>>
      */
     public function readAndValidate($file, array $columns): Collection

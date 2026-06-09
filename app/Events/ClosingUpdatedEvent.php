@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use App\Models\Closing;
@@ -17,14 +19,13 @@ class ClosingUpdatedEvent implements ClosingEvent
     /**
      * Create a new event instance.
      *
-     * @param Collection<int, Happening> $happenings
+     * @param  Collection<int, Happening>  $happenings
      */
     public function __construct(
         public User $user,
         public Collection $happenings,
         public Closing $closing,
-    ) {
-    }
+    ) {}
 
     public function user(): User
     {

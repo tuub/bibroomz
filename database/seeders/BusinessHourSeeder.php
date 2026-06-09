@@ -11,10 +11,8 @@ class BusinessHourSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $institutions = Institution::active()->get();
         $week_days = WeekDay::get();

@@ -8,11 +8,11 @@ use App\Models\MailContent;
 use App\Services\Notifications\MailEnvelopeFactory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Collection;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class ClosingMail extends Mailable implements ShouldQueue
 {
@@ -29,8 +29,6 @@ class ClosingMail extends Mailable implements ShouldQueue
 
     /**
      * Create a new message instance.
-     *
-     * @return void
      */
     public function __construct(public ClosingMailData $data)
     {
@@ -41,8 +39,6 @@ class ClosingMail extends Mailable implements ShouldQueue
 
     /**
      * Get the message envelope.
-     *
-     * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope(): Envelope
     {
@@ -51,8 +47,6 @@ class ClosingMail extends Mailable implements ShouldQueue
 
     /**
      * Get the message content definition.
-     *
-     * @return \Illuminate\Mail\Mailables\Content
      */
     public function content(): Content
     {

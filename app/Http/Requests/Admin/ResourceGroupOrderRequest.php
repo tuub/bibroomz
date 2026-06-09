@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\ResourceGroup;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class ResourceGroupOrderRequest extends AdminRouteRequest
@@ -11,7 +12,7 @@ class ResourceGroupOrderRequest extends AdminRouteRequest
     {
         $user = $this->userModel();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 

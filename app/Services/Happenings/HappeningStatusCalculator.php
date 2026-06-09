@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Happenings;
 
 use App\Models\Happening;
@@ -25,7 +27,7 @@ class HappeningStatusCalculator
             'user' => [],
         ];
 
-        if ($viewer) {
+        if ($viewer instanceof User) {
             if ($happening->isVerified()) {
                 if ($this->isMine($happening, $viewer)) {
                     $status['type'] = 'user-booking';
@@ -34,18 +36,16 @@ class HappeningStatusCalculator
                 } else {
                     $status['type'] = 'booking';
                 }
+            } elseif ($this->isMine($happening, $viewer)) {
+                $status['type'] = 'user-reservation';
+                $status['user']['reservation'] = $reservationName;
+                $status['user']['verification'] = $verificationName;
+            } elseif ($this->isMyToVerify($happening, $viewer)) {
+                $status['type'] = 'user-to-verify';
+                $status['user']['reservation'] = $reservationName;
+                $status['user']['verification'] = $verificationName;
             } else {
-                if ($this->isMine($happening, $viewer)) {
-                    $status['type'] = 'user-reservation';
-                    $status['user']['reservation'] = $reservationName;
-                    $status['user']['verification'] = $verificationName;
-                } elseif ($this->isMyToVerify($happening, $viewer)) {
-                    $status['type'] = 'user-to-verify';
-                    $status['user']['reservation'] = $reservationName;
-                    $status['user']['verification'] = $verificationName;
-                } else {
-                    $status['type'] = 'reservation';
-                }
+                $status['type'] = 'reservation';
             }
         }
 

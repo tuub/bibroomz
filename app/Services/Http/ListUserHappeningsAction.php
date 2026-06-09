@@ -9,9 +9,7 @@ use Illuminate\Support\Collection;
 
 class ListUserHappeningsAction
 {
-    public function __construct(private UserHappeningPresenter $presenter)
-    {
-    }
+    public function __construct(private readonly UserHappeningPresenter $presenter) {}
 
     /**
      * @return Collection<int, array<string, mixed>>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
+use App\Models\User;
 use App\Models\UserGroup;
 use App\Rules\RequiredWithTranslationRule;
 
@@ -13,8 +14,8 @@ class StoreUserGroupRequest extends AdminRouteRequest
         $institution = $this->institution();
         $user = $this->userModel();
 
-        return $user !== null
-            && $institution !== null
+        return $user instanceof User
+            && $institution instanceof Institution
             && $user->can('create', [UserGroup::class, $institution]);
     }
 
@@ -25,7 +26,7 @@ class StoreUserGroupRequest extends AdminRouteRequest
     {
         return [
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
-            'title' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule],
         ];
     }
 

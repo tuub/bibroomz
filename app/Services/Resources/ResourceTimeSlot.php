@@ -11,8 +11,7 @@ class ResourceTimeSlot
         public string $label,
         public bool $isDisabled = true,
         public bool $isSelected = false,
-    ) {
-    }
+    ) {}
 
     public function withDisabled(bool $isDisabled): self
     {

@@ -8,7 +8,6 @@ use App\Http\Requests\CalendarEntriesRequest;
 use App\Http\Requests\DeleteHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
 use App\Http\Requests\VerifyHappeningRequest;
-use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\CreateHappeningAction;
 use App\Services\Happenings\DeleteHappeningAction;
@@ -21,13 +20,12 @@ use Illuminate\Http\Response;
 class HappeningController extends Controller
 {
     public function __construct(
-        private ListCalendarEntriesAction $listCalendarEntriesAction,
-        private CreateHappeningAction $createHappeningAction,
-        private UpdateHappeningAction $updateHappeningAction,
-        private VerifyHappeningAction $verifyHappeningAction,
-        private DeleteHappeningAction $deleteHappeningAction,
-    ) {
-    }
+        private readonly ListCalendarEntriesAction $listCalendarEntriesAction,
+        private readonly CreateHappeningAction $createHappeningAction,
+        private readonly UpdateHappeningAction $updateHappeningAction,
+        private readonly VerifyHappeningAction $verifyHappeningAction,
+        private readonly DeleteHappeningAction $deleteHappeningAction,
+    ) {}
 
     public function getHappenings(CalendarEntriesRequest $request): JsonResponse
     {

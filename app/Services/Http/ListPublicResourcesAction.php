@@ -3,16 +3,14 @@
 namespace App\Services\Http;
 
 use App\Models\Resource;
-use App\Models\ResourceGroup;
 use Carbon\CarbonImmutable;
 
 class ListPublicResourcesAction
 {
     public function __construct(
-        private RouteResourceGroupResolver $resourceGroupResolver,
-        private PublicResourcePresenter $presenter
-    ) {
-    }
+        private readonly RouteResourceGroupResolver $resourceGroupResolver,
+        private readonly PublicResourcePresenter $presenter
+    ) {}
 
     /**
      * @return array{
@@ -35,7 +33,7 @@ class ListPublicResourcesAction
             ->where('resource_group_id', $resourceGroup->id)
             ->orderBy('order')
             ->paginate($count)
-            ->withPath($url . '?count=' . $count . '&date=' . $date->format('Y-m-d'));
+            ->withPath($url.'?count='.$count.'&date='.$date->format('Y-m-d'));
 
         return [
             'resources' => array_values($resources->map(

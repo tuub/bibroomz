@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->dropForeign(['institution_id']);
             $table->uuid('institution_id')->nullable()->default(null)->change();
             $table->string('settingable_type')->after('id');
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('settings', function (Blueprint $table): void {
             $table->uuid('institution_id')->index();
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
             $table->dropColumn('settingable_type');

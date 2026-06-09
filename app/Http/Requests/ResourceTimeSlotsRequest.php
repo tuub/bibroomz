@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Carbon\CarbonImmutable;
@@ -9,6 +11,7 @@ class ResourceTimeSlotsRequest extends ResourceGroupRouteRequest
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function rules(): array
     {
         return $this->mergeRuleSets(parent::rules(), [

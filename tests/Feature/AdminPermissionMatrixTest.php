@@ -1,15 +1,6 @@
 <?php
 
-covers(
-    App\Http\Requests\Admin\AdminRouteRequest::class,
-    App\Policies\InstitutionPolicy::class,
-    App\Policies\ResourcePolicy::class,
-    App\Policies\ResourceGroupPolicy::class,
-    App\Policies\ClosingPolicy::class,
-    App\Policies\SettingPolicy::class,
-    App\Policies\HappeningPolicy::class
-);
-
+use App\Http\Requests\Admin\AdminRouteRequest;
 use App\Library\Utility;
 use App\Models\Closing;
 use App\Models\Happening;
@@ -20,15 +11,31 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Policies\ClosingPolicy;
+use App\Policies\HappeningPolicy;
+use App\Policies\InstitutionPolicy;
+use App\Policies\ResourceGroupPolicy;
+use App\Policies\ResourcePolicy;
+use App\Policies\SettingPolicy;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 
+covers(
+    AdminRouteRequest::class,
+    InstitutionPolicy::class,
+    ResourcePolicy::class,
+    ResourceGroupPolicy::class,
+    ClosingPolicy::class,
+    SettingPolicy::class,
+    HappeningPolicy::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(PermissionSeeder::class);
     $this->seed(WeekDaySeeder::class);
     $this->seed(MailTypeSeeder::class);
@@ -44,7 +51,7 @@ function buildScopedActor(Institution $institution): User
     return $actor;
 }
 
-test('scoped admin without edit_institutions cannot update institution', function () {
+test('scoped admin without edit_institutions cannot update institution', function (): void {
     $institution = Institution::factory()->create();
     $actor = buildScopedActor($institution);
 
@@ -67,7 +74,7 @@ test('scoped admin without edit_institutions cannot update institution', functio
     $this->assertDatabaseMissing('institutions', ['slug' => 'unauthorized-update']);
 });
 
-test('scoped admin without delete_institutions cannot delete institution', function () {
+test('scoped admin without delete_institutions cannot delete institution', function (): void {
     $institution = Institution::factory()->create();
     $actor = buildScopedActor($institution);
 
@@ -78,7 +85,7 @@ test('scoped admin without delete_institutions cannot delete institution', funct
     $this->assertDatabaseHas('institutions', ['id' => $institution->id]);
 });
 
-test('scoped admin without create_resources cannot store resource', function () {
+test('scoped admin without create_resources cannot store resource', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $actor = buildScopedActor($institution);
@@ -105,7 +112,7 @@ test('scoped admin without create_resources cannot store resource', function () 
         ->assertForbidden();
 });
 
-test('scoped admin without edit_happenings cannot update admin happening', function () {
+test('scoped admin without edit_happenings cannot update admin happening', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
@@ -135,10 +142,10 @@ test('scoped admin without edit_happenings cannot update admin happening', funct
         ])
         ->assertForbidden();
 
-    expect($happening->fresh()->getTranslations('label')['en'])->toBe('Original');
+    expect($happening->fresh()?->getTranslations('label')['en'])->toBe('Original');
 });
 
-test('scoped admin without delete_happenings cannot delete admin happening', function () {
+test('scoped admin without delete_happenings cannot delete admin happening', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
@@ -164,7 +171,7 @@ test('scoped admin without delete_happenings cannot delete admin happening', fun
     $this->assertDatabaseHas('happenings', ['id' => $happening->id]);
 });
 
-test('scoped admin without create_closings cannot store closing', function () {
+test('scoped admin without create_closings cannot store closing', function (): void {
     $institution = Institution::factory()->create();
     $actor = buildScopedActor($institution);
 
@@ -183,9 +190,9 @@ test('scoped admin without create_closings cannot store closing', function () {
     $this->assertDatabaseMissing('closings', ['closable_id' => $institution->id]);
 });
 
-test('scoped admin without create_mails cannot store mail', function () {
+test('scoped admin without create_mails cannot store mail', function (): void {
     $institution = Institution::factory()->create();
-    $mailType = \App\Models\MailType::query()->firstOrFail();
+    $mailType = MailType::query()->firstOrFail();
     $actor = buildScopedActor($institution);
 
     $this->actingAs($actor)
@@ -205,7 +212,7 @@ test('scoped admin without create_mails cannot store mail', function () {
     $this->assertDatabaseMissing('mail_contents', ['institution_id' => $institution->id]);
 });
 
-test('scoped admin without edit_users cannot ban another user', function () {
+test('scoped admin without edit_users cannot ban another user', function (): void {
     $institution = Institution::factory()->create();
     $target = User::factory()->create();
     $actor = buildScopedActor($institution);
@@ -214,10 +221,10 @@ test('scoped admin without edit_users cannot ban another user', function () {
         ->post(route('admin.user.ban'), ['id' => $target->id])
         ->assertForbidden();
 
-    expect($target->fresh()->isBanned())->toBeFalse();
+    expect($target->fresh()?->isBanned())->toBeFalse();
 });
 
-test('scoped admin without edit_resources cannot update resource', function () {
+test('scoped admin without edit_resources cannot update resource', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
@@ -239,7 +246,7 @@ test('scoped admin without edit_resources cannot update resource', function () {
         ->assertForbidden();
 });
 
-test('scoped admin without delete_resources cannot delete resource', function () {
+test('scoped admin without delete_resources cannot delete resource', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
@@ -252,7 +259,7 @@ test('scoped admin without delete_resources cannot delete resource', function ()
     $this->assertDatabaseHas('resources', ['id' => $resource->id]);
 });
 
-test('scoped admin without edit_resource_groups cannot update resource group', function () {
+test('scoped admin without edit_resource_groups cannot update resource group', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $actor = buildScopedActor($institution);
@@ -274,7 +281,7 @@ test('scoped admin without edit_resource_groups cannot update resource group', f
     $this->assertDatabaseMissing('resource_groups', ['slug' => 'unauthorized-slug']);
 });
 
-test('scoped admin without delete_resource_groups cannot delete resource group', function () {
+test('scoped admin without delete_resource_groups cannot delete resource group', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $actor = buildScopedActor($institution);
@@ -286,7 +293,7 @@ test('scoped admin without delete_resource_groups cannot delete resource group',
     $this->assertDatabaseHas('resource_groups', ['id' => $resourceGroup->id]);
 });
 
-test('scoped admin without edit_settings cannot update setting', function () {
+test('scoped admin without edit_settings cannot update setting', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $setting = $resourceGroup->settings()->firstOrFail();
@@ -303,10 +310,10 @@ test('scoped admin without edit_settings cannot update setting', function () {
         ])
         ->assertForbidden();
 
-    expect($setting->fresh()->value)->toBe($originalValue);
+    expect($setting->fresh()?->value)->toBe($originalValue);
 });
 
-test('scoped admin without create_user_groups cannot store user group', function () {
+test('scoped admin without create_user_groups cannot store user group', function (): void {
     $institution = Institution::factory()->create();
     $actor = buildScopedActor($institution);
 
@@ -320,7 +327,7 @@ test('scoped admin without create_user_groups cannot store user group', function
     $this->assertDatabaseMissing('user_groups', ['institution_id' => $institution->id]);
 });
 
-test('scoped admin without edit_user_groups cannot update user group', function () {
+test('scoped admin without edit_user_groups cannot update user group', function (): void {
     $institution = Institution::factory()->create();
     $userGroup = UserGroup::create([
         'title' => Utility::getTranslatable('Existing Group'),
@@ -336,10 +343,10 @@ test('scoped admin without edit_user_groups cannot update user group', function 
         ])
         ->assertForbidden();
 
-    expect($userGroup->fresh()->getTranslations('title')['en'])->toBe('Existing Group');
+    expect($userGroup->fresh()?->getTranslations('title')['en'])->toBe('Existing Group');
 });
 
-test('scoped admin without delete_user_groups cannot delete user group', function () {
+test('scoped admin without delete_user_groups cannot delete user group', function (): void {
     $institution = Institution::factory()->create();
     $userGroup = UserGroup::create([
         'title' => Utility::getTranslatable('Protected Group'),
@@ -354,7 +361,7 @@ test('scoped admin without delete_user_groups cannot delete user group', functio
     $this->assertDatabaseHas('user_groups', ['id' => $userGroup->id]);
 });
 
-test('scoped admin without delete_closings cannot delete closing', function () {
+test('scoped admin without delete_closings cannot delete closing', function (): void {
     $institution = Institution::factory()->create();
     $closing = Closing::create([
         'closable_type' => Institution::class,
@@ -372,7 +379,7 @@ test('scoped admin without delete_closings cannot delete closing', function () {
     $this->assertDatabaseHas('closings', ['id' => $closing->id]);
 });
 
-test('scoped admin without edit_mails cannot update mail', function () {
+test('scoped admin without edit_mails cannot update mail', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::query()->firstOrFail();
     $mail = MailContent::create([
@@ -403,5 +410,5 @@ test('scoped admin without edit_mails cannot update mail', function () {
         ])
         ->assertForbidden();
 
-    expect($mail->fresh()->getTranslations('subject')['en'])->toBe('Original subject');
+    expect($mail->fresh()?->getTranslations('subject')['en'])->toBe('Original subject');
 });

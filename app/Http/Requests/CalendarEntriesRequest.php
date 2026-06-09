@@ -13,6 +13,7 @@ class CalendarEntriesRequest extends ResourceGroupRouteRequest
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function rules(): array
     {
         return $this->mergeRuleSets(parent::rules(), [

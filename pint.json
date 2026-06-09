@@ -1,0 +1,9 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "lang"
+    ],
+    "rules": {
+        "phpdoc_types": false
+    }
+}

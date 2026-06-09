@@ -9,15 +9,14 @@ use App\Http\Requests\Admin\UserIdRequest;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends AdminController
 {
-    public function __construct(private UserAdminService $userAdminService)
-    {
-    }
+    public function __construct(private readonly UserAdminService $userAdminService) {}
 
     public function getUsers(): Response
     {
@@ -27,9 +26,9 @@ class UserController extends AdminController
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     * @return Collection<int, User>
      */
-    public function getFormUsers(): \Illuminate\Database\Eloquent\Collection
+    public function getFormUsers(): Collection
     {
         return User::get(['id', 'name', 'is_admin']);
     }

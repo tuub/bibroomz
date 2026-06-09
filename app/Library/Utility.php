@@ -30,9 +30,9 @@ class Utility
 
     public static function createCarbonDateTime(string $date, string $time): Carbon
     {
-        $dateTime = Carbon::createFromFormat('d.m.Y H:i', $date . ' ' . $time);
+        $dateTime = Carbon::createFromFormat('d.m.Y H:i', $date.' '.$time);
 
-        if ($dateTime === null) {
+        if (! $dateTime instanceof Carbon) {
             throw new InvalidArgumentException('Invalid date/time combination.');
         }
 
@@ -40,7 +40,7 @@ class Utility
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function sendToLog(string $channel, array $data, ?string $level = null): void
     {
@@ -97,18 +97,16 @@ class Utility
             return null;
         }
 
-        $username = match ($method) {
+        return match ($method) {
             1 => strtolower($login_name),
             default => $login_name,
         };
-
-        return $username;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, string>
      */
-    public static function getTranslatable(mixed $value): array
+    public static function getTranslatable(string $value): array
     {
         $savedLocale = app()->getLocale();
         $supportedLocales = config('app.supported_locales');

@@ -184,23 +184,30 @@ gitleaks:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
-phpcs:
-  extends: .nix
-  stage: lint
-  script:
-    - nix develop --command vendor/bin/phpcs
-
 phpstan:
   extends: .nix
   stage: lint
   script:
     - nix develop --command vendor/bin/phpstan --no-progress
 
+pint:
+  extends: .nix
+  stage: lint
+  script:
+    - nix develop --command vendor/bin/pint --test
+
 prettier:
   extends: .nix
   stage: lint
   script:
     - nix develop --command node_modules/.bin/prettier --list-different resources/
+
+rector:
+  extends: .nix
+  stage: lint
+  script:
+    - nix develop --command vendor/bin/rector --dry-run --no-progress-bar
+
 
 stylelint:
   extends: .nix

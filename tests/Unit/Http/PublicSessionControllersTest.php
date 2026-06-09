@@ -1,36 +1,45 @@
 <?php
 
-covers(
-    App\Http\Controllers\HomeController::class,
-    App\Http\Controllers\LoginController::class,
-    App\Http\Controllers\UserController::class,
-    App\Services\Http\LoginAction::class,
-    App\Services\Http\LogoutAction::class,
-    App\Services\Http\HomePageDataBuilder::class,
-    App\Services\Http\LocalePreferenceManager::class,
-    App\Services\Http\UserActivityRecorder::class
-);
-
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use App\Models\UserGroup;
+use App\Services\Http\HomePageDataBuilder;
+use App\Services\Http\LocalePreferenceManager;
+use App\Services\Http\LoginAction;
+use App\Services\Http\LogoutAction;
+use App\Services\Http\UserActivityRecorder;
 use Carbon\Carbon;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
 
+covers(
+    HomeController::class,
+    LoginController::class,
+    UserController::class,
+    LoginAction::class,
+    LogoutAction::class,
+    HomePageDataBuilder::class,
+    LocalePreferenceManager::class,
+    UserActivityRecorder::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
 });
 
-test('start page redirects directly when exactly one resource group is allowed', function () {
+test('start page redirects directly when exactly one resource group is allowed', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
@@ -41,27 +50,27 @@ test('start page redirects directly when exactly one resource group is allowed',
         ]));
 });
 
-test('start page filters institutions by allowed ip before rendering', function () {
+test('start page filters institutions by allowed ip before rendering', function (): void {
     $allowedInstitution = Institution::factory()->create(['is_active' => true]);
     ResourceGroup::factory()->count(2)->for($allowedInstitution, 'institution')->create();
 
     $blockedInstitution = Institution::factory()->create(['is_active' => true]);
     ResourceGroup::factory()->for($blockedInstitution, 'institution')->create();
-    $blockedInstitution->settings()->firstWhere('key', 'allowed_ips')->update(['value' => '10.0.0.0/24']);
+    $blockedInstitution->settings()->firstWhere('key', 'allowed_ips')?->update(['value' => '10.0.0.0/24']);
 
     $this->get(route('start'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Start')
             ->where('appName', config('app.name'))
             ->has('institutions', 1)
             ->where('institutions.0.id', $allowedInstitution->id));
 });
 
-test('institutional home redirects to start when the request ip is not allowed', function () {
+test('institutional home redirects to start when the request ip is not allowed', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
-    $institution->settings()->firstWhere('key', 'allowed_ips')->update(['value' => '10.0.0.0/24']);
+    $institution->settings()->firstWhere('key', 'allowed_ips')?->update(['value' => '10.0.0.0/24']);
 
     $this->get(route('home', [
         'institution_slug' => $institution->slug,
@@ -69,7 +78,7 @@ test('institutional home redirects to start when the request ip is not allowed',
     ]))->assertRedirect(route('start'));
 });
 
-test('institutional home and terminal view preserve the current inertia props', function () {
+test('institutional home and terminal view preserve the current inertia props', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -81,7 +90,7 @@ test('institutional home and terminal view preserve the current inertia props', 
 
     $this->get(route('home', $routeParams))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Home')
             ->where('resourceGroup.id', $resourceGroup->id)
             ->where('settings.institution.allowed_ips', '0.0.0.0/0')
@@ -90,30 +99,30 @@ test('institutional home and terminal view preserve the current inertia props', 
 
     $this->get(route('terminal_view', $routeParams))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('TerminalView')
             ->where('resourceGroup.id', $resourceGroup->id)
             ->where('settings.resource_group.time_slot_length', config('roomz.default.timeslot_length'))
             ->where('hiddenDays', []));
 });
 
-test('switch language queues the locale cookie', function () {
+test('switch language queues the locale cookie', function (): void {
     $this->post(route('switch_lang'), ['locale' => 'de'])
         ->assertOk()
         ->assertCookie('locale', 'de');
 });
 
-test('privacy statement and site credits pages render their inertia components', function () {
+test('privacy statement and site credits pages render their inertia components', function (): void {
     $this->get(route('privacy_statement'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('PrivacyStatement'));
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('PrivacyStatement'));
 
     $this->get(route('site_credits'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('SiteCredits'));
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('SiteCredits'));
 });
 
-test('login and check return the current user status payload', function () {
+test('login and check return the current user status payload', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $firstGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $secondGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -139,7 +148,7 @@ test('login and check return the current user status payload', function () {
         ->assertJsonPath('allowedResourceGroups.1', $secondGroup->id);
 });
 
-test('login rejects invalid credentials with the public auth error message', function () {
+test('login rejects invalid credentials with the public auth error message', function (): void {
     User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),
@@ -151,7 +160,7 @@ test('login rejects invalid credentials with the public auth error message', fun
         ->assertJsonPath('message', __('auth.errors.user_not_found'));
 });
 
-test('check rejects guests and logout clears the login flag', function () {
+test('check rejects guests and logout clears the login flag', function (): void {
     $this->postJson(route('check'))
         ->assertUnauthorized()
         ->assertJsonPath('message', __('auth.errors.no_auth'));
@@ -170,7 +179,7 @@ test('check rejects guests and logout clears the login flag', function () {
     $this->assertDatabaseHas('users', ['id' => $user->id, 'is_logged_in' => false]);
 });
 
-test('public resources endpoint preserves resource and pagination payload shapes', function () {
+test('public resources endpoint preserves resource and pagination payload shapes', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $firstResource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -199,7 +208,7 @@ test('public resources endpoint preserves resource and pagination payload shapes
         ->and($response->json('pagination.nextPage'))->not->toBeNull();
 });
 
-test('resource time slots endpoint returns the expected top level shape', function () {
+test('resource time slots endpoint returns the expected top level shape', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
@@ -223,7 +232,7 @@ test('resource time slots endpoint returns the expected top level shape', functi
         ->and($response->json('end'))->toBeArray();
 });
 
-test('user happenings endpoint preserves the existing payload shape', function () {
+test('user happenings endpoint preserves the existing payload shape', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([

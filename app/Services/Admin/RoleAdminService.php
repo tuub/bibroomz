@@ -9,9 +9,7 @@ use App\Services\AdminLoggingService;
 
 class RoleAdminService
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
-    {
-    }
+    public function __construct(private readonly AdminLoggingService $adminLoggingService) {}
 
     /**
      * @return array<string, mixed>
@@ -34,7 +32,7 @@ class RoleAdminService
             'languages' => config('app.supported_locales'),
         ];
 
-        if ($role) {
+        if ($role instanceof Role) {
             $data['role'] = $role->load('permissions');
         }
 
@@ -42,8 +40,8 @@ class RoleAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, string> $permissionIds
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, string>  $permissionIds
      */
     public function store(array $attributes, array $permissionIds): Role
     {
@@ -56,8 +54,8 @@ class RoleAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, string> $permissionIds
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, string>  $permissionIds
      */
     public function update(Role $role, array $attributes, array $permissionIds): Role
     {

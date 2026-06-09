@@ -1,18 +1,5 @@
 <?php
 
-covers(
-    App\Rules\RequiredWithTranslationRule::class,
-    App\Rules\UniqueResourceGroupAttributeRule::class,
-    App\Services\AdminLoggingService::class,
-    App\Services\Admin\ClosableResolver::class,
-    App\Services\Happenings\HappeningAudienceResolver::class,
-    App\Services\Http\RouteResourceGroupResolver::class,
-    App\Services\Http\GetResourceTimeSlotsAction::class,
-    App\Services\Http\ListPublicResourcesAction::class,
-    App\Services\Http\ListUserHappeningsAction::class,
-    App\Services\Http\UserHappeningPresenter::class
-);
-
 use App\Exceptions\HappeningValidationException;
 use App\Library\Utility;
 use App\Models\Institution;
@@ -20,18 +7,38 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
+use App\Services\Admin\ClosableResolver;
 use App\Services\AdminLoggingService;
+use App\Services\Happenings\HappeningAudienceResolver;
+use App\Services\Http\GetResourceTimeSlotsAction;
+use App\Services\Http\ListPublicResourcesAction;
+use App\Services\Http\ListUserHappeningsAction;
+use App\Services\Http\RouteResourceGroupResolver;
+use App\Services\Http\UserHappeningPresenter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
+covers(
+    RequiredWithTranslationRule::class,
+    UniqueResourceGroupAttributeRule::class,
+    AdminLoggingService::class,
+    ClosableResolver::class,
+    HappeningAudienceResolver::class,
+    RouteResourceGroupResolver::class,
+    GetResourceTimeSlotsAction::class,
+    ListPublicResourcesAction::class,
+    ListUserHappeningsAction::class,
+    UserHappeningPresenter::class
+);
+
 uses(RefreshDatabase::class);
 
-test('required with translation rule fails only when every supported locale is empty', function () {
+test('required with translation rule fails only when every supported locale is empty', function (): void {
     $validator = Validator::make([
         'title' => ['de' => null, 'en' => 'Rooms'],
     ], [
-        'title' => [new RequiredWithTranslationRule()],
+        'title' => [new RequiredWithTranslationRule],
     ]);
 
     expect($validator->fails())->toBeFalse();
@@ -39,14 +46,14 @@ test('required with translation rule fails only when every supported locale is e
     $validator = Validator::make([
         'title' => ['de' => null, 'en' => null],
     ], [
-        'title' => [new RequiredWithTranslationRule()],
+        'title' => [new RequiredWithTranslationRule],
     ]);
 
     expect($validator->fails())->toBeTrue()
         ->and($validator->errors()->messages())->toHaveKey('title');
 });
 
-test('unique resource group attribute rule only fails on conflicting attributes inside the same institution', function () { // phpcs:ignore Generic.Files.LineLength
+test('unique resource group attribute rule only fails on conflicting attributes inside the same institution', function (): void { // phpcs:ignore Generic.Files.LineLength
     $institution = Institution::factory()->create();
     $otherInstitution = Institution::factory()->create();
     $existing = ResourceGroup::factory()->create([
@@ -56,14 +63,14 @@ test('unique resource group attribute rule only fails on conflicting attributes 
 
     $errors = [];
     (new UniqueResourceGroupAttributeRule($institution->id, $existing->id))
-        ->validate('slug', 'rooms', function ($message) use (&$errors) {
+        ->validate('slug', 'rooms', function ($message) use (&$errors): void {
             $errors[] = $message;
         });
 
     expect($errors)->toBe([]);
 
     (new UniqueResourceGroupAttributeRule($institution->id, 'another-group'))
-        ->validate('slug', 'rooms', function ($message) use (&$errors) {
+        ->validate('slug', 'rooms', function ($message) use (&$errors): void {
             $errors[] = $message;
         });
 
@@ -71,27 +78,27 @@ test('unique resource group attribute rule only fails on conflicting attributes 
 
     $errors = [];
     (new UniqueResourceGroupAttributeRule($otherInstitution->id, 'another-group'))
-        ->validate('slug', 'rooms', function ($message) use (&$errors) {
+        ->validate('slug', 'rooms', function ($message) use (&$errors): void {
             $errors[] = $message;
         });
 
     expect($errors)->toBe([]);
 });
 
-test('admin logging service writes the expected admin log message', function () {
+test('admin logging service writes the expected admin log message', function (): void {
     $user = User::factory()->create();
     $institution = Institution::factory()->create();
     $this->actingAs($user);
 
     Log::shouldReceive('channel')->once()->with('admin')->andReturnSelf();
     Log::shouldReceive('info')->once()->with(
-        'user ' . $user->id . ' created ' . $institution::class . ' ' . $institution->id
+        'user '.$user->id.' created '.$institution::class.' '.$institution->id
     );
 
     app(AdminLoggingService::class)->log('created', $institution);
 });
 
-test('happening validation exception stores translation data and renders its translated message', function () {
+test('happening validation exception stores translation data and renders its translated message', function (): void {
     $exception = new HappeningValidationException(
         'validation.after',
         ['date' => Utility::getTranslatable('Tomorrow')['en']]

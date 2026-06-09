@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('resource_groups', function (Blueprint $table) {
+        Schema::table('resource_groups', function (Blueprint $table): void {
             $table->smallInteger('order')->default(0);
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('resource_groups', function (Blueprint $table) {
+        Schema::table('resource_groups', function (Blueprint $table): void {
             $table->dropColumn('order');
         });
     }

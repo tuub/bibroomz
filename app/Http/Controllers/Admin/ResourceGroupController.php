@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\DeleteResourceGroupRequest;
 use App\Http\Requests\Admin\InstitutionContextRequest;
-use App\Http\Requests\Admin\ResourceGroupRequest;
 use App\Http\Requests\Admin\ResourceGroupIdRequest;
 use App\Http\Requests\Admin\ResourceGroupOrderRequest;
-use App\Models\Institution;
+use App\Http\Requests\Admin\ResourceGroupRequest;
 use App\Models\ResourceGroup;
 use App\Services\Admin\ResourceGroupAdminService;
 use Illuminate\Http\RedirectResponse;
@@ -16,9 +15,7 @@ use Inertia\Response;
 
 class ResourceGroupController extends AdminController
 {
-    public function __construct(private ResourceGroupAdminService $resourceGroupAdminService)
-    {
-    }
+    public function __construct(private readonly ResourceGroupAdminService $resourceGroupAdminService) {}
 
     public function getResourceGroups(InstitutionContextRequest $request): Response
     {

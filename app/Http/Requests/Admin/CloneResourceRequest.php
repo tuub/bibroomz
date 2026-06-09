@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Resource;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class CloneResourceRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class CloneResourceRequest extends AdminRouteRequest
         $resource = $this->findModel(Resource::class);
         $user = $this->userModel();
 
-        return $resource !== null && $user !== null && $user->can('clone', $resource);
+        return $resource instanceof Model && $user instanceof User && $user->can('clone', $resource);
     }
 
     /**

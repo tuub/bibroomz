@@ -1,25 +1,22 @@
 <?php
 
-covers(
-    App\Http\Controllers\HappeningController::class,
-    App\Services\Happenings\CreateHappeningAction::class,
-    App\Services\Happenings\UpdateHappeningAction::class,
-    App\Services\Happenings\DeleteHappeningAction::class,
-    App\Services\Happenings\VerifyHappeningAction::class,
-    App\Services\Happenings\HappeningNotificationService::class,
-    App\Listeners\HappeningEventSubscriber::class
-);
-
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningsChangedEvent;
 use App\Events\HappeningUpdatedEvent;
 use App\Events\HappeningVerifiedEvent;
+use App\Http\Controllers\HappeningController;
+use App\Listeners\HappeningEventSubscriber;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Happenings\CreateHappeningAction;
+use App\Services\Happenings\DeleteHappeningAction;
+use App\Services\Happenings\HappeningNotificationService;
+use App\Services\Happenings\UpdateHappeningAction;
+use App\Services\Happenings\VerifyHappeningAction;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
@@ -27,20 +24,33 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 
+covers(
+    HappeningController::class,
+    CreateHappeningAction::class,
+    UpdateHappeningAction::class,
+    DeleteHappeningAction::class,
+    VerifyHappeningAction::class,
+    HappeningNotificationService::class,
+    HappeningEventSubscriber::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     config()->set('roomz.app.timezone', 'UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User, otherUser: User}
+ */
 function createPublicHappeningFixture(): array
 {
     $institution = Institution::factory()->create(['is_active' => true]);
@@ -53,10 +63,10 @@ function createPublicHappeningFixture(): array
     $verifier = User::factory()->create(['name' => 'verifier.user']);
     $otherUser = User::factory()->create(['name' => 'other.user']);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier', 'otherUser');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier, 'otherUser' => $otherUser];
 }
 
-test('guest requests are rejected for sanctum protected public happening routes', function () {
+test('guest requests are rejected for sanctum protected public happening routes', function (): void {
     ['resourceGroup' => $resourceGroup] = createPublicHappeningFixture();
 
     $this->getJson(route('user.happenings.get', ['resource_group_id' => $resourceGroup->id]))
@@ -69,7 +79,7 @@ test('guest requests are rejected for sanctum protected public happening routes'
     ])->assertUnauthorized();
 });
 
-test('my happenings route returns adjusted open entries and filters out fully closed ones', function () {
+test('my happenings route returns adjusted open entries and filters out fully closed ones', function (): void {
     [
         'resourceGroup' => $resourceGroup,
         'resource' => $resource,
@@ -118,10 +128,12 @@ test('my happenings route returns adjusted open entries and filters out fully cl
         ->assertJsonPath('0.end', '2026-06-10 11:00')
         ->assertJsonPath('0.user_02', $verifier->name);
 
-    expect(collect($response->json())->pluck('id')->all())->not->toContain($filtered->id);
+    /** @var array<int, mixed> $jsonData */
+    $jsonData = $response->json() ?? [];
+    expect(collect($jsonData)->pluck('id')->all())->not->toContain($filtered->id);
 });
 
-test('authenticated users can create a public reservation and dispatch events', function () {
+test('authenticated users can create a public reservation and dispatch events', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
 
     Event::fake([HappeningCreatedEvent::class, HappeningsChangedEvent::class]);
@@ -146,7 +158,7 @@ test('authenticated users can create a public reservation and dispatch events', 
     Event::assertDispatched(HappeningsChangedEvent::class);
 });
 
-test('overlapping reservations are rejected with the translated public error message', function () {
+test('overlapping reservations are rejected with the translated public error message', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
 
     Happening::create([
@@ -171,12 +183,12 @@ test('overlapping reservations are rejected with the translated public error mes
         'label' => ['en' => 'Conflicting'],
     ])->assertStatus(400)
         ->assertJsonPath('message', __('happening.errors.reserved', [
-            'resource_type' => $resource->resource_group->term_singular,
-            'resource_title' => $resource->title,
+            'resource_type' => (string) $resource->resource_group->term_singular,
+            'resource_title' => (string) $resource->title,
         ]));
 });
 
-test('verifier required reservations reject missing verifier input', function () {
+test('verifier required reservations reject missing verifier input', function (): void {
     ['resource' => $resource, 'owner' => $owner] = createPublicHappeningFixture();
 
     Sanctum::actingAs($owner);
@@ -189,7 +201,7 @@ test('verifier required reservations reject missing verifier input', function ()
         ->assertJsonValidationErrors(['verifier']);
 });
 
-test('owners can update reservations and dispatch update events', function () {
+test('owners can update reservations and dispatch update events', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
 
     $happening = Happening::create([
@@ -223,7 +235,7 @@ test('owners can update reservations and dispatch update events', function () {
     Event::assertDispatched(HappeningsChangedEvent::class);
 });
 
-test('designated verifiers can verify reservations and dispatch verification events', function () {
+test('designated verifiers can verify reservations and dispatch verification events', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
 
     $happening = Happening::create([
@@ -259,7 +271,7 @@ test('designated verifiers can verify reservations and dispatch verification eve
     Event::assertDispatched(HappeningsChangedEvent::class);
 });
 
-test('authorized users can delete reservations and dispatch deletion events', function () {
+test('authorized users can delete reservations and dispatch deletion events', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
 
     $happening = Happening::create([

@@ -1,18 +1,21 @@
 <?php
 
-covers(
-    App\Http\Controllers\LoginController::class,
-    App\Services\Http\LoginAction::class,
-    App\Auth\AlmaUserProvider::class
-);
-
+use App\Auth\AlmaUserProvider;
+use App\Http\Controllers\LoginController;
 use App\Models\User;
+use App\Services\Http\LoginAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
+covers(
+    LoginController::class,
+    LoginAction::class,
+    AlmaUserProvider::class
+);
+
 uses(RefreshDatabase::class);
 
-test('local system user login does not fall back to alma', function () {
+test('local system user login does not fall back to alma', function (): void {
     $user = User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),
@@ -27,7 +30,7 @@ test('local system user login does not fall back to alma', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('local system user with wrong password is rejected without remote lookup', function () {
+test('local system user with wrong password is rejected without remote lookup', function (): void {
     User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),
@@ -42,7 +45,7 @@ test('local system user with wrong password is rejected without remote lookup', 
     $this->assertGuest();
 });
 
-test('remote user cannot authenticate with stored local password', function () {
+test('remote user cannot authenticate with stored local password', function (): void {
     User::factory()->create([
         'name' => 'remote-user',
         'password' => Hash::make('stored-local-password'),
@@ -57,20 +60,20 @@ test('remote user cannot authenticate with stored local password', function () {
     $this->assertGuest();
 });
 
-test('new alma users are created as directory accounts with non static passwords', function () {
+test('new alma users are created as directory accounts with non static passwords', function (): void {
     mockLoginAlmaResponse('<result><code>0</code><email_address>remote@example.org</email_address></result>');
 
     $this->postJson(route('login'), ['username' => 'RemoteUser', 'password' => 'remote-secret'])
         ->assertOk();
 
-    $user = User::firstWhere('name', 'remoteuser');
+    $user = User::where('name', 'remoteuser')->firstOrFail();
 
     expect($user)->not->toBeNull();
     expect($user->isSystemUser())->toBeFalse();
-    expect(Hash::check('Test123!', $user->password))->toBeFalse();
+    expect(Hash::check('Test123!', (string) $user->password))->toBeFalse();
 });
 
-test('login is rate limited after five failed attempts', function () {
+test('login is rate limited after five failed attempts', function (): void {
     User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),

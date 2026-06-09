@@ -2,37 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Carbon\CarbonImmutable;
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
- * @property-read \Illuminate\Database\Eloquent\Collection<int, UserGroup> $user_groups
+ * @property-read EloquentCollection<int, Role> $roles
+ * @property-read EloquentCollection<int, UserGroup> $user_groups
  */
 class User extends Authenticatable implements BannableInterface
 {
+    use Bannable;
+    use HasApiTokens, HasUuids, Notifiable;
+
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
-    use HasApiTokens, HasUuids, Notifiable;
-    use Bannable;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'users';
+
     public $incrementing = false;
 
     /**
@@ -61,29 +65,13 @@ class User extends Authenticatable implements BannableInterface
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'is_admin' => 'boolean',
-        'is_system_user' => 'boolean',
-        'is_logged_in' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'banned_at' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'last_login' => 'datetime',
-    ];
-
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Happening, $this>
+     * @return HasMany<Happening, $this>
      */
-    public function happenings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function happenings(): HasMany
     {
         return $this->hasMany(Happening::class, 'user_id_01', 'id');
     }
@@ -122,9 +110,10 @@ class User extends Authenticatable implements BannableInterface
     /*****************************************************************
      * METHODS
      ****************************************************************/
+    #[\Override]
     protected static function booted(): void
     {
-        static::deleting(function (User $user) {
+        static::deleting(function (User $user): void {
             Happening::where('user_id_01', $user->getKey())->orWhere('user_id_02', $user->getKey())->delete();
         });
     }
@@ -152,7 +141,7 @@ class User extends Authenticatable implements BannableInterface
     public function isHavingConcurrentHappening(
         CarbonImmutable $start,
         CarbonImmutable $end,
-        Happening $happening = null,
+        ?Happening $happening = null,
     ): bool {
         return $this->getOtherUserHappeningsForResourceGroup($happening?->resource->resource_group, $happening)
             ->filter->isConcurrent($start, $end)
@@ -177,7 +166,7 @@ class User extends Authenticatable implements BannableInterface
     }
 
     /**
-     * @param list<string>|null $filter
+     * @param  list<string>|null  $filter
      * @return Collection<string, Collection<int, string>>
      */
     public function getPermissions(?array $filter = null): Collection
@@ -223,24 +212,39 @@ class User extends Authenticatable implements BannableInterface
             ->map(fn (array $permissions): Collection => collect($permissions)->unique()->values());
     }
 
-    public function hasPermission(string $permission, Institution $institution = null): bool
+    public function hasPermission(string $permission, ?Institution $institution = null): bool
     {
-        return $this->isAdmin()
-            || $this->roles->contains(fn (Role $role): bool => $role->hasPermission($permission, $institution));
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return $this->roles->contains(fn (Role $role): bool => $role->hasPermission($permission, $institution));
     }
 
     public function isLoggedIn(): bool
     {
-        if (!$this->is_logged_in) {
+        if (! $this->is_logged_in) {
             return false;
         }
 
         $userKey = $this->getKey();
 
-        if ((is_string($userKey) || is_int($userKey)) && cache()->has('user_activity_' . $userKey)) {
-            return true;
-        }
-
-        return false;
+        return (is_string($userKey) || is_int($userKey)) && cache()->has('user_activity_'.$userKey);
     }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_admin' => 'boolean',
+        'is_system_user' => 'boolean',
+        'is_logged_in' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'banned_at' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'last_login' => 'datetime',
+    ];
 }

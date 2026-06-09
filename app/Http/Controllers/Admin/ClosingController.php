@@ -16,9 +16,8 @@ use Inertia\Response;
 class ClosingController extends AdminController
 {
     public function __construct(
-        private ClosingAdminService $closingAdminService,
-    ) {
-    }
+        private readonly ClosingAdminService $closingAdminService,
+    ) {}
 
     public function getClosings(ClosableContextRequest $request): Response
     {

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console;
 
 use App\Console\Commands\AnonymizeHappeningUsersCommand;
-use App\Models\Happening;
 use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
 use App\Console\Commands\RemoveUsersCommand;
 use App\Models\Closing;
+use App\Models\Happening;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -15,9 +17,9 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
+    #[\Override]
     protected function schedule(Schedule $schedule)
     {
         $schedule->command(
@@ -65,9 +67,10 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
+    #[\Override]
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

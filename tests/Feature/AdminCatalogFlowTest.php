@@ -1,30 +1,19 @@
 <?php
 
-covers(
-    App\Http\Controllers\Admin\InstitutionController::class,
-    App\Http\Controllers\Admin\ResourceController::class,
-    App\Http\Controllers\Admin\ResourceGroupController::class,
-    App\Http\Controllers\Admin\ClosingController::class,
-    App\Http\Controllers\Admin\MailController::class,
-    App\Http\Controllers\Admin\SettingController::class,
-    App\Services\Admin\InstitutionAdminService::class,
-    App\Services\Admin\ResourceAdminService::class,
-    App\Services\Admin\ResourceGroupAdminService::class,
-    App\Services\Admin\ClosingAdminService::class,
-    App\Services\Admin\MailAdminService::class,
-    App\Services\Admin\SettingAdminService::class,
-    App\Services\Admin\SettingableResolver::class,
-    App\Services\Admin\ClosableResolver::class,
-    App\Http\Requests\Admin\InstitutionRequest::class,
-    App\Http\Requests\Admin\ResourceGroupRequest::class,
-    App\Http\Requests\Admin\StoreResourceRequest::class,
-    App\Http\Requests\Admin\UpdateResourceRequest::class,
-    App\Http\Requests\Admin\StoreClosingRequest::class,
-    App\Http\Requests\Admin\UpdateClosingRequest::class,
-    App\Http\Requests\Admin\MailContentRequest::class,
-    App\Http\Requests\Admin\UpdateSettingRequest::class
-);
-
+use App\Http\Controllers\Admin\ClosingController;
+use App\Http\Controllers\Admin\InstitutionController;
+use App\Http\Controllers\Admin\MailController;
+use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\Admin\ResourceGroupController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Requests\Admin\InstitutionRequest;
+use App\Http\Requests\Admin\MailContentRequest;
+use App\Http\Requests\Admin\ResourceGroupRequest;
+use App\Http\Requests\Admin\StoreClosingRequest;
+use App\Http\Requests\Admin\StoreResourceRequest;
+use App\Http\Requests\Admin\UpdateClosingRequest;
+use App\Http\Requests\Admin\UpdateResourceRequest;
+use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Library\Utility;
 use App\Models\Closing;
 use App\Models\Institution;
@@ -34,29 +23,67 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\WeekDay;
+use App\Services\Admin\ClosableResolver;
+use App\Services\Admin\ClosingAdminService;
+use App\Services\Admin\InstitutionAdminService;
+use App\Services\Admin\MailAdminService;
+use App\Services\Admin\ResourceAdminService;
+use App\Services\Admin\ResourceGroupAdminService;
+use App\Services\Admin\SettingableResolver;
+use App\Services\Admin\SettingAdminService;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
+
+covers(
+    InstitutionController::class,
+    ResourceController::class,
+    ResourceGroupController::class,
+    ClosingController::class,
+    MailController::class,
+    SettingController::class,
+    InstitutionAdminService::class,
+    ResourceAdminService::class,
+    ResourceGroupAdminService::class,
+    ClosingAdminService::class,
+    MailAdminService::class,
+    SettingAdminService::class,
+    SettingableResolver::class,
+    ClosableResolver::class,
+    InstitutionRequest::class,
+    ResourceGroupRequest::class,
+    StoreResourceRequest::class,
+    UpdateResourceRequest::class,
+    StoreClosingRequest::class,
+    UpdateClosingRequest::class,
+    MailContentRequest::class,
+    UpdateSettingRequest::class
+);
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     $this->seed(MailTypeSeeder::class);
     config()->set('broadcasting.default', 'log');
 });
 
+/**
+ * @return array<string, string>
+ */
 function adminCatalogFeatureTranslatable(string $value): array
 {
     return Utility::getTranslatable($value);
 }
 
 /**
- * @param list<string> $permissions
+ * @param  list<string>  $permissions
  */
 function actingCatalogFeatureAdmin(Institution $institution, array $permissions): User
 {
@@ -74,11 +101,11 @@ function actingCatalogFeatureAdmin(Institution $institution, array $permissions)
     return $user;
 }
 
-test('guests are redirected away from admin routes', function () {
+test('guests are redirected away from admin routes', function (): void {
     $this->get('/admin')->assertRedirect(route('start'));
 });
 
-test('scoped admins without catalog create permission cannot store institutions', function () {
+test('scoped admins without catalog create permission cannot store institutions', function (): void {
     $scopeInstitution = Institution::factory()->create();
     actingCatalogFeatureAdmin($scopeInstitution, ['view_institutions']);
 
@@ -100,7 +127,7 @@ test('scoped admins without catalog create permission cannot store institutions'
     $this->assertDatabaseMissing('institutions', ['slug' => 'blocked-institution']);
 });
 
-test('catalog admin routes render and mutate institutions resources settings closings and mails', function () {
+test('catalog admin routes render and mutate institutions resources settings closings and mails', function (): void {
     $scopeInstitution = Institution::factory()->create();
     actingCatalogFeatureAdmin($scopeInstitution, [
         'view_institutions',
@@ -131,17 +158,17 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get('/admin')
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('Admin/Dashboard'));
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('Admin/Dashboard'));
 
     $this->get(route('admin.institution.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Institutions/Index')
             ->has('institutions'));
 
     $this->get(route('admin.institution.create'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Institutions/Form')
             ->has('daysOfWeek')
             ->has('languages'));
@@ -166,24 +193,24 @@ test('catalog admin routes render and mutate institutions resources settings clo
     if ($currentUser instanceof User) {
         foreach (
             [
-            'view_resource_groups',
-            'create_resource_groups',
-            'edit_resource_groups',
-            'delete_resource_groups',
-            'view_resources',
-            'create_resources',
-            'edit_resources',
-            'delete_resources',
-            'view_settings',
-            'edit_settings',
-            'view_closings',
-            'create_closings',
-            'edit_closings',
-            'delete_closings',
-            'view_mails',
-            'create_mails',
-            'edit_mails',
-            'delete_mails',
+                'view_resource_groups',
+                'create_resource_groups',
+                'edit_resource_groups',
+                'delete_resource_groups',
+                'view_resources',
+                'create_resources',
+                'edit_resources',
+                'delete_resources',
+                'view_settings',
+                'edit_settings',
+                'view_closings',
+                'create_closings',
+                'edit_closings',
+                'delete_closings',
+                'view_mails',
+                'create_mails',
+                'edit_mails',
+                'delete_mails',
             ] as $permission
         ) {
             grantAdminPermission($currentUser, $institution, $permission);
@@ -195,7 +222,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.institution.edit', ['id' => $institution->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Institutions/Form')
             ->where('institution.id', $institution->id)
             ->has('daysOfWeek'));
@@ -214,24 +241,24 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'is_active' => true,
     ])->assertRedirect(route('admin.institution.index'));
 
-    expect($institution->fresh()->slug)->toBe('updated-feature-institution');
+    expect($institution->fresh()?->slug)->toBe('updated-feature-institution');
 
     $this->post(route('admin.institution.order'), [
         ['id' => $institution->id, 'order' => 7],
     ])->assertOk();
 
-    expect($institution->fresh()->order)->toBe(7);
+    expect($institution->fresh()?->order)->toBe(7);
 
     $this->get(route('admin.resource_group.index', ['institution_id' => $institution->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/ResourceGroups/Index')
             ->where('institution.id', $institution->id)
             ->has('resource_groups'));
 
     $this->get(route('admin.resource_group.create', ['institution_id' => $institution->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/ResourceGroups/Form')
             ->where('institution.id', $institution->id)
             ->has('institutions'));
@@ -252,7 +279,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.resource_group.edit', ['id' => $resourceGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/ResourceGroups/Form')
             ->where('resource_group.id', $resourceGroup->id)
             ->has('institutions'));
@@ -270,24 +297,24 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'help_uri' => 'https://example.org/help-2',
     ])->assertRedirect(route('admin.resource_group.index', ['institution_id' => $institution->id]));
 
-    expect($resourceGroup->fresh()->slug)->toBe('study-rooms');
+    expect($resourceGroup->fresh()?->slug)->toBe('study-rooms');
 
     $this->post(route('admin.resource_group.order'), [
         ['id' => $resourceGroup->id, 'order' => 4],
     ])->assertOk();
 
-    expect($resourceGroup->fresh()->order)->toBe(4);
+    expect($resourceGroup->fresh()?->order)->toBe(4);
 
     $this->get(route('admin.resource.index', ['resource_group_id' => $resourceGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Resources/Index')
             ->where('resourceGroup.id', $resourceGroup->id)
             ->has('resources'));
 
     $this->get(route('admin.resource.create', ['resource_group_id' => $resourceGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Resources/Form')
             ->where('resourceGroup.id', $resourceGroup->id)
             ->has('weekDays'));
@@ -318,7 +345,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.resource.edit', ['id' => $resource->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Resources/Form')
             ->where('resource.id', $resource->id)
             ->has('resource.business_hours', 1));
@@ -345,17 +372,17 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $updatedResource = $resource->fresh(['business_hours.week_days']);
 
-    expect((int) $updatedResource->capacity)->toBe(4)
-        ->and($updatedResource->is_verification_required)->toBeTrue()
-        ->and($updatedResource->business_hours)->toHaveCount(1)
-        ->and($updatedResource->business_hours->first()?->start)->toBe('09:00')
-        ->and($updatedResource->business_hours->first()?->end)->toBe('17:00');
+    expect((int) $updatedResource?->capacity)->toBe(4)
+        ->and($updatedResource?->is_verification_required)->toBeTrue()
+        ->and($updatedResource?->business_hours)->toHaveCount(1)
+        ->and($updatedResource?->business_hours->first()?->start)->toBe('09:00')
+        ->and($updatedResource?->business_hours->first()?->end)->toBe('17:00');
 
     $this->post(route('admin.resource.order'), [
         ['id' => $resource->id, 'order' => 9],
     ])->assertOk();
 
-    expect($resource->fresh()->order)->toBe(9);
+    expect($resource->fresh()?->order)->toBe(9);
 
     $cloneResponse = $this->post(route('admin.resource.clone'), ['id' => $resource->id]);
     $cloneResponse->assertRedirect();
@@ -372,7 +399,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'settingable_id' => $institution->id,
     ]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Settings/Index')
             ->where('settingable.id', $institution->id)
             ->where('settingable_type', 'institution')
@@ -382,7 +409,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.setting.edit', ['id' => $setting->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Settings/Form')
             ->where('setting.id', $setting->id)
             ->where('settingable_type', 'institution'));
@@ -398,14 +425,14 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'settingable_type' => 'institution',
     ]));
 
-    expect($setting->fresh()->value)->toBe('Europe/Paris');
+    expect($setting->fresh()?->value)->toBe('Europe/Paris');
 
     $this->get(route('admin.closing.index', [
         'closable_type' => 'institution',
         'closable_id' => $institution->id,
     ]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Closings/Index')
             ->where('closable.id', $institution->id)
             ->where('closable_type', 'institution'));
@@ -415,7 +442,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'closable_id' => $institution->id,
     ]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Closings/Form')
             ->where('closable.id', $institution->id)
             ->where('closable_type', 'institution'));
@@ -437,7 +464,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.closing.edit', ['id' => $closing->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Closings/Form')
             ->where('closing.id', $closing->id)
             ->where('closable_type', 'institution'));
@@ -456,7 +483,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'closable_id' => $institution->id,
     ]));
 
-    expect($closing->fresh()->getTranslation('description', 'en'))->toBe('Shifted maintenance');
+    expect($closing->fresh()?->getTranslation('description', 'en'))->toBe('Shifted maintenance');
 
     $this->post(route('admin.closing.delete'), ['id' => $closing->id])
         ->assertRedirect(route('admin.closing.index', [
@@ -470,14 +497,14 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.mail.index', ['institution_id' => $institution->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Mails/Index')
             ->where('institution.id', $institution->id)
             ->has('mails'));
 
     $this->get(route('admin.mail.create', ['institution_id' => $institution->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Mails/Form')
             ->where('institution_id', $institution->id)
             ->has('mail_types'));
@@ -498,7 +525,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $this->get(route('admin.mail.edit', ['id' => $mail->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Mails/Form')
             ->where('mail.id', $mail->id)
             ->where('institution_id', $institution->id));
@@ -516,7 +543,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         'is_active' => true,
     ])->assertRedirect(route('admin.mail.index', ['institution_id' => $institution->id]));
 
-    expect($mail->fresh()->getTranslation('subject', 'en'))->toBe('Updated reservation update');
+    expect($mail->fresh()?->getTranslation('subject', 'en'))->toBe('Updated reservation update');
 
     $this->post(route('admin.resource.delete'), ['id' => $clonedResource->id])
         ->assertRedirect(route('admin.resource.index', ['resource_group_id' => $resourceGroup->id]));

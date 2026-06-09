@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Console;
 
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 class RemoveUnverifiedHappeningsAction
 {
     /**
-     * @param Builder<Happening> $query
+     * @param  Builder<Happening>  $query
      */
     public function execute(Builder $query): void
     {

@@ -10,10 +10,9 @@ use Carbon\CarbonImmutable;
 class UpdateHappeningAction
 {
     public function __construct(
-        private ValidateHappeningReservation $validator,
-        private HappeningBroadcaster $broadcaster,
-    ) {
-    }
+        private readonly ValidateHappeningReservation $validator,
+        private readonly HappeningBroadcaster $broadcaster,
+    ) {}
 
     public function executeForUser(
         User $user,
@@ -32,7 +31,7 @@ class UpdateHappeningAction
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function executeForAdmin(Happening $happening, array $attributes): Happening
     {
@@ -40,7 +39,7 @@ class UpdateHappeningAction
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function updateAndBroadcast(Happening $happening, array $attributes): Happening
     {

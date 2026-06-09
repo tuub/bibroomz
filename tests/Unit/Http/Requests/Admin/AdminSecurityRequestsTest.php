@@ -1,38 +1,34 @@
 <?php
 
-covers(
-    App\Http\Requests\Admin\AdminRouteRequest::class,
-    App\Http\Requests\Admin\InstitutionContextRequest::class,
-    App\Http\Requests\Admin\InstitutionIdRequest::class,
-    App\Http\Requests\Admin\ResourceGroupContextRequest::class,
-    App\Http\Requests\Admin\ResourceGroupIdRequest::class,
-    App\Http\Requests\Admin\ResourceIdRequest::class,
-    App\Http\Requests\Admin\ClosingIdRequest::class,
-    App\Http\Requests\Admin\HappeningIdRequest::class,
-    App\Http\Requests\Admin\DeleteClosingRequest::class,
-    App\Http\Requests\Admin\DeleteHappeningRequest::class,
-    App\Http\Requests\Admin\DeleteInstitutionRequest::class,
-    App\Http\Requests\Admin\DeleteResourceRequest::class,
-    App\Http\Requests\Admin\DeleteResourceGroupRequest::class,
-    App\Http\Requests\Admin\BanUserRequest::class,
-    App\Http\Requests\Admin\UnbanUserRequest::class,
-    App\Http\Requests\Admin\DeleteUserRequest::class,
-    App\Http\Requests\Admin\UserIdRequest::class,
-    App\Http\Requests\Admin\DeleteUserGroupRequest::class,
-    App\Http\Requests\Admin\UserGroupIdRequest::class,
-    App\Http\Requests\Admin\DeleteRoleRequest::class,
-    App\Http\Requests\Admin\RoleIdRequest::class,
-    App\Http\Requests\Admin\SettingIdRequest::class,
-    App\Http\Requests\Admin\DeleteMailContentRequest::class,
-    App\Http\Requests\Admin\MailContentIdRequest::class,
-    App\Http\Requests\Admin\SettingableContextRequest::class,
-    App\Http\Requests\Admin\ClosableContextRequest::class
-);
-
+use App\Http\Requests\Admin\AdminRouteRequest;
+use App\Http\Requests\Admin\BanUserRequest;
+use App\Http\Requests\Admin\ClosableContextRequest;
+use App\Http\Requests\Admin\ClosingIdRequest;
+use App\Http\Requests\Admin\DeleteClosingRequest;
+use App\Http\Requests\Admin\DeleteHappeningRequest;
+use App\Http\Requests\Admin\DeleteInstitutionRequest;
+use App\Http\Requests\Admin\DeleteMailContentRequest;
+use App\Http\Requests\Admin\DeleteResourceGroupRequest;
+use App\Http\Requests\Admin\DeleteResourceRequest;
+use App\Http\Requests\Admin\DeleteRoleRequest;
+use App\Http\Requests\Admin\DeleteUserGroupRequest;
+use App\Http\Requests\Admin\DeleteUserRequest;
+use App\Http\Requests\Admin\HappeningIdRequest;
+use App\Http\Requests\Admin\InstitutionContextRequest;
 use App\Http\Requests\Admin\InstitutionIdRequest;
+use App\Http\Requests\Admin\MailContentIdRequest;
+use App\Http\Requests\Admin\ResourceGroupContextRequest;
+use App\Http\Requests\Admin\ResourceGroupIdRequest;
 use App\Http\Requests\Admin\ResourceGroupRequest;
+use App\Http\Requests\Admin\ResourceIdRequest;
+use App\Http\Requests\Admin\RoleIdRequest;
+use App\Http\Requests\Admin\SettingableContextRequest;
+use App\Http\Requests\Admin\SettingIdRequest;
 use App\Http\Requests\Admin\StoreUserGroupRequest;
+use App\Http\Requests\Admin\UnbanUserRequest;
 use App\Http\Requests\Admin\UpdateUserGroupRequest;
+use App\Http\Requests\Admin\UserGroupIdRequest;
+use App\Http\Requests\Admin\UserIdRequest;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
@@ -42,11 +38,40 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    AdminRouteRequest::class,
+    InstitutionContextRequest::class,
+    InstitutionIdRequest::class,
+    ResourceGroupContextRequest::class,
+    ResourceGroupIdRequest::class,
+    ResourceIdRequest::class,
+    ClosingIdRequest::class,
+    HappeningIdRequest::class,
+    DeleteClosingRequest::class,
+    DeleteHappeningRequest::class,
+    DeleteInstitutionRequest::class,
+    DeleteResourceRequest::class,
+    DeleteResourceGroupRequest::class,
+    BanUserRequest::class,
+    UnbanUserRequest::class,
+    DeleteUserRequest::class,
+    UserIdRequest::class,
+    DeleteUserGroupRequest::class,
+    UserGroupIdRequest::class,
+    DeleteRoleRequest::class,
+    RoleIdRequest::class,
+    SettingIdRequest::class,
+    DeleteMailContentRequest::class,
+    MailContentIdRequest::class,
+    SettingableContextRequest::class,
+    ClosableContextRequest::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 
-test('resource group request allows create for authorized institution', function () {
+test('resource group request allows create for authorized institution', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create();
 
@@ -56,7 +81,7 @@ test('resource group request allows create for authorized institution', function
     expect($request->authorize())->toBeTrue();
 });
 
-test('resource group request rejects move without target create permission', function () {
+test('resource group request rejects move without target create permission', function (): void {
     $sourceInstitution = Institution::factory()->create();
     $targetInstitution = Institution::factory()->create();
     $user = User::factory()->create();
@@ -72,7 +97,7 @@ test('resource group request rejects move without target create permission', fun
     expect($request->authorize())->toBeFalse();
 });
 
-test('resource group request accepts move when user can edit source and create target', function () {
+test('resource group request accepts move when user can edit source and create target', function (): void {
     $sourceInstitution = Institution::factory()->create();
     $targetInstitution = Institution::factory()->create();
     $user = User::factory()->create();
@@ -89,7 +114,7 @@ test('resource group request accepts move when user can edit source and create t
     expect($request->authorize())->toBeTrue();
 });
 
-test('resource group request validation rejects foreign user group ids', function () {
+test('resource group request validation rejects foreign user group ids', function (): void {
     $institution = Institution::factory()->create();
     $otherInstitution = Institution::factory()->create();
     $foreignUserGroup = UserGroup::create([
@@ -97,7 +122,7 @@ test('resource group request validation rejects foreign user group ids', functio
         'institution_id' => $otherInstitution->id,
     ]);
 
-    $request = new ResourceGroupRequest();
+    $request = new ResourceGroupRequest;
     $request->merge(['institution_id' => $institution->id]);
 
     $validator = Validator::make([
@@ -115,7 +140,7 @@ test('resource group request validation rejects foreign user group ids', functio
     expect($validator->errors()->messages())->toHaveKey('user_groups.0');
 });
 
-test('store user group request authorizes only users with create permission', function () {
+test('store user group request authorizes only users with create permission', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create();
 
@@ -128,7 +153,7 @@ test('store user group request authorizes only users with create permission', fu
     expect($request->authorize())->toBeTrue();
 });
 
-test('update user group request authorizes only users with update permission', function () {
+test('update user group request authorizes only users with update permission', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create();
     $userGroup = UserGroup::create([
@@ -145,7 +170,7 @@ test('update user group request authorizes only users with update permission', f
     expect($request->authorize())->toBeTrue();
 });
 
-test('findModelOrFail resolves the expected institution from the request identifier', function () {
+test('findModelOrFail resolves the expected institution from the request identifier', function (): void {
     $institution = Institution::factory()->create();
     $actor = User::factory()->create();
     $this->grantPermission($actor, $institution, 'edit_institutions');
@@ -153,7 +178,7 @@ test('findModelOrFail resolves the expected institution from the request identif
     $request = buildAdminFormRequest(InstitutionIdRequest::class, ['id' => $institution->id], $actor);
 
     // Wire up the validator so validated() is available, matching real request lifecycle.
-    $validator = \Illuminate\Support\Facades\Validator::make(
+    $validator = Validator::make(
         $request->validationData(),
         $request->rules(),
     );

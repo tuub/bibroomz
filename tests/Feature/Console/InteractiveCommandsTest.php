@@ -1,32 +1,43 @@
 <?php
 
-covers(
-    App\Console\Commands\CreateInstitutionCommand::class,
-    App\Console\Commands\CreateUserGroup::class,
-    App\Console\Commands\RestrictResourceGroup::class,
-    App\Services\Console\CreateInstitutionAction::class,
-    App\Services\Console\CreateInstitutionResourceGroupAction::class,
-    App\Services\Console\CreateUserGroupAction::class,
-    App\Services\Console\InstitutionInputCollector::class,
-    App\Services\Console\UserGroupInputCollector::class,
-    App\Services\Console\ResourceGroupRestrictionInputCollector::class,
-    App\Services\Console\RestrictResourceGroupAction::class
-);
-
+use App\Console\Commands\CreateInstitutionCommand;
+use App\Console\Commands\CreateUserGroup;
+use App\Console\Commands\RestrictResourceGroup;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
+use App\Models\Setting;
 use App\Models\UserGroup;
+use App\Services\Console\CreateInstitutionAction;
+use App\Services\Console\CreateInstitutionResourceGroupAction;
+use App\Services\Console\CreateUserGroupAction;
+use App\Services\Console\InstitutionInputCollector;
+use App\Services\Console\ResourceGroupRestrictionInputCollector;
+use App\Services\Console\RestrictResourceGroupAction;
+use App\Services\Console\UserGroupInputCollector;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
+covers(
+    CreateInstitutionCommand::class,
+    CreateUserGroup::class,
+    RestrictResourceGroup::class,
+    CreateInstitutionAction::class,
+    CreateInstitutionResourceGroupAction::class,
+    CreateUserGroupAction::class,
+    InstitutionInputCollector::class,
+    UserGroupInputCollector::class,
+    ResourceGroupRestrictionInputCollector::class,
+    RestrictResourceGroupAction::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
 });
 
-test('create institution command validates input without exiting the process', function () {
+test('create institution command validates input without exiting the process', function (): void {
     $this->artisan('roomz:create-institution', [
         '--title' => 'Library',
         '--short-title' => 'LIB',
@@ -44,7 +55,7 @@ test('create institution command validates input without exiting the process', f
     expect(Institution::where('slug', 'library')->exists())->toBeFalse();
 });
 
-test('create institution command creates an institution and an optional resource group through prompts', function () {
+test('create institution command creates an institution and an optional resource group through prompts', function (): void {
     $this->artisan('roomz:create-institution', [
         '--title' => 'Library',
         '--short-title' => 'LIB',
@@ -71,14 +82,14 @@ test('create institution command creates an institution and an optional resource
         ->expectsConfirmation('Active?', 'yes')
         ->assertExitCode(Command::SUCCESS);
 
-    $institution = Institution::firstWhere('slug', 'library');
+    $institution = Institution::where('slug', 'library')->firstOrFail();
 
     expect($institution)->not->toBeNull()
-        ->and($institution->settings)->toHaveCount(count(\App\Models\Setting::getInitialValues()['institution']))
+        ->and($institution->settings)->toHaveCount(count(Setting::getInitialValues()['institution']))
         ->and(ResourceGroup::firstWhere('slug', 'rooms'))->not->toBeNull();
 });
 
-test('create user group and restrict resource group commands follow the interactive flow', function () {
+test('create user group and restrict resource group commands follow the interactive flow', function (): void {
     $institution = Institution::factory()->create(['title' => 'Library']);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create(['title' => ['en' => 'Rooms']]);
     $firstUserGroup = UserGroup::create(['institution_id' => $institution->id, 'title' => ['en' => 'Tutors']]);
@@ -107,5 +118,5 @@ test('create user group and restrict resource group commands follow the interact
         )
         ->assertExitCode(Command::SUCCESS);
 
-    expect($resourceGroup->fresh()->user_groups->pluck('id')->all())->toBe([$firstUserGroup->id]);
+    expect($resourceGroup->fresh()?->user_groups->pluck('id')->all())->toBe([$firstUserGroup->id]);
 });

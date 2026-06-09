@@ -1,10 +1,5 @@
 <?php
 
-covers(
-    App\Services\ResourceGroupService::class,
-    App\Services\UserGroupService::class
-);
-
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
@@ -17,11 +12,16 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    ResourceGroupService::class,
+    UserGroupService::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 
-test('resource group service stores updates loads and deletes groups', function () {
+test('resource group service stores updates loads and deletes groups', function (): void {
     $institution = Institution::factory()->create();
     $selectedUserGroup = UserGroup::create([
         'title' => Utility::getTranslatable('Members'),
@@ -32,7 +32,7 @@ test('resource group service stores updates loads and deletes groups', function 
         'institution_id' => $institution->id,
     ]);
 
-    $service = new ResourceGroupService();
+    $service = new ResourceGroupService;
 
     $stored = $service->storeResourceGroup([
         'institution_id' => $institution->id,
@@ -71,7 +71,7 @@ test('resource group service stores updates loads and deletes groups', function 
     expect(ResourceGroup::find($stored->id))->toBeNull();
 });
 
-test('resource group service filters institutions and groups by user permissions', function () {
+test('resource group service filters institutions and groups by user permissions', function (): void {
     $allowedInstitution = Institution::factory()->create();
     $deniedInstitution = Institution::factory()->create();
     $user = User::factory()->create();
@@ -82,15 +82,15 @@ test('resource group service filters institutions and groups by user permissions
     $this->grantPermission($user, $allowedInstitution, 'create_resource_groups');
     $this->grantPermission($user, $allowedInstitution, 'view_resource_groups');
 
-    $service = new ResourceGroupService();
+    $service = new ResourceGroupService;
 
     expect($service->getInstitutionsForUser($user)->pluck('id')->all())->toBe([$allowedInstitution->id])
         ->and($service->getResourceGroupsForUser($user)->pluck('id')->all())->toBe([$allowedGroup->id]);
 });
 
-test('user group service stores imports updates lists removes and deletes users', function () {
+test('user group service stores imports updates lists removes and deletes users', function (): void {
     $institution = Institution::factory()->create();
-    $service = new UserGroupService();
+    $service = new UserGroupService;
 
     $userGroup = $service->storeUserGroup([
         'title' => Utility::getTranslatable('Editors'),
@@ -119,9 +119,12 @@ test('user group service stores imports updates lists removes and deletes users'
         'valid_until' => CarbonImmutable::parse('2026-07-31 23:59:59'),
     ]);
 
-    $pivot = $userGroup->fresh()->users()->where('name', 'mixed.user')->first()->pivot;
+    /** @var UserGroup $freshUserGroup */
+    $freshUserGroup = $userGroup->fresh();
+    $mixedUser = $freshUserGroup->users()->where('name', 'mixed.user')->firstOrFail();
+    $pivot = $mixedUser->pivot;
     expect($pivot->valid_from)->toBeNull()
-        ->and($pivot->valid_until->format('Y-m-d'))->toBe('2026-07-31');
+        ->and($pivot->valid_until?->format('Y-m-d'))->toBe('2026-07-31');
 
     $updated = $service->updateUserGroup($userGroup->id, [
         'title' => Utility::getTranslatable('Updated editors'),
@@ -130,16 +133,20 @@ test('user group service stores imports updates lists removes and deletes users'
     expect($updated->getTranslation('title', 'en'))->toBe('Updated editors');
 
     $loaded = $service->getUserGroupById($userGroup->id);
-    $service->removeUsers($loaded->id, $importedUsers->pluck('id')->all());
+    /** @var list<string> $userIds */
+    $userIds = array_values($importedUsers->pluck('id')->all());
+    $service->removeUsers($loaded->id, $userIds);
 
-    expect($loaded->fresh()->users)->toHaveCount(0);
+    /** @var UserGroup $loadedFresh */
+    $loadedFresh = $loaded->fresh();
+    expect($loadedFresh->users)->toHaveCount(0);
 
     $deleted = $service->deleteUserGroup($loaded->id);
     expect($deleted->id)->toBe($loaded->id)
         ->and(UserGroup::find($loaded->id))->toBeNull();
 });
 
-test('user group service filters institutions and groups by user permissions', function () {
+test('user group service filters institutions and groups by user permissions', function (): void {
     $allowedInstitution = Institution::factory()->create();
     $deniedInstitution = Institution::factory()->create();
     $user = User::factory()->create();
@@ -156,7 +163,7 @@ test('user group service filters institutions and groups by user permissions', f
     $this->grantPermission($user, $allowedInstitution, 'create_user_groups');
     $this->grantPermission($user, $allowedInstitution, 'view_user_groups');
 
-    $service = new UserGroupService();
+    $service = new UserGroupService;
 
     expect($service->getInstitutionsForUser($user)->pluck('id')->all())->toBe([$allowedInstitution->id])
         ->and($service->getUserGroupsForUser($user)->pluck('id')->all())->toBe([$allowedGroup->id]);

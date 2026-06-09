@@ -1,20 +1,8 @@
 <?php
 
-covers(
-    App\Http\Requests\AddHappeningRequest::class,
-    App\Http\Requests\UpdateHappeningRequest::class,
-    App\Http\Requests\VerifyHappeningRequest::class,
-    App\Http\Requests\DeleteHappeningRequest::class,
-    App\Http\Requests\CalendarEntriesRequest::class,
-    App\Http\Requests\LoginRequest::class,
-    App\Http\Requests\PublicResourcesRequest::class,
-    App\Http\Requests\ResourceTimeSlotsRequest::class,
-    App\Http\Requests\SwitchLanguageRequest::class,
-    App\Http\Requests\UserHappeningsRequest::class,
-    App\Http\Requests\ResourceGroupRouteRequest::class
-);
-
+use App\Http\Requests\AddHappeningRequest;
 use App\Http\Requests\CalendarEntriesRequest;
+use App\Http\Requests\DeleteHappeningRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\PublicResourcesRequest;
 use App\Http\Requests\ResourceGroupRouteRequest;
@@ -24,23 +12,49 @@ use App\Http\Requests\UpdateHappeningRequest;
 use App\Http\Requests\UserHappeningsRequest;
 use App\Http\Requests\VerifyHappeningRequest;
 use App\Models\Institution;
-use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Database\Seeders\WeekDaySeeder;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+covers(
+    AddHappeningRequest::class,
+    UpdateHappeningRequest::class,
+    VerifyHappeningRequest::class,
+    DeleteHappeningRequest::class,
+    CalendarEntriesRequest::class,
+    LoginRequest::class,
+    PublicResourcesRequest::class,
+    ResourceTimeSlotsRequest::class,
+    SwitchLanguageRequest::class,
+    UserHappeningsRequest::class,
+    ResourceGroupRouteRequest::class
+);
 
 uses(RefreshDatabase::class);
 
 beforeEach(fn () => $this->seed(WeekDaySeeder::class));
 
+/**
+ * @param  class-string<FormRequest>  $class
+ * @param  array<string, mixed>  $input
+ * @return array<string, mixed>
+ */
 function makePublicRules(string $class, array $input, ?User $user = null): array
 {
     $request = buildFormRequest($class, $input, $user);
+
+    /** @var array<string, mixed> */
     return $request->rules();
 }
 
+/**
+ * @param  array<string, mixed>  $rules
+ * @param  array<string, mixed>  $data
+ */
 function assertPublicFails(array $rules, array $data, string $field): void
 {
     $v = Validator::make($data, $rules);
@@ -50,66 +64,66 @@ function assertPublicFails(array $rules, array $data, string $field): void
 
 // ── UpdateHappeningRequest ────────────────────────────────────────────────────
 
-test('update happening request requires id', function () {
+test('update happening request requires id', function (): void {
     $rules = makePublicRules(UpdateHappeningRequest::class, []);
     assertPublicFails($rules, ['start' => '2026-06-10 09:00:00', 'end' => '2026-06-10 10:00:00'], 'id');
 });
 
-test('update happening request rejects non-uuid id', function () {
+test('update happening request rejects non-uuid id', function (): void {
     $rules = makePublicRules(UpdateHappeningRequest::class, ['id' => 'bad']);
     assertPublicFails($rules, ['id' => 'bad', 'start' => '2026-06-10 09:00:00', 'end' => '2026-06-10 10:00:00'], 'id');
 });
 
-test('update happening request requires start', function () {
+test('update happening request requires start', function (): void {
     $rules = makePublicRules(UpdateHappeningRequest::class, []);
     assertPublicFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(), 'end' => '2026-06-10 10:00:00',
+        'id' => (string) Str::uuid(), 'end' => '2026-06-10 10:00:00',
     ], 'start');
 });
 
-test('update happening request requires end', function () {
+test('update happening request requires end', function (): void {
     $rules = makePublicRules(UpdateHappeningRequest::class, []);
     assertPublicFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(), 'start' => '2026-06-10 09:00:00',
+        'id' => (string) Str::uuid(), 'start' => '2026-06-10 09:00:00',
     ], 'end');
 });
 
-test('update happening request rejects non-date start', function () {
+test('update happening request rejects non-date start', function (): void {
     $rules = makePublicRules(UpdateHappeningRequest::class, ['start' => 'not-a-date']);
     assertPublicFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(), 'start' => 'not-a-date', 'end' => '2026-06-10 10:00:00',
+        'id' => (string) Str::uuid(), 'start' => 'not-a-date', 'end' => '2026-06-10 10:00:00',
     ], 'start');
 });
 
 // ── VerifyHappeningRequest ────────────────────────────────────────────────────
 
-test('verify happening request requires id', function () {
+test('verify happening request requires id', function (): void {
     $rules = makePublicRules(VerifyHappeningRequest::class, []);
     assertPublicFails($rules, ['start' => '2026-06-10 09:00:00', 'end' => '2026-06-10 10:00:00'], 'id');
 });
 
-test('verify happening request rejects non-uuid id', function () {
+test('verify happening request rejects non-uuid id', function (): void {
     $rules = makePublicRules(VerifyHappeningRequest::class, ['id' => 'bad']);
     assertPublicFails($rules, ['id' => 'bad', 'start' => '2026-06-10 09:00:00', 'end' => '2026-06-10 10:00:00'], 'id');
 });
 
-test('verify happening request requires start', function () {
+test('verify happening request requires start', function (): void {
     $rules = makePublicRules(VerifyHappeningRequest::class, []);
     assertPublicFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(), 'end' => '2026-06-10 10:00:00',
+        'id' => (string) Str::uuid(), 'end' => '2026-06-10 10:00:00',
     ], 'start');
 });
 
-test('verify happening request requires end', function () {
+test('verify happening request requires end', function (): void {
     $rules = makePublicRules(VerifyHappeningRequest::class, []);
     assertPublicFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(), 'start' => '2026-06-10 09:00:00',
+        'id' => (string) Str::uuid(), 'start' => '2026-06-10 09:00:00',
     ], 'end');
 });
 
 // ── CalendarEntriesRequest ────────────────────────────────────────────────────
 
-test('calendar entries request requires start', function () {
+test('calendar entries request requires start', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $rules = makePublicRules(CalendarEntriesRequest::class, [
@@ -122,7 +136,7 @@ test('calendar entries request requires start', function () {
     ], 'start');
 });
 
-test('calendar entries request requires end', function () {
+test('calendar entries request requires end', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $rules = makePublicRules(CalendarEntriesRequest::class, [
@@ -137,36 +151,36 @@ test('calendar entries request requires end', function () {
 
 // ── LoginRequest ──────────────────────────────────────────────────────────────
 
-test('login request requires username', function () {
+test('login request requires username', function (): void {
     $rules = makePublicRules(LoginRequest::class, []);
     assertPublicFails($rules, ['password' => 'secret'], 'username');
 });
 
-test('login request requires password', function () {
+test('login request requires password', function (): void {
     $rules = makePublicRules(LoginRequest::class, []);
     assertPublicFails($rules, ['username' => 'alice'], 'password');
 });
 
-test('login request rejects empty username', function () {
+test('login request rejects empty username', function (): void {
     $rules = makePublicRules(LoginRequest::class, ['username' => '']);
     assertPublicFails($rules, ['username' => '', 'password' => 'secret'], 'username');
 });
 
 // ── SwitchLanguageRequest ─────────────────────────────────────────────────────
 
-test('switch language request requires locale', function () {
+test('switch language request requires locale', function (): void {
     $rules = makePublicRules(SwitchLanguageRequest::class, []);
     assertPublicFails($rules, [], 'locale');
 });
 
-test('switch language request rejects unlisted locale', function () {
+test('switch language request rejects unlisted locale', function (): void {
     $rules = makePublicRules(SwitchLanguageRequest::class, ['locale' => 'zz']);
     assertPublicFails($rules, ['locale' => 'zz'], 'locale');
 });
 
 // ── ResourceTimeSlotsRequest ──────────────────────────────────────────────────
 
-test('resource time slots request requires resource_id', function () {
+test('resource time slots request requires resource_id', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $rules = makePublicRules(ResourceTimeSlotsRequest::class, [
@@ -181,7 +195,7 @@ test('resource time slots request requires resource_id', function () {
 
 // ── PublicResourcesRequest ────────────────────────────────────────────────────
 
-test('public resources request requires institution_slug', function () {
+test('public resources request requires institution_slug', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $rules = makePublicRules(PublicResourcesRequest::class, [
@@ -192,19 +206,19 @@ test('public resources request requires institution_slug', function () {
 
 // ── UserHappeningsRequest ─────────────────────────────────────────────────────
 
-test('user happenings request requires resource_group_id', function () {
+test('user happenings request requires resource_group_id', function (): void {
     $rules = makePublicRules(UserHappeningsRequest::class, []);
     assertPublicFails($rules, [], 'resource_group_id');
 });
 
 // ── ResourceGroupRouteRequest ─────────────────────────────────────────────────
 
-test('resource group route request requires institution_slug', function () {
+test('resource group route request requires institution_slug', function (): void {
     $rules = makePublicRules(ResourceGroupRouteRequest::class, []);
     assertPublicFails($rules, ['resource_group_slug' => 'rooms'], 'institution_slug');
 });
 
-test('resource group route request requires resource_group_slug', function () {
+test('resource group route request requires resource_group_slug', function (): void {
     $rules = makePublicRules(ResourceGroupRouteRequest::class, []);
     assertPublicFails($rules, ['institution_slug' => 'lib'], 'resource_group_slug');
 });

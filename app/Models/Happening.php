@@ -8,21 +8,22 @@ use App\Services\Happenings\HappeningAudienceResolver;
 use App\Services\Happenings\HappeningBroadcaster;
 use App\Services\Happenings\HappeningStatusCalculator;
 use App\Services\Resources\ResourceAvailabilityService;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasTranslations;
+use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\MassPrunable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 /**
- * @property-read Resource $resource
+ * @property-read \App\Models\Resource $resource
  * @property-read User|null $user1
  * @property-read User|null $user2
  */
@@ -31,14 +32,16 @@ class Happening extends Model
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
-    use HasUuids, SoftDeletes, MassPrunable, HasTranslations;
+
+    use HasTranslations, HasUuids, MassPrunable, SoftDeletes;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'happenings';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -54,16 +57,6 @@ class Happening extends Model
         'label',
     ];
 
-    protected $casts = [
-        'is_verified' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'start' => 'datetime',
-        'end' => 'datetime',
-        'reserved_at' => 'datetime',
-        'verified_at' => 'datetime',
-    ];
-
     /**
      * @var list<string>
      */
@@ -76,7 +69,7 @@ class Happening extends Model
      ****************************************************************/
 
     /**
-     * @return BelongsTo<Resource, $this>
+     * @return BelongsTo<\App\Models\Resource, $this>
      */
     public function resource(): BelongsTo
     {
@@ -106,8 +99,9 @@ class Happening extends Model
     /**
      * Get only happenings that are within the current week.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
+     *
      * @throws InvalidArgumentException
      */
     public function scopeWeekly(Builder $query): Builder
@@ -118,44 +112,36 @@ class Happening extends Model
     /**
      * Get only happenings belonging to a given user.
      *
-     * @param Builder<self> $query
-     * @param User $user
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeUser(Builder $query, User $user): Builder
     {
-        return $query->where(function (Builder $query) use ($user) {
-            return $query->where('user_id_01', $user->id)
-                ->orWhere('user_id_02', $user->id)
-                ->orWhere('verifier', Utility::normalizeLoginName($user->name));
-        });
+        return $query->where(fn (Builder $query) => $query->where('user_id_01', $user->id)
+            ->orWhere('user_id_02', $user->id)
+            ->orWhere('verifier', Utility::normalizeLoginName($user->name)));
     }
 
     /**
      * Get only happenings belonging to a given resource group.
      *
-     * @param Builder<self> $query
-     * @param ResourceGroup $resourceGroup
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeResourceGroup(Builder $query, ResourceGroup $resourceGroup): Builder
     {
-        return $query->whereHas('resource', function (Builder $query) use ($resourceGroup) {
-            return $query->where('resource_group_id', $resourceGroup->id);
-        });
+        return $query->whereHas('resource', fn (Builder $query) => $query->where('resource_group_id', $resourceGroup->id));
     }
 
     /**
      * Get only happenings belonging to an active resource.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->whereHas('resource', function (Builder $query) {
-            return $query->where('is_active', true);
-        });
+        return $query->whereHas('resource', fn (Builder $query) => $query->where('is_active', true));
     }
 
     /*****************************************************************
@@ -167,9 +153,9 @@ class Happening extends Model
     public function getPermissions(?User $user): array
     {
         return [
-            'verify' => $user ? $user->can('verify', $this) : false,
-            'edit' => $user ? $user->can('update', $this) : false,
-            'delete' => $user ? $user->can('delete', $this) : false,
+            'verify' => $user instanceof User && $user->can('verify', $this),
+            'edit' => $user instanceof User && $user->can('update', $this),
+            'delete' => $user instanceof User && $user->can('delete', $this),
         ];
     }
 
@@ -195,8 +181,8 @@ class Happening extends Model
 
     /**
      * @return array{
-     *   type?: string,
-     *   user: array{reservation?: string, verification?: string}
+     *   type: 'booking'|'reservation'|'user-booking'|'user-reservation'|'user-to-verify',
+     *   user: array{}|array{reservation: string, verification: string}
      * }
      */
     public function getStatus(): array
@@ -215,7 +201,7 @@ class Happening extends Model
     }
 
     /**
-     * @param class-string<HappeningBroadcastEvent> $broadcastEvent
+     * @param  class-string<HappeningBroadcastEvent>  $broadcastEvent
      */
     public function broadcast(string $broadcastEvent): void
     {
@@ -271,6 +257,16 @@ class Happening extends Model
         [$is_open] = $availabilityService->findOpen($this->resource, $start, $end);
         [$is_closed] = $availabilityService->findClosed($this->resource, $start, $end);
 
-        return $is_open && !$is_closed;
+        return $is_open && ! $is_closed;
     }
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'start' => 'datetime',
+        'end' => 'datetime',
+        'reserved_at' => 'datetime',
+        'verified_at' => 'datetime',
+    ];
 }

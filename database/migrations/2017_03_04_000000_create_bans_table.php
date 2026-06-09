@@ -19,12 +19,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
-        Schema::create('bans', function (Blueprint $table) {
+        Schema::create('bans', function (Blueprint $table): void {
             $table->increments('id');
             $table->morphs('bannable');
             $table->nullableMorphs('created_by');
@@ -36,7 +34,7 @@ return new class extends Migration
             $table->index('expired_at');
         });
 
-        Schema::table('bans', function (Blueprint $table) {
+        Schema::table('bans', function (Blueprint $table): void {
             $table->uuid('bannable_id')->change();
             $table->uuid('created_by_id')->change();
         });
@@ -44,8 +42,6 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

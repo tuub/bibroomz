@@ -22,7 +22,7 @@ class HappeningBroadcastPayloadFactory
         $resource = $happening->resource;
         $user1 = $happening->user1 ?? User::findOrFail($happening->user_id_01);
         $isAdmin = $user1->hasPermission('no_verifier', $resource->resource_group->institution);
-        $isVerificationRequired = $resource->is_verification_required && !$isAdmin;
+        $isVerificationRequired = $resource->is_verification_required && ! $isAdmin;
 
         return [
             'happening' => [

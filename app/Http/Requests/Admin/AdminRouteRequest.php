@@ -12,6 +12,7 @@ abstract class AdminRouteRequest extends FormRequest
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function validationData(): array
     {
         return $this->normalizeStringKeyedArray(array_merge($this->all(), $this->route()?->parameters() ?? []));
@@ -40,7 +41,8 @@ abstract class AdminRouteRequest extends FormRequest
 
     /**
      * @template TModel of Model
-     * @param class-string<TModel> $modelClass
+     *
+     * @param  class-string<TModel>  $modelClass
      * @return TModel|null
      */
     protected function findModel(string $modelClass, string $key = 'id'): ?Model
@@ -51,7 +53,7 @@ abstract class AdminRouteRequest extends FormRequest
             return null;
         }
 
-        $model = new $modelClass();
+        $model = new $modelClass;
         $found = $model->newQuery()->find($identifier);
 
         return $found instanceof $modelClass ? $found : null;
@@ -59,7 +61,8 @@ abstract class AdminRouteRequest extends FormRequest
 
     /**
      * @template TModel of Model
-     * @param class-string<TModel> $modelClass
+     *
+     * @param  class-string<TModel>  $modelClass
      * @return TModel
      */
     protected function findModelOrFail(string $modelClass, string $key = 'id'): Model
@@ -71,11 +74,11 @@ abstract class AdminRouteRequest extends FormRequest
             return $found;
         }
 
-        throw (new ModelNotFoundException())->setModel($modelClass, [$identifier]);
+        throw (new ModelNotFoundException)->setModel($modelClass, [$identifier]);
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     protected function normalizeStringKeyedArray(array $values): array

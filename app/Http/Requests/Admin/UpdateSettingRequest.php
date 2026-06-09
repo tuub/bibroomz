@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Setting;
+use App\Models\User;
 
 class UpdateSettingRequest extends AdminRouteRequest
 {
@@ -11,7 +12,7 @@ class UpdateSettingRequest extends AdminRouteRequest
         $user = $this->userModel();
         $setting = $this->settingOrNull();
 
-        return $user !== null && $setting !== null && $user->can('edit', $setting);
+        return $user instanceof User && $setting instanceof Setting && $user->can('edit', $setting);
     }
 
     /**

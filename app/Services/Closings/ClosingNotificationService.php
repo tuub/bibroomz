@@ -11,11 +11,10 @@ use App\Services\Notifications\NotificationDispatchService;
 class ClosingNotificationService
 {
     public function __construct(
-        private ClosingNotificationTypeResolver $typeResolver,
-        private ClosingInstitutionResolver $institutionResolver,
-        private NotificationDispatchService $notificationDispatchService,
-    ) {
-    }
+        private readonly ClosingNotificationTypeResolver $typeResolver,
+        private readonly ClosingInstitutionResolver $institutionResolver,
+        private readonly NotificationDispatchService $notificationDispatchService,
+    ) {}
 
     public function sendForEvent(ClosingEvent $event): void
     {
@@ -28,7 +27,7 @@ class ClosingNotificationService
             recipient: $event->user(),
             institutionId: $institution->id,
             mailTypeKey: $mailType,
-            mailBuilder: fn ($mailContent) => new ClosingMail(new ClosingMailData(
+            mailBuilder: fn ($mailContent): ClosingMail => new ClosingMail(new ClosingMailData(
                 closing: $closing,
                 happenings: $event->happenings(),
                 content: $mailContent,

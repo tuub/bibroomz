@@ -8,13 +8,12 @@ use Illuminate\Support\Arr;
 class UpdateClosingAction
 {
     public function __construct(
-        private ClosingDataSanitizer $dataSanitizer,
-        private ClosingEventDispatcher $closingEventDispatcher,
-    ) {
-    }
+        private readonly ClosingDataSanitizer $dataSanitizer,
+        private readonly ClosingEventDispatcher $closingEventDispatcher,
+    ) {}
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function execute(Closing $closing, array $attributes): Closing
     {
@@ -31,7 +30,7 @@ class UpdateClosingAction
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function normalizeStringKeys(array $values): array

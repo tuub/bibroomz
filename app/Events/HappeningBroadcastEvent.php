@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use App\Models\Happening;
@@ -17,14 +19,13 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public function __construct(
         public Happening $happening,
         public User $user,
         private array $payload = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Get the data to broadcast.
@@ -38,6 +39,6 @@ abstract class HappeningBroadcastEvent implements ShouldBroadcastNow
 
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel('happenings.' . $this->user->id);
+        return new PrivateChannel('happenings.'.$this->user->id);
     }
 }

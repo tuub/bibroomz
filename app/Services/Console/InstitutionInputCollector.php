@@ -76,7 +76,7 @@ class InstitutionInputCollector
         $input = [];
 
         foreach (['de', 'en'] as $lang) {
-            $input[$lang] = text($label . ' (' . $lang . ')');
+            $input[$lang] = text($label.' ('.$lang.')');
         }
 
         return $input;

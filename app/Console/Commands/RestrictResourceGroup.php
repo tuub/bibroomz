@@ -25,8 +25,8 @@ class RestrictResourceGroup extends Command
     protected $description = 'Restrict a resource group to users of one or more user groups';
 
     public function __construct(
-        private ResourceGroupRestrictionInputCollector $inputCollector,
-        private RestrictResourceGroupAction $restrictResourceGroupAction,
+        private readonly ResourceGroupRestrictionInputCollector $inputCollector,
+        private readonly RestrictResourceGroupAction $restrictResourceGroupAction,
     ) {
         parent::__construct();
     }
@@ -40,7 +40,7 @@ class RestrictResourceGroup extends Command
 
         $input = $this->inputCollector->collect();
 
-        if (!$this->confirm('Are you sure you want to restrict this resource group to the selected user groups?')) {
+        if (! $this->confirm('Are you sure you want to restrict this resource group to the selected user groups?')) {
             error('⚠ Cancelled.');
 
             return Command::INVALID;

@@ -1,28 +1,18 @@
 <?php
 
-covers(
-    App\Models\Closing::class,
-    App\Models\Institution::class,
-    App\Models\ResourceGroup::class,
-    App\Models\Resource::class,
-    App\Models\Role::class,
-    App\Models\Permission::class,
-    App\Models\PermissionGroup::class,
-    App\Models\InstitutionUserRole::class,
-    App\Contracts\ClosingSubject::class,
-    App\Contracts\SettingSubject::class
-);
-
+use App\Contracts\ClosingSubject;
+use App\Contracts\SettingSubject;
 use App\Library\Utility;
+use App\Models\BusinessHour;
 use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\InstitutionUserRole;
+use App\Models\Permission;
 use App\Models\PermissionGroup;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\Role;
-use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserGroupUser;
@@ -35,20 +25,33 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    Closing::class,
+    Institution::class,
+    ResourceGroup::class,
+    Resource::class,
+    Role::class,
+    Permission::class,
+    PermissionGroup::class,
+    InstitutionUserRole::class,
+    ClosingSubject::class,
+    SettingSubject::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     Carbon::setTestNow(Carbon::parse('2026-06-03 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
-test('supporting models expose domain helpers and translation wrappers', function () {
+test('supporting models expose domain helpers and translation wrappers', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
@@ -58,8 +61,11 @@ test('supporting models expose domain helpers and translation wrappers', functio
         ['day_of_week' => 2, 'key' => 'tue'],
         ['day_of_week' => 3, 'key' => 'wed'],
     ]);
+    /** @var WeekDay $weekdayOne */
     $weekdayOne = WeekDay::find(1);
+    /** @var WeekDay $weekdayTwo */
     $weekdayTwo = WeekDay::find(2);
+    /** @var WeekDay $weekdayThree */
     $weekdayThree = WeekDay::find(3);
     $institution->week_days()->sync([$weekdayOne->id, $weekdayThree->id]);
 
@@ -115,14 +121,14 @@ test('supporting models expose domain helpers and translation wrappers', functio
         'description' => Utility::getTranslatable('Permissions'),
     ]);
 
-    expect($permissionGroup->permissions()->getRelated()::class)->toBe(\App\Models\Permission::class)
-        ->and((new UserGroupUser())->user_group()->getRelated()::class)->toBe(UserGroup::class)
-        ->and((new InstitutionUserRole())->user()->getRelated()::class)->toBe(User::class)
-        ->and($weekdayOne->business_hours()->getRelated()::class)->toBe(\App\Models\BusinessHour::class)
+    expect($permissionGroup->permissions()->getRelated()::class)->toBe(Permission::class)
+        ->and((new UserGroupUser)->user_group()->getRelated()::class)->toBe(UserGroup::class)
+        ->and((new InstitutionUserRole)->user()->getRelated()::class)->toBe(User::class)
+        ->and($weekdayOne->business_hours()->getRelated()::class)->toBe(BusinessHour::class)
         ->and($weekdayOne->institutions()->getRelated()::class)->toBe(Institution::class);
 });
 
-test('closing and password rule handle affected users and current password checks', function () {
+test('closing and password rule handle affected users and current password checks', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
@@ -158,7 +164,7 @@ test('closing and password rule handle affected users and current password check
 
     $errors = [];
     (new CurrentPasswordRule($user->name, 'wrong-secret'))
-        ->validate('password', 'ignored', function ($message) use (&$errors) {
+        ->validate('password', 'ignored', function ($message) use (&$errors): void {
             $errors[] = $message;
         });
 
@@ -166,7 +172,7 @@ test('closing and password rule handle affected users and current password check
 
     $errors = [];
     (new CurrentPasswordRule($user->name, 'secret'))
-        ->validate('password', 'ignored', function ($message) use (&$errors) {
+        ->validate('password', 'ignored', function ($message) use (&$errors): void {
             $errors[] = $message;
         });
 

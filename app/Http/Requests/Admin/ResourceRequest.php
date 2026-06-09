@@ -15,10 +15,10 @@ abstract class ResourceRequest extends AdminRouteRequest
         return [
             'id' => ['sometimes', 'nullable', 'uuid', 'exists:resources,id'],
             'resource_group_id' => ['required', 'uuid', 'exists:resource_groups,id'],
-            'title' => [new RequiredWithTranslationRule()],
-            'location' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule],
+            'location' => [new RequiredWithTranslationRule],
             'location_uri' => ['url', 'nullable'],
-            'description' => [new RequiredWithTranslationRule()],
+            'description' => [new RequiredWithTranslationRule],
             'capacity' => ['numeric', 'gt:0'],
             'is_active' => ['required', 'boolean'],
             'is_verification_required' => ['required', 'boolean'],
@@ -32,6 +32,7 @@ abstract class ResourceRequest extends AdminRouteRequest
         ];
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $this->merge([

@@ -13,10 +13,9 @@ use Carbon\CarbonImmutable;
 class CreateHappeningAction
 {
     public function __construct(
-        private ValidateHappeningReservation $validator,
-        private HappeningBroadcaster $broadcaster,
-    ) {
-    }
+        private readonly ValidateHappeningReservation $validator,
+        private readonly HappeningBroadcaster $broadcaster,
+    ) {}
 
     public function executeForUser(
         User $user,
@@ -29,14 +28,14 @@ class CreateHappeningAction
         $this->validator->execute($user, $resource, $start, $end);
 
         $isAdmin = $user->hasPermission('no_verifier', $resource->resource_group->institution);
-        $isVerified = !$resource->isVerificationRequired() || $isAdmin;
+        $isVerified = ! $resource->isVerificationRequired() || $isAdmin;
 
         $happening = Happening::create([
             'user_id_01' => $user->id,
             'resource_id' => $resource->id,
             'is_verification_required' => $resource->isVerificationRequired(),
             'is_verified' => $isVerified,
-            'verifier' => !$isVerified && $verifier ? Utility::normalizeLoginName($verifier) : null,
+            'verifier' => ! $isVerified && $verifier ? Utility::normalizeLoginName($verifier) : null,
             'start' => $start->format('Y-m-d H:i:s'),
             'end' => $end->format('Y-m-d H:i:s'),
             'reserved_at' => Carbon::now(),
@@ -50,7 +49,7 @@ class CreateHappeningAction
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function executeForAdmin(array $attributes): Happening
     {

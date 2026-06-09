@@ -1,12 +1,7 @@
 <?php
 
-covers(
-    App\Console\Commands\RemoveUnverifiedHappeningsCommand::class,
-    App\Console\Commands\RemoveUsersCommand::class,
-    App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder::class,
-    App\Services\Console\CleanupIntervalResolver::class
-);
-
+use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
+use App\Console\Commands\RemoveUsersCommand;
 use App\Events\HappeningsChangedEvent;
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Happening;
@@ -14,24 +9,36 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Console\CleanupIntervalResolver;
+use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Symfony\Component\Console\Command\Command;
 
+covers(
+    RemoveUnverifiedHappeningsCommand::class,
+    RemoveUsersCommand::class,
+    RemoveUnverifiedHappeningsQueryBuilder::class,
+    CleanupIntervalResolver::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-04 12:00:00'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-04 12:00:00'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User}
+ */
 function buildBranchCleanupFixture(): array
 {
     $institution = Institution::factory()->create(['title' => 'Branch Library']);
@@ -40,12 +47,15 @@ function buildBranchCleanupFixture(): array
         'is_verification_required' => true,
         'is_active' => true,
     ]);
-    $owner = User::factory()->create(['name' => 'branch.owner.' . uniqid()]);
-    $verifier = User::factory()->create(['name' => 'branch.verifier.' . uniqid()]);
+    $owner = User::factory()->create(['name' => 'branch.owner.'.uniqid()]);
+    $verifier = User::factory()->create(['name' => 'branch.verifier.'.uniqid()]);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier];
 }
 
+/**
+ * @param  array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User}  $fixture
+ */
 function createOldUnverifiedHappening(array $fixture): Happening
 {
     $happening = Happening::create([
@@ -67,15 +77,15 @@ function createOldUnverifiedHappening(array $fixture): Happening
     return $happening;
 }
 
-test('remove unverified happenings uses per-institution settings when no interval is given', function () {
+test('remove unverified happenings uses per-institution settings when no interval is given', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
     $fixture1 = buildBranchCleanupFixture();
     $fixture2 = buildBranchCleanupFixture();
 
     // institution 1: cleanup after 1 day (should match)
-    $fixture1['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '0:1:0']);
+    $fixture1['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '0:1:0']);
     // institution 2: cleanup after 10 hours (should match since happening is 2 days old)
-    $fixture2['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '0:0:10']);
+    $fixture2['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '0:0:10']);
 
     $h1 = createOldUnverifiedHappening($fixture1);
     $h2 = createOldUnverifiedHappening($fixture2);
@@ -87,7 +97,7 @@ test('remove unverified happenings uses per-institution settings when no interva
         ->and(Happening::withTrashed()->find($h2->id)?->trashed())->toBeTrue();
 });
 
-test('remove unverified happenings returns success immediately when there is nothing to remove', function () {
+test('remove unverified happenings returns success immediately when there is nothing to remove', function (): void {
     buildBranchCleanupFixture();
 
     $this->artisan('roomz:remove-unverified-happenings', [
@@ -97,7 +107,7 @@ test('remove unverified happenings returns success immediately when there is not
         ->expectsOutputToContain('Nothing to do');
 });
 
-test('remove unverified happenings aborts when user declines confirmation', function () {
+test('remove unverified happenings aborts when user declines confirmation', function (): void {
     $fixture = buildBranchCleanupFixture();
     createOldUnverifiedHappening($fixture);
 
@@ -106,7 +116,7 @@ test('remove unverified happenings aborts when user declines confirmation', func
         ->assertExitCode(Command::INVALID);
 });
 
-test('remove unverified happenings verbose mode outputs sql and happenings list', function () {
+test('remove unverified happenings verbose mode outputs sql and happenings list', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
     $fixture = buildBranchCleanupFixture();
     createOldUnverifiedHappening($fixture);
@@ -115,7 +125,7 @@ test('remove unverified happenings verbose mode outputs sql and happenings list'
         ->assertExitCode(Command::SUCCESS);
 });
 
-test('remove users command skips force confirmation when no candidates exist', function () {
+test('remove users command skips force confirmation when no candidates exist', function (): void {
     Institution::factory()->create();
 
     $this->artisan('roomz:remove-users', [
@@ -125,7 +135,7 @@ test('remove users command skips force confirmation when no candidates exist', f
         ->expectsOutputToContain('Nothing to do');
 });
 
-test('remove users command supports dry-run mode without deleting users', function () {
+test('remove users command supports dry-run mode without deleting users', function (): void {
     $candidate = User::factory()->create(['is_admin' => false, 'is_logged_in' => false]);
 
     $this->artisan('roomz:remove-users', [
@@ -137,7 +147,7 @@ test('remove users command supports dry-run mode without deleting users', functi
     expect(User::find($candidate->id))->not->toBeNull();
 });
 
-test('remove users command aborts when user declines confirmation', function () {
+test('remove users command aborts when user declines confirmation', function (): void {
     User::factory()->create(['is_admin' => false, 'is_logged_in' => false]);
 
     $this->artisan('roomz:remove-users', ['--days' => 0])
@@ -145,12 +155,12 @@ test('remove users command aborts when user declines confirmation', function () 
         ->assertExitCode(Command::INVALID);
 });
 
-test('remove unverified happenings runs cleanly when no institutions exist', function () {
+test('remove unverified happenings runs cleanly when no institutions exist', function (): void {
     $this->artisan('roomz:remove-unverified-happenings', ['--force' => true])
         ->assertExitCode(Command::SUCCESS);
 });
 
-test('--days flag controls deletion independently of institution cleanup_interval setting', function () {
+test('--days flag controls deletion independently of institution cleanup_interval setting', function (): void {
     // This test distinguishes the `--days` branch from the per-institution settings branch.
     // If BooleanOrToBooleanAnd mutates the conditional so that --days is not checked, the
     // command falls back to institution settings (10 days) and would NOT delete the happening.
@@ -158,7 +168,7 @@ test('--days flag controls deletion independently of institution cleanup_interva
 
     $fixture = buildBranchCleanupFixture();
     // Configure institution to only clean up after 10 days — with --days=1, it must still delete
-    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '10:0:0']);
+    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '10:0:0']);
 
     $happening = createOldUnverifiedHappening($fixture); // 2 days old
 
@@ -169,11 +179,11 @@ test('--days flag controls deletion independently of institution cleanup_interva
     expect(Happening::withTrashed()->find($happening->id)?->trashed())->toBeTrue();
 });
 
-test('--hours flag routes into the values branch, not the institution-settings branch', function () {
+test('--hours flag routes into the values branch, not the institution-settings branch', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
 
     $fixture = buildBranchCleanupFixture();
-    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '10:0:0']);
+    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '10:0:0']);
 
     $happening = createOldUnverifiedHappening($fixture); // 2 days old
 
@@ -183,11 +193,11 @@ test('--hours flag routes into the values branch, not the institution-settings b
     expect(Happening::withTrashed()->find($happening->id)?->trashed())->toBeTrue();
 });
 
-test('--minutes flag routes into the values branch', function () {
+test('--minutes flag routes into the values branch', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
 
     $fixture = buildBranchCleanupFixture();
-    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '10:0:0']);
+    $fixture['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '10:0:0']);
 
     $happening = createOldUnverifiedHappening($fixture); // 2 days old = 2880+ minutes
 
@@ -197,7 +207,7 @@ test('--minutes flag routes into the values branch', function () {
     expect(Happening::withTrashed()->find($happening->id)?->trashed())->toBeTrue();
 });
 
-test('--settings=false disables institution-setting lookup and uses zero interval', function () {
+test('--settings=false disables institution-setting lookup and uses zero interval', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
 
     $fixture = buildBranchCleanupFixture();

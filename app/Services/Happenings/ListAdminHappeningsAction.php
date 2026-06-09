@@ -9,9 +9,7 @@ use Illuminate\Support\Collection;
 
 class ListAdminHappeningsAction
 {
-    public function __construct(private AdminHappeningPresenter $presenter)
-    {
-    }
+    public function __construct(private readonly AdminHappeningPresenter $presenter) {}
 
     /**
      * @return Collection<int, array<string, mixed>>
@@ -23,7 +21,7 @@ class ListAdminHappeningsAction
             ->orderBy('start')
             ->get()
             ->filter->isViewableByUser($user)
-            ->map(fn (Happening $happening) => $this->presenter->present($happening))
+            ->map(fn (Happening $happening): array => $this->presenter->present($happening))
             ->values();
     }
 }

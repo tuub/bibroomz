@@ -1,22 +1,27 @@
 <?php
 
-covers(
-    App\Console\Commands\ImportUsers::class,
-    App\Services\Console\ImportUsersAction::class,
-    App\Services\Console\ImportUsersColumnsResolver::class,
-    App\Services\Console\ImportUsersCsvReader::class,
-    App\Services\Console\ImportUsersDefaultsParser::class
-);
-
+use App\Console\Commands\ImportUsers;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Services\Console\ImportUsersAction;
+use App\Services\Console\ImportUsersColumnsResolver;
+use App\Services\Console\ImportUsersCsvReader;
+use App\Services\Console\ImportUsersDefaultsParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
+covers(
+    ImportUsers::class,
+    ImportUsersAction::class,
+    ImportUsersColumnsResolver::class,
+    ImportUsersCsvReader::class,
+    ImportUsersDefaultsParser::class
+);
+
 uses(RefreshDatabase::class);
 
-function writeTempCsv(string $contents): string
+function writeFeatureTempCsv(string $contents): string
 {
     $path = tempnam(sys_get_temp_dir(), 'roomz-users-');
     file_put_contents($path, $contents);
@@ -24,16 +29,16 @@ function writeTempCsv(string $contents): string
     return $path;
 }
 
-afterEach(function () {
-    foreach (glob(sys_get_temp_dir() . '/roomz-users-*') ?: [] as $path) {
+afterEach(function (): void {
+    foreach (glob(sys_get_temp_dir().'/roomz-users-*') ?: [] as $path) {
         @unlink($path);
     }
 });
 
-test('import users command handles invalid default dates', function () {
+test('import users command handles invalid default dates', function (): void {
     $institution = Institution::factory()->create();
     $group = UserGroup::create(['institution_id' => $institution->id, 'title' => ['en' => 'Tutors']]);
-    $path = writeTempCsv("name,email\nAlice,alice@example.test\n");
+    $path = writeFeatureTempCsv("name,email\nAlice,alice@example.test\n");
 
     $this->artisan('roomz:import-users', [
         'path' => $path,
@@ -45,11 +50,11 @@ test('import users command handles invalid default dates', function () {
         ->assertExitCode(Command::FAILURE);
 });
 
-test('import users command imports header based csv files and updates existing group memberships', function () {
+test('import users command imports header based csv files and updates existing group memberships', function (): void {
     $institution = Institution::factory()->create(['title' => 'Library']);
     $group = UserGroup::create(['institution_id' => $institution->id, 'title' => ['en' => 'Tutors']]);
-    $firstPath = writeTempCsv("name,email,valid_from\nAlice,alice@example.test,2026-06-01\n");
-    $secondPath = writeTempCsv("name,email,valid_until\nAlice,alice@example.test,2026-07-01\n");
+    $firstPath = writeFeatureTempCsv("name,email,valid_from\nAlice,alice@example.test,2026-06-01\n");
+    $secondPath = writeFeatureTempCsv("name,email,valid_until\nAlice,alice@example.test,2026-07-01\n");
 
     $this->artisan('roomz:import-users', [
         'path' => $firstPath,
@@ -57,8 +62,8 @@ test('import users command imports header based csv files and updates existing g
         '--group' => $group->id,
     ])->assertExitCode(Command::SUCCESS);
 
-    $user = User::firstWhere('email', 'alice@example.test');
-    expect($group->users()->where('users.id', $user->id)->first()->pivot->valid_from->format('Y-m-d'))
+    $user = User::where('email', 'alice@example.test')->firstOrFail();
+    expect($group->users()->where('users.id', $user->id)->first()?->pivot?->valid_from?->format('Y-m-d'))
         ->toBe('2026-06-01');
 
     $this->artisan('roomz:import-users', [
@@ -67,14 +72,14 @@ test('import users command imports header based csv files and updates existing g
         '--group' => $group->id,
     ])->assertExitCode(Command::SUCCESS);
 
-    expect($group->users()->where('users.id', $user->id)->first()->pivot->valid_until->format('Y-m-d'))
+    expect($group->users()->where('users.id', $user->id)->first()?->pivot?->valid_until?->format('Y-m-d'))
         ->toBe('2026-07-01');
 });
 
-test('import users command supports interactive column mapping without a csv header', function () {
+test('import users command supports interactive column mapping without a csv header', function (): void {
     $institution = Institution::factory()->create(['title' => 'Library']);
     $group = UserGroup::create(['institution_id' => $institution->id, 'title' => ['en' => 'Tutors']]);
-    $path = writeTempCsv("Alice,alice@example.test\n");
+    $path = writeFeatureTempCsv("Alice,alice@example.test\n");
 
     $this->artisan('roomz:import-users', [
         'path' => $path,
@@ -89,10 +94,10 @@ test('import users command supports interactive column mapping without a csv hea
     expect(User::firstWhere('email', 'alice@example.test'))->not->toBeNull();
 });
 
-test('import users command applies default valid_until when --until option is provided', function () {
+test('import users command applies default valid_until when --until option is provided', function (): void {
     $institution = Institution::factory()->create();
     $group = UserGroup::create(['institution_id' => $institution->id, 'title' => ['en' => 'Staff']]);
-    $path = writeTempCsv("name,email\nCarol,carol@example.test\n");
+    $path = writeFeatureTempCsv("name,email\nCarol,carol@example.test\n");
 
     $this->artisan('roomz:import-users', [
         'path' => $path,
@@ -101,8 +106,8 @@ test('import users command applies default valid_until when --until option is pr
         '--until' => '2026-12-31',
     ])->assertExitCode(Command::SUCCESS);
 
-    $user = User::firstWhere('email', 'carol@example.test');
+    $user = User::where('email', 'carol@example.test')->firstOrFail();
     expect($user)->not->toBeNull()
-        ->and($group->users()->where('users.id', $user->id)->first()->pivot->valid_until->format('Y-m-d'))
+        ->and($group->users()->where('users.id', $user->id)->first()?->pivot?->valid_until?->format('Y-m-d'))
         ->toBe('2026-12-31');
 });

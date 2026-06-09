@@ -5,6 +5,8 @@ namespace App\Http\Requests\Admin;
 use App\Models\Closing;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\User;
+use App\Services\Admin\ClosableResolver;
 
 class StoreClosingRequest extends AdminRouteRequest
 {
@@ -13,7 +15,7 @@ class StoreClosingRequest extends AdminRouteRequest
         $closable = $this->closable();
         $user = $this->userModel();
 
-        return $user !== null && $closable !== null && $user->can('create', [Closing::class, $closable]);
+        return $user instanceof User && $closable !== null && $user->can('create', [Closing::class, $closable]);
     }
 
     /**
@@ -41,7 +43,7 @@ class StoreClosingRequest extends AdminRouteRequest
             return null;
         }
 
-        return app(\App\Services\Admin\ClosableResolver::class)->resolve($type, $id);
+        return app(ClosableResolver::class)->resolve($type, $id);
     }
 
     public function closableType(): string

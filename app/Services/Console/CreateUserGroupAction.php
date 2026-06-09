@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class CreateUserGroupAction
 {
     /**
-     * @param array<string, mixed> $input
+     * @param  array<string, mixed>  $input
      * @return array<string, mixed>
      */
     public function validateInput(array $input): array
@@ -17,14 +17,14 @@ class CreateUserGroupAction
         return $this->stringKeyedArray(Validator::make(
             $input,
             [
-                'title' => [new RequiredWithTranslationRule()],
+                'title' => [new RequiredWithTranslationRule],
                 'institution_id' => ['required', 'exists:institutions,id'],
             ],
         )->validate());
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      */
     public function execute(array $validated): UserGroup
     {
@@ -32,7 +32,7 @@ class CreateUserGroupAction
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function stringKeyedArray(array $values): array

@@ -6,16 +6,14 @@ use App\Http\Requests\Admin\DeleteRoleRequest;
 use App\Http\Requests\Admin\RoleIdRequest;
 use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Role;
-use Illuminate\Http\RedirectResponse;
 use App\Services\Admin\RoleAdminService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class RoleController extends AdminController
 {
-    public function __construct(private RoleAdminService $roleAdminService)
-    {
-    }
+    public function __construct(private readonly RoleAdminService $roleAdminService) {}
 
     public function getRoles(): Response
     {

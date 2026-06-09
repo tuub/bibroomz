@@ -12,18 +12,18 @@ use App\Services\Happenings\ListAdminHappeningsAction;
 use App\Services\Happenings\UpdateHappeningAction;
 use App\Services\Resources\ResourceVisibilityService;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class HappeningAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private ListAdminHappeningsAction $listAdminHappeningsAction,
-        private CreateHappeningAction $createHappeningAction,
-        private UpdateHappeningAction $updateHappeningAction,
-        private DeleteHappeningAction $deleteHappeningAction,
-        private ResourceVisibilityService $resourceVisibilityService,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly ListAdminHappeningsAction $listAdminHappeningsAction,
+        private readonly CreateHappeningAction $createHappeningAction,
+        private readonly UpdateHappeningAction $updateHappeningAction,
+        private readonly DeleteHappeningAction $deleteHappeningAction,
+        private readonly ResourceVisibilityService $resourceVisibilityService,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -75,7 +75,7 @@ class HappeningAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function store(array $attributes): Happening
     {
@@ -87,7 +87,7 @@ class HappeningAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(Happening $happening, array $attributes): Happening
     {
@@ -106,7 +106,7 @@ class HappeningAdminService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array{
+     * @return Collection<int, array{
      *   id: string,
      *   title: array<string, mixed>,
      *   institution_id: string,
@@ -133,7 +133,7 @@ class HappeningAdminService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array{
+     * @return Collection<int, array{
      *   id: string,
      *   title: array<string, mixed>,
      *   resource_group_id: string,
@@ -157,10 +157,10 @@ class HappeningAdminService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array{
+     * @return Collection<int, array{
      *   id: string,
      *   name: string,
-     *   permissions: \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<int, string>>
+     *   permissions: Collection<string, Collection<int, string>>
      * }>
      */
     private function getUserOptions()
@@ -193,9 +193,9 @@ class HappeningAdminService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<int, string>>
+     * @return Collection<string, Collection<int, string>>
      */
-    private function userPermissions(User $user): \Illuminate\Support\Collection
+    private function userPermissions(User $user): Collection
     {
         return $user->getPermissions(['no_verifier']);
     }

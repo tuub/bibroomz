@@ -27,7 +27,7 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
      */
     protected $description = 'Anonymize past happenings';
 
-    public function __construct(private AnonymizeHappeningUsersAction $anonymizeHappeningUsersAction)
+    public function __construct(private readonly AnonymizeHappeningUsersAction $anonymizeHappeningUsersAction)
     {
         parent::__construct();
     }
@@ -44,7 +44,7 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
             $this->prettyPrintHappenings($query);
         }
 
-        $this->info('Found ' . $query->count() . ' happenings to anonymize.');
+        $this->info('Found '.$query->count().' happenings to anonymize.');
 
         if ($query->count() === 0) {
             $this->info('Nothing to do.');
@@ -58,7 +58,7 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
             return Command::SUCCESS;
         }
 
-        if (!$this->option('force') && !$this->confirm('Do you want to proceed?')) {
+        if (! $this->option('force') && ! $this->confirm('Do you want to proceed?')) {
             $this->info('Nothing to do.');
 
             return Command::INVALID;
@@ -104,7 +104,7 @@ class AnonymizeHappeningUsersCommand extends Command implements Isolatable
     }
 
     /**
-     * @param Builder<Happening> $query
+     * @param  Builder<Happening>  $query
      */
     private function prettyPrintHappenings(Builder $query): void
     {

@@ -14,16 +14,14 @@ class AnonymizeHappeningUsersAction
     {
         return Happening::withTrashed()
             ->where('end', '<=', now()->subDays($days))
-            ->where(function (Builder $query): Builder {
-                return $query
-                    ->whereNotNull('user_id_01')
-                    ->orWhereNotNull('user_id_02')
-                    ->orWhereNotNull('verifier');
-            });
+            ->where(fn (Builder $query): Builder => $query
+                ->whereNotNull('user_id_01')
+                ->orWhereNotNull('user_id_02')
+                ->orWhereNotNull('verifier'));
     }
 
     /**
-     * @param Builder<Happening> $query
+     * @param  Builder<Happening>  $query
      */
     public function execute(Builder $query): void
     {

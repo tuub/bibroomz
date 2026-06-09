@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class CreateInstitutionAction
 {
     /**
-     * @param array<string, mixed> $input
+     * @param  array<string, mixed>  $input
      * @return array<string, mixed>
      */
     public function validateInput(array $input): array
@@ -18,7 +18,7 @@ class CreateInstitutionAction
         return $this->stringKeyedArray(Validator::make(
             $input,
             [
-                'title' => [new RequiredWithTranslationRule()],
+                'title' => [new RequiredWithTranslationRule],
                 'short_title' => ['required'],
                 'slug' => ['required', 'unique:institutions'],
                 'location' => [],
@@ -33,7 +33,7 @@ class CreateInstitutionAction
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      */
     public function execute(array $validated): Institution
     {
@@ -51,7 +51,6 @@ class CreateInstitutionAction
     }
 
     /**
-     * @param mixed $weekDays
      * @return array<int, int|string>
      */
     private function normalizeWeekDays(mixed $weekDays): array
@@ -75,6 +74,7 @@ class CreateInstitutionAction
         foreach ($weekDays as $day) {
             if (is_string($day) && array_key_exists($day, $map)) {
                 $normalized[] = $map[$day];
+
                 continue;
             }
 
@@ -87,7 +87,7 @@ class CreateInstitutionAction
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function stringKeyedArray(array $values): array

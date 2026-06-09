@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
-use App\Library\Utility;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -15,8 +15,6 @@ class AddHappeningRequest extends FormRequest
 
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -47,7 +45,7 @@ class AddHappeningRequest extends FormRequest
             'verifier' => [
                 $isVerificationRequired ? 'required' : 'nullable',
                 'string',
-                'not_in:' . $normalizedUserName,
+                'not_in:'.$normalizedUserName,
             ],
             'label' => ['nullable'],
         ];
@@ -92,6 +90,7 @@ class AddHappeningRequest extends FormRequest
         return is_string($verifier) && $verifier !== '' ? $verifier : null;
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $verifier = $this->input('verifier');

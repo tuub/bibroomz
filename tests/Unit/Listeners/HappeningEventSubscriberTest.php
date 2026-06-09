@@ -1,11 +1,5 @@
 <?php
 
-covers(
-    App\Listeners\HappeningEventSubscriber::class,
-    App\Services\Happenings\HappeningNotificationService::class,
-    App\Services\Happenings\HappeningNotificationTypeResolver::class
-);
-
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningUpdatedEvent;
@@ -14,10 +8,17 @@ use App\Listeners\HappeningEventSubscriber;
 use App\Models\Happening;
 use App\Models\User;
 use App\Services\Happenings\HappeningNotificationService;
+use App\Services\Happenings\HappeningNotificationTypeResolver;
+
+covers(
+    HappeningEventSubscriber::class,
+    HappeningNotificationService::class,
+    HappeningNotificationTypeResolver::class
+);
 
 afterEach(fn () => Mockery::close());
 
-test('happening event subscriber forwards every event to the notification service', function () {
+test('happening event subscriber forwards every event to the notification service', function (): void {
     $service = Mockery::mock(HappeningNotificationService::class);
     $subscriber = new HappeningEventSubscriber($service);
     $happening = Mockery::mock(Happening::class);
@@ -39,7 +40,7 @@ test('happening event subscriber forwards every event to the notification servic
     $subscriber->handleHappeningVerifiedEvent($verified);
 });
 
-test('happening event subscriber exposes the expected event map', function () {
+test('happening event subscriber exposes the expected event map', function (): void {
     $subscriber = new HappeningEventSubscriber(Mockery::mock(HappeningNotificationService::class));
 
     expect($subscriber->subscribe())->toBe([

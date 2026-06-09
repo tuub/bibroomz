@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Happening;
-use App\Models\Resource;
+use App\Models\User;
 
 class UpdateHappeningRequest extends HappeningRequest
 {
@@ -13,7 +13,7 @@ class UpdateHappeningRequest extends HappeningRequest
         $happening = $this->happeningOrNull();
         $resource = $this->resource();
 
-        if ($user === null || $happening === null || $resource === null) {
+        if (! $user instanceof User || ! $happening instanceof Happening || ! $resource instanceof \App\Models\Resource) {
             return false;
         }
 

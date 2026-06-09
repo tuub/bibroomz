@@ -10,14 +10,13 @@ use function event;
 class HappeningBroadcaster
 {
     public function __construct(
-        private HappeningAudienceResolver $audienceResolver,
-        private HappeningBroadcastPayloadFactory $payloadFactory,
-        private HappeningBroadcastEventFactory $eventFactory,
-    ) {
-    }
+        private readonly HappeningAudienceResolver $audienceResolver,
+        private readonly HappeningBroadcastPayloadFactory $payloadFactory,
+        private readonly HappeningBroadcastEventFactory $eventFactory,
+    ) {}
 
     /**
-     * @param class-string $broadcastEvent
+     * @param  class-string  $broadcastEvent
      */
     public function broadcast(Happening $happening, string $broadcastEvent): void
     {

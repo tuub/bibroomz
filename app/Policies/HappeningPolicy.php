@@ -52,11 +52,7 @@ class HappeningPolicy
             return true;
         }
 
-        if ($user->name === $happening->verifier) {
-            return true;
-        }
-
-        return false;
+        return $user->name === $happening->verifier;
     }
 
     public function delete(User $user, Happening $happening): bool
@@ -74,11 +70,7 @@ class HappeningPolicy
             return false;
         }
 
-        if ($user->name === $happening->verifier) {
-            return true;
-        }
-
-        return false;
+        return $user->name === $happening->verifier;
     }
 
     public function adminView(User $user, Happening $happening): bool

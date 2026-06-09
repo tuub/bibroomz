@@ -15,12 +15,11 @@ use Inertia\Response;
 class HomeController extends Controller
 {
     public function __construct(
-        private HomePageDataBuilder $homePageDataBuilder,
-        private InstitutionAccessService $institutionAccessService,
-        private LocalePreferenceManager $localePreferenceManager,
-        private RouteResourceGroupResolver $resourceGroupResolver
-    ) {
-    }
+        private readonly HomePageDataBuilder $homePageDataBuilder,
+        private readonly InstitutionAccessService $institutionAccessService,
+        private readonly LocalePreferenceManager $localePreferenceManager,
+        private readonly RouteResourceGroupResolver $resourceGroupResolver
+    ) {}
 
     public function getStart(): Response|RedirectResponse
     {

@@ -1,43 +1,55 @@
 <?php
 
-covers(
-    App\Http\Controllers\Admin\UserController::class,
-    App\Http\Controllers\Admin\RoleController::class,
-    App\Http\Controllers\Admin\UserGroupController::class,
-    App\Services\Admin\UserAdminService::class,
-    App\Services\Admin\RoleAdminService::class,
-    App\Services\Admin\UserGroupAdminService::class,
-    App\Services\Admin\UserRoleSynchronizer::class,
-    App\Http\Requests\Admin\UserRequest::class
-);
-
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserGroupController;
+use App\Http\Requests\Admin\UserRequest;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Services\Admin\RoleAdminService;
+use App\Services\Admin\UserAdminService;
+use App\Services\Admin\UserGroupAdminService;
+use App\Services\Admin\UserRoleSynchronizer;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
+
+covers(
+    UserController::class,
+    RoleController::class,
+    UserGroupController::class,
+    UserAdminService::class,
+    RoleAdminService::class,
+    UserGroupAdminService::class,
+    UserRoleSynchronizer::class,
+    UserRequest::class
+);
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     config()->set('broadcasting.default', 'log');
 });
 
+/**
+ * @return array<string, string>
+ */
 function adminPeopleFeatureTranslatable(string $value): array
 {
     return Utility::getTranslatable($value);
 }
 
 /**
- * @param list<string> $permissions
+ * @param  list<string>  $permissions
  */
 function actingPeopleFeatureAdmin(Institution $institution, array $permissions): User
 {
@@ -55,7 +67,7 @@ function actingPeopleFeatureAdmin(Institution $institution, array $permissions):
     return $user;
 }
 
-test('scoped admins without people create permission cannot store users', function () {
+test('scoped admins without people create permission cannot store users', function (): void {
     $institution = Institution::factory()->create();
     $role = Role::create(['name' => adminPeopleFeatureTranslatable('Viewer')]);
 
@@ -78,7 +90,7 @@ test('scoped admins without people create permission cannot store users', functi
     $this->assertDatabaseMissing('users', ['name' => 'blocked.user']);
 });
 
-test('people admin routes render and mutate roles users and user groups', function () {
+test('people admin routes render and mutate roles users and user groups', function (): void {
     $institution = Institution::factory()->create();
     actingPeopleFeatureAdmin($institution, [
         'view_roles',
@@ -100,13 +112,13 @@ test('people admin routes render and mutate roles users and user groups', functi
 
     $this->get(route('admin.role.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Roles/Index')
             ->has('roles'));
 
     $this->get(route('admin.role.create'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Roles/Form')
             ->has('permissions')
             ->has('groups'));
@@ -117,15 +129,13 @@ test('people admin routes render and mutate roles users and user groups', functi
         'permissions' => [$permission->id],
     ])->assertRedirect(route('admin.role.index'));
 
-    $role = Role::query()->get()->first(
+    $role = Role::query()->get()->firstOrFail(
         fn (Role $candidate): bool => $candidate->getTranslation('name', 'en') === 'Operators',
     );
 
-    expect($role)->not->toBeNull();
-
     $this->get(route('admin.role.edit', ['id' => $role->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Roles/Form')
             ->where('role.id', $role->id));
 
@@ -136,17 +146,17 @@ test('people admin routes render and mutate roles users and user groups', functi
         'permissions' => [$permission->id],
     ])->assertRedirect(route('admin.role.index'));
 
-    expect($role->fresh()->getTranslation('name', 'en'))->toBe('Senior Operators');
+    expect($role->fresh()?->getTranslation('name', 'en'))->toBe('Senior Operators');
 
     $this->get(route('admin.user.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Users/Index')
             ->has('users'));
 
     $this->get(route('admin.user.create'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Users/Form')
             ->has('roles')
             ->has('institutions'));
@@ -172,7 +182,7 @@ test('people admin routes render and mutate roles users and user groups', functi
 
     $this->get(route('admin.user.edit', ['id' => $managedUser->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Users/Form')
             ->where('user.id', $managedUser->id)
             ->has('roles')
@@ -191,27 +201,27 @@ test('people admin routes render and mutate roles users and user groups', functi
         ]],
     ])->assertRedirect(route('admin.user.index'));
 
-    expect($managedUser->fresh()->name)->toBe('local.admin.updated');
+    expect($managedUser->fresh()?->name)->toBe('local.admin.updated');
 
     $this->post(route('admin.user.ban'), ['id' => $managedUser->id])
         ->assertRedirect(route('admin.user.index'));
 
-    expect($managedUser->fresh()->isBanned())->toBeTrue();
+    expect($managedUser->fresh()?->isBanned())->toBeTrue();
 
     $this->post(route('admin.user.unban'), ['id' => $managedUser->id])
         ->assertRedirect(route('admin.user.index'));
 
-    expect($managedUser->fresh()->isBanned())->toBeFalse();
+    expect($managedUser->fresh()?->isBanned())->toBeFalse();
 
     $this->get(route('admin.user_group.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/UserGroups/Index')
             ->has('user_groups'));
 
     $this->get(route('admin.user_group.create'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/UserGroups/Form')
             ->has('institutions'));
 
@@ -224,7 +234,7 @@ test('people admin routes render and mutate roles users and user groups', functi
 
     $this->get(route('admin.user_group.edit', ['id' => $userGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/UserGroups/Form')
             ->where('user_group.id', $userGroup->id));
 
@@ -233,11 +243,11 @@ test('people admin routes render and mutate roles users and user groups', functi
         'title' => adminPeopleFeatureTranslatable('Updated Researchers'),
     ])->assertRedirect(route('admin.user_group.index'));
 
-    expect($userGroup->fresh()->getTranslation('title', 'en'))->toBe('Updated Researchers');
+    expect($userGroup->fresh()?->getTranslation('title', 'en'))->toBe('Updated Researchers');
 
     $this->get(route('admin.user_group.import', ['id' => $userGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/UserGroups/Import')
             ->where('user_group.id', $userGroup->id));
 
@@ -253,19 +263,19 @@ test('people admin routes render and mutate roles users and user groups', functi
 
     $this->get(route('admin.user_group.users', ['id' => $userGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/UserGroups/Users')
             ->where('user_group.id', $userGroup->id)
             ->has('users', 2));
 
-    $importedUsers = $userGroup->fresh()->users()->pluck('users.id')->all();
+    $importedUsers = $userGroup->fresh()?->users()->pluck('users.id')->all() ?? [];
 
     $this->post(route('admin.user_group.users.remove'), [
         'id' => $userGroup->id,
         'users' => $importedUsers,
     ])->assertRedirect(route('admin.user_group.users', ['id' => $userGroup->id]));
 
-    expect($userGroup->fresh()->users()->count())->toBe(0);
+    expect($userGroup->fresh()?->users()->count())->toBe(0);
 
     $this->post(route('admin.user.delete'), ['id' => $managedUser->id])
         ->assertRedirect(route('admin.user.index'));

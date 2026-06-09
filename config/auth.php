@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Models\User;
+
 return [
 
     /*
@@ -66,7 +70,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => env('AUTH_METHOD', 'alma'),
-            'model' => App\Models\User::class,
+            'model' => User::class,
         ],
 
         // 'users' => [

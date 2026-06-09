@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Closing;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteClosingRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteClosingRequest extends AdminRouteRequest
         $closing = $this->findModel(Closing::class);
         $user = $this->userModel();
 
-        return $closing !== null && $user !== null && $user->can('delete', $closing);
+        return $closing instanceof Model && $user instanceof User && $user->can('delete', $closing);
     }
 
     /**

@@ -11,10 +11,9 @@ use App\Services\Notifications\NotificationDispatchService;
 class HappeningNotificationService
 {
     public function __construct(
-        private HappeningNotificationTypeResolver $typeResolver,
-        private NotificationDispatchService $notificationDispatchService,
-    ) {
-    }
+        private readonly HappeningNotificationTypeResolver $typeResolver,
+        private readonly NotificationDispatchService $notificationDispatchService,
+    ) {}
 
     public function sendForEvent(HappeningBroadcastEvent $event): void
     {
@@ -27,7 +26,7 @@ class HappeningNotificationService
             recipient: $event->user,
             institutionId: $institution->id,
             mailTypeKey: $mailType,
-            mailBuilder: fn ($mailContent) => new HappeningMail(new HappeningMailData(
+            mailBuilder: fn ($mailContent): HappeningMail => new HappeningMail(new HappeningMailData(
                 happening: $event->happening,
                 content: $mailContent,
                 envelope: new MailEnvelopeData($fromAddress),

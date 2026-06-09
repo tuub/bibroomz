@@ -1,10 +1,5 @@
 <?php
 
-covers(
-    App\Models\Happening::class,
-    App\Services\Happenings\HappeningStatusCalculator::class
-);
-
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningsChangedEvent;
 use App\Library\Utility;
@@ -13,17 +8,24 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Happenings\HappeningStatusCalculator;
 use App\Services\Resources\ResourceAvailabilityService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithPermissions;
+
+covers(
+    Happening::class,
+    HappeningStatusCalculator::class
+);
 
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     config()->set('roomz.app.timezone', 'UTC');
     config()->set('roomz.happenings.cleanup_days', 5);
@@ -31,13 +33,17 @@ beforeEach(function () {
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Auth::logout();
     app()->forgetInstance(ResourceAvailabilityService::class);
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @param  array<string, mixed>  $attributes
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: App\Models\Resource, owner: User, second: User, verifier: User, happening: Happening}
+ */
 function createHappeningFixture(array $attributes = []): array
 {
     $institution = Institution::factory()->create();
@@ -47,10 +53,11 @@ function createHappeningFixture(array $attributes = []): array
         'is_active' => true,
     ]);
 
-    $owner = User::factory()->create(['name' => 'owner-' . uniqid()]);
-    $second = User::factory()->create(['name' => 'second-' . uniqid()]);
-    $verifier = User::factory()->create(['name' => 'verifier-' . uniqid()]);
+    $owner = User::factory()->create(['name' => 'owner-'.uniqid()]);
+    $second = User::factory()->create(['name' => 'second-'.uniqid()]);
+    $verifier = User::factory()->create(['name' => 'verifier-'.uniqid()]);
 
+    /** @var Happening $happening */
     $happening = Happening::create(array_merge([
         'user_id_01' => $owner->id,
         'user_id_02' => $second->id,
@@ -64,10 +71,10 @@ function createHappeningFixture(array $attributes = []): array
         'label' => Utility::getTranslatable('Study'),
     ], $attributes));
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'second', 'verifier', 'happening');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'second' => $second, 'verifier' => $verifier, 'happening' => $happening];
 }
 
-test('happening scopes and state helpers work on persisted data', function () {
+test('happening scopes and state helpers work on persisted data', function (): void {
     $fixture = createHappeningFixture();
     $future = $fixture['happening'];
 
@@ -82,7 +89,7 @@ test('happening scopes and state helpers work on persisted data', function () {
 
     expect(Happening::weekly()->pluck('id')->all())->toContain($future->id)
         ->and(Happening::user($fixture['owner'])->pluck('id')->all())
-            ->toContain($future->id, $otherFixture['happening']->id)
+        ->toContain($future->id, $otherFixture['happening']->id)
         ->and(Happening::resourceGroup($fixture['resourceGroup'])->pluck('id')->all())->toContain($future->id)
         ->and(Happening::active()->pluck('id')->all())->toContain($future->id)
         ->and($future->isVerified())->toBeFalse()
@@ -93,11 +100,12 @@ test('happening scopes and state helpers work on persisted data', function () {
         ->and($otherFixture['happening']->isPast())->toBeTrue();
 });
 
-test('happening permissions users and status reflect the current viewer', function () {
+test('happening permissions users and status reflect the current viewer', function (): void {
     $fixture = createHappeningFixture();
+    /** @var Happening $happening */
     $happening = $fixture['happening']->fresh(['user1', 'user2', 'resource.resource_group.institution']);
 
-    $admin = User::factory()->create(['name' => 'admin-' . uniqid()]);
+    $admin = User::factory()->create(['name' => 'admin-'.uniqid()]);
     $this->grantPermission($admin, $fixture['institution'], 'edit_happenings');
     $this->grantPermission($admin, $fixture['institution'], 'delete_happenings');
     $this->grantPermission($admin, $fixture['institution'], 'view_happenings');
@@ -117,8 +125,9 @@ test('happening permissions users and status reflect the current viewer', functi
         'start' => CarbonImmutable::now()->subMinutes(30),
         'end' => CarbonImmutable::now()->addMinutes(30),
     ]);
-    $verified->id = (string) \Illuminate\Support\Str::uuid();
+    $verified->id = (string) Str::uuid();
     $verified->save();
+    /** @var Happening $verified */
     $verified = $verified->fresh(['user1', 'user2']);
 
     expect($verified->isPresent())->toBeTrue()
@@ -145,13 +154,14 @@ test('happening permissions users and status reflect the current viewer', functi
     );
 });
 
-test('happening broadcast concurrency and resource status helpers work', function () {
+test('happening broadcast concurrency and resource status helpers work', function (): void {
     Event::fake([
         HappeningCreatedEvent::class,
         HappeningsChangedEvent::class,
     ]);
 
     $fixture = createHappeningFixture();
+    /** @var Happening $happening */
     $happening = $fixture['happening']->fresh(['resource.resource_group.institution', 'user1', 'user2']);
 
     expect($happening->isConcurrent(
@@ -163,24 +173,24 @@ test('happening broadcast concurrency and resource status helpers work', functio
             CarbonImmutable::parse('2026-06-03 14:30:00'),
         ))->toBeFalse();
 
-    $availabilityService = \Mockery::mock(ResourceAvailabilityService::class);
-    $adjustedResource = \Mockery::mock(Resource::class);
+    $availabilityService = Mockery::mock(ResourceAvailabilityService::class);
+    $adjustedResource = Mockery::mock(Resource::class);
     $availabilityService->shouldReceive('findOpen')
         ->once()
-        ->with($adjustedResource, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($adjustedResource, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([
-        true,
-        CarbonImmutable::parse('2026-06-03 11:00:00'),
-        CarbonImmutable::parse('2026-06-03 12:00:00'),
-    ]);
+            true,
+            CarbonImmutable::parse('2026-06-03 11:00:00'),
+            CarbonImmutable::parse('2026-06-03 12:00:00'),
+        ]);
     $availabilityService->shouldReceive('findClosed')
         ->once()
-        ->with($adjustedResource, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($adjustedResource, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([
-        false,
-        CarbonImmutable::parse('2026-06-03 11:30:00'),
-        CarbonImmutable::parse('2026-06-03 12:30:00'),
-    ]);
+            false,
+            CarbonImmutable::parse('2026-06-03 11:30:00'),
+            CarbonImmutable::parse('2026-06-03 12:30:00'),
+        ]);
     app()->instance(ResourceAvailabilityService::class, $availabilityService);
 
     $happening->setRelation('resource', $adjustedResource);
@@ -189,29 +199,29 @@ test('happening broadcast concurrency and resource status helpers work', functio
     expect(CarbonImmutable::parse($happening->start)->format('H:i'))->toBe('11:30')
         ->and(CarbonImmutable::parse($happening->end)->format('H:i'))->toBe('12:30');
 
-    $resourceStatusService = \Mockery::mock(ResourceAvailabilityService::class);
-    $resourceStatus = \Mockery::mock(Resource::class);
+    $resourceStatusService = Mockery::mock(ResourceAvailabilityService::class);
+    $resourceStatus = Mockery::mock(Resource::class);
     $resourceStatusService->shouldReceive('findOpen')
         ->once()
-        ->with($resourceStatus, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($resourceStatus, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([true]);
     $resourceStatusService->shouldReceive('findClosed')
         ->once()
-        ->with($resourceStatus, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($resourceStatus, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([false]);
     app()->instance(ResourceAvailabilityService::class, $resourceStatusService);
     $happening->setRelation('resource', $resourceStatus);
     expect($happening->isResourceOpen())->toBeTrue();
 
-    $resourceStatusService = \Mockery::mock(ResourceAvailabilityService::class);
-    $resourceStatus = \Mockery::mock(Resource::class);
+    $resourceStatusService = Mockery::mock(ResourceAvailabilityService::class);
+    $resourceStatus = Mockery::mock(Resource::class);
     $resourceStatusService->shouldReceive('findOpen')
         ->once()
-        ->with($resourceStatus, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($resourceStatus, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([true]);
     $resourceStatusService->shouldReceive('findClosed')
         ->once()
-        ->with($resourceStatus, \Mockery::type(CarbonImmutable::class), \Mockery::type(CarbonImmutable::class))
+        ->with($resourceStatus, Mockery::type(CarbonImmutable::class), Mockery::type(CarbonImmutable::class))
         ->andReturn([true]);
     app()->instance(ResourceAvailabilityService::class, $resourceStatusService);
     $happening->setRelation('resource', $resourceStatus);
@@ -227,11 +237,11 @@ test('happening broadcast concurrency and resource status helpers work', functio
         ->and($happening->isViewableByUser($fixture['owner']))->toBeFalse();
 });
 
-test('isBelongingTo is true for user_id_02 even when not user_id_01 or named verifier', function () {
-    $owner = User::factory()->create(['name' => 'belong.owner.' . uniqid()]);
-    $second = User::factory()->create(['name' => 'belong.second.' . uniqid()]);
-    $thirdParty = User::factory()->create(['name' => 'belong.third.' . uniqid()]);
-    $namedVerifier = User::factory()->create(['name' => 'belong.verifier.' . uniqid()]);
+test('isBelongingTo is true for user_id_02 even when not user_id_01 or named verifier', function (): void {
+    $owner = User::factory()->create(['name' => 'belong.owner.'.uniqid()]);
+    $second = User::factory()->create(['name' => 'belong.second.'.uniqid()]);
+    $thirdParty = User::factory()->create(['name' => 'belong.third.'.uniqid()]);
+    $namedVerifier = User::factory()->create(['name' => 'belong.verifier.'.uniqid()]);
 
     $fixture = createHappeningFixture();
     $institution = $fixture['institution'];
@@ -256,7 +266,7 @@ test('isBelongingTo is true for user_id_02 even when not user_id_01 or named ver
         ->and($happening->isBelongingTo($thirdParty))->toBeFalse();  // none
 });
 
-test('isConcurrent boundary: existing starts at exactly new start, or ends at exactly new start', function () {
+test('isConcurrent boundary: existing starts at exactly new start, or ends at exactly new start', function (): void {
     $fixture = createHappeningFixture();
     $resource = $fixture['resource'];
 
@@ -271,6 +281,7 @@ test('isConcurrent boundary: existing starts at exactly new start, or ends at ex
         'verified_at' => now(),
         'label' => ['en' => 'Existing'],
     ]);
+    /** @var Happening $existing */
     $existing = $existing->fresh();
 
     // Existing starts exactly at new start → concurrent
@@ -298,7 +309,7 @@ test('isConcurrent boundary: existing starts at exactly new start, or ends at ex
     ))->toBeTrue();
 });
 
-test('isPresent is false for past happenings and happenings not yet started', function () {
+test('isPresent is false for past happenings and happenings not yet started', function (): void {
     $fixture = createHappeningFixture();
     $resource = $fixture['resource'];
 

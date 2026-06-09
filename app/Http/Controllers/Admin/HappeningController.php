@@ -6,7 +6,6 @@ use App\Http\Requests\Admin\DeleteHappeningRequest;
 use App\Http\Requests\Admin\HappeningIdRequest;
 use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
-use App\Models\Happening;
 use App\Services\Admin\HappeningAdminService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -15,9 +14,8 @@ use Inertia\Response;
 class HappeningController extends AdminController
 {
     public function __construct(
-        private HappeningAdminService $happeningAdminService,
-    ) {
-    }
+        private readonly HappeningAdminService $happeningAdminService,
+    ) {}
 
     public function getHappenings(): Response
     {
@@ -43,7 +41,6 @@ class HappeningController extends AdminController
 
     public function editHappening(HappeningIdRequest $request): Response
     {
-        /** @var Happening $happening */
         $happening = $request->happening();
 
         $this->authorize('adminUpdate', $happening);

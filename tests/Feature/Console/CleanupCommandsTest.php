@@ -1,17 +1,8 @@
 <?php
 
-covers(
-    App\Console\Commands\RemoveUnverifiedHappeningsCommand::class,
-    App\Console\Commands\AnonymizeHappeningUsersCommand::class,
-    App\Console\Commands\RemoveUsersCommand::class,
-    App\Services\Console\RemoveUnverifiedHappeningsAction::class,
-    App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder::class,
-    App\Services\Console\AnonymizeHappeningUsersAction::class,
-    App\Services\Console\CleanupIntervalResolver::class,
-    App\Services\Console\RemoveUsersAction::class,
-    App\Services\Console\RemoveUsersQueryBuilder::class
-);
-
+use App\Console\Commands\AnonymizeHappeningUsersCommand;
+use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
+use App\Console\Commands\RemoveUsersCommand;
 use App\Events\HappeningsChangedEvent;
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Happening;
@@ -21,6 +12,12 @@ use App\Models\ResourceGroup;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Services\Console\AnonymizeHappeningUsersAction;
+use App\Services\Console\CleanupIntervalResolver;
+use App\Services\Console\RemoveUnverifiedHappeningsAction;
+use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
+use App\Services\Console\RemoveUsersAction;
+use App\Services\Console\RemoveUsersQueryBuilder;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,19 +25,34 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Symfony\Component\Console\Command\Command;
 
+covers(
+    RemoveUnverifiedHappeningsCommand::class,
+    AnonymizeHappeningUsersCommand::class,
+    RemoveUsersCommand::class,
+    RemoveUnverifiedHappeningsAction::class,
+    RemoveUnverifiedHappeningsQueryBuilder::class,
+    AnonymizeHappeningUsersAction::class,
+    CleanupIntervalResolver::class,
+    RemoveUsersAction::class,
+    RemoveUsersQueryBuilder::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-04 12:00:00'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-04 12:00:00'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
-function buildCleanupFixture(): array
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User}
+ */
+function buildFeatureCleanupFixture(): array
 {
     $institution = Institution::factory()->create(['title' => 'Library']);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -49,15 +61,15 @@ function buildCleanupFixture(): array
         'is_active' => true,
     ]);
     $suffix = uniqid('.', true);
-    $owner = User::factory()->create(['name' => 'owner' . $suffix]);
-    $verifier = User::factory()->create(['name' => 'verifier' . $suffix]);
+    $owner = User::factory()->create(['name' => 'owner'.$suffix]);
+    $verifier = User::factory()->create(['name' => 'verifier'.$suffix]);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier];
 }
 
-test('remove unverified happenings command deletes matching records and broadcasts the scheduler event', function () {
+test('remove unverified happenings command deletes matching records and broadcasts the scheduler event', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
-    $fixture = buildCleanupFixture();
+    $fixture = buildFeatureCleanupFixture();
 
     $old = Happening::create([
         'user_id_01' => $fixture['owner']->id,
@@ -85,13 +97,13 @@ test('remove unverified happenings command deletes matching records and broadcas
     Event::assertDispatched(HappeningsChangedEvent::class);
 });
 
-test('remove unverified happenings command supports institution slug filtering and cleanup settings', function () {
+test('remove unverified happenings command supports institution slug filtering and cleanup settings', function (): void {
     Event::fake([UnverifiedHappeningRemovedBySchedulerEvent::class, HappeningsChangedEvent::class]);
-    $target = buildCleanupFixture();
-    $other = buildCleanupFixture();
+    $target = buildFeatureCleanupFixture();
+    $other = buildFeatureCleanupFixture();
 
-    $target['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '0:1:0']);
-    $other['institution']->settings()->firstWhere('key', 'cleanup_interval')->update(['value' => '10:0:0']);
+    $target['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '0:1:0']);
+    $other['institution']->settings()->firstWhere('key', 'cleanup_interval')?->update(['value' => '10:0:0']);
 
     $targetHappening = Happening::create([
         'user_id_01' => $target['owner']->id,
@@ -133,8 +145,8 @@ test('remove unverified happenings command supports institution slug filtering a
         ->and(Happening::find($otherHappening->id))->not->toBeNull();
 });
 
-test('anonymize happening users command respects dry runs and anonymizes past bookings', function () {
-    $fixture = buildCleanupFixture();
+test('anonymize happening users command respects dry runs and anonymizes past bookings', function (): void {
+    $fixture = buildFeatureCleanupFixture();
     $happening = Happening::create([
         'user_id_01' => $fixture['owner']->id,
         'user_id_02' => $fixture['verifier']->id,
@@ -153,19 +165,19 @@ test('anonymize happening users command respects dry runs and anonymizes past bo
         '--dry-run' => true,
     ])->assertExitCode(Command::SUCCESS);
 
-    expect($happening->fresh()->user_id_01)->toBe($fixture['owner']->id);
+    expect($happening->fresh()?->user_id_01)->toBe($fixture['owner']->id);
 
     $this->artisan('roomz:anonymize-happening-users', [
         '--days' => 1,
         '--force' => true,
     ])->assertExitCode(Command::SUCCESS);
 
-    expect($happening->fresh()->user_id_01)->toBeNull()
-        ->and($happening->fresh()->user_id_02)->toBeNull()
-        ->and($happening->fresh()->verifier)->toBeNull();
+    expect($happening->fresh()?->user_id_01)->toBeNull()
+        ->and($happening->fresh()?->user_id_02)->toBeNull()
+        ->and($happening->fresh()?->verifier)->toBeNull();
 });
 
-test('remove users command deletes only inactive unprivileged users', function () {
+test('remove users command deletes only inactive unprivileged users', function (): void {
     $candidate = User::factory()->create(['is_admin' => false, 'is_logged_in' => false]);
     $admin = User::factory()->create(['is_admin' => true]);
     $withRole = User::factory()->create(['is_admin' => false]);
@@ -195,7 +207,7 @@ test('remove users command deletes only inactive unprivileged users', function (
         'label' => ['en' => 'Recent'],
     ]);
 
-    Cache::put('user_activity_' . $loggedIn->id, true, 60);
+    Cache::put('user_activity_'.$loggedIn->id, true, 60);
 
     $this->artisan('roomz:remove-users', [
         '--days' => 30,
@@ -212,8 +224,8 @@ test('remove users command deletes only inactive unprivileged users', function (
 
 // Regression: resolveDays() returned 0 when config('roomz.happenings.anonymize_days') was null
 // or non-numeric (e.g. missing env var). subDays(0) = now() → matched ALL ended happenings.
-test('anonymize command does not anonymize recent happenings when config days is missing', function () {
-    $fixture = buildCleanupFixture();
+test('anonymize command does not anonymize recent happenings when config days is missing', function (): void {
+    $fixture = buildFeatureCleanupFixture();
 
     // A happening that ended 5 minutes ago — should NOT be anonymized when days=0 fallback.
     $recent = Happening::create([
@@ -229,14 +241,14 @@ test('anonymize command does not anonymize recent happenings when config days is
     ]);
 
     // Wipe the config so resolveDays() cannot resolve a valid integer.
-    config()->set('roomz.happenings.anonymize_days', null);
+    config()->set('roomz.happenings.anonymize_days');
 
     // Without --days and with a null config, the command should refuse to run (or default safely)
     // rather than anonymize happenings from 0 days ago (= all past happenings).
     $this->artisan('roomz:anonymize-happening-users', [
         '--force' => true,
-    ])->assertExitCode(\Illuminate\Console\Command::SUCCESS);
+    ])->assertExitCode(Illuminate\Console\Command::SUCCESS);
 
     // The recent happening must NOT have been anonymized.
-    expect($recent->fresh()->user_id_01)->toBe($fixture['owner']->id);
+    expect($recent->fresh()?->user_id_01)->toBe($fixture['owner']->id);
 });

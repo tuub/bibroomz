@@ -14,7 +14,7 @@ class UserActivityRecorder
             return;
         }
 
-        $key = 'user_activity_' . $userKey;
+        $key = 'user_activity_'.$userKey;
         $lifetime = config('session.lifetime');
         $ttl = now()->addMinutes(is_int($lifetime) ? $lifetime : 0);
 

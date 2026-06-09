@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Mail;
 
 use App\Models\Happening;
@@ -11,6 +13,5 @@ class HappeningMailData
         public Happening $happening,
         public MailContent $content,
         public MailEnvelopeData $envelope,
-    ) {
-    }
+    ) {}
 }

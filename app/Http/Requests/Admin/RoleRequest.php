@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Role;
+use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 
 class RoleRequest extends AdminRouteRequest
@@ -12,11 +13,11 @@ class RoleRequest extends AdminRouteRequest
         $user = $this->userModel();
         $role = $this->roleOrNull();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 
-        if ($role === null) {
+        if (! $role instanceof Role) {
             return $user->can('create', Role::class);
         }
 
@@ -30,13 +31,14 @@ class RoleRequest extends AdminRouteRequest
     {
         return [
             'id' => ['nullable', 'uuid', 'exists:roles,id'],
-            'name' => [new RequiredWithTranslationRule()],
+            'name' => [new RequiredWithTranslationRule],
             'description' => [''],
             'permissions' => ['array'],
             'permissions.*' => ['uuid', 'exists:permissions,id'],
         ];
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $this->merge([

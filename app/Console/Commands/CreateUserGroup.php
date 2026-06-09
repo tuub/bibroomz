@@ -27,8 +27,8 @@ class CreateUserGroup extends Command
     protected $description = 'Create a user group';
 
     public function __construct(
-        private UserGroupInputCollector $inputCollector,
-        private CreateUserGroupAction $createUserGroupAction,
+        private readonly UserGroupInputCollector $inputCollector,
+        private readonly CreateUserGroupAction $createUserGroupAction,
     ) {
         parent::__construct();
     }
@@ -50,7 +50,7 @@ class CreateUserGroup extends Command
             return Command::FAILURE;
         }
 
-        if (!$this->confirm('Are you sure you want to create this user group?')) {
+        if (! $this->confirm('Are you sure you want to create this user group?')) {
             error('⚠ Cancelled.');
 
             return Command::INVALID;
@@ -72,7 +72,7 @@ class CreateUserGroup extends Command
 
             foreach ($messages as $message) {
                 if (is_string($message)) {
-                    error('⚠ ' . $message);
+                    error('⚠ '.$message);
                 }
             }
         }

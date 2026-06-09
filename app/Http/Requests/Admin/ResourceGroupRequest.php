@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
 use App\Models\ResourceGroup;
+use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
 use Illuminate\Database\Query\Builder;
@@ -17,11 +18,11 @@ class ResourceGroupRequest extends AdminRouteRequest
         $institution = $this->institution();
         $resourceGroup = $this->resourceGroupOrNull();
 
-        if ($user === null || $institution === null) {
+        if (! $user instanceof User || ! $institution instanceof Institution) {
             return false;
         }
 
-        if ($resourceGroup === null) {
+        if (! $resourceGroup instanceof ResourceGroup) {
             return $user->can('create', [ResourceGroup::class, $institution]);
         }
 
@@ -47,11 +48,11 @@ class ResourceGroupRequest extends AdminRouteRequest
         return [
             'id' => ['nullable', 'uuid', 'exists:resource_groups,id'],
             'institution_id' => ['required', 'uuid', 'exists:institutions,id'],
-            'title' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule],
             'slug' => ['required', new UniqueResourceGroupAttributeRule($institutionId, $resourceGroup?->id)],
-            'term_singular' => [new RequiredWithTranslationRule()],
-            'term_plural' => [new RequiredWithTranslationRule()],
-            'description' => [new RequiredWithTranslationRule()],
+            'term_singular' => [new RequiredWithTranslationRule],
+            'term_plural' => [new RequiredWithTranslationRule],
+            'description' => [new RequiredWithTranslationRule],
             'is_active' => ['required', 'boolean'],
             'user_groups' => ['list'],
             'user_groups.*' => [
@@ -64,6 +65,7 @@ class ResourceGroupRequest extends AdminRouteRequest
         ];
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $userGroups = $this->input('user_groups', []);

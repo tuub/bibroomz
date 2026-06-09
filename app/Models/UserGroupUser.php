@@ -18,16 +18,6 @@ class UserGroupUser extends Pivot
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'valid_from' => 'date',
-        'valid_until' => 'date',
-    ];
-
-    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -43,4 +33,14 @@ class UserGroupUser extends Pivot
     {
         return $this->belongsTo(UserGroup::class);
     }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'valid_from' => 'date',
+        'valid_until' => 'date',
+    ];
 }

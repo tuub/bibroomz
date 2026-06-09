@@ -4,21 +4,25 @@ namespace App\Models;
 
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MailContent extends Model
 {
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
-    use HasUuids, HasTranslations;
+
+    use HasTranslations, HasUuids;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'mail_contents';
+
     public $incrementing = false;
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -33,10 +37,6 @@ class MailContent extends Model
         'action_uri_label',
         'farewell',
         'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
     ];
 
     /**
@@ -78,4 +78,8 @@ class MailContent extends Model
     {
         return $user->can('view', $this);
     }
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

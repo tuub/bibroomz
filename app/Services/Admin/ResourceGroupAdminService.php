@@ -11,10 +11,9 @@ use App\Services\ResourceGroupService;
 class ResourceGroupAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private ResourceGroupService $resourceGroupService,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly ResourceGroupService $resourceGroupService,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -62,7 +61,7 @@ class ResourceGroupAdminService
     }
 
     /**
-     * @param array<int, array{id: string, order: int}> $rows
+     * @param  array<int, array{id: string, order: int}>  $rows
      */
     public function reorder(array $rows): void
     {
@@ -77,7 +76,7 @@ class ResourceGroupAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function store(array $attributes): ResourceGroup
     {
@@ -89,7 +88,7 @@ class ResourceGroupAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(ResourceGroup $resourceGroup, array $attributes): ResourceGroup
     {

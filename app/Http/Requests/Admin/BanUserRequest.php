@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class BanUserRequest extends AdminRouteRequest
 {
@@ -11,7 +12,7 @@ class BanUserRequest extends AdminRouteRequest
         $targetUser = $this->findModel(User::class);
         $user = $this->userModel();
 
-        return $user !== null && $targetUser !== null && $user->can('ban', $targetUser);
+        return $user instanceof User && $targetUser instanceof Model && $user->can('ban', $targetUser);
     }
 
     /**

@@ -1,40 +1,50 @@
 <?php
 
-covers(
-    App\Http\Controllers\Admin\HappeningController::class,
-    App\Services\Admin\HappeningAdminService::class,
-    App\Http\Requests\Admin\StoreHappeningRequest::class,
-    App\Http\Requests\Admin\UpdateHappeningRequest::class,
-    App\Http\Requests\Admin\DeleteHappeningRequest::class,
-    App\Http\Requests\Admin\HappeningRequest::class
-);
-
+use App\Http\Controllers\Admin\HappeningController;
+use App\Http\Requests\Admin\DeleteHappeningRequest;
+use App\Http\Requests\Admin\HappeningRequest;
+use App\Http\Requests\Admin\StoreHappeningRequest;
+use App\Http\Requests\Admin\UpdateHappeningRequest;
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Admin\HappeningAdminService;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
+
+covers(
+    HappeningController::class,
+    HappeningAdminService::class,
+    StoreHappeningRequest::class,
+    UpdateHappeningRequest::class,
+    DeleteHappeningRequest::class,
+    HappeningRequest::class
+);
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     config()->set('broadcasting.default', 'log');
 });
 
+/**
+ * @return array<string, string>
+ */
 function adminHappeningFeatureTranslatable(string $value): array
 {
     return Utility::getTranslatable($value);
 }
 
 /**
- * @param list<string> $permissions
+ * @param  list<string>  $permissions
  */
 function actingHappeningFeatureAdmin(Institution $institution, array $permissions): User
 {
@@ -52,7 +62,7 @@ function actingHappeningFeatureAdmin(Institution $institution, array $permission
     return $user;
 }
 
-test('scoped admins without happening create permission cannot store admin happenings', function () {
+test('scoped admins without happening create permission cannot store admin happenings', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -78,7 +88,7 @@ test('scoped admins without happening create permission cannot store admin happe
     $this->assertDatabaseMissing('happenings', ['resource_id' => $resource->id]);
 });
 
-test('admin happening routes render and mutate happenings', function () {
+test('admin happening routes render and mutate happenings', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -96,13 +106,13 @@ test('admin happening routes render and mutate happenings', function () {
 
     $this->get(route('admin.happening.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Happenings/Index')
             ->has('happenings'));
 
     $this->get(route('admin.happening.create'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Happenings/Form')
             ->has('resources')
             ->has('users'));
@@ -123,7 +133,7 @@ test('admin happening routes render and mutate happenings', function () {
 
     $this->get(route('admin.happening.edit', ['id' => $happening->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Happenings/Form')
             ->where('happening.id', $happening->id)
             ->has('resources')
@@ -142,7 +152,7 @@ test('admin happening routes render and mutate happenings', function () {
         'label' => adminHappeningFeatureTranslatable('Updated focus session'),
     ])->assertRedirect(route('admin.happening.index'));
 
-    expect($happening->fresh()->getTranslation('label', 'en'))->toBe('Updated focus session');
+    expect($happening->fresh()?->getTranslation('label', 'en'))->toBe('Updated focus session');
 
     $this->post(route('admin.happening.delete'), ['id' => $happening->id])
         ->assertRedirect(route('admin.happening.index'));

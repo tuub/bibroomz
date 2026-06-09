@@ -11,10 +11,9 @@ use Illuminate\Http\JsonResponse;
 class ResourceController extends Controller
 {
     public function __construct(
-        private GetResourceTimeSlotsAction $getResourceTimeSlotsAction,
-        private ListPublicResourcesAction $listPublicResourcesAction
-    ) {
-    }
+        private readonly GetResourceTimeSlotsAction $getResourceTimeSlotsAction,
+        private readonly ListPublicResourcesAction $listPublicResourcesAction
+    ) {}
 
     public function getResources(PublicResourcesRequest $request): JsonResponse
     {

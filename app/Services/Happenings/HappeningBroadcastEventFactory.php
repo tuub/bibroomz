@@ -10,8 +10,8 @@ use InvalidArgumentException;
 class HappeningBroadcastEventFactory
 {
     /**
-     * @param class-string $broadcastEvent
-     * @param array<string, mixed> $payload
+     * @param  class-string  $broadcastEvent
+     * @param  array<string, mixed>  $payload
      */
     public function make(
         string $broadcastEvent,
@@ -19,7 +19,7 @@ class HappeningBroadcastEventFactory
         User $user,
         array $payload,
     ): HappeningBroadcastEvent {
-        if (!is_a($broadcastEvent, HappeningBroadcastEvent::class, true)) {
+        if (! is_a($broadcastEvent, HappeningBroadcastEvent::class, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected a %s subclass, got %s.',
                 HappeningBroadcastEvent::class,

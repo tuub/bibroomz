@@ -8,9 +8,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class UniqueResourceGroupAttributeRule implements ValidationRule
 {
-    public function __construct(private string $institution_id, private string|null $resource_group_id)
-    {
-    }
+    public function __construct(private readonly string $institution_id, private readonly ?string $resource_group_id) {}
 
     /**
      * Run the validation rule.
@@ -20,7 +18,7 @@ class UniqueResourceGroupAttributeRule implements ValidationRule
         $existing = ResourceGroup::where([
             ['id', '!=', $this->resource_group_id],
             ['institution_id', '=', $this->institution_id],
-            [$attribute, '=', $value]
+            [$attribute, '=', $value],
         ])->first();
 
         if ($existing) {

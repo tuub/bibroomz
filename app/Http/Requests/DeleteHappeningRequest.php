@@ -11,8 +11,6 @@ class DeleteHappeningRequest extends FormRequest
 
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -32,6 +30,7 @@ class DeleteHappeningRequest extends FormRequest
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function validationData(): array
     {
         return $this->normalizeStringKeyedArray(array_merge($this->all(), $this->route()?->parameters() ?? []));
@@ -49,7 +48,7 @@ class DeleteHappeningRequest extends FormRequest
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function normalizeStringKeyedArray(array $values): array

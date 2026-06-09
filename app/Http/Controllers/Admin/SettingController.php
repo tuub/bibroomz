@@ -6,8 +6,8 @@ use App\Http\Requests\Admin\SettingableContextRequest;
 use App\Http\Requests\Admin\SettingIdRequest;
 use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Models\Setting;
-use App\Services\Admin\SettingAdminService;
 use App\Services\Admin\SettingableResolver;
+use App\Services\Admin\SettingAdminService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,10 +15,9 @@ use Inertia\Response;
 class SettingController extends AdminController
 {
     public function __construct(
-        private SettingAdminService $settingAdminService,
-        private SettingableResolver $settingableResolver,
-    ) {
-    }
+        private readonly SettingAdminService $settingAdminService,
+        private readonly SettingableResolver $settingableResolver,
+    ) {}
 
     public function getSettings(SettingableContextRequest $request): Response
     {

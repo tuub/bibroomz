@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class BusinessHourSynchronizer
 {
     /**
-     * @param array<int, array<string, mixed>> $businessHours
+     * @param  array<int, array<string, mixed>>  $businessHours
      */
     public function sync(Resource $resource, array $businessHours): void
     {
@@ -56,7 +56,7 @@ class BusinessHourSynchronizer
     }
 
     /**
-     * @param array<string, mixed> $businessHour
+     * @param  array<string, mixed>  $businessHour
      */
     private function stringValue(array $businessHour, string $key): ?string
     {

@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Mail;
 
 class NotificationDispatchService
 {
-    public function __construct(private MailContentLookup $mailContentLookup)
-    {
-    }
+    public function __construct(private readonly MailContentLookup $mailContentLookup) {}
 
     /**
-     * @param Closure(MailContent): Mailable $mailBuilder
+     * @param  Closure(MailContent): Mailable  $mailBuilder
      */
     public function queue(
         User $recipient,
@@ -25,7 +23,7 @@ class NotificationDispatchService
     ): ?MailContent {
         $mailContent = $this->mailContentLookup->find($institutionId, $mailTypeKey);
 
-        if (!$mailContent?->is_active) {
+        if (! $mailContent?->is_active) {
             return null;
         }
 

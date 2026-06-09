@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteInstitutionRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteInstitutionRequest extends AdminRouteRequest
         $institution = $this->findModel(Institution::class);
         $user = $this->userModel();
 
-        return $institution !== null && $user !== null && $user->can('delete', $institution);
+        return $institution instanceof Model && $user instanceof User && $user->can('delete', $institution);
     }
 
     /**

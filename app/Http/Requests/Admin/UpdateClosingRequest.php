@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Closing;
+use App\Models\User;
 
 class UpdateClosingRequest extends AdminRouteRequest
 {
@@ -11,7 +12,7 @@ class UpdateClosingRequest extends AdminRouteRequest
         $user = $this->userModel();
         $closing = $this->closingOrNull();
 
-        return $user !== null && $closing !== null && $user->can('edit', $closing);
+        return $user instanceof User && $closing instanceof Closing && $user->can('edit', $closing);
     }
 
     /**

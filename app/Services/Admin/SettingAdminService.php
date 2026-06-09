@@ -10,9 +10,7 @@ use App\Services\AdminLoggingService;
 
 class SettingAdminService
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
-    {
-    }
+    public function __construct(private readonly AdminLoggingService $adminLoggingService) {}
 
     /**
      * @return array<string, mixed>
@@ -42,7 +40,7 @@ class SettingAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(Setting $setting, array $attributes): Setting
     {

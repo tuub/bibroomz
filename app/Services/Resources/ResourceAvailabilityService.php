@@ -13,9 +13,7 @@ use Illuminate\Support\Collection;
 
 class ResourceAvailabilityService
 {
-    public function __construct(private ResourceBusinessHoursResolver $businessHoursResolver)
-    {
-    }
+    public function __construct(private readonly ResourceBusinessHoursResolver $businessHoursResolver) {}
 
     /**
      * @return array{0: bool, 1: CarbonImmutable, 2: CarbonImmutable}
@@ -52,6 +50,7 @@ class ResourceAvailabilityService
 
     /**
      * @return array{0: bool, 1: CarbonImmutable, 2: CarbonImmutable}
+     *
      * @throws InvalidFormatException
      * @throws InvalidTimeZoneException
      * @throws InvalidTypeException

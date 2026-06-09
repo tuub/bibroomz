@@ -2,9 +2,9 @@
 
 namespace App\Services\Console;
 
+use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
-use App\Models\Institution;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -38,8 +38,8 @@ class ImportUsersAction
     }
 
     /**
-     * @param Collection<int, array<string, string>> $users
-     * @param array<string, string> $defaults
+     * @param  Collection<int, array<string, string>>  $users
+     * @param  array<string, string>  $defaults
      */
     public function execute(Collection $users, array $defaults, UserGroup $group): void
     {
@@ -60,8 +60,8 @@ class ImportUsersAction
     }
 
     /**
-     * @param array<string, string> $values
-     * @param array<int, string> $keys
+     * @param  array<string, string>  $values
+     * @param  array<int, string>  $keys
      * @return array<string, string>
      */
     private function extractAttributes(array $values, array $keys): array
@@ -91,8 +91,10 @@ class ImportUsersAction
 
         foreach ($groups as $group) {
             $groupKey = $group->getKey();
-
-            if ((! is_string($groupKey) && ! is_int($groupKey)) || ! $group->institution instanceof Institution) {
+            if (! is_string($groupKey) && ! is_int($groupKey)) {
+                continue;
+            }
+            if (! $group->institution instanceof Institution) {
                 continue;
             }
 

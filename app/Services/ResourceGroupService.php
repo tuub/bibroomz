@@ -53,7 +53,7 @@ class ResourceGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function storeResourceGroup(array $data): ResourceGroup
     {
@@ -73,7 +73,7 @@ class ResourceGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function updateResourceGroup(string $id, array $data): ResourceGroup
     {
@@ -86,7 +86,7 @@ class ResourceGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return list<string>
      */
     private function extractUserGroups(array $data): array
@@ -97,11 +97,11 @@ class ResourceGroupService
             return [];
         }
 
-        return array_values(array_filter($userGroups, 'is_string'));
+        return array_values(array_filter($userGroups, is_string(...)));
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     private function extractAttributes(array $data): array

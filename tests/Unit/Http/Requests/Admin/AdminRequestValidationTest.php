@@ -1,30 +1,6 @@
 <?php
 
-covers(
-    App\Http\Requests\Admin\InstitutionRequest::class,
-    App\Http\Requests\Admin\MailContentRequest::class,
-    App\Http\Requests\Admin\ResourceGroupRequest::class,
-    App\Http\Requests\Admin\StoreUserGroupRequest::class,
-    App\Http\Requests\Admin\UpdateUserGroupRequest::class,
-    App\Http\Requests\Admin\RoleRequest::class,
-    App\Http\Requests\Admin\InstitutionOrderRequest::class,
-    App\Http\Requests\Admin\ResourceGroupOrderRequest::class,
-    App\Http\Requests\Admin\ResourceOrderRequest::class,
-    App\Http\Requests\Admin\HappeningRequest::class,
-    App\Http\Requests\Admin\StoreHappeningRequest::class,
-    App\Http\Requests\Admin\UpdateHappeningRequest::class,
-    App\Http\Requests\Admin\ResourceRequest::class,
-    App\Http\Requests\Admin\StoreResourceRequest::class,
-    App\Http\Requests\Admin\UpdateResourceRequest::class,
-    App\Http\Requests\Admin\ImportUsersRequest::class,
-    App\Http\Requests\Admin\RemoveUsersFromUserGroupRequest::class,
-    App\Http\Requests\Admin\StoreClosingRequest::class,
-    App\Http\Requests\Admin\UpdateClosingRequest::class,
-    App\Http\Requests\Admin\PermissionGroupRequest::class,
-    App\Http\Requests\Admin\PermissionRequest::class,
-    App\Http\Requests\Admin\UserRequest::class
-);
-
+use App\Http\Requests\Admin\HappeningRequest;
 use App\Http\Requests\Admin\ImportUsersRequest;
 use App\Http\Requests\Admin\InstitutionOrderRequest;
 use App\Http\Requests\Admin\InstitutionRequest;
@@ -35,6 +11,7 @@ use App\Http\Requests\Admin\RemoveUsersFromUserGroupRequest;
 use App\Http\Requests\Admin\ResourceGroupOrderRequest;
 use App\Http\Requests\Admin\ResourceGroupRequest;
 use App\Http\Requests\Admin\ResourceOrderRequest;
+use App\Http\Requests\Admin\ResourceRequest;
 use App\Http\Requests\Admin\RoleRequest;
 use App\Http\Requests\Admin\StoreClosingRequest;
 use App\Http\Requests\Admin\StoreHappeningRequest;
@@ -55,12 +32,39 @@ use App\Models\UserGroup;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+covers(
+    InstitutionRequest::class,
+    MailContentRequest::class,
+    ResourceGroupRequest::class,
+    StoreUserGroupRequest::class,
+    UpdateUserGroupRequest::class,
+    RoleRequest::class,
+    InstitutionOrderRequest::class,
+    ResourceGroupOrderRequest::class,
+    ResourceOrderRequest::class,
+    HappeningRequest::class,
+    StoreHappeningRequest::class,
+    UpdateHappeningRequest::class,
+    ResourceRequest::class,
+    StoreResourceRequest::class,
+    UpdateResourceRequest::class,
+    ImportUsersRequest::class,
+    RemoveUsersFromUserGroupRequest::class,
+    StoreClosingRequest::class,
+    UpdateClosingRequest::class,
+    PermissionGroupRequest::class,
+    PermissionRequest::class,
+    UserRequest::class
+);
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     $this->seed(MailTypeSeeder::class);
@@ -68,12 +72,27 @@ beforeEach(function () {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * @param  array<string, mixed>  $input
+ * @return array<string, mixed>
+ */
+/**
+ * @param  class-string<FormRequest>  $class
+ * @param  array<array-key, mixed>  $input
+ * @return array<string, mixed>
+ */
 function makeRules(string $class, array $input, ?User $user = null): array
 {
     $request = buildFormRequest($class, $input, $user);
+
+    /** @var array<string, mixed> */
     return $request->rules();
 }
 
+/**
+ * @param  array<string, mixed>  $rules
+ * @param  array<array-key, mixed>  $data
+ */
 function assertFails(array $rules, array $data, string $field): void
 {
     $v = Validator::make($data, $rules);
@@ -81,17 +100,21 @@ function assertFails(array $rules, array $data, string $field): void
         ->and($v->errors()->has($field))->toBeTrue("Expected error on field '{$field}'");
 }
 
+/**
+ * @param  array<string, mixed>  $rules
+ * @param  array<string, mixed>  $data
+ */
 function assertPasses(array $rules, array $data): void
 {
     $v = Validator::make($data, $rules);
     expect($v->passes())->toBeTrue(
-        'Unexpected validation failure: ' . json_encode($v->errors()->all())
+        'Unexpected validation failure: '.json_encode($v->errors()->all())
     );
 }
 
 // ── InstitutionRequest ────────────────────────────────────────────────────────
 
-test('institution request requires short_title', function () {
+test('institution request requires short_title', function (): void {
     $rules = makeRules(InstitutionRequest::class, [
         'title' => Utility::getTranslatable('Lib'),
         'is_active' => false,
@@ -99,21 +122,21 @@ test('institution request requires short_title', function () {
     assertFails($rules, ['title' => Utility::getTranslatable('Lib'), 'is_active' => false], 'short_title');
 });
 
-test('institution request requires slug', function () {
+test('institution request requires slug', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['is_active' => false]);
     assertFails($rules, [
         'title' => Utility::getTranslatable('Lib'), 'short_title' => 'L', 'is_active' => false,
     ], 'slug');
 });
 
-test('institution request requires is_active', function () {
+test('institution request requires is_active', function (): void {
     $rules = makeRules(InstitutionRequest::class, []);
     assertFails($rules, [
         'short_title' => 'L', 'slug' => 'lib', 'title' => Utility::getTranslatable('Lib'),
     ], 'is_active');
 });
 
-test('institution request rejects non-boolean is_active', function () {
+test('institution request rejects non-boolean is_active', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['is_active' => 'yes']);
     assertFails($rules, [
         'short_title' => 'L', 'slug' => 'lib',
@@ -121,7 +144,7 @@ test('institution request rejects non-boolean is_active', function () {
     ], 'is_active');
 });
 
-test('institution request rejects invalid email', function () {
+test('institution request rejects invalid email', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['is_active' => false]);
     assertFails($rules, [
         'short_title' => 'L', 'slug' => 'lib',
@@ -129,7 +152,7 @@ test('institution request rejects invalid email', function () {
     ], 'email');
 });
 
-test('institution request rejects invalid url fields', function () {
+test('institution request rejects invalid url fields', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['is_active' => false]);
     assertFails($rules, [
         'short_title' => 'L', 'slug' => 'lib',
@@ -145,7 +168,7 @@ test('institution request rejects invalid url fields', function () {
     ], 'teaser_uri');
 });
 
-test('institution request requires week_days when is_active is true', function () {
+test('institution request requires week_days when is_active is true', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['is_active' => true, 'week_days' => []]);
     assertFails($rules, [
         'short_title' => 'L', 'slug' => 'lib',
@@ -153,7 +176,7 @@ test('institution request requires week_days when is_active is true', function (
     ], 'week_days');
 });
 
-test('institution request rejects non-uuid id', function () {
+test('institution request rejects non-uuid id', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['id' => 'not-a-uuid', 'is_active' => false]);
     assertFails($rules, ['id' => 'not-a-uuid', 'short_title' => 'L', 'slug' => 'lib',
         'title' => Utility::getTranslatable('Lib'), 'is_active' => false], 'id');
@@ -161,13 +184,13 @@ test('institution request rejects non-uuid id', function () {
 
 // ── MailContentRequest ────────────────────────────────────────────────────────
 
-test('mail content request requires institution_id', function () {
+test('mail content request requires institution_id', function (): void {
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, ['mail_type_id' => $mailType?->id]);
     assertFails($rules, ['mail_type_id' => $mailType?->id, 'subject' => 'Test', 'is_active' => true], 'institution_id');
 });
 
-test('mail content request rejects non-uuid institution_id', function () {
+test('mail content request rejects non-uuid institution_id', function (): void {
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, ['institution_id' => 'bad', 'mail_type_id' => $mailType?->id]);
     assertFails($rules, [
@@ -175,7 +198,7 @@ test('mail content request rejects non-uuid institution_id', function () {
     ], 'institution_id');
 });
 
-test('mail content request requires mail_type_id', function () {
+test('mail content request requires mail_type_id', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(MailContentRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -183,7 +206,7 @@ test('mail content request requires mail_type_id', function () {
     ], 'mail_type_id');
 });
 
-test('mail content request requires subject', function () {
+test('mail content request requires subject', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, [
@@ -194,7 +217,7 @@ test('mail content request requires subject', function () {
     ], 'subject');
 });
 
-test('mail content request requires is_active', function () {
+test('mail content request requires is_active', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, [
@@ -205,7 +228,7 @@ test('mail content request requires is_active', function () {
     ], 'is_active');
 });
 
-test('mail content request requires action_uri_label when action_uri is present', function () {
+test('mail content request requires action_uri_label when action_uri is present', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, [
@@ -220,7 +243,7 @@ test('mail content request requires action_uri_label when action_uri is present'
 
 // ── ResourceGroupRequest ──────────────────────────────────────────────────────
 
-test('resource group request requires institution_id', function () {
+test('resource group request requires institution_id', function (): void {
     $rules = makeRules(ResourceGroupRequest::class, []);
     assertFails($rules, [
         'title' => Utility::getTranslatable('Rooms'), 'slug' => 'rooms',
@@ -231,7 +254,7 @@ test('resource group request requires institution_id', function () {
     ], 'institution_id');
 });
 
-test('resource group request rejects non-uuid institution_id', function () {
+test('resource group request rejects non-uuid institution_id', function (): void {
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => 'bad']);
     assertFails($rules, [
         'institution_id' => 'bad',
@@ -240,7 +263,7 @@ test('resource group request rejects non-uuid institution_id', function () {
     ], 'institution_id');
 });
 
-test('resource group request requires slug', function () {
+test('resource group request requires slug', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -250,7 +273,7 @@ test('resource group request requires slug', function () {
     ], 'slug');
 });
 
-test('resource group request requires is_active', function () {
+test('resource group request requires is_active', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -259,7 +282,7 @@ test('resource group request requires is_active', function () {
     ], 'is_active');
 });
 
-test('resource group request rejects non-boolean is_active', function () {
+test('resource group request rejects non-boolean is_active', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -268,7 +291,7 @@ test('resource group request rejects non-boolean is_active', function () {
     ], 'is_active');
 });
 
-test('resource group request rejects non-uuid user_groups items', function () {
+test('resource group request rejects non-uuid user_groups items', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -278,7 +301,7 @@ test('resource group request rejects non-uuid user_groups items', function () {
     ], 'user_groups.0');
 });
 
-test('resource group request rejects invalid help_uri', function () {
+test('resource group request rejects invalid help_uri', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, ['institution_id' => $institution->id]);
     assertFails($rules, [
@@ -290,71 +313,71 @@ test('resource group request rejects invalid help_uri', function () {
 
 // ── StoreUserGroupRequest / UpdateUserGroupRequest ────────────────────────────
 
-test('store user group request requires institution_id', function () {
+test('store user group request requires institution_id', function (): void {
     $rules = makeRules(StoreUserGroupRequest::class, []);
     assertFails($rules, ['title' => Utility::getTranslatable('Group')], 'institution_id');
 });
 
-test('store user group request rejects non-uuid institution_id', function () {
+test('store user group request rejects non-uuid institution_id', function (): void {
     $rules = makeRules(StoreUserGroupRequest::class, ['institution_id' => 'bad']);
     assertFails($rules, ['institution_id' => 'bad', 'title' => Utility::getTranslatable('Group')], 'institution_id');
 });
 
-test('update user group request requires id', function () {
+test('update user group request requires id', function (): void {
     $rules = makeRules(UpdateUserGroupRequest::class, []);
     assertFails($rules, ['title' => Utility::getTranslatable('Group')], 'id');
 });
 
-test('update user group request rejects non-uuid id', function () {
+test('update user group request rejects non-uuid id', function (): void {
     $rules = makeRules(UpdateUserGroupRequest::class, ['id' => 'bad']);
     assertFails($rules, ['id' => 'bad', 'title' => Utility::getTranslatable('Group')], 'id');
 });
 
 // ── RoleRequest ───────────────────────────────────────────────────────────────
 
-test('role request rejects non-array permissions', function () {
+test('role request rejects non-array permissions', function (): void {
     $rules = makeRules(RoleRequest::class, ['permissions' => 'string-not-array']);
     assertFails($rules, ['name' => Utility::getTranslatable('Editor'), 'permissions' => 'bad'], 'permissions');
 });
 
-test('role request rejects non-uuid permissions items', function () {
+test('role request rejects non-uuid permissions items', function (): void {
     $rules = makeRules(RoleRequest::class, ['permissions' => ['not-a-uuid']]);
     assertFails($rules, [
         'name' => Utility::getTranslatable('Editor'), 'permissions' => ['not-a-uuid'],
     ], 'permissions.0');
 });
 
-test('role request rejects non-uuid id when provided', function () {
+test('role request rejects non-uuid id when provided', function (): void {
     $rules = makeRules(RoleRequest::class, ['id' => 'bad-id']);
     assertFails($rules, ['id' => 'bad-id', 'name' => Utility::getTranslatable('Editor')], 'id');
 });
 
 // ── Order requests ────────────────────────────────────────────────────────────
 
-test('institution order request requires uuid for each row id', function () {
+test('institution order request requires uuid for each row id', function (): void {
     $rules = makeRules(InstitutionOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
     assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
 });
 
-test('institution order request requires integer for each row order', function () {
+test('institution order request requires integer for each row order', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(InstitutionOrderRequest::class, [['id' => $institution->id, 'order' => 'bad']]);
     assertFails($rules, [['id' => $institution->id, 'order' => 'bad']], '0.order');
 });
 
-test('resource order request requires uuid for each row id', function () {
+test('resource order request requires uuid for each row id', function (): void {
     $rules = makeRules(ResourceOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
     assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
 });
 
-test('resource group order request requires uuid for each row id', function () {
+test('resource group order request requires uuid for each row id', function (): void {
     $rules = makeRules(ResourceGroupOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
     assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
 });
 
 // ── HappeningRequest (via StoreHappeningRequest) ──────────────────────────────
 
-test('store happening request requires start_date', function () {
+test('store happening request requires start_date', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -367,7 +390,7 @@ test('store happening request requires start_date', function () {
     ], 'start_date');
 });
 
-test('store happening request rejects invalid date format', function () {
+test('store happening request rejects invalid date format', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -381,7 +404,7 @@ test('store happening request rejects invalid date format', function () {
     ], 'start_date');
 });
 
-test('store happening request requires resource_id', function () {
+test('store happening request requires resource_id', function (): void {
     $user = User::factory()->create();
     $rules = makeRules(StoreHappeningRequest::class, ['user_id_01' => $user->id]);
     assertFails($rules, [
@@ -391,7 +414,7 @@ test('store happening request requires resource_id', function () {
     ], 'resource_id');
 });
 
-test('store happening request requires user_id_01', function () {
+test('store happening request requires user_id_01', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -404,7 +427,7 @@ test('store happening request requires user_id_01', function () {
     ], 'user_id_01');
 });
 
-test('store happening request requires is_verified', function () {
+test('store happening request requires is_verified', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -420,7 +443,7 @@ test('store happening request requires is_verified', function () {
 
 // ── StoreResourceRequest ──────────────────────────────────────────────────────
 
-test('store resource request requires resource_group_id', function () {
+test('store resource request requires resource_group_id', function (): void {
     $rules = makeRules(StoreResourceRequest::class, []);
     assertFails($rules, [
         'title' => Utility::getTranslatable('Desk'), 'capacity' => 1,
@@ -428,7 +451,7 @@ test('store resource request requires resource_group_id', function () {
     ], 'resource_group_id');
 });
 
-test('store resource request rejects non-uuid resource_group_id', function () {
+test('store resource request rejects non-uuid resource_group_id', function (): void {
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => 'bad']);
     assertFails($rules, [
         'resource_group_id' => 'bad',
@@ -437,7 +460,7 @@ test('store resource request rejects non-uuid resource_group_id', function () {
     ], 'resource_group_id');
 });
 
-test('store resource request requires is_active', function () {
+test('store resource request requires is_active', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -447,7 +470,7 @@ test('store resource request requires is_active', function () {
     ], 'is_active');
 });
 
-test('store resource request requires is_verification_required', function () {
+test('store resource request requires is_verification_required', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -457,7 +480,7 @@ test('store resource request requires is_verification_required', function () {
     ], 'is_verification_required');
 });
 
-test('store resource request rejects non-positive capacity', function () {
+test('store resource request rejects non-positive capacity', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -467,7 +490,7 @@ test('store resource request rejects non-positive capacity', function () {
     ], 'capacity');
 });
 
-test('store resource request rejects non-numeric capacity', function () {
+test('store resource request rejects non-numeric capacity', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -477,7 +500,7 @@ test('store resource request rejects non-numeric capacity', function () {
     ], 'capacity');
 });
 
-test('store resource request rejects invalid location_uri', function () {
+test('store resource request rejects invalid location_uri', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -490,17 +513,17 @@ test('store resource request rejects invalid location_uri', function () {
 
 // ── ImportUsersRequest ────────────────────────────────────────────────────────
 
-test('import users request requires id (user group uuid)', function () {
+test('import users request requires id (user group uuid)', function (): void {
     $rules = makeRules(ImportUsersRequest::class, []);
     assertFails($rules, ['users' => [['name' => 'Alice', 'email' => 'a@b.com']]], 'id');
 });
 
-test('import users request rejects non-uuid id', function () {
+test('import users request rejects non-uuid id', function (): void {
     $rules = makeRules(ImportUsersRequest::class, ['id' => 'bad']);
     assertFails($rules, ['id' => 'bad', 'users' => [['name' => 'Alice']]], 'id');
 });
 
-test('import users request requires users array', function () {
+test('import users request requires users array', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -509,7 +532,7 @@ test('import users request requires users array', function () {
     assertFails($rules, ['id' => $group->id], 'users');
 });
 
-test('import users request requires users.*.name', function () {
+test('import users request requires users.*.name', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -518,7 +541,7 @@ test('import users request requires users.*.name', function () {
     assertFails($rules, ['id' => $group->id, 'users' => [['email' => 'a@b.com']]], 'users.0.name');
 });
 
-test('import users request prohibits mixing date and text valid_from', function () {
+test('import users request prohibits mixing date and text valid_from', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -536,7 +559,7 @@ test('import users request prohibits mixing date and text valid_from', function 
     ], 'valid_from_date');
 });
 
-test('import users request requires valid date format for valid_from_date', function () {
+test('import users request requires valid date format for valid_from_date', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -554,17 +577,17 @@ test('import users request requires valid date format for valid_from_date', func
 
 // ── RemoveUsersFromUserGroupRequest ───────────────────────────────────────────
 
-test('remove users from user group request requires id', function () {
+test('remove users from user group request requires id', function (): void {
     $rules = makeRules(RemoveUsersFromUserGroupRequest::class, []);
     assertFails($rules, ['users' => []], 'id');
 });
 
-test('remove users from user group request rejects non-uuid id', function () {
+test('remove users from user group request rejects non-uuid id', function (): void {
     $rules = makeRules(RemoveUsersFromUserGroupRequest::class, ['id' => 'bad']);
     assertFails($rules, ['id' => 'bad', 'users' => []], 'id');
 });
 
-test('remove users from user group request requires users array', function () {
+test('remove users from user group request requires users array', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -573,7 +596,7 @@ test('remove users from user group request requires users array', function () {
     assertFails($rules, ['id' => $group->id], 'users');
 });
 
-test('remove users from user group request requires valid uuid for each user', function () {
+test('remove users from user group request requires valid uuid for each user', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id,
         'title' => ['en' => 'G'],
@@ -584,7 +607,7 @@ test('remove users from user group request requires valid uuid for each user', f
 
 // ── StoreClosingRequest / UpdateClosingRequest ────────────────────────────────
 
-test('store closing request requires closable_id', function () {
+test('store closing request requires closable_id', function (): void {
     $rules = makeRules(StoreClosingRequest::class, []);
     assertFails($rules, [
         'closable_type' => 'institution',
@@ -593,7 +616,7 @@ test('store closing request requires closable_id', function () {
     ], 'closable_id');
 });
 
-test('store closing request requires start_date', function () {
+test('store closing request requires start_date', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(StoreClosingRequest::class, [
         'closable_id' => $institution->id, 'closable_type' => 'institution',
@@ -604,7 +627,7 @@ test('store closing request requires start_date', function () {
     ], 'start_date');
 });
 
-test('store closing request requires end_date', function () {
+test('store closing request requires end_date', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(StoreClosingRequest::class, [
         'closable_id' => $institution->id, 'closable_type' => 'institution',
@@ -615,7 +638,7 @@ test('store closing request requires end_date', function () {
     ], 'end_date');
 });
 
-test('update closing request requires id', function () {
+test('update closing request requires id', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(UpdateClosingRequest::class, [
         'closable_id' => $institution->id, 'closable_type' => 'institution',
@@ -629,43 +652,43 @@ test('update closing request requires id', function () {
 
 // ── PermissionGroupRequest / PermissionRequest ────────────────────────────────
 
-test('permission group request requires non-empty translated name', function () {
+test('permission group request requires non-empty translated name', function (): void {
     $rules = makeRules(PermissionGroupRequest::class, ['name' => []]);
     assertFails($rules, ['name' => []], 'name');
 });
 
-test('permission request requires non-empty translated name', function () {
+test('permission request requires non-empty translated name', function (): void {
     $rules = makeRules(PermissionRequest::class, ['name' => []]);
     assertFails($rules, ['name' => []], 'name');
 });
 
 // ── UserRequest ───────────────────────────────────────────────────────────────
 
-test('user request requires is_system_user', function () {
+test('user request requires is_system_user', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, [], $admin);
     assertFails($rules, ['name' => 'alice', 'is_admin' => false, 'roles' => []], 'is_system_user');
 });
 
-test('user request rejects non-boolean is_system_user', function () {
+test('user request rejects non-boolean is_system_user', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => 'yes'], $admin);
     assertFails($rules, ['is_system_user' => 'yes', 'is_admin' => false], 'is_system_user');
 });
 
-test('user request requires is_admin', function () {
+test('user request requires is_admin', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => false], $admin);
     assertFails($rules, ['is_system_user' => false], 'is_admin');
 });
 
-test('user request rejects non-boolean is_admin', function () {
+test('user request rejects non-boolean is_admin', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => false], $admin);
     assertFails($rules, ['is_system_user' => false, 'is_admin' => 'yes'], 'is_admin');
 });
 
-test('user request requires name when is_system_user is accepted', function () {
+test('user request requires name when is_system_user is accepted', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true], $admin);
     assertFails($rules, [
@@ -674,7 +697,7 @@ test('user request requires name when is_system_user is accepted', function () {
     ], 'name');
 });
 
-test('user request requires email when is_system_user is accepted', function () {
+test('user request requires email when is_system_user is accepted', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true], $admin);
     assertFails($rules, [
@@ -683,7 +706,7 @@ test('user request requires email when is_system_user is accepted', function () 
     ], 'email');
 });
 
-test('user request rejects invalid email', function () {
+test('user request rejects invalid email', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true], $admin);
     assertFails($rules, [
@@ -692,7 +715,7 @@ test('user request rejects invalid email', function () {
     ], 'email');
 });
 
-test('user request requires name to be minimum 3 characters', function () {
+test('user request requires name to be minimum 3 characters', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true], $admin);
     assertFails($rules, [
@@ -701,7 +724,7 @@ test('user request requires name to be minimum 3 characters', function () {
     ], 'name');
 });
 
-test('user request requires roles to be an array', function () {
+test('user request requires roles to be an array', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => false], $admin);
     assertFails($rules, [
@@ -711,12 +734,12 @@ test('user request requires roles to be an array', function () {
 
 // ── Additional: RequiredWithTranslationRule fields ────────────────────────────
 
-test('institution request rejects empty title translations', function () {
+test('institution request rejects empty title translations', function (): void {
     $rules = makeRules(InstitutionRequest::class, ['title' => [], 'is_active' => false]);
     assertFails($rules, ['title' => [], 'short_title' => 'L', 'slug' => 'lib', 'is_active' => false], 'title');
 });
 
-test('resource group request rejects empty title translations', function () {
+test('resource group request rejects empty title translations', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, [
         'institution_id' => $institution->id, 'title' => [], 'slug' => 'rooms', 'is_active' => false,
@@ -726,7 +749,7 @@ test('resource group request rejects empty title translations', function () {
     ], 'title');
 });
 
-test('resource group request rejects empty term_singular translations', function () {
+test('resource group request rejects empty term_singular translations', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(ResourceGroupRequest::class, [
         'institution_id' => $institution->id, 'slug' => 'rooms', 'is_active' => false,
@@ -738,7 +761,7 @@ test('resource group request rejects empty term_singular translations', function
     ], 'term_singular');
 });
 
-test('store resource request rejects empty title translations', function () {
+test('store resource request rejects empty title translations', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id, 'title' => []]);
     assertFails($rules, [
@@ -747,7 +770,7 @@ test('store resource request rejects empty title translations', function () {
     ], 'title');
 });
 
-test('store user group request rejects empty title translations', function () {
+test('store user group request rejects empty title translations', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(StoreUserGroupRequest::class, [
         'institution_id' => $institution->id, 'title' => [],
@@ -755,18 +778,18 @@ test('store user group request rejects empty title translations', function () {
     assertFails($rules, ['institution_id' => $institution->id, 'title' => []], 'title');
 });
 
-test('update user group request rejects empty title translations', function () {
+test('update user group request rejects empty title translations', function (): void {
     $group = UserGroup::create(['institution_id' => Institution::factory()->create()->id, 'title' => ['en' => 'G']]);
     $rules = makeRules(UpdateUserGroupRequest::class, ['id' => $group->id, 'title' => []]);
     assertFails($rules, ['id' => $group->id, 'title' => []], 'title');
 });
 
-test('role request rejects empty name translations', function () {
+test('role request rejects empty name translations', function (): void {
     $rules = makeRules(RoleRequest::class, ['name' => []]);
     assertFails($rules, ['name' => []], 'name');
 });
 
-test('mail content request rejects non-boolean is_active', function () {
+test('mail content request rejects non-boolean is_active', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::query()->first();
     $rules = makeRules(MailContentRequest::class, [
@@ -780,7 +803,7 @@ test('mail content request rejects non-boolean is_active', function () {
 
 // ── Additional: HappeningRequest conditional rules ────────────────────────────
 
-test('store happening request requires verifier when verification is required and not verified', function () {
+test('store happening request requires verifier when verification is required and not verified', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -797,7 +820,7 @@ test('store happening request requires verifier when verification is required an
     ], 'verifier');
 });
 
-test('store happening request requires user_id_02 when verification is required and is_verified is true', function () {
+test('store happening request requires user_id_02 when verification is required and is_verified is true', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -816,7 +839,7 @@ test('store happening request requires user_id_02 when verification is required 
     ], 'user_id_02');
 });
 
-test('store happening request rejects non-boolean is_verified', function () {
+test('store happening request rejects non-boolean is_verified', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -832,7 +855,7 @@ test('store happening request rejects non-boolean is_verified', function () {
     ], 'is_verified');
 });
 
-test('update happening request rejects non-uuid user_id_01', function () {
+test('update happening request rejects non-uuid user_id_01', function (): void {
     $resource = Resource::factory()->for(
         ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create(),
         'resource_group'
@@ -849,7 +872,7 @@ test('update happening request rejects non-uuid user_id_01', function () {
 
 // ── Additional: UserRequest conditional rules ────────────────────────────────
 
-test('user request requires password when is_set_password is accepted', function () {
+test('user request requires password when is_set_password is accepted', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true, 'is_set_password' => true], $admin);
     assertFails($rules, [
@@ -859,7 +882,7 @@ test('user request requires password when is_set_password is accepted', function
     ], 'password');
 });
 
-test('user request requires password_confirm when is_set_password is accepted', function () {
+test('user request requires password_confirm when is_set_password is accepted', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true, 'is_set_password' => true], $admin);
     assertFails($rules, [
@@ -869,7 +892,7 @@ test('user request requires password_confirm when is_set_password is accepted', 
     ], 'password_confirm');
 });
 
-test('user request rejects is_set_password non-boolean when is_system_user is true', function () {
+test('user request rejects is_set_password non-boolean when is_system_user is true', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $rules = makeRules(UserRequest::class, ['is_system_user' => true, 'is_set_password' => 'yes'], $admin);
     assertFails($rules, [
@@ -881,7 +904,7 @@ test('user request rejects is_set_password non-boolean when is_system_user is tr
 
 // ── Additional: ResourceRequest business_hours rules ─────────────────────────
 
-test('store resource request requires business_hours when is_active is true', function () {
+test('store resource request requires business_hours when is_active is true', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, [
         'resource_group_id' => $resourceGroup->id, 'business_hours' => [],
@@ -893,7 +916,7 @@ test('store resource request requires business_hours when is_active is true', fu
     ], 'business_hours');
 });
 
-test('store resource request rejects non-array business_hours', function () {
+test('store resource request rejects non-array business_hours', function (): void {
     $resourceGroup = ResourceGroup::factory()->for(Institution::factory()->create(), 'institution')->create();
     $rules = makeRules(StoreResourceRequest::class, ['resource_group_id' => $resourceGroup->id]);
     assertFails($rules, [
@@ -905,7 +928,7 @@ test('store resource request rejects non-array business_hours', function () {
 
 // ── Additional: Closing request time format rules ────────────────────────────
 
-test('store closing request rejects wrong start_time format', function () {
+test('store closing request rejects wrong start_time format', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(StoreClosingRequest::class, [
         'closable_id' => $institution->id, 'closable_type' => 'institution',
@@ -917,7 +940,7 @@ test('store closing request rejects wrong start_time format', function () {
     ], 'start_time');
 });
 
-test('store closing request requires closable_type', function () {
+test('store closing request requires closable_type', function (): void {
     $institution = Institution::factory()->create();
     $rules = makeRules(StoreClosingRequest::class, ['closable_id' => $institution->id]);
     assertFails($rules, [
@@ -927,10 +950,10 @@ test('store closing request requires closable_type', function () {
     ], 'closable_type');
 });
 
-test('update closing request rejects non-uuid closable_id', function () {
+test('update closing request rejects non-uuid closable_id', function (): void {
     $rules = makeRules(UpdateClosingRequest::class, ['closable_id' => 'bad']);
     assertFails($rules, [
-        'id' => (string) \Illuminate\Support\Str::uuid(),
+        'id' => (string) Str::uuid(),
         'closable_id' => 'bad', 'closable_type' => 'institution',
         'start_date' => '10.06.2026', 'start_time' => '09:00',
         'end_date' => '10.06.2026', 'end_time' => '10:00',
@@ -939,7 +962,7 @@ test('update closing request rejects non-uuid closable_id', function () {
 
 // ── Additional: ImportUsersRequest ───────────────────────────────────────────
 
-test('import users request requires users to be an array not a string', function () {
+test('import users request requires users to be an array not a string', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id, 'title' => ['en' => 'G'],
     ]);
@@ -947,7 +970,7 @@ test('import users request requires users to be an array not a string', function
     assertFails($rules, ['id' => $group->id, 'users' => 'bad'], 'users');
 });
 
-test('import users request prohibits mixing date and text valid_until', function () {
+test('import users request prohibits mixing date and text valid_until', function (): void {
     $group = UserGroup::create([
         'institution_id' => Institution::factory()->create()->id, 'title' => ['en' => 'G'],
     ]);

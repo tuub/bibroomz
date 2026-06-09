@@ -6,10 +6,9 @@ use App\Library\Utility;
 use App\Models\Resource;
 use App\Models\WeekDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\App;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Resource>
+ * @extends Factory<\App\Models\Resource>
  */
 class ResourceFactory extends Factory
 {
@@ -21,7 +20,7 @@ class ResourceFactory extends Factory
     public function definition()
     {
         return [
-            'title' => $this->getTranslatable(fake()->unique()->numberBetween($min = 100, $max = 500)),
+            'title' => $this->getTranslatable((string) fake()->unique()->numberBetween($min = 100, $max = 500)),
             'location' => $this->getTranslatable(fake()->streetAddress),
             'description' => $this->getTranslatable(fake()->realText(125)),
             'capacity' => fake()->numberBetween(1, 25),
@@ -29,7 +28,10 @@ class ResourceFactory extends Factory
         ];
     }
 
-    private function getTranslatable($value): array
+    /**
+     * @return array<string, string>
+     */
+    private function getTranslatable(string $value): array
     {
         return Utility::getTranslatable($value);
     }
@@ -37,9 +39,10 @@ class ResourceFactory extends Factory
     /**
      * Configure the model factory.
      */
+    #[\Override]
     public function configure(): static
     {
-        return $this->afterCreating(function (Resource $resource) {
+        return $this->afterCreating(function (Resource $resource): void {
             $resource->business_hours()->create([
                 'start' => '09:00:00',
                 'end' => '23:00:00',

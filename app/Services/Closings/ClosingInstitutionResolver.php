@@ -14,7 +14,7 @@ class ClosingInstitutionResolver
     }
 
     /**
-     * @param \App\Models\Institution|\App\Models\Resource $closable
+     * @param  Institution|\App\Models\Resource  $closable
      */
     public function resolveForClosable(ClosingSubject $closable): Institution
     {

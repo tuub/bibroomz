@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Laravel\Pulse\Http\Middleware\Authorize;
 use Laravel\Pulse\Recorders;
 
@@ -59,7 +61,7 @@ return [
         'driver' => env('PULSE_STORAGE_DRIVER', 'database'),
 
         'database' => [
-            'connection' => env('PULSE_DB_CONNECTION', null),
+            'connection' => env('PULSE_DB_CONNECTION'),
             'chunk' => 1000,
         ],
     ],
@@ -163,7 +165,7 @@ return [
 
         Recorders\Servers::class => [
             'server_name' => env('PULSE_SERVER_NAME', gethostname()),
-            'directories' => explode(':', env('PULSE_SERVER_DIRECTORIES', '/')),
+            'directories' => explode(':', (string) env('PULSE_SERVER_DIRECTORIES', '/')),
         ],
 
         Recorders\SlowJobs::class => [

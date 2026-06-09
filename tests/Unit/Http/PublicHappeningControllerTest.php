@@ -1,13 +1,5 @@
 <?php
 
-covers(
-    App\Http\Controllers\HappeningController::class,
-    App\Http\Requests\AddHappeningRequest::class,
-    App\Http\Requests\CalendarEntriesRequest::class,
-    App\Http\Requests\DeleteHappeningRequest::class,
-    App\Http\Requests\UpdateHappeningRequest::class
-);
-
 use App\Exceptions\HappeningValidationException;
 use App\Http\Controllers\HappeningController;
 use App\Http\Requests\AddHappeningRequest;
@@ -26,17 +18,26 @@ use App\Services\Happenings\UpdateHappeningAction;
 use App\Services\Happenings\VerifyHappeningAction;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+covers(
+    HappeningController::class,
+    AddHappeningRequest::class,
+    CalendarEntriesRequest::class,
+    DeleteHappeningRequest::class,
+    UpdateHappeningRequest::class
+);
+
 uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
 
-afterEach(function () {
+afterEach(function (): void {
     Auth::logout();
 });
 
-test('happening controller delegates calendar requests to the list action', function () {
+test('happening controller delegates calendar requests to the list action', function (): void {
     $resourceGroup = ResourceGroup::factory()->make();
     $start = CarbonImmutable::parse('2026-06-04 08:00:00');
     $end = CarbonImmutable::parse('2026-06-04 18:00:00');
@@ -66,10 +67,10 @@ test('happening controller delegates calendar requests to the list action', func
         ->and($response->getData(true))->toBe([['id' => 'entry-1']]);
 });
 
-test('happening controller converts validation failures into 400 responses for create update and verify', function () {
+test('happening controller converts validation failures into 400 responses for create update and verify', function (): void {
     $user = User::factory()->create();
-    $resource = new Resource();
-    $happening = new Happening();
+    $resource = new Resource;
+    $happening = new Happening;
     $start = CarbonImmutable::parse('2026-06-04 10:00:00');
     $end = CarbonImmutable::parse('2026-06-04 11:00:00');
 
@@ -118,9 +119,9 @@ test('happening controller converts validation failures into 400 responses for c
 
     foreach (
         [
-        fn () => $controller->addHappening($createRequest),
-        fn () => $controller->updateHappening($updateRequest),
-        fn () => $controller->verifyHappening($verifyRequest),
+            fn (): Response => $controller->addHappening($createRequest),
+            fn (): Response => $controller->updateHappening($updateRequest),
+            fn (): Response => $controller->verifyHappening($verifyRequest),
         ] as $callable
     ) {
         try {
@@ -133,8 +134,8 @@ test('happening controller converts validation failures into 400 responses for c
     }
 });
 
-test('happening controller delegates deletes to the delete action', function () {
-    $happening = new Happening();
+test('happening controller delegates deletes to the delete action', function (): void {
+    $happening = new Happening;
     $request = Mockery::mock(DeleteHappeningRequest::class);
     $request->shouldReceive('happening')->once()->andReturn($happening);
 

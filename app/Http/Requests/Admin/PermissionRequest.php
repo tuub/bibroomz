@@ -12,10 +12,10 @@ class PermissionRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => [new RequiredWithTranslationRule()],
+            'name' => [new RequiredWithTranslationRule],
             'description' => [''],
         ];
     }

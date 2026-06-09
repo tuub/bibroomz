@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
 use App\Models\MailContent;
+use App\Models\User;
 
 class MailContentRequest extends AdminRouteRequest
 {
@@ -12,17 +13,17 @@ class MailContentRequest extends AdminRouteRequest
         $user = $this->userModel();
         $mail = $this->mailContentOrNull();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 
-        if ($mail !== null) {
+        if ($mail instanceof MailContent) {
             return $user->can('edit', $mail);
         }
 
         $institution = $this->institutionOrNull();
 
-        return $institution !== null && $user->can('create', [MailContent::class, $institution]);
+        return $institution instanceof Institution && $user->can('create', [MailContent::class, $institution]);
     }
 
     /**

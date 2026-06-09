@@ -57,7 +57,7 @@ class UserGroupPolicy
     }
 
     /**
-     * @param list<string> $permissions
+     * @param  list<string>  $permissions
      */
     private function hasAnyPermission(User $user, array $permissions): bool
     {

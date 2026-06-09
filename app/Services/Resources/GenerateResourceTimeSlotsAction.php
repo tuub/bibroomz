@@ -8,23 +8,23 @@ use App\Models\Resource;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
-use InvalidArgumentException;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
 class GenerateResourceTimeSlotsAction
 {
     public function __construct(
-        private ResourceAvailabilityService $availabilityService,
-        private ResourceQuotaService $quotaService,
-        private ResourceSettingsResolver $settingsResolver,
-    ) {
-    }
+        private readonly ResourceAvailabilityService $availabilityService,
+        private readonly ResourceQuotaService $quotaService,
+        private readonly ResourceSettingsResolver $settingsResolver,
+    ) {}
 
     /**
      * @return array{
      *   start: list<array{time: CarbonImmutable, label: string, is_disabled: bool, is_selected: bool}>,
      *   end: list<array{time: CarbonImmutable, label: string, is_disabled: bool, is_selected: bool}>
      * }
+     *
      * @throws InvalidArgumentException
      */
     public function execute(
@@ -84,7 +84,7 @@ class GenerateResourceTimeSlotsAction
         $timeSlots = $this->removePastTimeSlots($resource, $timeSlots);
         $timeSlots = $this->enableBusinessHours($resource, $timeSlots, isEnd: true);
         $timeSlots = $this->disableClosedTimeSlots($resource, $timeSlots, isEnd: true);
-        $timeSlots = $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start) {
+        $timeSlots = $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start): ResourceTimeSlot {
             if ($timeSlot->time <= $start) {
                 return $timeSlot->withDisabled(true);
             }
@@ -118,7 +118,7 @@ class GenerateResourceTimeSlotsAction
         }
 
         if ($interval['minute'] > 0) {
-            $period = $period->minutes($interval['minute']);
+            return $period->minutes($interval['minute']);
         }
 
         return $period;
@@ -153,7 +153,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function removePastTimeSlots(Resource $resource, Collection $timeSlots): Collection
@@ -161,7 +161,7 @@ class GenerateResourceTimeSlotsAction
         $interval = $this->settingsResolver->timeSlotLength($resource);
         $intervalMinutes = $interval['minute'] + 60 * $interval['hour'];
 
-        return $timeSlots->filter(function (ResourceTimeSlot $timeSlot) use ($intervalMinutes) {
+        return $timeSlots->filter(function (ResourceTimeSlot $timeSlot) use ($intervalMinutes): bool {
             $now = Utility::getCarbonNow();
 
             if ($timeSlot->time->isAfter($now)) {
@@ -173,12 +173,12 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function enableBusinessHours(Resource $resource, Collection $timeSlots, bool $isEnd = false): Collection
     {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $isEnd) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $isEnd): ResourceTimeSlot {
             if ($this->availabilityService->isTimeSlotInBusinessHour($resource, $timeSlot->time, $isEnd)) {
                 return $timeSlot->withDisabled(false);
             }
@@ -188,12 +188,12 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function disableClosedTimeSlots(Resource $resource, Collection $timeSlots, bool $isEnd = false): Collection
     {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $isEnd) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $isEnd): ResourceTimeSlot {
             if ($this->availabilityService->isTimeSlotInClosing($resource, $timeSlot->time, $isEnd)) {
                 return $timeSlot->withDisabled(true);
             }
@@ -203,7 +203,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function disableReservedTimeSlots(
@@ -212,7 +212,7 @@ class GenerateResourceTimeSlotsAction
         ?Happening $happening = null,
         bool $isEnd = false,
     ): Collection {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $happening, $isEnd) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $happening, $isEnd): ResourceTimeSlot {
             if ($this->availabilityService->isTimeSlotReserved($resource, $timeSlot->time, $happening, $isEnd)) {
                 return $timeSlot->withDisabled(true);
             }
@@ -222,7 +222,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function disableQuotas(
@@ -232,7 +232,7 @@ class GenerateResourceTimeSlotsAction
         CarbonImmutable $start,
         ?Happening $happening = null,
     ): Collection {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $actor, $start, $happening) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $actor, $start, $happening): ResourceTimeSlot {
             if ($this->quotaService->isExceedingQuotas($resource, $actor, $start, $timeSlot->time, $happening)) {
                 return $timeSlot->withDisabled(true);
             }
@@ -242,7 +242,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function disableConcurrentUserHappeningTimeSlots(
@@ -252,7 +252,7 @@ class GenerateResourceTimeSlotsAction
         ?Happening $happening = null,
         bool $isEnd = false,
     ): Collection {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $actor, $happening, $isEnd) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($resource, $actor, $happening, $isEnd): ResourceTimeSlot {
             if ($this->quotaService->isConcurrentUserTimeSlot($resource, $actor, $timeSlot->time, $happening, $isEnd)) {
                 return $timeSlot->withDisabled(true);
             }
@@ -262,12 +262,12 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function disableNonSequentialTimeSlots(Collection $timeSlots, CarbonImmutable $start): Collection
     {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start, $timeSlots) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start, $timeSlots): ResourceTimeSlot {
             $hasDisabledGap = $timeSlots->contains(
                 fn (ResourceTimeSlot $candidate): bool => $candidate->time > $start
                     && $candidate->time < $timeSlot->time
@@ -283,7 +283,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function adjustSelectedTimeSlots(Collection $timeSlots): Collection
@@ -291,19 +291,19 @@ class GenerateResourceTimeSlotsAction
         $timeSlots = $this->deselectDisabledTimeSlots($timeSlots);
 
         if (! $this->containsSelectedTimeSlot($timeSlots)) {
-            $timeSlots = $this->selectFirstEnabledTimeSlot($timeSlots);
+            return $this->selectFirstEnabledTimeSlot($timeSlots);
         }
 
         return $timeSlots;
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function deselectDisabledTimeSlots(Collection $timeSlots): Collection
     {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot): ResourceTimeSlot {
             if ($timeSlot->isSelected && $timeSlot->isDisabled) {
                 return $timeSlot->withSelected(false);
             }
@@ -313,7 +313,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      */
     private function containsSelectedTimeSlot(Collection $timeSlots): bool
     {
@@ -321,14 +321,14 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      * @return Collection<int, ResourceTimeSlot>
      */
     private function selectFirstEnabledTimeSlot(Collection $timeSlots): Collection
     {
         $keyToSelect = $this->getFirstEnabledTimeSlotKey($timeSlots);
 
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot, int|string $key) use ($keyToSelect) {
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot, int|string $key) use ($keyToSelect): ResourceTimeSlot {
             if ($key === $keyToSelect) {
                 return $timeSlot->withSelected(true);
             }
@@ -338,8 +338,7 @@ class GenerateResourceTimeSlotsAction
     }
 
     /**
-     * @param Collection<int, ResourceTimeSlot> $timeSlots
-     * @return int|false
+     * @param  Collection<int, ResourceTimeSlot>  $timeSlots
      */
     private function getFirstEnabledTimeSlotKey(Collection $timeSlots): int|false
     {

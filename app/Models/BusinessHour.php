@@ -4,29 +4,34 @@ namespace App\Models;
 
 use Bkwld\Cloner\Cloneable;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WeekDay> $week_days
+ * @property-read Collection<int, WeekDay> $week_days
  */
 class BusinessHour extends Model
 {
+    use Cloneable, HasUuids;
+
     /*****************************************************************
      * TRAITS
      ****************************************************************/
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
-    use HasUuids, Cloneable;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'business_hours';
+
     public $incrementing = false;
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -35,13 +40,6 @@ class BusinessHour extends Model
         'end',
         'start_date',
         'end_date',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
     ];
 
     /**
@@ -55,7 +53,7 @@ class BusinessHour extends Model
      * RELATIONS
      ****************************************************************/
     /**
-     * @return BelongsTo<Resource, $this>
+     * @return BelongsTo<\App\Models\Resource, $this>
      */
     public function resource(): BelongsTo
     {
@@ -112,7 +110,7 @@ class BusinessHour extends Model
         $business_hour_start = CarbonImmutable::parse($this->start)->setDateFrom($start);
         $business_hour_end = CarbonImmutable::parse($this->end)->setDateFrom($end);
 
-        if (!$end->isMidnight() && $business_hour_end->isMidnight()) {
+        if (! $end->isMidnight() && $business_hour_end->isMidnight()) {
             $business_hour_end = $business_hour_end->addDay();
         }
 
@@ -148,4 +146,11 @@ class BusinessHour extends Model
 
         return [$is_open, $start, $end];
     }
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
 }

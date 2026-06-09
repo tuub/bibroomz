@@ -4,31 +4,36 @@ declare(strict_types=1);
 
 namespace Scripts;
 
+use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use FilesystemIterator;
 use SplFileInfo;
 
 final class BrowserTestRunner
 {
     private const string BLUE = "\033[1;34m";
+
     private const string GREEN = "\033[1;32m";
+
     private const string RED = "\033[1;31m";
+
     private const string RESET = "\033[0m";
+
     private const string BROWSER_APP_KEY = 'base64:TF9u2T3Sw37w0oo3Ax8hn7XJWrD8mBcndOwWw7AkGXQ=';
+
     private const string BROWSER_HOST = '127.0.0.1';
 
-    private string $rootDir;
+    private readonly string $rootDir;
 
-    private string $dbFile;
+    private readonly string $dbFile;
 
-    private string $reverbLog;
+    private readonly string $reverbLog;
 
-    private string $serverLog;
+    private readonly string $serverLog;
 
-    private string $nullDevice;
+    private readonly string $nullDevice;
 
-    private string $phpBinary;
+    private readonly string $phpBinary;
 
     private ?string $browserStorageDir = null;
 
@@ -52,23 +57,20 @@ final class BrowserTestRunner
         }
 
         $this->rootDir = realpath($resolvedRoot) ?: $resolvedRoot;
-        $this->dbFile = $this->rootDir . '/database/browser-testing.sqlite';
-        $this->reverbLog = sys_get_temp_dir() . '/roomz-reverb.log';
-        $this->serverLog = sys_get_temp_dir() . '/roomz-serve.log';
+        $this->dbFile = $this->rootDir.'/database/browser-testing.sqlite';
+        $this->reverbLog = sys_get_temp_dir().'/roomz-reverb.log';
+        $this->serverLog = sys_get_temp_dir().'/roomz-serve.log';
         $this->nullDevice = DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/null';
         $this->phpBinary = PHP_BINARY;
     }
 
-    /**
-     * @param mixed $argv
-     */
     public function run(mixed $argv): int
     {
         register_shutdown_function([$this, 'cleanup']);
         $this->registerSignalHandlers();
 
-        $playwrightBinary = $this->rootDir . '/node_modules/.bin/playwright';
-        $browserArguments = self::browserArguments($argv);
+        $playwrightBinary = $this->rootDir.'/node_modules/.bin/playwright';
+        $browserArguments = $this->browserArguments($argv);
 
         $this->step('Checking prerequisites');
 
@@ -83,7 +85,7 @@ final class BrowserTestRunner
             $this->fail($playwrightError !== '' ? $playwrightError : 'Could not determine Playwright version.');
         }
 
-        $this->ok('playwright: ' . trim($playwrightVersion['stdout']));
+        $this->ok('playwright: '.trim($playwrightVersion['stdout']));
 
         $playwrightBrowsersPath = getenv('PLAYWRIGHT_BROWSERS_PATH');
 
@@ -111,12 +113,12 @@ final class BrowserTestRunner
         $this->step('Preparing runtime storage');
         $this->browserStorageDir = $this->createTemporaryDirectory('roomz-browser-storage.');
         $this->setEnvironmentVariable('LARAVEL_STORAGE_PATH', $this->browserStorageDir);
-        $this->ensureDirectory($this->browserStorageDir . '/app/public');
-        $this->ensureDirectory($this->browserStorageDir . '/framework/cache/data');
-        $this->ensureDirectory($this->browserStorageDir . '/framework/sessions');
-        $this->ensureDirectory($this->browserStorageDir . '/framework/testing');
-        $this->ensureDirectory($this->browserStorageDir . '/framework/views');
-        $this->ensureDirectory($this->browserStorageDir . '/logs');
+        $this->ensureDirectory($this->browserStorageDir.'/app/public');
+        $this->ensureDirectory($this->browserStorageDir.'/framework/cache/data');
+        $this->ensureDirectory($this->browserStorageDir.'/framework/sessions');
+        $this->ensureDirectory($this->browserStorageDir.'/framework/testing');
+        $this->ensureDirectory($this->browserStorageDir.'/framework/views');
+        $this->ensureDirectory($this->browserStorageDir.'/logs');
         $this->ok(sprintf('storage: %s', $this->browserStorageDir));
 
         $this->step('Building frontend assets');
@@ -134,8 +136,8 @@ final class BrowserTestRunner
                 $this->phpBinary,
                 'artisan',
                 'reverb:start',
-                '--host=' . self::BROWSER_HOST,
-                '--port=' . (string) $reverbPort,
+                '--host='.self::BROWSER_HOST,
+                '--port='.$reverbPort,
             ],
             $this->reverbLog,
         );
@@ -146,7 +148,7 @@ final class BrowserTestRunner
         );
 
         $this->backgroundProcesses[] = $this->startBackgroundProcess(
-            [$this->phpBinary, 'artisan', 'serve', '--host=' . self::BROWSER_HOST, '--port=' . (string) $serverPort],
+            [$this->phpBinary, 'artisan', 'serve', '--host='.self::BROWSER_HOST, '--port='.$serverPort],
             $this->serverLog,
         );
         printf(
@@ -201,37 +203,34 @@ final class BrowserTestRunner
 
         pcntl_async_signals(true);
 
-        pcntl_signal(SIGINT, static function (): void {
+        pcntl_signal(SIGINT, static function (): never {
             exit(130);
         });
 
-        pcntl_signal(SIGTERM, static function (): void {
+        pcntl_signal(SIGTERM, static function (): never {
             exit(143);
         });
     }
 
     private function step(string $message): void
     {
-        printf(self::BLUE . '==> %s' . self::RESET . PHP_EOL, $message);
+        printf(self::BLUE.'==> %s'.self::RESET.PHP_EOL, $message);
     }
 
     private function ok(string $message): void
     {
-        printf(self::GREEN . '    ✓ %s' . self::RESET . PHP_EOL, $message);
+        printf(self::GREEN.'    ✓ %s'.self::RESET.PHP_EOL, $message);
     }
 
-    /**
-     * @return never
-     */
-    private function fail(string $message, int $exitCode = 1): void
+    private function fail(string $message, int $exitCode = 1): never
     {
-        fwrite(STDERR, self::RED . $message . self::RESET . PHP_EOL);
+        fwrite(STDERR, self::RED.$message.self::RESET.PHP_EOL);
         exit($exitCode);
     }
 
     private function setEnvironmentVariable(string $key, string $value): void
     {
-        putenv($key . '=' . $value);
+        putenv($key.'='.$value);
         $_ENV[$key] = $value;
         $_SERVER[$key] = $value;
     }
@@ -276,7 +275,7 @@ final class BrowserTestRunner
         $baseDirectory = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR);
 
         for ($attempt = 0; $attempt < 50; $attempt++) {
-            $candidate = $baseDirectory . DIRECTORY_SEPARATOR . $prefix . bin2hex(random_bytes(6));
+            $candidate = $baseDirectory.DIRECTORY_SEPARATOR.$prefix.bin2hex(random_bytes(6));
 
             if (@mkdir($candidate, 0700)) {
                 return $candidate;
@@ -287,13 +286,13 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param list<string> $command
+     * @param  list<string>  $command
      * @return array{exitCode:int, stdout:string, stderr:string}
      */
     private function captureCommand(array $command): array
     {
         $process = proc_open(
-            implode(' ', array_map('escapeshellarg', $command)),
+            implode(' ', array_map(escapeshellarg(...), $command)),
             [
                 0 => ['file', 'php://stdin', 'r'],
                 1 => ['pipe', 'w'],
@@ -322,12 +321,12 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param list<string> $command
+     * @param  list<string>  $command
      */
     private function runCommandOrFail(array $command): int
     {
         $process = proc_open(
-            implode(' ', array_map('escapeshellarg', $command)),
+            implode(' ', array_map(escapeshellarg(...), $command)),
             [
                 0 => ['file', 'php://stdin', 'r'],
                 1 => ['file', 'php://stdout', 'w'],
@@ -351,13 +350,13 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param list<string> $command
+     * @param  list<string>  $command
      * @return array{process: resource, pid:int, log:string}
      */
     private function startBackgroundProcess(array $command, string $logPath): array
     {
         $process = proc_open(
-            implode(' ', array_map('escapeshellarg', $command)),
+            implode(' ', array_map(escapeshellarg(...), $command)),
             [
                 0 => ['file', $this->nullDevice, 'r'],
                 1 => ['file', $logPath, 'a'],
@@ -381,7 +380,7 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param array{process: resource, pid:int, log:string} $processData
+     * @param  array{process: resource, pid:int, log:string}  $processData
      */
     private function stopBackgroundProcess(array $processData): void
     {
@@ -414,7 +413,7 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param list<int> $excludedPorts
+     * @param  list<int>  $excludedPorts
      */
     private function findUnusedPort(string $host, array $excludedPorts = []): int
     {
@@ -453,7 +452,7 @@ final class BrowserTestRunner
 
         fwrite(
             STDERR,
-            self::RED . sprintf('TCP endpoint did not become ready: %s:%d', $host, $port) . self::RESET . PHP_EOL,
+            self::RED.sprintf('TCP endpoint did not become ready: %s:%d', $host, $port).self::RESET.PHP_EOL,
         );
 
         return false;
@@ -468,8 +467,8 @@ final class BrowserTestRunner
         }
 
         $host = $parts['host'];
-        $port = isset($parts['port']) ? (int) $parts['port'] : 80;
-        $path = ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : '');
+        $port = $parts['port'] ?? 80;
+        $path = ($parts['path'] ?? '/').(isset($parts['query']) ? '?'.$parts['query'] : '');
 
         for ($attempt = 0; $attempt < $attempts; $attempt++) {
             $socket = @fsockopen($host, $port, $errorNumber, $errorMessage, 1.0);
@@ -492,7 +491,7 @@ final class BrowserTestRunner
             sleep(1);
         }
 
-        fwrite(STDERR, self::RED . sprintf('HTTP server did not become ready: %s', $url) . self::RESET . PHP_EOL);
+        fwrite(STDERR, self::RED.sprintf('HTTP server did not become ready: %s', $url).self::RESET.PHP_EOL);
 
         return false;
     }
@@ -513,13 +512,13 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param list<string> $browserArguments
+     * @param  list<string>  $browserArguments
      * @return list<string>
      */
     private function buildPestCommand(array $browserArguments): array
     {
         return array_merge([
-            $this->rootDir . '/vendor/bin/pest',
+            $this->rootDir.'/vendor/bin/pest',
             '--cache-directory=/tmp/phpunit-cache',
             '--display-all-issues',
             '--parallel',
@@ -550,6 +549,7 @@ final class BrowserTestRunner
 
             if ($entry->isDir()) {
                 @rmdir($entry->getPathname());
+
                 continue;
             }
 
@@ -560,10 +560,9 @@ final class BrowserTestRunner
     }
 
     /**
-     * @param mixed $argv
      * @return list<string>
      */
-    private static function browserArguments(mixed $argv): array
+    private function browserArguments(mixed $argv): array
     {
         if (! is_array($argv)) {
             return [];

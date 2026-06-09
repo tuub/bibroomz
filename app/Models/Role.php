@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,9 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Role extends Model
 {
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
-    use HasUuids, HasTranslations;
+
+    use HasTranslations, HasUuids;
 
     public $incrementing = false;
 
@@ -60,11 +62,11 @@ class Role extends Model
             ->using(InstitutionUserRole::class);
     }
 
-    public function hasPermission(string $permission, Institution $institution = null): bool
+    public function hasPermission(string $permission, ?Institution $institution = null): bool
     {
         $pivot = $this->pivot;
 
-        if (! $pivot instanceof InstitutionUserRole || $institution === null) {
+        if (! $pivot instanceof InstitutionUserRole || ! $institution instanceof Institution) {
             return $this->permissions->contains('key', $permission);
         }
 
@@ -72,7 +74,7 @@ class Role extends Model
     }
 
     /**
-     * @param list<string>|null $permissions
+     * @param  list<string>|null  $permissions
      * @return list<string>
      */
     public function getPermissionKeys(?array $permissions = null): array

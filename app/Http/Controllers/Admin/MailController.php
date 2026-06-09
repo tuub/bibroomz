@@ -14,9 +14,7 @@ use Inertia\Response;
 
 class MailController extends AdminController
 {
-    public function __construct(private MailAdminService $mailAdminService)
-    {
-    }
+    public function __construct(private readonly MailAdminService $mailAdminService) {}
 
     public function getMails(InstitutionContextRequest $request): Response
     {

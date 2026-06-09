@@ -14,9 +14,7 @@ use Inertia\Response;
 
 class InstitutionController extends AdminController
 {
-    public function __construct(private InstitutionAdminService $institutionAdminService)
-    {
-    }
+    public function __construct(private readonly InstitutionAdminService $institutionAdminService) {}
 
     public function getInstitutions(): Response
     {

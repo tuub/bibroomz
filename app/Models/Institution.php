@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\ClosingSubject;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
+use Database\Factories\InstitutionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,22 +19,26 @@ use Illuminate\Support\Collection;
 
 /**
  * @implements ClosingSubject<$this>
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Closing> $closings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ResourceGroup> $resource_groups
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Setting> $settings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WeekDay> $week_days
+ *
+ * @property-read EloquentCollection<int, Closing> $closings
+ * @property-read EloquentCollection<int, ResourceGroup> $resource_groups
+ * @property-read EloquentCollection<int, Setting> $settings
+ * @property-read EloquentCollection<int, WeekDay> $week_days
  */
 class Institution extends Model implements ClosingSubject, SettingSubject
 {
-    /** @use HasFactory<\Database\Factories\InstitutionFactory> */
+    /** @use HasFactory<InstitutionFactory> */
     use HasFactory;
-    use HasUuids, HasTranslations;
+
+    use HasTranslations, HasUuids;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'institutions';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -50,10 +55,6 @@ class Institution extends Model implements ClosingSubject, SettingSubject
     ];
 
     protected string $morphClass = 'institution';
-
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
 
     /**
      * @var list<string>
@@ -85,7 +86,7 @@ class Institution extends Model implements ClosingSubject, SettingSubject
     }
 
     /**
-     * @return HasManyThrough<Resource, ResourceGroup, $this>
+     * @return HasManyThrough<\App\Models\Resource, ResourceGroup, $this>
      */
     public function resources(): HasManyThrough
     {
@@ -131,7 +132,7 @@ class Institution extends Model implements ClosingSubject, SettingSubject
      * SCOPES
      ****************************************************************/
     /**
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
@@ -176,8 +177,8 @@ class Institution extends Model implements ClosingSubject, SettingSubject
 
         foreach (
             WeekDay::query()
-            ->whereNotIn('id', $this->week_days()->pluck('week_days.id'))
-            ->pluck('day_of_week') as $dayOfWeek
+                ->whereNotIn('id', $this->week_days()->pluck('week_days.id'))
+                ->pluck('day_of_week') as $dayOfWeek
         ) {
             if (is_int($dayOfWeek)) {
                 $hiddenDays[] = $dayOfWeek;
@@ -210,4 +211,8 @@ class Institution extends Model implements ClosingSubject, SettingSubject
     {
         return $this;
     }
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

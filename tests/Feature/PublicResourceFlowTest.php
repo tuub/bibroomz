@@ -1,41 +1,50 @@
 <?php
 
-covers(
-    App\Http\Controllers\ResourceController::class,
-    App\Services\Http\ListPublicResourcesAction::class,
-    App\Services\Http\GetResourceTimeSlotsAction::class,
-    App\Services\Http\PublicResourcePresenter::class,
-    App\Services\Resources\GenerateResourceTimeSlotsAction::class,
-    App\Services\Happenings\ListCalendarEntriesAction::class,
-    App\Services\Happenings\CalendarEntryPresenter::class
-);
-
-use App\Models\Closing;
+use App\Http\Controllers\ResourceController;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Happenings\CalendarEntryPresenter;
+use App\Services\Happenings\ListCalendarEntriesAction;
+use App\Services\Http\GetResourceTimeSlotsAction;
+use App\Services\Http\ListPublicResourcesAction;
+use App\Services\Http\PublicResourcePresenter;
+use App\Services\Resources\GenerateResourceTimeSlotsAction;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 
+covers(
+    ResourceController::class,
+    ListPublicResourcesAction::class,
+    GetResourceTimeSlotsAction::class,
+    PublicResourcePresenter::class,
+    GenerateResourceTimeSlotsAction::class,
+    ListCalendarEntriesAction::class,
+    CalendarEntryPresenter::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     config()->set('roomz.app.timezone', 'UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}
+ */
 function createPublicResourceFixture(): array
 {
     $institution = Institution::factory()->create(['is_active' => true]);
@@ -46,10 +55,10 @@ function createPublicResourceFixture(): array
         'order' => 1,
     ]);
 
-    return compact('institution', 'resourceGroup', 'resource');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource];
 }
 
-test('public resources endpoint returns fallback business hours when a resource has no business hours', function () {
+test('public resources endpoint returns fallback business hours when a resource has no business hours', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -78,7 +87,7 @@ test('public resources endpoint returns fallback business hours when a resource 
     expect($response->json('resources.0.businessHours.0.daysOfWeek'))->toBeArray()->toBeEmpty();
 });
 
-test('resource time slots endpoint exposes reserved and closed windows through the public route', function () {
+test('resource time slots endpoint exposes reserved and closed windows through the public route', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -116,8 +125,12 @@ test('resource time slots endpoint exposes reserved and closed windows through t
 
     $response->assertOk()->assertJsonStructure(['start', 'end']);
 
-    $startSlots = collect($response->json('start'))->keyBy('label');
-    $endSlots = collect($response->json('end'))->keyBy('label');
+    /** @var array<int, array{time: string, label: string, is_disabled: bool, is_selected: bool}> $startJson */
+    $startJson = $response->json('start') ?? [];
+    /** @var array<int, array{time: string, label: string, is_disabled: bool, is_selected: bool}> $endJson */
+    $endJson = $response->json('end') ?? [];
+    $startSlots = collect($startJson)->keyBy('label');
+    $endSlots = collect($endJson)->keyBy('label');
 
     expect($startSlots->get('09:00')['is_selected'])->toBeTrue()
         ->and($startSlots->get('10:00')['is_disabled'])->toBeTrue()
@@ -128,7 +141,7 @@ test('resource time slots endpoint exposes reserved and closed windows through t
         ->and($endSlots->get('12:30')['is_disabled'])->toBeTrue();
 });
 
-test('calendar entries endpoint returns adjusted happenings and both institution and resource closings', function () {
+test('calendar entries endpoint returns adjusted happenings and both institution and resource closings', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -167,7 +180,9 @@ test('calendar entries endpoint returns adjusted happenings and both institution
 
     $response->assertOk();
 
-    $entries = collect($response->json());
+    /** @var array<int, array<string, mixed>> $jsonData */
+    $jsonData = $response->json() ?? [];
+    $entries = collect($jsonData);
     $happeningEntry = $entries->firstWhere('id', $happening->id);
     $resourceClosingEntry = $entries->firstWhere('id', $resourceClosing->id);
     $institutionClosingEntry = $entries

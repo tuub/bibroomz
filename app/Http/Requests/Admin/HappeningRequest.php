@@ -38,7 +38,7 @@ abstract class HappeningRequest extends AdminRouteRequest
             'verifier' => [
                 $isVerificationRequired ? 'required_if:is_verified,false' : '',
                 'exclude_if:is_verified,true',
-                'not_in:' . $user1?->name,
+                'not_in:'.$user1?->name,
             ],
             'is_verified' => [
                 'required',

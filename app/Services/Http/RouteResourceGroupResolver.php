@@ -7,7 +7,7 @@ use App\Models\ResourceGroup;
 class RouteResourceGroupResolver
 {
     /**
-     * @param array<int, string> $relations
+     * @param  array<int, string>  $relations
      */
     public function resolve(string $institutionSlug, string $resourceGroupSlug, array $relations = []): ResourceGroup
     {

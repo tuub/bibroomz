@@ -11,10 +11,9 @@ use Carbon\CarbonImmutable;
 class VerifyHappeningAction
 {
     public function __construct(
-        private ValidateHappeningReservation $validator,
-        private HappeningBroadcaster $broadcaster,
-    ) {
-    }
+        private readonly ValidateHappeningReservation $validator,
+        private readonly HappeningBroadcaster $broadcaster,
+    ) {}
 
     public function execute(
         User $user,

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Resource;
 use App\Models\ResourceGroup;
+use App\Models\User;
 
 class UpdateResourceRequest extends ResourceRequest
 {
@@ -13,7 +14,7 @@ class UpdateResourceRequest extends ResourceRequest
         $resource = $this->resourceOrNull();
         $resourceGroup = $this->resourceGroup();
 
-        if ($user === null || $resource === null || $resourceGroup === null) {
+        if (! $user instanceof User || ! $resource instanceof \App\Models\Resource || ! $resourceGroup instanceof ResourceGroup) {
             return false;
         }
 
@@ -34,6 +35,7 @@ class UpdateResourceRequest extends ResourceRequest
         return $this->findModel(Resource::class);
     }
 
+    #[\Override]
     public function resourceGroup(): ?ResourceGroup
     {
         return $this->findModel(ResourceGroup::class, 'resource_group_id');

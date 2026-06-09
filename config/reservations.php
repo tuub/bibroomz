@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -48,6 +50,6 @@ return [
         0 => [
             'start' => null,
             'end' => null,
-        ]
+        ],
     ],
 ];

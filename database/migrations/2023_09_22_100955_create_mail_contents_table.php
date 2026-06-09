@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::dropIfExists('mail_contents');
-        Schema::create('mail_contents', function (Blueprint $table) {
+        Schema::create('mail_contents', function (Blueprint $table): void {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
             $table->uuid('institution_id');

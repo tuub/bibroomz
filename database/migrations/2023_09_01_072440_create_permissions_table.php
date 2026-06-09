@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('key')->unique();
             $table->text('name');
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('permissions');
     }

@@ -36,7 +36,7 @@ trait HasTranslations
     }
 
     /**
-     * @param array<mixed> $attributes
+     * @param  array<mixed>  $attributes
      * @return array<string, mixed>
      */
     private function normalizeAttributes(array $attributes): array

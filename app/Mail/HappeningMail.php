@@ -22,8 +22,6 @@ class HappeningMail extends Mailable implements ShouldQueue
 
     /**
      * Create a new message instance.
-     *
-     * @return void
      */
     public function __construct(public HappeningMailData $data)
     {
@@ -34,8 +32,6 @@ class HappeningMail extends Mailable implements ShouldQueue
 
     /**
      * Get the message envelope.
-     *
-     * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope(): Envelope
     {
@@ -44,8 +40,6 @@ class HappeningMail extends Mailable implements ShouldQueue
 
     /**
      * Get the message content definition.
-     *
-     * @return \Illuminate\Mail\Mailables\Content
      */
     public function content(): Content
     {

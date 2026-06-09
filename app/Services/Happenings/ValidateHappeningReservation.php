@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Happenings;
 
 use App\Exceptions\HappeningValidationException;
@@ -13,10 +15,9 @@ use Carbon\CarbonImmutable;
 class ValidateHappeningReservation
 {
     public function __construct(
-        private ResourceAvailabilityService $availabilityService,
-        private ResourceQuotaService $quotaService,
-    ) {
-    }
+        private readonly ResourceAvailabilityService $availabilityService,
+        private readonly ResourceQuotaService $quotaService,
+    ) {}
 
     public function execute(
         User $user,
@@ -30,7 +31,7 @@ class ValidateHappeningReservation
             'resource_title' => $resource->title,
         ];
 
-        if (!$resource->resource_group->isAllowedUser($user)) {
+        if (! $resource->resource_group->isAllowedUser($user)) {
             throw new HappeningValidationException('happening.errors.not_allowed_user', $context);
         }
 
@@ -42,7 +43,7 @@ class ValidateHappeningReservation
 
         [$open] = $this->availabilityService->findOpen($resource, $start, $end);
 
-        if (!$open) {
+        if (! $open) {
             throw new HappeningValidationException('happening.errors.business_hours', $context);
         }
 
@@ -55,7 +56,7 @@ class ValidateHappeningReservation
         }
 
         if (
-            !$user->can('edit', $resource->resource_group->institution)
+            ! $user->can('edit', $resource->resource_group->institution)
             && $user->isHavingConcurrentHappening($start, $end, $happening)
         ) {
             throw new HappeningValidationException('happening.errors.concurrent');

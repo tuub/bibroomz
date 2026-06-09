@@ -12,9 +12,7 @@ use Illuminate\Support\Collection;
 
 class ListCalendarEntriesAction
 {
-    public function __construct(private CalendarEntryPresenter $presenter)
-    {
-    }
+    public function __construct(private readonly CalendarEntryPresenter $presenter) {}
 
     /**
      * @return Collection<int, array<string, mixed>>
@@ -55,7 +53,7 @@ class ListCalendarEntriesAction
             ->filter(fn (mixed $happening): bool => $happening instanceof Happening)
             ->values();
 
-        return $happenings->map(fn (Happening $happening) => $this->presenter->presentHappening($happening, $viewer));
+        return $happenings->map(fn (Happening $happening): array => $this->presenter->presentHappening($happening, $viewer));
     }
 
     /**
@@ -72,7 +70,7 @@ class ListCalendarEntriesAction
         return $closings
             ->filter(fn (Closing $closing): bool => $closing->end->isAfter($start) && $closing->start->isBefore($end))
             ->flatMap(fn (Closing $closing) => $resources
-                ->map(fn (Resource $resource) => $this->presenter->presentInstitutionClosing($closing, $resource)));
+                ->map(fn (Resource $resource): array => $this->presenter->presentInstitutionClosing($closing, $resource)));
     }
 
     /**
@@ -83,11 +81,8 @@ class ListCalendarEntriesAction
         CarbonImmutable $start,
         CarbonImmutable $end,
     ): Collection {
-        return $resourceGroup->resources->flatMap(function (Resource $resource) use ($start, $end) {
-            return $resource->closings
-                ->filter(fn (Closing $closing): bool =>
-                    $closing->end->isAfter($start) && $closing->start->isBefore($end))
-                ->map(fn (Closing $closing) => $this->presenter->presentResourceClosing($closing, $resource));
-        });
+        return $resourceGroup->resources->flatMap(fn (Resource $resource) => $resource->closings
+            ->filter(fn (Closing $closing): bool => $closing->end->isAfter($start) && $closing->start->isBefore($end))
+            ->map(fn (Closing $closing): array => $this->presenter->presentResourceClosing($closing, $resource)));
     }
 }

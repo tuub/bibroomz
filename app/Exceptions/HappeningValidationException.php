@@ -7,7 +7,7 @@ use RuntimeException;
 class HappeningValidationException extends RuntimeException
 {
     /**
-     * @param array<string, bool|float|int|string|null> $context
+     * @param  array<string, bool|float|int|string|null>  $context
      */
     public function __construct(
         public string $translationKey,

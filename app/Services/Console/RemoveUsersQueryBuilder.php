@@ -50,7 +50,7 @@ class RemoveUsersQueryBuilder
     {
         return $this->build($days)
             ->get()
-            ->filter(fn (User $user): bool => !$user->isLoggedIn())
+            ->filter(fn (User $user): bool => ! $user->isLoggedIn())
             ->values();
     }
 }

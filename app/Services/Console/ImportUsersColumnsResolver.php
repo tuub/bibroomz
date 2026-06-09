@@ -11,9 +11,9 @@ use function Laravel\Prompts\select;
 class ImportUsersColumnsResolver
 {
     /**
-     * @param resource $file
-     * @param array<int, string> $modelKeys
-     * @param array<int, string> $relationKeys
+     * @param  resource  $file
+     * @param  array<int, string>  $modelKeys
+     * @param  array<int, string>  $relationKeys
      * @return array<int, string>
      */
     public function resolve(
@@ -29,8 +29,8 @@ class ImportUsersColumnsResolver
         Validator::make(
             ['columns' => $columns],
             [
-                'columns' => ['contains:' . implode(',', $modelKeys)],
-                'columns.*' => 'string|in:' . implode(',', $options),
+                'columns' => ['contains:'.implode(',', $modelKeys)],
+                'columns.*' => 'string|in:'.implode(',', $options),
             ],
         )->validate();
 
@@ -38,9 +38,9 @@ class ImportUsersColumnsResolver
     }
 
     /**
-     * @param resource $file
-     * @param array<int, string> $options
-     * @param array<int, string> $modelKeys
+     * @param  resource  $file
+     * @param  array<int, string>  $options
+     * @param  array<int, string>  $modelKeys
      * @return array<int, string>
      */
     private function parseColumns(
@@ -75,16 +75,15 @@ class ImportUsersColumnsResolver
         }
 
         $columns = [];
+        $counter = count($options);
 
-        for ($index = 0; $index < count($options); $index++) {
-            if (Arr::sort(array_intersect($modelKeys, $columns)) === Arr::sort($modelKeys)) {
-                if (!confirm('Does the file have additional columns?')) {
-                    break;
-                }
+        for ($index = 0; $index < $counter; $index++) {
+            if (Arr::sort(array_intersect($modelKeys, $columns)) === Arr::sort($modelKeys) && ! confirm('Does the file have additional columns?')) {
+                break;
             }
 
             $selection = select(
-                'Column ' . ($index + 1) . ':',
+                'Column '.($index + 1).':',
                 options: array_values(array_diff($options, $columns)),
             );
 

@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/BrowserTestRunner.php';
+use Scripts\BrowserTestRunner;
 
-exit((new Scripts\BrowserTestRunner())->run($_SERVER['argv'] ?? null));
+require_once __DIR__.'/BrowserTestRunner.php';
+
+exit((new BrowserTestRunner)->run($_SERVER['argv'] ?? null));

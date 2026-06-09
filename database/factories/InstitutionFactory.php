@@ -8,7 +8,7 @@ use App\Models\WeekDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Institution>
+ * @extends Factory<Institution>
  */
 class InstitutionFactory extends Factory
 {
@@ -34,9 +34,10 @@ class InstitutionFactory extends Factory
     /**
      * Configure the model factory.
      */
+    #[\Override]
     public function configure(): static
     {
-        return $this->afterCreating(function (Institution $institution) {
+        return $this->afterCreating(function (Institution $institution): void {
             $settings = Setting::getInitialValues();
 
             foreach ($settings['institution'] as $key => $value) {

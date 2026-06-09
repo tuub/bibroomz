@@ -47,7 +47,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function (): void {
     /* User actions */
     Route::get('/my/happenings', [UserController::class, 'getUserHappenings'])
         ->name('user.happenings.get');
@@ -67,7 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
     )->name('resource.time_slots');
 
     /* Admins */
-    Route::middleware('can:view-admin-panel')->group(function () {
+    Route::middleware('can:view-admin-panel')->group(function (): void {
         /* Dashboard */
         Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])
             ->name('admin.dashboard');

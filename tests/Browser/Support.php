@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 function seedBrowserPrerequisites(): void
 {
     Model::unguard();
-    (new PermissionSeeder())->run();
-    (new WeekDaySeeder())->run();
+    (new PermissionSeeder)->run();
+    (new WeekDaySeeder)->run();
     Model::reguard();
 }
 
@@ -59,7 +59,7 @@ function createBrowserResourceGroup(
             'slug' => $slug,
             'term_singular' => Utility::getTranslatable('Arbeitsraum'),
             'term_plural' => Utility::getTranslatable('Arbeitsraeume'),
-            'description' => Utility::getTranslatable('Beschreibung ' . $title),
+            'description' => Utility::getTranslatable('Beschreibung '.$title),
             'is_active' => true,
         ]);
 }
@@ -73,8 +73,8 @@ function createBrowserResource(
         ->for($resourceGroup, 'resource_group')
         ->create([
             'title' => Utility::getTranslatable($title),
-            'location' => Utility::getTranslatable('Standort ' . $title),
-            'description' => Utility::getTranslatable('Beschreibung ' . $title),
+            'location' => Utility::getTranslatable('Standort '.$title),
+            'description' => Utility::getTranslatable('Beschreibung '.$title),
             'is_active' => true,
             'is_verification_required' => $verificationRequired,
         ]);
@@ -96,15 +96,15 @@ function buildBrowserInstitutionCatalogFixture(int $resourceGroupCount = 2): arr
     for ($index = 1; $index <= $resourceGroupCount; $index++) {
         $resourceGroup = createBrowserResourceGroup(
             $institution,
-            'Arbeitsraeume ' . $index,
-            'browser-group-' . $index,
+            'Arbeitsraeume '.$index,
+            'browser-group-'.$index,
         );
 
         createBrowserResource($resourceGroup, sprintf('Resource %02d', $index));
         $resourceGroups->push($resourceGroup);
     }
 
-    return compact('institution', 'resourceGroups');
+    return ['institution' => $institution, 'resourceGroups' => $resourceGroups];
 }
 
 function buildBrowserCalendarFixture(
@@ -130,7 +130,7 @@ function buildBrowserCalendarFixture(
 
     $route = buildBrowserHomeRoute($resourceGroup);
 
-    return compact('institution', 'resourceGroup', 'resources', 'route');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resources' => $resources, 'route' => $route];
 }
 
 function buildBrowserBookingFixture(): array
@@ -189,19 +189,7 @@ function buildBrowserBookingFixture(): array
         'label' => Utility::getTranslatable('Past'),
     ]);
 
-    return compact(
-        'editableBooking',
-        'institution',
-        'otherUser',
-        'owner',
-        'password',
-        'pastBooking',
-        'resource',
-        'resourceGroup',
-        'route',
-        'verifiableBooking',
-        'verifier',
-    );
+    return ['editableBooking' => $editableBooking, 'institution' => $institution, 'otherUser' => $otherUser, 'owner' => $owner, 'password' => $password, 'pastBooking' => $pastBooking, 'resource' => $resource, 'resourceGroup' => $resourceGroup, 'route' => $route, 'verifiableBooking' => $verifiableBooking, 'verifier' => $verifier];
 }
 
 function buildBrowserValidationFixture(): array
@@ -248,18 +236,7 @@ function buildBrowserValidationFixture(): array
         'label' => Utility::getTranslatable('Locked'),
     ]);
 
-    return compact(
-        'editableBooking',
-        'institution',
-        'otherUser',
-        'owner',
-        'password',
-        'pastBooking',
-        'resource',
-        'resourceGroup',
-        'route',
-        'verifier',
-    );
+    return ['editableBooking' => $editableBooking, 'institution' => $institution, 'otherUser' => $otherUser, 'owner' => $owner, 'password' => $password, 'pastBooking' => $pastBooking, 'resource' => $resource, 'resourceGroup' => $resourceGroup, 'route' => $route, 'verifier' => $verifier];
 }
 
 /**

@@ -15,11 +15,10 @@ use Carbon\Carbon;
 class ResourceAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private BusinessHourSynchronizer $businessHourSynchronizer,
-        private ResourceVisibilityService $resourceVisibilityService,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly BusinessHourSynchronizer $businessHourSynchronizer,
+        private readonly ResourceVisibilityService $resourceVisibilityService,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -35,8 +34,7 @@ class ResourceAdminService
 
         if ($user instanceof User) {
             $resources = $resources
-                ->filter(fn (Resource $resource): bool =>
-                    $this->resourceVisibilityService->isViewableByUser($resource, $user))
+                ->filter(fn (Resource $resource): bool => $this->resourceVisibilityService->isViewableByUser($resource, $user))
                 ->values();
         }
 
@@ -99,7 +97,7 @@ class ResourceAdminService
     }
 
     /**
-     * @param array<int, array{id: string, order: int}> $rows
+     * @param  array<int, array{id: string, order: int}>  $rows
      */
     public function reorder(array $rows): void
     {
@@ -114,8 +112,8 @@ class ResourceAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, array<string, mixed>> $businessHours
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, array<string, mixed>>  $businessHours
      */
     public function store(array $attributes, array $businessHours): Resource
     {
@@ -128,8 +126,8 @@ class ResourceAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, array<string, mixed>> $businessHours
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, array<string, mixed>>  $businessHours
      */
     public function update(Resource $resource, array $attributes, array $businessHours): Resource
     {
@@ -153,7 +151,7 @@ class ResourceAdminService
         $resource->loadMissing('resource_group', 'closings', 'business_hours.week_days');
 
         $resourceCopy = $resource->replicate();
-        $resourceCopy->title = $resource->title . ' ' . trans('admin.general.label.clone');
+        $resourceCopy->title = $resource->title.' '.trans('admin.general.label.clone');
         $resourceCopy->is_active = false;
         $resourceCopy->save();
 

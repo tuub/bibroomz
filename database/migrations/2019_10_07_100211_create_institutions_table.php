@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::dropIfExists('institutions');
-        Schema::create('institutions', function (Blueprint $table) {
+        Schema::create('institutions', function (Blueprint $table): void {
             $table->engine = 'InnoDB';
             $table->uuid('id')->primary();
             $table->text('title');
@@ -31,10 +29,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('institutions');
     }

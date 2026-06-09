@@ -15,14 +15,13 @@ use Carbon\Carbon;
 class ClosingAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private ClosableResolver $closableResolver,
-        private ListClosingsAction $listClosingsAction,
-        private CreateClosingAction $createClosingAction,
-        private UpdateClosingAction $updateClosingAction,
-        private DeleteClosingAction $deleteClosingAction,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly ClosableResolver $closableResolver,
+        private readonly ListClosingsAction $listClosingsAction,
+        private readonly CreateClosingAction $createClosingAction,
+        private readonly UpdateClosingAction $updateClosingAction,
+        private readonly DeleteClosingAction $deleteClosingAction,
+    ) {}
 
     public function resolveClosable(string $closableType, string $closableId): Institution|Resource
     {
@@ -75,7 +74,7 @@ class ClosingAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function store(Institution|Resource $closable, array $attributes): Closing
     {
@@ -87,7 +86,7 @@ class ClosingAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(Closing $closing, array $attributes): Closing
     {

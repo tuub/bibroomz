@@ -10,9 +10,7 @@ use App\Services\AdminLoggingService;
 
 class InstitutionAdminService
 {
-    public function __construct(private AdminLoggingService $adminLoggingService)
-    {
-    }
+    public function __construct(private readonly AdminLoggingService $adminLoggingService) {}
 
     /**
      * @return array<string, mixed>
@@ -61,7 +59,7 @@ class InstitutionAdminService
     }
 
     /**
-     * @param array<int, array{id: string, order: int}> $rows
+     * @param  array<int, array{id: string, order: int}>  $rows
      */
     public function reorder(array $rows): void
     {
@@ -76,8 +74,8 @@ class InstitutionAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, int|string> $weekDays
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, int|string>  $weekDays
      */
     public function store(array $attributes, array $weekDays): Institution
     {
@@ -97,8 +95,8 @@ class InstitutionAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<int, int|string> $weekDays
+     * @param  array<string, mixed>  $attributes
+     * @param  array<int, int|string>  $weekDays
      */
     public function update(Institution $institution, array $attributes, array $weekDays): Institution
     {

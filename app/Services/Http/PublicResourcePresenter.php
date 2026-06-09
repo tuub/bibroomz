@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Http;
 
 use App\Models\BusinessHour;
@@ -10,9 +12,7 @@ use Carbon\CarbonImmutable;
 
 class PublicResourcePresenter
 {
-    public function __construct(private ResourceBusinessHoursResolver $businessHoursResolver)
-    {
-    }
+    public function __construct(private readonly ResourceBusinessHoursResolver $businessHoursResolver) {}
 
     /**
      * @return array<string, mixed>
@@ -20,7 +20,7 @@ class PublicResourcePresenter
     public function present(Resource $resource, ResourceGroup $resourceGroup, CarbonImmutable $date): array
     {
         $businessHours = $this->businessHoursResolver->forDate($resource, $date)->map(
-            fn (BusinessHour $businessHour) => [
+            fn (BusinessHour $businessHour): array => [
                 'startTime' => $businessHour->start,
                 'endTime' => $businessHour->end,
                 'daysOfWeek' => $businessHour->week_days->pluck('day_of_week'),

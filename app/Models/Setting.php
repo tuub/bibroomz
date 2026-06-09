@@ -4,22 +4,27 @@ namespace App\Models;
 
 use App\Contracts\SettingSubject;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Setting extends Model
 {
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
+
     use HasUuids;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'settings';
+
     public $incrementing = false;
+
     public $timestamps = false;
+
     protected $fillable = ['key', 'value', 'settingable_type', 'settingable_id', 'institution_id'];
 
     /*****************************************************************
@@ -40,8 +45,8 @@ class Setting extends Model
     public static function getSettingableModel(string $settingableType): Institution|ResourceGroup
     {
         return match ($settingableType) {
-            'institution', Institution::class => new Institution(),
-            'resource_group', ResourceGroup::class => new ResourceGroup(),
+            'institution', Institution::class => new Institution,
+            'resource_group', ResourceGroup::class => new ResourceGroup,
             default => throw new \InvalidArgumentException("Unsupported settingable type [{$settingableType}]."),
         };
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Events\ClosingCreatedEvent;
@@ -10,9 +12,7 @@ use App\Services\Closings\ClosingNotificationService;
 
 class ClosingEventSubscriber
 {
-    public function __construct(private ClosingNotificationService $notificationService)
-    {
-    }
+    public function __construct(private readonly ClosingNotificationService $notificationService) {}
 
     private function handleClosingEvent(ClosingEvent $event): void
     {

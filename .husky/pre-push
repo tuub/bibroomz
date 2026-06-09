@@ -8,3 +8,7 @@ fi
 if [ "$from" ] && [ "$to" = main ]; then
     node_modules/.bin/commitlint --from="$from" --to="$to"
 fi
+
+vendor/bin/phpstan --no-progress
+vendor/bin/pint --silent --test
+vendor/bin/rector --dry-run --no-progress-bar

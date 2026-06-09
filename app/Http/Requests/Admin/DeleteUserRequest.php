@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteUserRequest extends AdminRouteRequest
 {
@@ -11,7 +12,7 @@ class DeleteUserRequest extends AdminRouteRequest
         $targetUser = $this->findModel(User::class);
         $user = $this->userModel();
 
-        return $targetUser !== null && $user !== null && $user->can('delete', $targetUser);
+        return $targetUser instanceof Model && $user instanceof User && $user->can('delete', $targetUser);
     }
 
     /**

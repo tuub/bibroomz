@@ -1,20 +1,95 @@
 includes:
-    - vendor/larastan/larastan/extension.neon
+  - vendor/larastan/larastan/extension.neon
+  - vendor/pestphp/pest/extension.neon
 
 parameters:
-    level: max
-    paths:
-        - app
-        - scripts
-    excludePaths:
-        - app/Exceptions/Handler.php
-        - app/Providers/TelescopeServiceProvider.php
-        - app/Http/Controllers/Controller.php
-        - app/Http/Kernel.php
-        - app/Http/Middleware/PreventRequestsDuringMaintenance.php
-        - app/Http/Middleware/TrimStrings.php
-        - app/Http/Middleware/TrustHosts.php
-        - app/Http/Middleware/TrustProxies.php
-        - app/Http/Middleware/ValidateSignature.php
-    tmpDir: /tmp/phpstan-roomz
-    reportUnmatchedIgnoredErrors: true
+  level: max
+  paths:
+    - app
+    - database
+    - routes
+    - scripts
+    - tests
+  excludePaths:
+    - tests/Browser
+  stubFiles:
+    - stubs/PestTestCall.stub
+  universalObjectCratesClasses:
+    - Pest\Support\HigherOrderTapProxy
+  ignoreErrors:
+    # Collection::get() returns T|null; offset access is safe when key is known to exist
+    - message: '#Offset .+ might not exist on array\{.+\}\|null#'
+      paths:
+        - tests
+      reportUnmatched: false
+    - message: '#Offset .+ might not exist on array\{\}#'
+      paths:
+        - tests
+      reportUnmatched: false
+    - message: '#Offset .+ might not exist on array<string, mixed>\|null#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # Response union types — asserted as RedirectResponse at runtime
+    - message: '#Call to an undefined method Illuminate\\Http\\RedirectResponse\|.+::getTargetUrl\(\)#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # Pest Expectation $not — resolved at runtime via __get()
+    - message: '#Access to an undefined property Pest\\Mixins\\Expectation.+::\$not#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # Test concern traits are defined in one file, used across many
+    - message: '#Trait Tests\\Concerns\\.+ is used zero times#'
+      reportUnmatched: false
+    # Laravel $fail callback — test closures don't return PotentiallyTranslatedString
+    - message: '#Parameter \#3 \$fail of method App\\Rules\\.+::validate\(\) expects Closure#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # FormRequest::rules()/authorize() are subclass conventions, not on the base class
+    - message: '#Call to an undefined method Illuminate\\Foundation\\Http\\FormRequest::(rules|authorize|startAt|happening)\(\)#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # Pest TestCall is final with __call(); chained test methods can't be resolved statically
+    - message: '#Call to an undefined method Pest\\PendingCalls\\TestCall[:|\\|]#'
+      paths:
+        - tests
+      reportUnmatched: false
+    # Mockery uses __call() for expectation chaining
+    - message: '#Call to an undefined method Mockery\\(ExpectationInterface|HigherOrderMessage|MockInterface)#'
+      paths:
+        - tests
+      reportUnmatched: false
+    - message: '#Cannot call method (andReturn|andReturnSelf|once|twice|times|never|withArgs|withAnyArgs|with)\(\) on mixed\.#'
+      paths:
+        - tests
+      reportUnmatched: false
+    - message: '#Cannot call method .+ on mixed\.#'
+      paths:
+        - tests/Feature
+        - tests/Unit
+      reportUnmatched: false
+    - message: '#Cannot access property .+ on mixed\.#'
+      paths:
+        - tests/Feature
+        - tests/Unit
+      reportUnmatched: false
+    - message: '#Cannot access offset .+ on mixed\.#'
+      paths:
+        - tests/Feature
+        - tests/Unit
+      reportUnmatched: false
+    # Mockery mocks implement the mocked interface at runtime; PHPStan only sees MockInterface
+    - message: '#Mockery\\(LegacyMockInterface|MockInterface)[\s\S]*given#'
+      paths:
+        - tests
+      reportUnmatched: false
+    - message: '#Access to an undefined property Mockery\\(LegacyMockInterface|MockInterface)::#'
+      paths:
+        - tests
+      reportUnmatched: false
+  tmpDir: /tmp/phpstan-roomz
+  reportUnmatchedIgnoredErrors: true

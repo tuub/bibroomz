@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use App\Models\UserGroup;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteUserGroupRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteUserGroupRequest extends AdminRouteRequest
         $userGroup = $this->findModel(UserGroup::class);
         $user = $this->userModel();
 
-        return $userGroup !== null && $user !== null && $user->can('delete', $userGroup);
+        return $userGroup instanceof Model && $user instanceof User && $user->can('delete', $userGroup);
     }
 
     /**

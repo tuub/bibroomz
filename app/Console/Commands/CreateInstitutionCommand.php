@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Institution;
 use App\Services\Console\CreateInstitutionAction;
 use App\Services\Console\CreateInstitutionResourceGroupAction;
 use App\Services\Console\InstitutionInputCollector;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
-use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
 
@@ -39,9 +37,9 @@ class CreateInstitutionCommand extends Command
     protected $description = 'Create an institution';
 
     public function __construct(
-        private InstitutionInputCollector $inputCollector,
-        private CreateInstitutionAction $createInstitutionAction,
-        private CreateInstitutionResourceGroupAction $createInstitutionResourceGroupAction,
+        private readonly InstitutionInputCollector $inputCollector,
+        private readonly CreateInstitutionAction $createInstitutionAction,
+        private readonly CreateInstitutionResourceGroupAction $createInstitutionResourceGroupAction,
     ) {
         parent::__construct();
     }
@@ -61,7 +59,7 @@ class CreateInstitutionCommand extends Command
             return Command::FAILURE;
         }
 
-        if (!$this->confirm('Are you sure you want to create this institution?')) {
+        if (! $this->confirm('Are you sure you want to create this institution?')) {
             error('⚠ Cancelled.');
 
             return Command::INVALID;
@@ -70,7 +68,7 @@ class CreateInstitutionCommand extends Command
         $institution = $this->createInstitutionAction->execute($validatedInstitution);
         info('Institution created.');
 
-        if (!$this->confirm('Do you want to create a resource group for this institution?')) {
+        if (! $this->confirm('Do you want to create a resource group for this institution?')) {
             return Command::SUCCESS;
         }
 
@@ -100,7 +98,7 @@ class CreateInstitutionCommand extends Command
 
             foreach ($messages as $message) {
                 if (is_string($message)) {
-                    error('⚠ ' . $message);
+                    error('⚠ '.$message);
                 }
             }
         }

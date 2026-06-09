@@ -10,10 +10,9 @@ use App\Services\UserGroupService;
 class UserGroupAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private UserGroupService $userGroupService,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly UserGroupService $userGroupService,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -69,7 +68,7 @@ class UserGroupAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function store(array $attributes): UserGroup
     {
@@ -81,7 +80,7 @@ class UserGroupAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(UserGroup $userGroup, array $attributes): UserGroup
     {
@@ -100,7 +99,7 @@ class UserGroupAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function importUsers(UserGroup $userGroup, array $attributes): UserGroup
     {
@@ -112,7 +111,7 @@ class UserGroupAdminService
     }
 
     /**
-     * @param list<string> $userIds
+     * @param  list<string>  $userIds
      */
     public function removeUsers(UserGroup $userGroup, array $userIds): void
     {

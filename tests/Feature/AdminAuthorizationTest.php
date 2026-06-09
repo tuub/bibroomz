@@ -1,10 +1,7 @@
 <?php
 
-covers(
-    App\Http\Controllers\Admin\AdminController::class,
-    App\Http\Requests\Admin\AdminRouteRequest::class
-);
-
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Requests\Admin\AdminRouteRequest;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\User;
@@ -12,11 +9,16 @@ use App\Models\UserGroup;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+covers(
+    AdminController::class,
+    AdminRouteRequest::class
+);
+
 uses(RefreshDatabase::class);
 
 beforeEach(fn () => $this->seed(PermissionSeeder::class));
 
-test('user with unrelated admin access cannot create resource groups in other institutions', function () {
+test('user with unrelated admin access cannot create resource groups in other institutions', function (): void {
     $actorInstitution = Institution::factory()->create();
     $targetInstitution = Institution::factory()->create();
     $actor = User::factory()->create();
@@ -40,7 +42,7 @@ test('user with unrelated admin access cannot create resource groups in other in
     $this->assertDatabaseMissing('resource_groups', ['slug' => 'hidden-rooms']);
 });
 
-test('user with resource group permission can create resource group in allowed institution', function () {
+test('user with resource group permission can create resource group in allowed institution', function (): void {
     $institution = Institution::factory()->create();
     $actor = User::factory()->create();
 
@@ -63,7 +65,7 @@ test('user with resource group permission can create resource group in allowed i
     $this->assertDatabaseHas('resource_groups', ['slug' => 'allowed-rooms']);
 });
 
-test('user with unrelated admin access cannot remove members from foreign user groups', function () {
+test('user with unrelated admin access cannot remove members from foreign user groups', function (): void {
     $actorInstitution = Institution::factory()->create();
     $targetInstitution = Institution::factory()->create();
     $actor = User::factory()->create();

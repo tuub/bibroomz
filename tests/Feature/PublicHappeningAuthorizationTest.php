@@ -1,13 +1,8 @@
 <?php
 
-covers(
-    App\Http\Controllers\HappeningController::class,
-    App\Services\Happenings\ValidateHappeningReservation::class,
-    App\Policies\HappeningPolicy::class
-);
-
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningsChangedEvent;
+use App\Http\Controllers\HappeningController;
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
@@ -15,6 +10,8 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Policies\HappeningPolicy;
+use App\Services\Happenings\ValidateHappeningReservation;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\PermissionSeeder;
@@ -23,9 +20,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 
+covers(
+    HappeningController::class,
+    ValidateHappeningReservation::class,
+    HappeningPolicy::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     config()->set('roomz.app.timezone', 'UTC');
@@ -33,24 +36,30 @@ beforeEach(function () {
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @param  array<string, mixed>  $resourceOverrides
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User, otherUser: User}
+ */
 function buildHappeningAuthFixture(array $resourceOverrides = []): array
 {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
-    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(array_merge([
+    /** @var array<string, mixed> $resourceAttrs */
+    $resourceAttrs = array_merge([
         'is_active' => true,
         'is_verification_required' => true,
-    ], $resourceOverrides));
+    ], $resourceOverrides);
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create($resourceAttrs);
     $owner = User::factory()->create(['name' => 'owner.user']);
     $verifier = User::factory()->create(['name' => 'verifier.user']);
     $otherUser = User::factory()->create(['name' => 'other.user']);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier', 'otherUser');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier, 'otherUser' => $otherUser];
 }
 
 function createFixtureHappening(User $owner, Resource $resource, User $verifier): Happening
@@ -68,7 +77,7 @@ function createFixtureHappening(User $owner, Resource $resource, User $verifier)
     ]);
 }
 
-test('non-owner cannot update another users reservation', function () {
+test('non-owner cannot update another users reservation', function (): void {
     [
         'resource' => $resource,
         'owner' => $owner,
@@ -86,10 +95,10 @@ test('non-owner cannot update another users reservation', function () {
         'label' => ['en' => 'Unauthorized update'],
     ])->assertForbidden();
 
-    expect($happening->fresh()->getTranslations('label')['en'])->toBe('Fixture');
+    expect($happening->fresh()?->getTranslations('label')['en'])->toBe('Fixture');
 });
 
-test('non-owner cannot delete another users reservation', function () {
+test('non-owner cannot delete another users reservation', function (): void {
     [
         'resource' => $resource,
         'owner' => $owner,
@@ -107,7 +116,7 @@ test('non-owner cannot delete another users reservation', function () {
     $this->assertDatabaseHas('happenings', ['id' => $happening->id]);
 });
 
-test('banned user is rejected when creating a reservation', function () {
+test('banned user is rejected when creating a reservation', function (): void {
     ['resource' => $resource, 'verifier' => $verifier] = buildHappeningAuthFixture();
 
     $bannedUser = User::factory()->create(['banned_at' => now()]);
@@ -125,14 +134,17 @@ test('banned user is rejected when creating a reservation', function () {
     $this->assertDatabaseMissing('happenings', ['resource_id' => $resource->id]);
 });
 
-test('banned user is rejected when updating a reservation', function () {
+test('banned user is rejected when updating a reservation', function (): void {
     ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = buildHappeningAuthFixture();
 
     $happening = createFixtureHappening($owner, $resource, $verifier);
 
     $owner->update(['banned_at' => now()]);
 
-    Sanctum::actingAs($owner->fresh());
+    $freshOwner = $owner->fresh();
+    if ($freshOwner !== null) {
+        Sanctum::actingAs($freshOwner);
+    }
 
     $this->postJson(route('happening.update', ['id' => $happening->id]), [
         'start' => '2026-06-10 10:00:00',
@@ -140,10 +152,10 @@ test('banned user is rejected when updating a reservation', function () {
         'label' => ['en' => 'Banned update'],
     ])->assertForbidden();
 
-    expect($happening->fresh()->getTranslations('label')['en'])->toBe('Fixture');
+    expect($happening->fresh()?->getTranslations('label')['en'])->toBe('Fixture');
 });
 
-test('resource group with user group rejects non-members', function () {
+test('resource group with user group rejects non-members', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -172,7 +184,7 @@ test('resource group with user group rejects non-members', function () {
     $this->assertDatabaseMissing('happenings', ['resource_id' => $resource->id]);
 });
 
-test('resource group with user group accepts current members', function () {
+test('resource group with user group accepts current members', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -202,7 +214,7 @@ test('resource group with user group accepts current members', function () {
     $this->assertDatabaseHas('happenings', ['resource_id' => $resource->id, 'user_id_01' => $owner->id]);
 });
 
-test('expired user group membership blocks new reservations', function () {
+test('expired user group membership blocks new reservations', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -231,7 +243,7 @@ test('expired user group membership blocks new reservations', function () {
     $this->assertDatabaseMissing('happenings', ['resource_id' => $resource->id]);
 });
 
-test('users with no_verifier permission can skip verifier field', function () {
+test('users with no_verifier permission can skip verifier field', function (): void {
     ['institution' => $institution, 'resource' => $resource, 'owner' => $owner] = buildHappeningAuthFixture();
 
     grantAdminPermission($owner, $institution, 'no_verifier');
@@ -253,7 +265,7 @@ test('users with no_verifier permission can skip verifier field', function () {
     ]);
 });
 
-test('weekly happening quota is enforced when limit is reached', function () {
+test('weekly happening quota is enforced when limit is reached', function (): void {
     [
         'resourceGroup' => $resourceGroup,
         'resource' => $resource,
@@ -283,7 +295,7 @@ test('weekly happening quota is enforced when limit is reached', function () {
     ])->assertStatus(400);
 });
 
-test('users with unlimited_quotas permission can exceed the weekly happening quota', function () {
+test('users with unlimited_quotas permission can exceed the weekly happening quota', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -317,7 +329,7 @@ test('users with unlimited_quotas permission can exceed the weekly happening quo
     $this->assertDatabaseCount('happenings', 2);
 });
 
-test('single booking exceeding block hours quota is rejected', function () {
+test('single booking exceeding block hours quota is rejected', function (): void {
     [
         'resourceGroup' => $resourceGroup,
         'resource' => $resource,
@@ -340,7 +352,7 @@ test('single booking exceeding block hours quota is rejected', function () {
     $this->assertDatabaseMissing('happenings', ['resource_id' => $resource->id]);
 });
 
-test('weekly hours quota is enforced when accumulated bookings exceed the limit', function () {
+test('weekly hours quota is enforced when accumulated bookings exceed the limit', function (): void {
     [
         'resourceGroup' => $resourceGroup,
         'resource' => $resource,
@@ -372,7 +384,7 @@ test('weekly hours quota is enforced when accumulated bookings exceed the limit'
     ])->assertStatus(400);
 });
 
-test('daily hours quota is enforced when the days bookings exceed the limit', function () {
+test('daily hours quota is enforced when the days bookings exceed the limit', function (): void {
     [
         'resourceGroup' => $resourceGroup,
         'resource' => $resource,

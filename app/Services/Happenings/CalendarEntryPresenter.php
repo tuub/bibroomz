@@ -10,9 +10,7 @@ use Carbon\Carbon;
 
 class CalendarEntryPresenter
 {
-    public function __construct(private HappeningStatusCalculator $statusCalculator)
-    {
-    }
+    public function __construct(private readonly HappeningStatusCalculator $statusCalculator) {}
 
     /**
      * @return array<string, mixed>

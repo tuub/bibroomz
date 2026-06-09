@@ -45,7 +45,7 @@ class ResourceGroupRestrictionInputCollector
     }
 
     /**
-     * @param array<int|string, string> $options
+     * @param  array<int|string, string>  $options
      */
     private function resolveSelectedKey(mixed $selection, array $options): string
     {
@@ -65,8 +65,8 @@ class ResourceGroupRestrictionInputCollector
     }
 
     /**
-     * @param array<int|string> $selections
-     * @param array<int|string, string> $options
+     * @param  array<int|string>  $selections
+     * @param  array<int|string, string>  $options
      * @return array<int, string>
      */
     private function resolveSelectedKeys(array $selections, array $options): array
@@ -78,7 +78,7 @@ class ResourceGroupRestrictionInputCollector
     }
 
     /**
-     * @param array<mixed> $options
+     * @param  array<mixed>  $options
      * @return array<int|string, string>
      */
     private function stringOptions(array $options): array
@@ -95,7 +95,7 @@ class ResourceGroupRestrictionInputCollector
     }
 
     /**
-     * @param array<mixed> $selections
+     * @param  array<mixed>  $selections
      * @return array<int, int|string>
      */
     private function normalizeSelections(array $selections): array

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use App\Models\UserGroup;
 
 class RemoveUsersFromUserGroupRequest extends AdminRouteRequest
@@ -11,7 +12,7 @@ class RemoveUsersFromUserGroupRequest extends AdminRouteRequest
         $user = $this->userModel();
         $userGroup = $this->userGroupOrNull();
 
-        return $user !== null && $userGroup !== null && $user->can('import', $userGroup);
+        return $user instanceof User && $userGroup instanceof UserGroup && $user->can('import', $userGroup);
     }
 
     /**
@@ -42,10 +43,9 @@ class RemoveUsersFromUserGroupRequest extends AdminRouteRequest
     public function userIds(): array
     {
         $users = $this->validated('users');
-        $userIds = is_array($users)
-            ? array_values(array_filter($users, fn (mixed $user): bool => is_string($user)))
-            : [];
 
-        return $userIds;
+        return is_array($users)
+            ? array_values(array_filter($users, is_string(...)))
+            : [];
     }
 }

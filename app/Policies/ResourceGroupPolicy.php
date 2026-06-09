@@ -15,10 +15,10 @@ class ResourceGroupPolicy
     {
         foreach (
             [
-            'view_resource_groups',
-            'create_resource_groups',
-            'edit_resource_groups',
-            'delete_resource_groups',
+                'view_resource_groups',
+                'create_resource_groups',
+                'edit_resource_groups',
+                'delete_resource_groups',
             ] as $permission
         ) {
             if ($user->can($permission, $institution)) {

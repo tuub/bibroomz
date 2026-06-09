@@ -1,13 +1,5 @@
 <?php
 
-covers(
-    App\Http\Requests\AddHappeningRequest::class,
-    App\Http\Requests\CalendarEntriesRequest::class,
-    App\Http\Requests\DeleteHappeningRequest::class,
-    App\Http\Requests\UpdateHappeningRequest::class,
-    App\Http\Requests\VerifyHappeningRequest::class
-);
-
 use App\Http\Requests\AddHappeningRequest;
 use App\Http\Requests\CalendarEntriesRequest;
 use App\Http\Requests\DeleteHappeningRequest;
@@ -23,8 +15,20 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
+covers(
+    AddHappeningRequest::class,
+    CalendarEntriesRequest::class,
+    DeleteHappeningRequest::class,
+    UpdateHappeningRequest::class,
+    VerifyHappeningRequest::class
+);
+
 uses(RefreshDatabase::class);
 
+/**
+ * @param  array<string, mixed>  $happeningOverrides
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User, other: User, happening: Happening}
+ */
 function buildPublicHappeningFixture(array $happeningOverrides = []): array
 {
     $institution = Institution::factory()->create(['is_active' => true]);
@@ -37,7 +41,8 @@ function buildPublicHappeningFixture(array $happeningOverrides = []): array
     $verifier = User::factory()->create(['name' => 'verifier.user']);
     $other = User::factory()->create(['name' => 'other.user']);
 
-    $happening = Happening::create(array_merge([
+    /** @var array<string, mixed> $mergedAttrs */
+    $mergedAttrs = array_merge([
         'user_id_01' => $owner->id,
         'resource_id' => $resource->id,
         'is_verified' => false,
@@ -47,12 +52,13 @@ function buildPublicHappeningFixture(array $happeningOverrides = []): array
         'reserved_at' => CarbonImmutable::now()->addDay()->setTime(9, 0),
         'verified_at' => null,
         'label' => ['en' => 'Focus'],
-    ], $happeningOverrides));
+    ], $happeningOverrides);
+    $happening = Happening::create($mergedAttrs);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier', 'other', 'happening');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier, 'other' => $other, 'happening' => $happening];
 }
 
-test('calendar entries request validates slugs and parses the requested range', function () {
+test('calendar entries request validates slugs and parses the requested range', function (): void {
     $fixture = buildPublicHappeningFixture();
 
     $request = buildRoutedFormRequest(
@@ -76,7 +82,7 @@ test('calendar entries request validates slugs and parses the requested range', 
         ->and($request->endAt()->format('Y-m-d H:i:s'))->toBe('2026-06-04 18:00:00');
 });
 
-test('add happening request normalizes the verifier and exposes typed helpers', function () {
+test('add happening request normalizes the verifier and exposes typed helpers', function (): void {
     $fixture = buildPublicHappeningFixture();
 
     $request = buildFormRequest(AddHappeningRequest::class, [
@@ -88,7 +94,6 @@ test('add happening request normalizes the verifier and exposes typed helpers', 
     ], $fixture['owner']);
 
     $prepare = new ReflectionMethod($request, 'prepareForValidation');
-    $prepare->setAccessible(true);
     $prepare->invoke($request);
 
     $validator = Validator::make($request->all(), $request->rules());
@@ -102,7 +107,7 @@ test('add happening request normalizes the verifier and exposes typed helpers', 
         ->and($request->label())->toBe(['en' => 'Workshop']);
 });
 
-test('add happening request requires a verifier when verification is required', function () {
+test('add happening request requires a verifier when verification is required', function (): void {
     $fixture = buildPublicHappeningFixture();
     $request = buildFormRequest(AddHappeningRequest::class, [
         'resource' => ['id' => $fixture['resource']->id],
@@ -117,13 +122,13 @@ test('add happening request requires a verifier when verification is required', 
         ->and($validator->errors()->messages())->toHaveKey('verifier');
 });
 
-test('update delete and verify requests merge route ids and authorize the expected users', function () {
+test('update delete and verify requests merge route ids and authorize the expected users', function (): void {
     $fixture = buildPublicHappeningFixture();
 
     $updateRequest = buildRoutedFormRequest(
         UpdateHappeningRequest::class,
         'POST',
-        '/happening/update/' . $fixture['happening']->id,
+        '/happening/update/'.$fixture['happening']->id,
         [
             'start' => '2026-06-04 12:00:00',
             'end' => '2026-06-04 13:00:00',
@@ -134,14 +139,14 @@ test('update delete and verify requests merge route ids and authorize the expect
     $deleteRequest = buildRoutedFormRequest(
         DeleteHappeningRequest::class,
         'DELETE',
-        '/happening/delete/' . $fixture['happening']->id,
+        '/happening/delete/'.$fixture['happening']->id,
         [],
         $fixture['owner'],
     );
     $verifyRequest = buildRoutedFormRequest(
         VerifyHappeningRequest::class,
         'POST',
-        '/happening/verify/' . $fixture['happening']->id,
+        '/happening/verify/'.$fixture['happening']->id,
         [
             'start' => '2026-06-04 12:00:00',
             'end' => '2026-06-04 13:00:00',
@@ -162,13 +167,13 @@ test('update delete and verify requests merge route ids and authorize the expect
         ->and($verifyRequest->startAt()->format('Y-m-d H:i:s'))->toBe('2026-06-04 12:00:00');
 });
 
-test('update delete and verify requests reject unrelated users', function () {
+test('update delete and verify requests reject unrelated users', function (): void {
     $fixture = buildPublicHappeningFixture();
 
     $updateRequest = buildRoutedFormRequest(
         UpdateHappeningRequest::class,
         'POST',
-        '/happening/update/' . $fixture['happening']->id,
+        '/happening/update/'.$fixture['happening']->id,
         [
             'start' => '2026-06-04 12:00:00',
             'end' => '2026-06-04 13:00:00',
@@ -178,14 +183,14 @@ test('update delete and verify requests reject unrelated users', function () {
     $deleteRequest = buildRoutedFormRequest(
         DeleteHappeningRequest::class,
         'DELETE',
-        '/happening/delete/' . $fixture['happening']->id,
+        '/happening/delete/'.$fixture['happening']->id,
         [],
         $fixture['other'],
     );
     $verifyRequest = buildRoutedFormRequest(
         VerifyHappeningRequest::class,
         'POST',
-        '/happening/verify/' . $fixture['happening']->id,
+        '/happening/verify/'.$fixture['happening']->id,
         [
             'start' => '2026-06-04 12:00:00',
             'end' => '2026-06-04 13:00:00',

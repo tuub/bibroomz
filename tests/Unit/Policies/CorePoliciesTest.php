@@ -1,14 +1,5 @@
 <?php
 
-covers(
-    App\Policies\ClosingPolicy::class,
-    App\Policies\InstitutionPolicy::class,
-    App\Policies\MailContentPolicy::class,
-    App\Policies\ResourcePolicy::class,
-    App\Policies\RolePolicy::class,
-    App\Policies\SettingPolicy::class
-);
-
 use App\Library\Utility;
 use App\Models\Closing;
 use App\Models\Institution;
@@ -19,7 +10,6 @@ use App\Models\ResourceGroup;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
-use App\Models\UserGroup;
 use App\Policies\ClosingPolicy;
 use App\Policies\InstitutionPolicy;
 use App\Policies\MailContentPolicy;
@@ -30,14 +20,23 @@ use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    ClosingPolicy::class,
+    InstitutionPolicy::class,
+    MailContentPolicy::class,
+    ResourcePolicy::class,
+    RolePolicy::class,
+    SettingPolicy::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 
-test('institution policy honors global and scoped permissions', function () {
+test('institution policy honors global and scoped permissions', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create();
-    $policy = new InstitutionPolicy();
+    $policy = new InstitutionPolicy;
 
     $this->grantPermission($user, $institution, 'view_institution');
     $this->grantPermission($user, $institution, 'edit_institution');
@@ -51,12 +50,12 @@ test('institution policy honors global and scoped permissions', function () {
         ->and($policy->delete($user, $institution))->toBeTrue();
 });
 
-test('resource policy grants all resource operations in the same institution', function () {
+test('resource policy grants all resource operations in the same institution', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
     $user = User::factory()->create();
-    $policy = new ResourcePolicy();
+    $policy = new ResourcePolicy;
 
     $this->grantPermission($user, $institution, 'view_resources');
     $this->grantPermission($user, $institution, 'create_resources');
@@ -71,11 +70,11 @@ test('resource policy grants all resource operations in the same institution', f
         ->and($policy->clone($user, $resource))->toBeTrue();
 });
 
-test('role policy uses the matching role permissions', function () {
+test('role policy uses the matching role permissions', function (): void {
     $institution = Institution::factory()->create();
     $role = Role::create(['name' => Utility::getTranslatable('Editor')]);
     $user = User::factory()->create();
-    $policy = new RolePolicy();
+    $policy = new RolePolicy;
 
     $this->grantPermission($user, $institution, 'view_roles');
     $this->grantPermission($user, $institution, 'create_roles');
@@ -89,7 +88,7 @@ test('role policy uses the matching role permissions', function () {
         ->and($policy->delete($user))->toBeTrue();
 });
 
-test('setting policy resolves permissions from the related institution', function () {
+test('setting policy resolves permissions from the related institution', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $setting = new Setting([
@@ -100,7 +99,7 @@ test('setting policy resolves permissions from the related institution', functio
     $setting->setRelation('settingable', $institution);
 
     $user = User::factory()->create();
-    $policy = new SettingPolicy();
+    $policy = new SettingPolicy;
 
     $this->grantPermission($user, $institution, 'view_settings');
     $this->grantPermission($user, $institution, 'edit_settings');
@@ -112,12 +111,12 @@ test('setting policy resolves permissions from the related institution', functio
         ->and($policy->edit($user, $setting))->toBeTrue();
 });
 
-test('user policy blocks admin targets without the dedicated permission', function () {
+test('user policy blocks admin targets without the dedicated permission', function (): void {
     $institution = Institution::factory()->create();
     $actor = User::factory()->create();
     $adminTarget = User::factory()->create(['is_admin' => true]);
     $normalTarget = User::factory()->create();
-    $policy = new UserPolicy();
+    $policy = new UserPolicy;
 
     $this->grantPermission($actor, $institution, 'view_users');
     $this->grantPermission($actor, $institution, 'create_users');
@@ -140,7 +139,7 @@ test('user policy blocks admin targets without the dedicated permission', functi
         ->and($policy->delete($actor, $adminTarget))->toBeTrue();
 });
 
-test('mail content policy is scoped to institution permissions', function () {
+test('mail content policy is scoped to institution permissions', function (): void {
     $institution = Institution::factory()->create();
     $mailType = MailType::create([
         'key' => 'booking_created',
@@ -158,7 +157,7 @@ test('mail content policy is scoped to institution permissions', function () {
         'is_active' => true,
     ]);
     $user = User::factory()->create();
-    $policy = new MailContentPolicy();
+    $policy = new MailContentPolicy;
 
     $this->grantPermission($user, $institution, 'view_mails');
     $this->grantPermission($user, $institution, 'create_mails');
@@ -173,7 +172,7 @@ test('mail content policy is scoped to institution permissions', function () {
         ->and($policy->delete($user, $mailContent))->toBeTrue();
 });
 
-test('closing policy handles institution and nested closables', function () {
+test('closing policy handles institution and nested closables', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
@@ -186,7 +185,7 @@ test('closing policy handles institution and nested closables', function () {
     $closing->setRelation('closable', $resource);
 
     $user = User::factory()->create();
-    $policy = new ClosingPolicy();
+    $policy = new ClosingPolicy;
 
     $this->grantPermission($user, $institution, 'view_closings');
     $this->grantPermission($user, $institution, 'create_closings');

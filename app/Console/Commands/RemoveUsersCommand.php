@@ -28,8 +28,8 @@ class RemoveUsersCommand extends Command implements Isolatable
     protected $description = 'Remove users with no recent happenings';
 
     public function __construct(
-        private RemoveUsersQueryBuilder $queryBuilder,
-        private RemoveUsersAction $removeUsersAction,
+        private readonly RemoveUsersQueryBuilder $queryBuilder,
+        private readonly RemoveUsersAction $removeUsersAction,
     ) {
         parent::__construct();
     }
@@ -46,7 +46,7 @@ class RemoveUsersCommand extends Command implements Isolatable
         $query = $this->queryBuilder->build($days);
         $users = $this->queryBuilder->candidates($days);
 
-        $this->info('Found ' . $users->count() . ' users to remove.');
+        $this->info('Found '.$users->count().' users to remove.');
 
         if ($users->count() === 0) {
             $this->info('Nothing to do.');
@@ -68,7 +68,7 @@ class RemoveUsersCommand extends Command implements Isolatable
             return Command::SUCCESS;
         }
 
-        if (!$this->option('force') && !$this->confirm('Do you want to proceed?')) {
+        if (! $this->option('force') && ! $this->confirm('Do you want to proceed?')) {
             $this->info('Nothing to do.');
 
             return Command::INVALID;

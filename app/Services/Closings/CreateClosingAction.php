@@ -4,18 +4,18 @@ namespace App\Services\Closings;
 
 use App\Contracts\ClosingSubject;
 use App\Models\Closing;
+use App\Models\Institution;
 
 class CreateClosingAction
 {
     public function __construct(
-        private ClosingDataSanitizer $dataSanitizer,
-        private ClosingEventDispatcher $closingEventDispatcher,
-    ) {
-    }
+        private readonly ClosingDataSanitizer $dataSanitizer,
+        private readonly ClosingEventDispatcher $closingEventDispatcher,
+    ) {}
 
     /**
-     * @param \App\Models\Institution|\App\Models\Resource $closable
-     * @param array<string, mixed> $attributes
+     * @param  Institution|\App\Models\Resource  $closable
+     * @param  array<string, mixed>  $attributes
      */
     public function execute(ClosingSubject $closable, array $attributes): Closing
     {

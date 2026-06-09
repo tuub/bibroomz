@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class LoginAction
 {
     /**
-     * @param array<string, mixed> $credentials
+     * @param  array<string, mixed>  $credentials
      */
     public function execute(Request $request, array $credentials): ?User
     {

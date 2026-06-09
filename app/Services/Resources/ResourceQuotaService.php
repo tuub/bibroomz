@@ -11,10 +11,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 class ResourceQuotaService
 {
     public function __construct(
-        private ResourceAvailabilityService $availabilityService,
-        private ResourceSettingsResolver $settingsResolver,
-    ) {
-    }
+        private readonly ResourceAvailabilityService $availabilityService,
+        private readonly ResourceSettingsResolver $settingsResolver,
+    ) {}
 
     /**
      * @throws BindingResolutionException

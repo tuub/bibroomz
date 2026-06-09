@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Happening;
 use App\Models\Institution;
 use App\Services\Console\CleanupIntervalResolver;
 use App\Services\Console\RemoveUnverifiedHappeningsAction;
 use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
-use App\Models\Happening;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
@@ -35,9 +35,9 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
     protected $description = 'Remove unverified happenings';
 
     public function __construct(
-        private CleanupIntervalResolver $cleanupIntervalResolver,
-        private RemoveUnverifiedHappeningsQueryBuilder $queryBuilder,
-        private RemoveUnverifiedHappeningsAction $removeUnverifiedHappeningsAction,
+        private readonly CleanupIntervalResolver $cleanupIntervalResolver,
+        private readonly RemoveUnverifiedHappeningsQueryBuilder $queryBuilder,
+        private readonly RemoveUnverifiedHappeningsAction $removeUnverifiedHappeningsAction,
     ) {
         parent::__construct();
     }
@@ -54,25 +54,25 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         $institution = $this->queryBuilder->resolveInstitution($this->option('institution'));
         $query = $this->queryBuilder->baseQuery();
 
-        if ($institution) {
-            $this->info('Restricting to institution ' . $institution->id . '...');
+        if ($institution instanceof Institution) {
+            $this->info('Restricting to institution '.$institution->id.'...');
             $query = $this->queryBuilder->restrictToInstitution($query, $institution);
         }
 
-        if (isset($minutes) || isset($hours) || isset($days) || !$this->option('settings')) {
+        if (isset($minutes) || isset($hours) || isset($days) || ! $this->option('settings')) {
             $time = $this->cleanupIntervalResolver->fromValues($minutes, $hours, $days);
             $query->where('created_at', '<', $time);
             $time->locale('en');
 
             $this->info('Removing unverified happenings created more than '
-                . $time->diffForHumans(short: true, parts: 3) . '...');
-        } elseif ($institution) {
+                .$time->diffForHumans(short: true, parts: 3).'...');
+        } elseif ($institution instanceof Institution) {
             $time = $this->cleanupIntervalResolver->fromInstitution($institution);
             $query->where('created_at', '<', $time);
             $time->locale('en');
 
             $this->info('Removing unverified happenings created more than '
-                . $time->diffForHumans(short: true, parts: 3) . '...');
+                .$time->diffForHumans(short: true, parts: 3).'...');
         } else {
             $query->where(function (Builder $builder): void {
                 $this->queryBuilder->applySettingsPerInstitution(
@@ -81,8 +81,8 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
                     function (Institution $institution, Carbon $time): void {
                         $time->locale('en');
                         $this->info('Removing unverified happenings created more than '
-                            . $time->diffForHumans(short: true, parts: 3)
-                            . ' for institution ' . $institution->id . '...');
+                            .$time->diffForHumans(short: true, parts: 3)
+                            .' for institution '.$institution->id.'...');
                     },
                 );
             });
@@ -97,17 +97,19 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         }
 
         // print count
-        $this->info('Found ' . $query->count() . ' happenings to remove.');
+        $this->info('Found '.$query->count().' happenings to remove.');
 
         // abort if no happenings to remove
         if ($query->count() === 0) {
             $this->info('Nothing to do.');
+
             return Command::SUCCESS;
         }
 
         // ask for confirmation
-        if (!$this->option('force') && !$this->confirm('Do you want to proceed?')) {
+        if (! $this->option('force') && ! $this->confirm('Do you want to proceed?')) {
             $this->info('Nothing to do.');
+
             return Command::INVALID;
         }
 
@@ -119,7 +121,7 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
     }
 
     /**
-     * @param Builder<Happening> $query
+     * @param  Builder<Happening>  $query
      */
     private function prettyPrintHappenings(Builder $query): void
     {

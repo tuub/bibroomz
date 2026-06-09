@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use App\Models\UserGroup;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
@@ -15,7 +16,7 @@ class ImportUsersRequest extends AdminRouteRequest
      */
     public function rules(): array
     {
-        $date = function (string $attribute, mixed $value, Closure $fail) {
+        $date = function (string $attribute, mixed $value, Closure $fail): void {
             if (! is_string($value)) {
                 $fail("The {$attribute} is invalid.");
 
@@ -42,6 +43,7 @@ class ImportUsersRequest extends AdminRouteRequest
         ];
     }
 
+    #[\Override]
     protected function passedValidation(): void
     {
         $locale = app()->getLocale();
@@ -80,7 +82,7 @@ class ImportUsersRequest extends AdminRouteRequest
         $user = $this->userModel();
         $userGroup = $this->userGroupOrNull();
 
-        return $user !== null && $userGroup !== null && $user->can('import', $userGroup);
+        return $user instanceof User && $userGroup instanceof UserGroup && $user->can('import', $userGroup);
     }
 
     public function userGroup(): UserGroup

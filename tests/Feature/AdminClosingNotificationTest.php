@@ -1,19 +1,10 @@
 <?php
 
-covers(
-    App\Services\Closings\ClosingNotificationService::class,
-    App\Services\Closings\ClosingInstitutionResolver::class,
-    App\Services\Closings\ClosingNotificationTypeResolver::class,
-    App\Listeners\ClosingEventSubscriber::class,
-    App\Events\ClosingCreatedEvent::class,
-    App\Events\ClosingUpdatedEvent::class,
-    App\Events\ClosingDeletedEvent::class,
-    App\Services\Notifications\MailEnvelopeFactory::class,
-    App\Services\Notifications\NotificationDispatchService::class,
-    App\Mail\ClosingMail::class
-);
-
+use App\Events\ClosingCreatedEvent;
+use App\Events\ClosingDeletedEvent;
+use App\Events\ClosingUpdatedEvent;
 use App\Library\Utility;
+use App\Listeners\ClosingEventSubscriber;
 use App\Mail\ClosingMail;
 use App\Models\Happening;
 use App\Models\Institution;
@@ -22,6 +13,11 @@ use App\Models\MailType;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Closings\ClosingInstitutionResolver;
+use App\Services\Closings\ClosingNotificationService;
+use App\Services\Closings\ClosingNotificationTypeResolver;
+use App\Services\Notifications\MailEnvelopeFactory;
+use App\Services\Notifications\NotificationDispatchService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\MailTypeSeeder;
@@ -30,9 +26,22 @@ use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 
+covers(
+    ClosingNotificationService::class,
+    ClosingInstitutionResolver::class,
+    ClosingNotificationTypeResolver::class,
+    ClosingEventSubscriber::class,
+    ClosingCreatedEvent::class,
+    ClosingUpdatedEvent::class,
+    ClosingDeletedEvent::class,
+    MailEnvelopeFactory::class,
+    NotificationDispatchService::class,
+    ClosingMail::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     $this->seed(MailTypeSeeder::class);
@@ -41,11 +50,14 @@ beforeEach(function () {
     config()->set('broadcasting.default', 'log');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, happening: Happening, admin: User}
+ */
 function buildClosingNotificationFixture(): array
 {
     $institution = Institution::factory()->create([
@@ -79,7 +91,7 @@ function buildClosingNotificationFixture(): array
     foreach ([$mailTypeCreated, $mailTypeUpdated, $mailTypeDeleted] as $mailType) {
         MailContent::create([
             'institution_id' => $institution->id,
-            'mail_type_id' => $mailType->id,
+            'mail_type_id' => $mailType?->id,
             'subject' => 'Closing Notice',
             'title' => 'Library Closing',
             'salutation' => 'Dear User',
@@ -95,10 +107,10 @@ function buildClosingNotificationFixture(): array
     }
     test()->actingAs($admin);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'happening', 'admin');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'happening' => $happening, 'admin' => $admin];
 }
 
-test('creating an institution closing with an affected happening dispatches a closing mail', function () {
+test('creating an institution closing with an affected happening dispatches a closing mail', function (): void {
     Mail::fake();
     $fixture = buildClosingNotificationFixture();
 
@@ -112,11 +124,10 @@ test('creating an institution closing with an affected happening dispatches a cl
         'description' => Utility::getTranslatable('System maintenance'),
     ])->assertRedirect();
 
-    Mail::assertQueued(ClosingMail::class, fn (ClosingMail $mail): bool =>
-        $mail->hasTo($fixture['owner']->email ?? ''));
+    Mail::assertQueued(ClosingMail::class, fn (ClosingMail $mail): bool => $mail->hasTo($fixture['owner']->email ?? ''));
 });
 
-test('updating a closing with an affected happening dispatches an update mail', function () {
+test('updating a closing with an affected happening dispatches an update mail', function (): void {
     Mail::fake();
     $fixture = buildClosingNotificationFixture();
 
@@ -148,7 +159,7 @@ test('updating a closing with an affected happening dispatches an update mail', 
     Mail::assertQueued(ClosingMail::class);
 });
 
-test('deleting a closing with a previously affected happening dispatches a deletion mail', function () {
+test('deleting a closing with a previously affected happening dispatches a deletion mail', function (): void {
     Mail::fake();
     $fixture = buildClosingNotificationFixture();
 

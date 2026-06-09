@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class InstitutionOrderRequest extends AdminRouteRequest
@@ -11,7 +12,7 @@ class InstitutionOrderRequest extends AdminRouteRequest
     {
         $user = $this->userModel();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 

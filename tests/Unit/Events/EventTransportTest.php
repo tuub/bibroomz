@@ -1,24 +1,14 @@
 <?php
 
-covers(
-    App\Events\ClosingCreatedEvent::class,
-    App\Events\ClosingUpdatedEvent::class,
-    App\Events\ClosingDeletedEvent::class,
-    App\Events\HappeningCreatedEvent::class,
-    App\Events\HappeningUpdatedEvent::class,
-    App\Events\HappeningDeletedEvent::class,
-    App\Events\HappeningVerifiedEvent::class,
-    App\Events\HappeningBroadcastEvent::class,
-    App\Events\HappeningsChangedEvent::class,
-    App\Events\UnverifiedHappeningRemovedBySchedulerEvent::class
-);
-
 use App\Events\ClosingCreatedEvent;
 use App\Events\ClosingDeletedEvent;
 use App\Events\ClosingUpdatedEvent;
+use App\Events\HappeningBroadcastEvent;
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningsChangedEvent;
+use App\Events\HappeningUpdatedEvent;
+use App\Events\HappeningVerifiedEvent;
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Closing;
 use App\Models\Happening;
@@ -28,9 +18,22 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Support\Collection;
 
-test('happening broadcast events expose precomputed payload and channel names', function () {
-    $happening = new Happening();
-    $user = new User();
+covers(
+    ClosingCreatedEvent::class,
+    ClosingUpdatedEvent::class,
+    ClosingDeletedEvent::class,
+    HappeningCreatedEvent::class,
+    HappeningUpdatedEvent::class,
+    HappeningDeletedEvent::class,
+    HappeningVerifiedEvent::class,
+    HappeningBroadcastEvent::class,
+    HappeningsChangedEvent::class,
+    UnverifiedHappeningRemovedBySchedulerEvent::class
+);
+
+test('happening broadcast events expose precomputed payload and channel names', function (): void {
+    $happening = new Happening;
+    $user = new User;
     $user->id = 'user-1';
     $payload = ['happening' => ['id' => 'event-1']];
 
@@ -41,10 +44,10 @@ test('happening broadcast events expose precomputed payload and channel names', 
         ->and($event->broadcastOn()->name)->toContain('happenings.user-1');
 });
 
-test('happening broadcast event factory builds concrete broadcast event instances', function () {
-    $factory = new HappeningBroadcastEventFactory();
-    $happening = new Happening();
-    $user = new User();
+test('happening broadcast event factory builds concrete broadcast event instances', function (): void {
+    $factory = new HappeningBroadcastEventFactory;
+    $happening = new Happening;
+    $user = new User;
     $payload = ['happening' => ['id' => 'event-1']];
 
     $event = $factory->make(HappeningDeletedEvent::class, $happening, $user, $payload);
@@ -55,17 +58,17 @@ test('happening broadcast event factory builds concrete broadcast event instance
         ->and($schedulerEvent)->toBeInstanceOf(UnverifiedHappeningRemovedBySchedulerEvent::class);
 });
 
-test('happenings changed event stays on the public happenings channel', function () {
-    $event = new HappeningsChangedEvent();
+test('happenings changed event stays on the public happenings channel', function (): void {
+    $event = new HappeningsChangedEvent;
 
     expect($event->broadcastOn())->toBeInstanceOf(Channel::class)
         ->and($event->broadcastOn()->name)->toBe('happenings');
 });
 
-test('closing events remain simple transport objects', function () {
-    $user = new User();
-    $closing = new Closing();
-    $happenings = Collection::make([new Happening()]);
+test('closing events remain simple transport objects', function (): void {
+    $user = new User;
+    $closing = new Closing;
+    $happenings = Collection::make([new Happening]);
 
     $created = new ClosingCreatedEvent($user, $happenings, $closing);
     $updated = new ClosingUpdatedEvent($user, $happenings, $closing);

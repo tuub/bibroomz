@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
@@ -11,16 +13,15 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    #[\Override]
+    public function register(): void
     {
         // Telescope::night();
 
         $this->hideSensitiveRequestDetails();
 
-        Telescope::filter(function (IncomingEntry $entry) {
+        Telescope::filter(function (IncomingEntry $entry): bool {
             if ($this->app->environment('local')) {
                 return true;
             }
@@ -32,12 +33,20 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             if ($this->app->environment('demo')) {
                 return true;
             }
+            if ($entry->isReportableException()) {
+                return true;
+            }
+            if ($entry->isFailedRequest()) {
+                return true;
+            }
+            if ($entry->isFailedJob()) {
+                return true;
+            }
+            if ($entry->isScheduledTask()) {
+                return true;
+            }
 
-            return $entry->isReportableException() ||
-                   $entry->isFailedRequest() ||
-                   $entry->isFailedJob() ||
-                   $entry->isScheduledTask() ||
-                   $entry->hasMonitoredTag();
+            return $entry->hasMonitoredTag();
         });
     }
 
@@ -72,10 +81,9 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      *
      * @return void
      */
+    #[\Override]
     protected function gate()
     {
-        Gate::define('viewTelescope', function () {
-            return;
-        });
+        Gate::define('viewTelescope', function (): void {});
     }
 }

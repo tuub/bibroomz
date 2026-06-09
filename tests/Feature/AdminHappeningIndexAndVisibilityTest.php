@@ -1,27 +1,31 @@
 <?php
 
-covers(
-    App\Services\Happenings\AdminHappeningPresenter::class,
-    App\Services\Happenings\ListAdminHappeningsAction::class,
-    App\Services\Resources\ResourceVisibilityService::class
-);
-
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Happenings\AdminHappeningPresenter;
+use App\Services\Happenings\ListAdminHappeningsAction;
+use App\Services\Resources\ResourceVisibilityService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
+
+covers(
+    AdminHappeningPresenter::class,
+    ListAdminHappeningsAction::class,
+    ResourceVisibilityService::class
+);
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00'));
@@ -29,11 +33,14 @@ beforeEach(function () {
     config()->set('broadcasting.default', 'log');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User, happening: Happening, admin: User}
+ */
 function buildHappeningIndexFixture(): array
 {
     $institution = Institution::factory()->create(['is_active' => true]);
@@ -64,17 +71,17 @@ function buildHappeningIndexFixture(): array
     }
     test()->actingAs($admin);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier', 'happening', 'admin');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier, 'happening' => $happening, 'admin' => $admin];
 }
 
-test('admin happenings index presents happening data including institution and resource group', function () {
+test('admin happenings index presents happening data including institution and resource group', function (): void {
     $fixture = buildHappeningIndexFixture();
 
     $this->get(route('admin.happening.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Happenings/Index')
-            ->has('happenings', 1, fn (Assert $h) => $h
+            ->has('happenings', 1, fn (Assert $h): AssertableJson => $h
                 ->where('id', $fixture['happening']->id)
                 ->where('is_verified', true)
                 ->where('user1', $fixture['owner']->name)
@@ -85,7 +92,7 @@ test('admin happenings index presents happening data including institution and r
                 ->etc()));
 });
 
-test('admin resource index filters resources through visibility service for authenticated admin', function () {
+test('admin resource index filters resources through visibility service for authenticated admin', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -101,7 +108,7 @@ test('admin resource index filters resources through visibility service for auth
 
     $this->get(route('admin.resource.index', ['resource_group_id' => $resourceGroup->id]))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Resources/Index')
             ->has('resources', 1));
 });

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -11,10 +13,6 @@ use Illuminate\Queue\SerializesModels;
 class HappeningsChangedEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public function __construct()
-    {
-    }
 
     public function broadcastOn(): Channel
     {

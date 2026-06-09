@@ -9,8 +9,11 @@ use Illuminate\Support\Collection;
 
 class PermissionSeeder extends Seeder
 {
-    private Collection $verbs;
-    private Collection $groups;
+    /** @var Collection<string, array{en: string, de: string}> */
+    private readonly Collection $verbs;
+
+    /** @var Collection<string, array{en: string, de: string}> */
+    private readonly Collection $groups;
 
     public function __construct()
     {
@@ -95,10 +98,8 @@ class PermissionSeeder extends Seeder
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         foreach ($this->groups as $key => $name) {
             $this->createPermissionGroup($key, $name);
@@ -156,6 +157,7 @@ class PermissionSeeder extends Seeder
         );
     }
 
+    /** @param array<string, string> $name */
     private function createPermission(string $key, array $name): ?Permission
     {
         if (Permission::where('key', '=', $key)->exists()) {
@@ -168,18 +170,24 @@ class PermissionSeeder extends Seeder
         ]);
     }
 
-    private function createPermissions(array $verbs, array $groups)
+    /**
+     * @param  array<string>  $verbs
+     * @param  array<string>  $groups
+     */
+    private function createPermissions(array $verbs, array $groups): void
     {
         foreach ($verbs as $verbKey) {
             foreach ($groups as $groupKey) {
-                $verbName = $this->verbs->get($verbKey);
-                $groupName = $this->groups->get($groupKey);
+                /** @var array{en: string, de: string} $verbName */
+                $verbName = $this->verbs->get($verbKey) ?? ['en' => '', 'de' => ''];
+                /** @var array{en: string, de: string} $groupName */
+                $groupName = $this->groups->get($groupKey) ?? ['en' => '', 'de' => ''];
 
                 $permission = $this->createPermission(
-                    $verbKey . '_' . $groupKey,
+                    $verbKey.'_'.$groupKey,
                     [
-                        'en' => ucfirst($verbName['en']) . ' ' . lcfirst($groupName['en']),
-                        'de' => ucfirst($groupName['de']) . ' ' . lcfirst($verbName['de']),
+                        'en' => ucfirst($verbName['en']).' '.lcfirst($groupName['en']),
+                        'de' => ucfirst($groupName['de']).' '.lcfirst($verbName['de']),
                     ],
                 );
 
@@ -189,6 +197,7 @@ class PermissionSeeder extends Seeder
         }
     }
 
+    /** @param array<string, string> $name */
     private function createPermissionGroup(string $key, array $name): ?PermissionGroup
     {
         if (PermissionGroup::where('key', '=', $key)->exists()) {

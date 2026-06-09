@@ -16,9 +16,7 @@ use Inertia\Response;
 
 class UserGroupController extends AdminController
 {
-    public function __construct(private UserGroupAdminService $userGroupAdminService)
-    {
-    }
+    public function __construct(private readonly UserGroupAdminService $userGroupAdminService) {}
 
     public function getUserGroups(): Response
     {

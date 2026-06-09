@@ -15,17 +15,16 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 class LoginController extends Controller
 {
     public function __construct(
-        private CurrentUserStatusBuilder $currentUserStatusBuilder,
-        private LoginAction $loginAction,
-        private LogoutAction $logoutAction
-    ) {
-    }
+        private readonly CurrentUserStatusBuilder $currentUserStatusBuilder,
+        private readonly LoginAction $loginAction,
+        private readonly LogoutAction $logoutAction
+    ) {}
 
     public function login(LoginRequest $request): JsonResponse
     {
         $user = $this->loginAction->execute($request, $request->credentials());
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             $response = [
                 'message' => __('auth.errors.user_not_found'),
             ];

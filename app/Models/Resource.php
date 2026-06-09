@@ -4,34 +4,40 @@ namespace App\Models;
 
 use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
+use Bkwld\Cloner\Cloneable;
+use Database\Factories\ResourceFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Bkwld\Cloner\Cloneable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @implements ClosingSubject<$this>
- * @property-read \Illuminate\Database\Eloquent\Collection<int, BusinessHour> $business_hours
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Closing> $closings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Happening> $happenings
+ *
+ * @property-read Collection<int, BusinessHour> $business_hours
+ * @property-read Collection<int, Closing> $closings
+ * @property-read Collection<int, Happening> $happenings
  * @property-read ResourceGroup $resource_group
  */
 class Resource extends Model implements ClosingSubject
 {
-    /** @use HasFactory<\Database\Factories\ResourceFactory> */
+    use Cloneable, HasTranslations, HasUuids;
+
+    /** @use HasFactory<ResourceFactory> */
     use HasFactory;
-    use HasUuids, Cloneable, HasTranslations;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'resources';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -47,11 +53,6 @@ class Resource extends Model implements ClosingSubject
     ];
 
     protected $with = ['closings'];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'is_verification_required' => 'boolean',
-    ];
 
     /**
      * @var list<string>
@@ -113,7 +114,7 @@ class Resource extends Model implements ClosingSubject
      * SCOPES
      ****************************************************************/
     /**
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
@@ -141,4 +142,9 @@ class Resource extends Model implements ClosingSubject
     {
         return $this->happenings;
     }
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_verification_required' => 'boolean',
+    ];
 }

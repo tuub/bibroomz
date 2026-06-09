@@ -25,6 +25,7 @@ class ResourceGroupRouteRequest extends FormRequest
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function validationData(): array
     {
         return $this->normalizeStringKeyedArray(array_merge($this->all(), $this->route()?->parameters() ?? []));
@@ -45,7 +46,7 @@ class ResourceGroupRouteRequest extends FormRequest
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     protected function normalizeStringKeyedArray(array $values): array
@@ -62,7 +63,7 @@ class ResourceGroupRouteRequest extends FormRequest
     }
 
     /**
-     * @param array<array-key, mixed> ...$ruleSets
+     * @param  array<array-key, mixed>  ...$ruleSets
      * @return array<string, mixed>
      */
     protected function mergeRuleSets(array ...$ruleSets): array

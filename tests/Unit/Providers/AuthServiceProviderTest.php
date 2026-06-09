@@ -1,7 +1,5 @@
 <?php
 
-covers(App\Providers\AuthServiceProvider::class);
-
 use App\Auth\AlmaUserProvider;
 use App\Models\Institution;
 use App\Models\User;
@@ -11,14 +9,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(AuthServiceProvider::class);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     (new AuthServiceProvider(app()))->boot();
 });
 
-test('auth service provider registers the alma provider and authorization gates', function () {
+test('auth service provider registers the alma provider and authorization gates', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create();
     $admin = User::factory()->create(['is_admin' => true]);
@@ -33,7 +33,7 @@ test('auth service provider registers the alma provider and authorization gates'
         ->and(Gate::forUser($admin)->allows('always-null'))->toBeTrue();
 });
 
-test('auth service provider denies admin panel access without permissions', function () {
+test('auth service provider denies admin panel access without permissions', function (): void {
     $user = User::factory()->create();
 
     expect(Gate::forUser($user)->allows('view-admin-panel'))->toBeFalse();

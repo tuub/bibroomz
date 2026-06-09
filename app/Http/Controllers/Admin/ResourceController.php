@@ -17,9 +17,7 @@ use Inertia\Response;
 
 class ResourceController extends AdminController
 {
-    public function __construct(private ResourceAdminService $resourceAdminService)
-    {
-    }
+    public function __construct(private readonly ResourceAdminService $resourceAdminService) {}
 
     public function getResources(ResourceGroupContextRequest $request): Response
     {

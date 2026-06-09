@@ -54,7 +54,7 @@ class UserGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function storeUserGroup(array $data): UserGroup
     {
@@ -62,7 +62,7 @@ class UserGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function updateUserGroup(string $id, array $data): UserGroup
     {
@@ -73,7 +73,7 @@ class UserGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function importUsers(string $id, array $data): UserGroup
     {
@@ -111,7 +111,7 @@ class UserGroupService
     }
 
     /**
-     * @param list<string> $users
+     * @param  list<string>  $users
      */
     public function removeUsers(string $id, array $users): void
     {
@@ -123,7 +123,7 @@ class UserGroupService
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return list<string>
      */
     private function extractImportUsers(array $data): array

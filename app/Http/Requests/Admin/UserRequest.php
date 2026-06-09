@@ -14,7 +14,7 @@ class UserRequest extends AdminRouteRequest
     {
         $user = $this->userModel();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 
@@ -36,7 +36,7 @@ class UserRequest extends AdminRouteRequest
 
         $targetUser = $this->targetUserOrNull();
 
-        return $targetUser !== null && $user->can('update', $targetUser);
+        return $targetUser instanceof User && $user->can('update', $targetUser);
     }
 
     /**
@@ -53,9 +53,7 @@ class UserRequest extends AdminRouteRequest
             'email' => ['required_if_accepted:is_system_user', 'email'],
             'is_set_password' => ['required_if_accepted:is_system_user', 'boolean'],
             'current_password' => [
-                Rule::requiredIf(function () {
-                    return $this->input('is_set_password') && $this->input('id');
-                }),
+                Rule::requiredIf(fn (): bool => $this->input('is_set_password') && $this->input('id')),
                 'nullable',
                 'string',
                 new CurrentPasswordRule($this->inputString('name'), $this->inputString('current_password')),
@@ -83,6 +81,7 @@ class UserRequest extends AdminRouteRequest
         ];
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $this->merge([

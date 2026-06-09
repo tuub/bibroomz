@@ -1,10 +1,5 @@
 <?php
 
-covers(
-    App\Http\Controllers\LoginController::class,
-    App\Services\Http\LoginAction::class
-);
-
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Requests\LoginRequest;
@@ -23,9 +18,14 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
+covers(
+    LoginController::class,
+    LoginAction::class
+);
+
 uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
 
-test('home controller static pages return inertia responses', function () {
+test('home controller static pages return inertia responses', function (): void {
     $controller = new HomeController(
         Mockery::mock(HomePageDataBuilder::class),
         Mockery::mock(InstitutionAccessService::class),
@@ -37,7 +37,7 @@ test('home controller static pages return inertia responses', function () {
         ->and($controller->getSiteCredits())->toBeInstanceOf(InertiaResponse::class);
 });
 
-test('home controller redirects blocked terminal views back to the start page', function () {
+test('home controller redirects blocked terminal views back to the start page', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
@@ -60,8 +60,7 @@ test('home controller redirects blocked terminal views back to the start page', 
         ->once()
         ->with(
             Mockery::on(
-                fn ($resolvedInstitution) =>
-                    $resolvedInstitution instanceof Institution && $resolvedInstitution->is($institution),
+                fn ($resolvedInstitution): bool => $resolvedInstitution instanceof Institution && $resolvedInstitution->is($institution),
             ),
             '10.0.0.1',
         )
@@ -74,7 +73,7 @@ test('home controller redirects blocked terminal views back to the start page', 
         ->and($response->getTargetUrl())->toBe(route('start'));
 });
 
-test('login controller returns the public auth error response for invalid credentials', function () {
+test('login controller returns the public auth error response for invalid credentials', function (): void {
     $statusBuilder = Mockery::mock(CurrentUserStatusBuilder::class);
     $loginAction = Mockery::mock(LoginAction::class);
     $logoutAction = Mockery::mock(LogoutAction::class);

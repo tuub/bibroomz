@@ -1,23 +1,24 @@
 <?php
 
-covers(App\Traits\HasTranslations::class);
-
 use App\Models\Institution;
+use App\Traits\HasTranslations;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+covers(HasTranslations::class);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     app()->setLocale('de');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     app()->setLocale('de');
 });
 
-test('withoutTranslations returns locale-specific attribute values for the current locale', function () {
+test('withoutTranslations returns locale-specific attribute values for the current locale', function (): void {
     $institution = Institution::factory()->create([
         'title' => ['de' => 'Bibliothek', 'en' => 'Library'],
     ]);
@@ -31,7 +32,7 @@ test('withoutTranslations returns locale-specific attribute values for the curre
     expect($enData['title'])->toBe('Library');
 });
 
-test('withTranslations returns the full translations array for all locales', function () {
+test('withTranslations returns the full translations array for all locales', function (): void {
     $institution = Institution::factory()->create([
         'title' => ['de' => 'Stadtbibliothek', 'en' => 'City Library'],
     ]);

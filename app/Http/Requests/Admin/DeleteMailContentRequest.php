@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\MailContent;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteMailContentRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteMailContentRequest extends AdminRouteRequest
         $mailContent = $this->findModel(MailContent::class);
         $user = $this->userModel();
 
-        return $mailContent !== null && $user !== null && $user->can('delete', $mailContent);
+        return $mailContent instanceof Model && $user instanceof User && $user->can('delete', $mailContent);
     }
 
     /**

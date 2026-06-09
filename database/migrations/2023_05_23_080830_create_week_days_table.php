@@ -8,12 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('week_days', function (Blueprint $table) {
+        Schema::create('week_days', function (Blueprint $table): void {
             $table->id('id')->index();
             $table->smallInteger('day_of_week');
             $table->string('key');
@@ -22,10 +20,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('week_days');
     }

@@ -1,19 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Events\HappeningBroadcastEvent;
-use App\Events\HappeningVerifiedEvent;
 use App\Events\HappeningCreatedEvent;
 use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningUpdatedEvent;
+use App\Events\HappeningVerifiedEvent;
 use App\Services\Happenings\HappeningNotificationService;
 
 class HappeningEventSubscriber
 {
-    public function __construct(private HappeningNotificationService $notificationService)
-    {
-    }
+    public function __construct(private readonly HappeningNotificationService $notificationService) {}
 
     private function handleHappeningEvent(HappeningBroadcastEvent $event): void
     {
@@ -24,7 +24,6 @@ class HappeningEventSubscriber
     {
         $this->handleHappeningEvent($event);
     }
-
 
     public function handleHappeningUpdatedEvent(HappeningBroadcastEvent $event): void
     {

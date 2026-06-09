@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Contracts\ClosingSubject;
 use App\Models\Closing;
+use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -12,7 +13,7 @@ class ClosingPolicy
     use HandlesAuthorization;
 
     /**
-     * @param \App\Models\Institution|\App\Models\Resource $closable
+     * @param  Institution|\App\Models\Resource  $closable
      */
     public function viewAny(User $user, ClosingSubject $closable): bool
     {
@@ -20,7 +21,7 @@ class ClosingPolicy
     }
 
     /**
-     * @param \App\Models\Institution|\App\Models\Resource $closable
+     * @param  Institution|\App\Models\Resource  $closable
      */
     public function create(User $user, ClosingSubject $closable): bool
     {

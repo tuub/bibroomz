@@ -9,14 +9,13 @@ use Illuminate\Database\Seeder;
 
 class InstitutionSeeder extends Seeder
 {
-    private $institutions = [];
+    /** @var list<Institution> */
+    private array $institutions = [];
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->createExampleInstitution();
         $this->createTUBInstitutions();
@@ -24,16 +23,16 @@ class InstitutionSeeder extends Seeder
         $this->createExampleResources();
     }
 
-    private function createExampleInstitution()
+    private function createExampleInstitution(): void
     {
-        if (!config('roomz.database.is_seed_example_institution')) {
+        if (! config('roomz.database.is_seed_example_institution')) {
             return;
         }
 
         $this->institutions[] = Institution::factory()->create();
     }
 
-    private function createExampleResources()
+    private function createExampleResources(): void
     {
         foreach ($this->institutions as $institution) {
             $resource_groups = ResourceGroup::factory()->count(random_int(2, 5))->make();
@@ -49,9 +48,9 @@ class InstitutionSeeder extends Seeder
         }
     }
 
-    private function createTUBInstitutions()
+    private function createTUBInstitutions(): void
     {
-        if (!config('roomz.database.is_seed_tub_institutions')) {
+        if (! config('roomz.database.is_seed_tub_institutions')) {
             return;
         }
 

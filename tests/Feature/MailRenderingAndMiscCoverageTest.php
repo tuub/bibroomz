@@ -1,18 +1,12 @@
 <?php
 
-covers(
-    App\Mail\HappeningMail::class,
-    App\Mail\ClosingMail::class,
-    App\Listeners\HappeningEventSubscriber::class
-);
-
 use App\Library\Utility;
+use App\Listeners\HappeningEventSubscriber;
 use App\Mail\ClosingMail;
 use App\Mail\ClosingMailData;
 use App\Mail\HappeningMail;
 use App\Mail\HappeningMailData;
 use App\Mail\MailEnvelopeData;
-use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\MailContent;
@@ -26,13 +20,20 @@ use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 
+covers(
+    HappeningMail::class,
+    ClosingMail::class,
+    HappeningEventSubscriber::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
     $this->seed(MailTypeSeeder::class);
@@ -41,12 +42,12 @@ beforeEach(function () {
     config()->set('broadcasting.default', 'log');
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
-test('happening mail renders content and envelope correctly', function () {
+test('happening mail renders content and envelope correctly', function (): void {
     $institution = Institution::factory()->create(['email' => 'test@example.test']);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(['is_active' => true]);
@@ -67,7 +68,7 @@ test('happening mail renders content and envelope correctly', function () {
     $mailType = MailType::query()->firstWhere('key', 'happening_created');
     $mailContent = MailContent::create([
         'institution_id' => $institution->id,
-        'mail_type_id' => $mailType->id,
+        'mail_type_id' => $mailType?->id,
         'subject' => 'Your booking',
         'title' => 'Booking Confirmed',
         'salutation' => 'Dear User',
@@ -82,12 +83,12 @@ test('happening mail renders content and envelope correctly', function () {
         envelope: new MailEnvelopeData('library@example.test'),
     ));
 
-    expect($mail->envelope())->toBeInstanceOf(\Illuminate\Mail\Mailables\Envelope::class)
-        ->and($mail->content())->toBeInstanceOf(\Illuminate\Mail\Mailables\Content::class)
+    expect($mail->envelope())->toBeInstanceOf(Envelope::class)
+        ->and($mail->content())->toBeInstanceOf(Content::class)
         ->and($mail->attachments())->toBeArray();
 });
 
-test('closing mail renders content and attachments correctly', function () {
+test('closing mail renders content and attachments correctly', function (): void {
     $institution = Institution::factory()->create(['email' => 'library@example.test']);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(['is_active' => true]);
@@ -114,7 +115,7 @@ test('closing mail renders content and attachments correctly', function () {
     $mailType = MailType::query()->firstWhere('key', 'closing_created');
     $mailContent = MailContent::create([
         'institution_id' => $institution->id,
-        'mail_type_id' => $mailType->id,
+        'mail_type_id' => $mailType?->id,
         'subject' => 'Library Closure',
         'title' => 'Upcoming Closure',
         'salutation' => 'Dear User',
@@ -130,11 +131,11 @@ test('closing mail renders content and attachments correctly', function () {
         envelope: new MailEnvelopeData('library@example.test'),
     ));
 
-    expect($mail->content())->toBeInstanceOf(\Illuminate\Mail\Mailables\Content::class)
+    expect($mail->content())->toBeInstanceOf(Content::class)
         ->and($mail->attachments())->toBeArray();
 });
 
-test('happening verification dispatches the verified event and triggers the subscriber', function () {
+test('happening verification dispatches the verified event and triggers the subscriber', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
@@ -164,5 +165,5 @@ test('happening verification dispatches the verified event and triggers the subs
         'end' => '2026-06-10 10:00:00',
     ])->assertNoContent();
 
-    expect($happening->fresh()->is_verified)->toBeTrue();
+    expect($happening->fresh()?->is_verified)->toBeTrue();
 });

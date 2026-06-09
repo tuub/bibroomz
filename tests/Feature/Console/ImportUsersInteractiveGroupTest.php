@@ -1,15 +1,17 @@
 <?php
 
-covers(
-    App\Console\Commands\ImportUsers::class,
-    App\Services\Console\ImportUsersAction::class
-);
-
+use App\Console\Commands\ImportUsers;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Services\Console\ImportUsersAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Console\Command\Command;
+
+covers(
+    ImportUsers::class,
+    ImportUsersAction::class
+);
 
 uses(RefreshDatabase::class);
 
@@ -21,13 +23,13 @@ function writeTempImportCsv(string $contents): string
     return $path;
 }
 
-afterEach(function () {
-    foreach (glob(sys_get_temp_dir() . '/roomz-ig-*') ?: [] as $path) {
+afterEach(function (): void {
+    foreach (glob(sys_get_temp_dir().'/roomz-ig-*') ?: [] as $path) {
         @unlink($path);
     }
 });
 
-test('import users command supports interactive group selection when no group option is given', function () {
+test('import users command supports interactive group selection when no group option is given', function (): void {
     $institution = Institution::factory()->create(['title' => ['de' => 'Bibliothek', 'en' => 'Library']]);
     $group = UserGroup::create(['institution_id' => $institution->id, 'title' => ['de' => 'Gruppe', 'en' => 'Group']]);
     $path = writeTempImportCsv("name,email\nBob,bob@example.test\n");
@@ -46,7 +48,7 @@ test('import users command supports interactive group selection when no group op
         )
         ->assertExitCode(Command::SUCCESS);
 
-    $user = User::firstWhere('email', 'bob@example.test');
+    $user = User::where('email', 'bob@example.test')->firstOrFail();
     expect($user)->not->toBeNull()
         ->and($group->users()->where('users.id', $user->id)->exists())->toBeTrue();
 });

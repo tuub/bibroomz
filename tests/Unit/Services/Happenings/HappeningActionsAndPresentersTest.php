@@ -1,27 +1,14 @@
 <?php
 
-covers(
-    App\Services\Happenings\CreateHappeningAction::class,
-    App\Services\Happenings\UpdateHappeningAction::class,
-    App\Services\Happenings\DeleteHappeningAction::class,
-    App\Services\Happenings\VerifyHappeningAction::class,
-    App\Services\Happenings\CalendarEntryPresenter::class,
-    App\Services\Happenings\AdminHappeningPresenter::class,
-    App\Services\Happenings\ListAdminHappeningsAction::class,
-    App\Services\Happenings\ListCalendarEntriesAction::class
-);
-
 use App\Events\HappeningCreatedEvent;
-use App\Events\HappeningDeletedEvent;
 use App\Events\HappeningUpdatedEvent;
-use App\Events\HappeningVerifiedEvent;
 use App\Library\Utility;
-use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Services\Happenings\AdminHappeningPresenter;
 use App\Services\Happenings\CalendarEntryPresenter;
 use App\Services\Happenings\CreateHappeningAction;
 use App\Services\Happenings\DeleteHappeningAction;
@@ -37,20 +24,35 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    CreateHappeningAction::class,
+    UpdateHappeningAction::class,
+    DeleteHappeningAction::class,
+    VerifyHappeningAction::class,
+    CalendarEntryPresenter::class,
+    AdminHappeningPresenter::class,
+    ListAdminHappeningsAction::class,
+    ListCalendarEntriesAction::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     Carbon::setTestNow(Carbon::parse('2026-06-03 09:00:00'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 09:00:00'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
     Mockery::close();
 });
 
+/**
+ * @param  array<string, mixed>  $happeningAttributes
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource, owner: User, verifier: User, second: User, happening: Happening}
+ */
 function createHappeningServicesFixture(array $happeningAttributes = []): array
 {
     $suffix = uniqid('.', true);
@@ -61,11 +63,12 @@ function createHappeningServicesFixture(array $happeningAttributes = []): array
         'is_active' => true,
         'is_verification_required' => true,
     ]);
-    $owner = User::factory()->create(['name' => 'owner' . $suffix]);
-    $verifier = User::factory()->create(['name' => 'verifier' . $suffix]);
-    $second = User::factory()->create(['name' => 'second' . $suffix]);
+    $owner = User::factory()->create(['name' => 'owner'.$suffix]);
+    $verifier = User::factory()->create(['name' => 'verifier'.$suffix]);
+    $second = User::factory()->create(['name' => 'second'.$suffix]);
 
-    $happening = Happening::create(array_merge([
+    /** @var array<string, mixed> $mergedAttrs */
+    $mergedAttrs = array_merge([
         'user_id_01' => $owner->id,
         'user_id_02' => null,
         'resource_id' => $resource->id,
@@ -76,12 +79,14 @@ function createHappeningServicesFixture(array $happeningAttributes = []): array
         'reserved_at' => CarbonImmutable::now(),
         'verified_at' => null,
         'label' => Utility::getTranslatable('Study'),
-    ], $happeningAttributes));
+    ], $happeningAttributes);
 
-    return compact('institution', 'resourceGroup', 'resource', 'owner', 'verifier', 'second', 'happening');
+    $happening = Happening::create($mergedAttrs);
+
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'owner' => $owner, 'verifier' => $verifier, 'second' => $second, 'happening' => $happening];
 }
 
-test('create happening action stores normalized reservations for end users', function () {
+test('create happening action stores normalized reservations for end users', function (): void {
     $fixture = createHappeningServicesFixture();
     $validator = Mockery::mock(ValidateHappeningReservation::class);
     $broadcaster = Mockery::mock(HappeningBroadcaster::class);
@@ -109,7 +114,7 @@ test('create happening action stores normalized reservations for end users', fun
         ->and($created->getTranslation('label', 'en'))->toBe('Workshop');
 });
 
-test('create happening action auto verifies reservations for users with no verifier permission', function () {
+test('create happening action auto verifies reservations for users with no verifier permission', function (): void {
     $fixture = createHappeningServicesFixture();
     $validator = Mockery::mock(ValidateHappeningReservation::class);
     $broadcaster = Mockery::mock(HappeningBroadcaster::class);
@@ -135,7 +140,7 @@ test('create happening action auto verifies reservations for users with no verif
         ->and($created->verifier)->toBeNull();
 });
 
-test('admin create update verify and delete actions reuse shared persistence flow', function () {
+test('admin create update verify and delete actions reuse shared persistence flow', function (): void {
     $fixture = createHappeningServicesFixture();
     $validator = Mockery::mock(ValidateHappeningReservation::class);
     $broadcaster = Mockery::mock(HappeningBroadcaster::class);
@@ -169,9 +174,10 @@ test('admin create update verify and delete actions reuse shared persistence flo
 
     expect($updated->getTranslation('label', 'en'))->toBe('Admin updated');
 
+    $freshHappening = $fixture['happening']->fresh('resource') ?? $fixture['happening'];
     $verified = $verifyAction->execute(
         $fixture['verifier'],
-        $fixture['happening']->fresh('resource'),
+        $freshHappening,
         CarbonImmutable::parse('2026-06-03 10:00:00'),
         CarbonImmutable::parse('2026-06-03 11:00:00'),
     );
@@ -180,11 +186,14 @@ test('admin create update verify and delete actions reuse shared persistence flo
         ->and($verified->user_id_02)->toBe($fixture['verifier']->id)
         ->and($verified->verifier)->toBeNull();
 
-    expect($deleteAction->execute($created->fresh()))->toBeTrue();
+    $freshCreated = $created->fresh();
+    if ($freshCreated !== null) {
+        expect($deleteAction->execute($freshCreated))->toBeTrue();
+    }
     expect(Happening::withTrashed()->findOrFail($created->id)->trashed())->toBeTrue();
 });
 
-test('user happening update action validates the reservation before broadcasting the update', function () {
+test('user happening update action validates the reservation before broadcasting the update', function (): void {
     $fixture = createHappeningServicesFixture();
     $validator = Mockery::mock(ValidateHappeningReservation::class);
     $broadcaster = Mockery::mock(HappeningBroadcaster::class);
@@ -201,7 +210,7 @@ test('user happening update action validates the reservation before broadcasting
     $action = new UpdateHappeningAction($validator, $broadcaster);
     $updated = $action->executeForUser(
         $fixture['owner'],
-        $fixture['happening']->fresh('resource'),
+        $fixture['happening']->fresh('resource') ?? $fixture['happening'],
         $start,
         $end,
         Utility::getTranslatable('Updated by user'),
@@ -212,7 +221,7 @@ test('user happening update action validates the reservation before broadcasting
         ->and($updated->getTranslation('label', 'en'))->toBe('Updated by user');
 });
 
-test('delete happening action returns false when the model cannot be deleted', function () {
+test('delete happening action returns false when the model cannot be deleted', function (): void {
     $broadcaster = Mockery::mock(HappeningBroadcaster::class);
     $happening = Mockery::mock(Happening::class);
 
@@ -222,7 +231,7 @@ test('delete happening action returns false when the model cannot be deleted', f
     expect((new DeleteHappeningAction($broadcaster))->execute($happening))->toBeFalse();
 });
 
-test('calendar presenter and list action preserve happening and closing payload shapes', function () {
+test('calendar presenter and list action preserve happening and closing payload shapes', function (): void {
     $fixture = createHappeningServicesFixture();
     $fixture['happening']->update([
         'user_id_02' => $fixture['second']->id,
@@ -242,30 +251,32 @@ test('calendar presenter and list action preserve happening and closing payload 
         'description' => Utility::getTranslatable('Room maintenance'),
     ]);
 
-    $presenter = new CalendarEntryPresenter(new HappeningStatusCalculator());
+    $presenter = new CalendarEntryPresenter(new HappeningStatusCalculator);
     $happeningEntry = $presenter->presentHappening(
-        $fixture['happening']->fresh(['resource.resource_group.institution', 'user1', 'user2']),
+        $fixture['happening']->fresh(['resource.resource_group.institution', 'user1', 'user2']) ?? $fixture['happening'],
         $fixture['owner'],
     );
 
     $action = new ListCalendarEntriesAction($presenter);
     $closingEntries = $action->execute(
-        $fixture['resourceGroup']->fresh(['institution.closings', 'resources.closings']),
+        $fixture['resourceGroup']->fresh(['institution.closings', 'resources.closings']) ?? $fixture['resourceGroup'],
         CarbonImmutable::parse('2026-06-03 00:00:00'),
         CarbonImmutable::parse('2026-06-03 23:59:59'),
         $fixture['owner'],
     )->where('classNames', 'closed')->values();
 
+    $closing0 = $closingEntries[0] ?? [];
+    $closing1 = $closingEntries[1] ?? [];
     expect($happeningEntry['status']['type'])->toBe('user-booking')
         ->and($happeningEntry['resource']['institution'])->toBe($fixture['institution']->title)
         ->and($closingEntries)->toHaveCount(2)
-        ->and($closingEntries[0]['id'])->toBe($institutionClosing->id)
-        ->and($closingEntries[0]['display'])->toBe('background')
-        ->and($closingEntries[1]['id'])->toBe($resourceClosing->id)
-        ->and($closingEntries[1]['classNames'])->toBe('closed');
+        ->and($closing0['id'])->toBe($institutionClosing->id)
+        ->and($closing0['display'])->toBe('background')
+        ->and($closing1['id'])->toBe($resourceClosing->id)
+        ->and($closing1['classNames'])->toBe('closed');
 });
 
-test('admin happening list action only returns viewable upcoming happenings', function () {
+test('admin happening list action only returns viewable upcoming happenings', function (): void {
     $allowed = createHappeningServicesFixture();
     $denied = createHappeningServicesFixture([
         'start' => CarbonImmutable::parse('2026-06-04 10:00:00'),
@@ -275,11 +286,12 @@ test('admin happening list action only returns viewable upcoming happenings', fu
 
     $this->grantPermission($viewer, $allowed['institution'], 'view_happenings');
 
-    $action = new ListAdminHappeningsAction(new \App\Services\Happenings\AdminHappeningPresenter());
+    $action = new ListAdminHappeningsAction(new AdminHappeningPresenter);
     $items = $action->execute($viewer);
 
+    $firstItem = $items->first() ?? [];
     expect($items)->toHaveCount(1)
-        ->and($items->first()['id'])->toBe($allowed['happening']->id)
-        ->and($items->first()['institution_id'])->toBe($allowed['institution']->id)
-        ->and($items->first()['resource'])->toBe($allowed['resource']->getTranslations('title'));
+        ->and($firstItem['id'])->toBe($allowed['happening']->id)
+        ->and($firstItem['institution_id'])->toBe($allowed['institution']->id)
+        ->and($firstItem['resource'])->toBe($allowed['resource']->getTranslations('title'));
 });

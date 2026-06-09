@@ -11,10 +11,9 @@ use Illuminate\Support\Carbon;
 class UserAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private UserRoleSynchronizer $userRoleSynchronizer,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly UserRoleSynchronizer $userRoleSynchronizer,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -99,8 +98,8 @@ class UserAdminService
     }
 
     /**
-     * @param array<string, mixed> $userData
-     * @param array<int, array{role_id: string, institution_id: string}> $roles
+     * @param  array<string, mixed>  $userData
+     * @param  array<int, array{role_id: string, institution_id: string}>  $roles
      */
     public function store(array $userData, array $roles, User $actor): User
     {
@@ -113,8 +112,8 @@ class UserAdminService
     }
 
     /**
-     * @param array<string, mixed> $userData
-     * @param array<int, array{role_id: string, institution_id: string}> $roles
+     * @param  array<string, mixed>  $userData
+     * @param  array<int, array{role_id: string, institution_id: string}>  $roles
      */
     public function update(User $user, array $userData, array $roles, User $actor): User
     {

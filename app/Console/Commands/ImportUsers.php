@@ -41,10 +41,10 @@ class ImportUsers extends Command
     private array $relationKeys = ['valid_from', 'valid_until'];
 
     public function __construct(
-        private ImportUsersDefaultsParser $defaultsParser,
-        private ImportUsersColumnsResolver $columnsResolver,
-        private ImportUsersCsvReader $csvReader,
-        private ImportUsersAction $importUsersAction,
+        private readonly ImportUsersDefaultsParser $defaultsParser,
+        private readonly ImportUsersColumnsResolver $columnsResolver,
+        private readonly ImportUsersCsvReader $csvReader,
+        private readonly ImportUsersAction $importUsersAction,
     ) {
         parent::__construct();
     }
@@ -121,7 +121,7 @@ class ImportUsers extends Command
 
             foreach ($messages as $message) {
                 if (is_string($message)) {
-                    error('⚠ ' . $message);
+                    error('⚠ '.$message);
                 }
             }
         }

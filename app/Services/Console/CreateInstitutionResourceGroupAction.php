@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class CreateInstitutionResourceGroupAction
 {
     /**
-     * @param array<string, mixed> $input
+     * @param  array<string, mixed>  $input
      * @return array<string, mixed>
      */
     public function validateInput(array $input): array
@@ -19,18 +19,18 @@ class CreateInstitutionResourceGroupAction
             $input,
             [
                 'institution_id' => ['required', 'exists:institutions,id'],
-                'title' => [new RequiredWithTranslationRule()],
+                'title' => [new RequiredWithTranslationRule],
                 'slug' => ['required'],
-                'term_singular' => [new RequiredWithTranslationRule()],
-                'term_plural' => [new RequiredWithTranslationRule()],
-                'description' => [new RequiredWithTranslationRule()],
+                'term_singular' => [new RequiredWithTranslationRule],
+                'term_plural' => [new RequiredWithTranslationRule],
+                'description' => [new RequiredWithTranslationRule],
                 'is_active' => ['required', 'boolean'],
             ],
         )->validate());
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      */
     public function execute(array $validated): ResourceGroup
     {
@@ -47,7 +47,7 @@ class CreateInstitutionResourceGroupAction
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function stringKeyedArray(array $values): array

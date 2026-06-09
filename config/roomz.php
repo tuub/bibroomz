@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'app' => [
         'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
     ],
     'log' => [
-        'level' => env('LOG_LEVEL', 'warning')
+        'level' => env('LOG_LEVEL', 'warning'),
     ],
     'auth' => [
         'api' => [
@@ -64,6 +66,6 @@ return [
             'username' => env('TEST_USER_02', 'test2'),
             'password' => env('TEST_USER_02_PASSWORD', 'test2'),
             'email' => env('TEST_USER_02_EMAIL', 'test2@example.org'),
-        ]
-    ]
+        ],
+    ],
 ];

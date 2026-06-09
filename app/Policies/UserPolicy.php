@@ -21,7 +21,7 @@ class UserPolicy
 
     public function update(User $user, User $model): bool
     {
-        if ($model->isAdmin() && !$user->can('edit_admin_users')) {
+        if ($model->isAdmin() && ! $user->can('edit_admin_users')) {
             return false;
         }
 
@@ -35,7 +35,7 @@ class UserPolicy
 
     public function delete(User $user, User $model): bool
     {
-        if ($model->isAdmin() && !$user->can('delete_admin_users')) {
+        if ($model->isAdmin() && ! $user->can('delete_admin_users')) {
             return false;
         }
 

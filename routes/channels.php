@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -13,6 +15,4 @@ use Illuminate\Support\Facades\Broadcast;
 | used to check if an authenticated user can listen to the channel.
 |
 */
-Broadcast::channel('happenings.{id}', function (User $user, string $id) {
-    return $user->id === $id;
-});
+Broadcast::channel('happenings.{id}', fn (User $user, string $id): bool => $user->id === $id);

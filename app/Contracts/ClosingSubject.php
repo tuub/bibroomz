@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contracts;
 
+use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +17,7 @@ use Illuminate\Support\Collection;
 interface ClosingSubject
 {
     /**
-     * @return MorphMany<\App\Models\Closing, TModel>
+     * @return MorphMany<Closing, TModel>
      */
     public function closings(): MorphMany;
 

@@ -1,14 +1,5 @@
 <?php
 
-covers(
-    App\Models\User::class,
-    App\Models\UserGroup::class,
-    App\Models\Setting::class,
-    App\Models\MailContent::class,
-    App\Models\MailType::class,
-    App\Traits\HasTranslations::class
-);
-
 use App\Library\Utility;
 use App\Models\Closing;
 use App\Models\Happening;
@@ -20,27 +11,38 @@ use App\Models\Permission;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Traits\HasTranslations;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(
+    User::class,
+    UserGroup::class,
+    Setting::class,
+    MailContent::class,
+    MailType::class,
+    HasTranslations::class
+);
+
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     Carbon::setTestNow(Carbon::parse('2026-06-03 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
-test('user helpers institution helpers and supporting models cover permission and relation branches', function () {
+test('user helpers institution helpers and supporting models cover permission and relation branches', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
@@ -114,11 +116,11 @@ test('user helpers institution helpers and supporting models cover permission an
         ->and($editor->hasPermission('view_mails', $institution))->toBeTrue()
         ->and($owner->hasPermission('view_mails', $institution))->toBeFalse();
 
-    cache()->forget('user_activity_' . $owner->id);
+    cache()->forget('user_activity_'.$owner->id);
     $owner->update(['is_logged_in' => false]);
     expect($owner->isLoggedIn())->toBeFalse();
     $owner->update(['is_logged_in' => true]);
-    cache()->put('user_activity_' . $owner->id, now(), now()->addMinutes(10));
+    cache()->put('user_activity_'.$owner->id, now(), now()->addMinutes(10));
     expect($owner->isLoggedIn())->toBeTrue();
 
     expect($institution->isViewableByUser($editor))->toBeTrue()
@@ -162,7 +164,7 @@ test('user helpers institution helpers and supporting models cover permission an
         ->and($role->getPermissionKeys())->toContain('view_mails')
         ->and($role->getPermissionKeys(['view_mails', 'edit_mails']))->toBe(['view_mails']);
 
-    $pivot = new InstitutionUserRole();
+    $pivot = new InstitutionUserRole;
     $pivot->institution_id = $institution->id;
     $pivot->setRelation('institution', $institution);
     $pivot->setRelation('role', $role);

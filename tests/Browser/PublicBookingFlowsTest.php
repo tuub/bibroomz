@@ -7,11 +7,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     seedBrowserPrerequisites();
 });
 
-it('shows future bookings and keeps filtered past bookings out of the sidebar', function () {
+it('shows future bookings and keeps filtered past bookings out of the sidebar', function (): void {
     [
         'owner' => $owner,
         'password' => $password,
@@ -25,7 +25,7 @@ it('shows future bookings and keeps filtered past bookings out of the sidebar', 
         ->assertNotPresent(browserHappeningSelector($pastBooking));
 });
 
-it('lets authenticated users create bookings from the calendar when they provide a verifier', function () {
+it('lets authenticated users create bookings from the calendar when they provide a verifier', function (): void {
     ['route' => $route] = buildBrowserCalendarFixture();
 
     $owner = createBrowserSystemUser('browser.creator');
@@ -55,7 +55,7 @@ it('lets authenticated users create bookings from the calendar when they provide
         ->assertSeeIn(browserHappeningSelector($createdHappening->id), $verifier->name);
 });
 
-it('requires verifier input for verifier-required bookings', function () {
+it('requires verifier input for verifier-required bookings', function (): void {
     ['route' => $route] = buildBrowserCalendarFixture();
 
     $owner = createBrowserSystemUser('browser.verifier.required');
@@ -72,7 +72,7 @@ it('requires verifier input for verifier-required bookings', function () {
         ]));
 });
 
-it('lets users with the no verifier permission create bookings without a verifier', function () {
+it('lets users with the no verifier permission create bookings without a verifier', function (): void {
     [
         'institution' => $institution,
         'route' => $route,
@@ -103,7 +103,7 @@ it('lets users with the no verifier permission create bookings without a verifie
         ->assertPresent(browserHappeningSelector($createdHappening->id));
 });
 
-it('lets designated verifiers verify a booking from the sidebar', function () {
+it('lets designated verifiers verify a booking from the sidebar', function (): void {
     [
         'password' => $password,
         'route' => $route,
@@ -137,7 +137,7 @@ it('lets designated verifiers verify a booking from the sidebar', function () {
         ->assertNotPresent(browserHappeningActionSelector($verifiableBooking, 'verify'));
 });
 
-it('lets owners edit and delete their bookings from the sidebar', function () {
+it('lets owners edit and delete their bookings from the sidebar', function (): void {
     [
         'editableBooking' => $editableBooking,
         'owner' => $owner,
@@ -173,7 +173,7 @@ it('lets owners edit and delete their bookings from the sidebar', function () {
     $this->assertSoftDeleted('happenings', ['id' => $editableBooking->id]);
 });
 
-it('keeps the edit modal open and shows the reservation conflict error', function () {
+it('keeps the edit modal open and shows the reservation conflict error', function (): void {
     [
         'editableBooking' => $editableBooking,
         'otherUser' => $otherUser,
@@ -213,7 +213,7 @@ it('keeps the edit modal open and shows the reservation conflict error', functio
         ]));
 });
 
-it('keeps edit and delete actions available for verified second users but hides verify', function () {
+it('keeps edit and delete actions available for verified second users but hides verify', function (): void {
     [
         'owner' => $owner,
         'password' => $password,

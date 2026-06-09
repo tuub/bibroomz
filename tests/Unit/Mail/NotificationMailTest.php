@@ -1,16 +1,5 @@
 <?php
 
-covers(
-    App\Mail\ClosingMail::class,
-    App\Mail\ClosingMailData::class,
-    App\Mail\HappeningMail::class,
-    App\Mail\HappeningMailData::class,
-    App\Mail\MailEnvelopeData::class,
-    App\Services\Notifications\MailEnvelopeFactory::class,
-    App\Services\Notifications\NotificationDispatchService::class,
-    App\Services\Notifications\MailContentLookup::class
-);
-
 use App\Library\Utility;
 use App\Mail\ClosingMail;
 use App\Mail\ClosingMailData;
@@ -20,9 +9,24 @@ use App\Mail\MailEnvelopeData;
 use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\MailContent;
+use App\Services\Notifications\MailContentLookup;
+use App\Services\Notifications\MailEnvelopeFactory;
+use App\Services\Notifications\NotificationDispatchService;
+use Illuminate\Mail\Mailables\Address;
 
-test('happening mail exposes envelope content and attachments from the shared data', function () {
-    $happening = new Happening();
+covers(
+    ClosingMail::class,
+    ClosingMailData::class,
+    HappeningMail::class,
+    HappeningMailData::class,
+    MailEnvelopeData::class,
+    MailEnvelopeFactory::class,
+    NotificationDispatchService::class,
+    MailContentLookup::class
+);
+
+test('happening mail exposes envelope content and attachments from the shared data', function (): void {
+    $happening = new Happening;
     $contentModel = new MailContent([
         'subject' => Utility::getTranslatable('Reservation created'),
     ]);
@@ -36,19 +40,21 @@ test('happening mail exposes envelope content and attachments from the shared da
     $envelope = $mail->envelope();
     $content = $mail->content();
 
+    $fromAddress = $envelope->from instanceof Address ? $envelope->from->address : null;
+    $replyToAddress = isset($envelope->replyTo[0]) && $envelope->replyTo[0] instanceof Address ? $envelope->replyTo[0]->address : null;
     expect($mail->happening)->toBe($happening)
         ->and($mail->content)->toBe($contentModel)
         ->and($mail->data->envelope->fromAddress)->toBe('notify@example.test')
-        ->and($envelope->from->address)->toBe('notify@example.test')
-        ->and($envelope->replyTo[0]->address)->toBe('notify@example.test')
+        ->and($fromAddress)->toBe('notify@example.test')
+        ->and($replyToAddress)->toBe('notify@example.test')
         ->and($content->text)->toBe('emails.text.mail')
         ->and($content->markdown)->toBe('emails.markdown.mail')
         ->and($mail->attachments())->toBe([]);
 });
 
-test('closing mail exposes envelope content and affected happenings from the shared data', function () {
-    $closing = new Closing();
-    $happenings = collect([new Happening()]);
+test('closing mail exposes envelope content and affected happenings from the shared data', function (): void {
+    $closing = new Closing;
+    $happenings = collect([new Happening]);
     $contentModel = new MailContent([
         'subject' => Utility::getTranslatable('Closing created'),
     ]);
@@ -63,12 +69,14 @@ test('closing mail exposes envelope content and affected happenings from the sha
     $envelope = $mail->envelope();
     $content = $mail->content();
 
+    $closingFromAddress = $envelope->from instanceof Address ? $envelope->from->address : null;
+    $closingReplyToAddress = isset($envelope->replyTo[0]) && $envelope->replyTo[0] instanceof Address ? $envelope->replyTo[0]->address : null;
     expect($mail->closing)->toBe($closing)
         ->and($mail->happenings)->toBe($happenings)
         ->and($mail->content)->toBe($contentModel)
         ->and($mail->data->envelope->fromAddress)->toBe('closing@example.test')
-        ->and($envelope->from->address)->toBe('closing@example.test')
-        ->and($envelope->replyTo[0]->address)->toBe('closing@example.test')
+        ->and($closingFromAddress)->toBe('closing@example.test')
+        ->and($closingReplyToAddress)->toBe('closing@example.test')
         ->and($content->text)->toBe('emails.text.mail')
         ->and($content->markdown)->toBe('emails.markdown.mail')
         ->and($mail->attachments())->toBe([]);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Http;
 
 use App\Models\ResourceGroup;
@@ -17,7 +19,7 @@ class CurrentUserStatusBuilder
         $allowedResourceGroups = ResourceGroup::query()
             ->with('user_groups')
             ->get()
-            ->filter(fn (ResourceGroup $resourceGroup) => $resourceGroup->isAllowedUser($user))
+            ->filter(fn (ResourceGroup $resourceGroup): bool => $resourceGroup->isAllowedUser($user))
             ->pluck('id')
             ->values();
 

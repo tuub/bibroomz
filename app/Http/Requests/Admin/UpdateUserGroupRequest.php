@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
 use App\Models\UserGroup;
 use App\Rules\RequiredWithTranslationRule;
 
@@ -12,8 +13,8 @@ class UpdateUserGroupRequest extends AdminRouteRequest
         $user = $this->userModel();
         $userGroup = $this->userGroupOrNull();
 
-        return $user !== null
-            && $userGroup !== null
+        return $user instanceof User
+            && $userGroup instanceof UserGroup
             && $user->can('update', $userGroup);
     }
 
@@ -24,7 +25,7 @@ class UpdateUserGroupRequest extends AdminRouteRequest
     {
         return [
             'id' => ['required', 'uuid', 'exists:user_groups,id'],
-            'title' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule],
         ];
     }
 

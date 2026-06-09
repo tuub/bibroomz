@@ -1,7 +1,5 @@
 <?php
 
-covers(App\Policies\HappeningPolicy::class);
-
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
@@ -16,34 +14,39 @@ use Illuminate\Support\Str;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tests\Concerns\InteractsWithPermissions;
 
+covers(HappeningPolicy::class);
+
 uses(InteractsWithPermissions::class, MockeryPHPUnitIntegration::class, RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seedPermissions();
     config()->set('roomz.app.timezone', 'UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-03 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
 });
 
+/**
+ * @param  array<string, mixed>  $attributes
+ */
 function createPolicyHappening(array $attributes = []): Happening
 {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
-    $owner = User::factory()->create(['name' => 'owner-' . Str::uuid()]);
-    $second = User::factory()->create(['name' => 'second-' . Str::uuid()]);
+    $owner = User::factory()->create(['name' => 'owner-'.Str::uuid()]);
+    $second = User::factory()->create(['name' => 'second-'.Str::uuid()]);
 
     return Happening::create(array_merge([
         'user_id_01' => $owner->id,
         'user_id_02' => $second->id,
         'resource_id' => $resource->id,
         'is_verified' => false,
-        'verifier' => Utility::normalizeLoginName('verifier-' . Str::uuid()),
+        'verifier' => Utility::normalizeLoginName('verifier-'.Str::uuid()),
         'start' => CarbonImmutable::now()->addHour(),
         'end' => CarbonImmutable::now()->addHours(2),
         'reserved_at' => CarbonImmutable::now(),
@@ -52,19 +55,19 @@ function createPolicyHappening(array $attributes = []): Happening
     ], $attributes));
 }
 
-test('before rejects banned users and create is otherwise allowed', function () {
-    $user = \Mockery::mock(User::class);
+test('before rejects banned users and create is otherwise allowed', function (): void {
+    $user = Mockery::mock(User::class);
     $user->shouldReceive('isBanned')->once()->andReturn(true);
 
-    $policy = new HappeningPolicy();
+    $policy = new HappeningPolicy;
 
     expect($policy->before($user))->toBeFalse()
         ->and($policy->create())->toBeTrue();
 });
 
-test('update and delete reject past or already verified present happenings', function () {
+test('update and delete reject past or already verified present happenings', function (): void {
     $user = User::factory()->create(['name' => 'owner']);
-    $policy = new HappeningPolicy();
+    $policy = new HappeningPolicy;
 
     $past = createPolicyHappening([
         'user_id_01' => $user->id,
@@ -85,7 +88,7 @@ test('update and delete reject past or already verified present happenings', fun
         ->and($policy->delete($user, $verifiedPresent))->toBeFalse();
 });
 
-test('update allows owners, second users, and verifiers on active reservations', function () {
+test('update allows owners, second users, and verifiers on active reservations', function (): void {
     $owner = User::factory()->create(['name' => 'owner']);
     $second = User::factory()->create(['name' => 'second']);
     $verifier = User::factory()->create(['name' => 'verifier']);
@@ -96,7 +99,7 @@ test('update allows owners, second users, and verifiers on active reservations',
         'user_id_02' => $second->id,
         'verifier' => Utility::normalizeLoginName($verifier->name),
     ]);
-    $policy = new HappeningPolicy();
+    $policy = new HappeningPolicy;
 
     expect($policy->update($owner, $happening))->toBeTrue()
         ->and($policy->update($second, $happening))->toBeTrue()
@@ -104,10 +107,10 @@ test('update allows owners, second users, and verifiers on active reservations',
         ->and($policy->update($other, $happening))->toBeFalse();
 });
 
-test('verify only allows the designated verifier for future unverified happenings', function () {
+test('verify only allows the designated verifier for future unverified happenings', function (): void {
     $verifier = User::factory()->create(['name' => 'verifier']);
     $other = User::factory()->create(['name' => 'other']);
-    $policy = new HappeningPolicy();
+    $policy = new HappeningPolicy;
 
     $future = createPolicyHappening([
         'verifier' => Utility::normalizeLoginName($verifier->name),
@@ -129,7 +132,7 @@ test('verify only allows the designated verifier for future unverified happening
         ->and($policy->verify($verifier, $verified))->toBeFalse();
 });
 
-test('admin happening actions are scoped to institution permissions', function () {
+test('admin happening actions are scoped to institution permissions', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
@@ -145,7 +148,7 @@ test('admin happening actions are scoped to institution permissions', function (
     ]);
 
     $user = User::factory()->create();
-    $policy = new HappeningPolicy();
+    $policy = new HappeningPolicy;
 
     $this->grantPermission($user, $institution, 'view_happenings');
     $this->grantPermission($user, $institution, 'create_happenings');

@@ -1,18 +1,19 @@
 <?php
 
-covers(App\Auth\AlmaUserProvider::class);
-
+use App\Auth\AlmaUserProvider;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Ixudra\Curl\Facades\Curl;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
+covers(AlmaUserProvider::class);
+
 uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
 
 beforeEach(fn () => app()['session']->start());
 
-test('system user shadowing skips remote lookup', function () {
+test('system user shadowing skips remote lookup', function (): void {
     $user = User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),
@@ -29,7 +30,7 @@ test('system user shadowing skips remote lookup', function () {
     expect($authenticatedUser?->id)->toBe($user->id);
 });
 
-test('remote user creation marks account as directory backed', function () {
+test('remote user creation marks account as directory backed', function (): void {
     mockAlmaServiceResponse('<result><code>0</code><email_address>remote@example.org</email_address></result>');
 
     $authenticatedUser = buildAlmaProvider()->retrieveByCredentials([
@@ -38,12 +39,12 @@ test('remote user creation marks account as directory backed', function () {
     ]);
 
     expect($authenticatedUser)->not->toBeNull();
-    expect($authenticatedUser->name)->toBe('remoteuser');
-    expect($authenticatedUser->isSystemUser())->toBeFalse();
-    expect(Hash::check('Test123!', $authenticatedUser->password))->toBeFalse();
+    expect($authenticatedUser?->name)->toBe('remoteuser');
+    expect($authenticatedUser?->isSystemUser())->toBeFalse();
+    expect(Hash::check('Test123!', (string) $authenticatedUser?->password))->toBeFalse();
 });
 
-test('remote auth updates an existing directory backed user and stores the auth message', function () {
+test('remote auth updates an existing directory backed user and stores the auth message', function (): void {
     $user = User::factory()->create([
         'name' => 'RemoteUser',
         'email' => 'old@example.org',
@@ -59,11 +60,11 @@ test('remote auth updates an existing directory backed user and stores the auth 
     ]);
 
     expect($authenticatedUser?->id)->toBe($user->id)
-        ->and($authenticatedUser?->fresh()->email)->toBe('fresh@example.org')
+        ->and($authenticatedUser?->fresh()?->email)->toBe('fresh@example.org')
         ->and(session('auth_message'))->toBe('Logged in!');
 });
 
-test('remote auth enables debug logging only when configured', function () {
+test('remote auth enables debug logging only when configured', function (): void {
     config()->set('roomz.auth.api.is_debug', true);
     config()->set('roomz.auth.api.log_file', 'curl-test.log');
 
@@ -86,7 +87,7 @@ test('remote auth enables debug logging only when configured', function () {
     expect($result)->toBeNull();
 });
 
-test('remote auth returns null for malformed responses', function () {
+test('remote auth returns null for malformed responses', function (): void {
     mockAlmaServiceResponse('not-xml');
 
     $result = buildAlmaProvider()->retrieveByCredentials([
@@ -97,7 +98,7 @@ test('remote auth returns null for malformed responses', function () {
     expect($result)->toBeNull();
 });
 
-test('provider exposes no op token methods and can retrieve by id', function () {
+test('provider exposes no op token methods and can retrieve by id', function (): void {
     $user = User::factory()->create([
         'password' => Hash::make('secret-pass'),
         'is_system_user' => true,
@@ -113,7 +114,7 @@ test('provider exposes no op token methods and can retrieve by id', function () 
     expect(true)->toBeTrue();
 });
 
-test('configured local test accounts authenticate as system users', function () {
+test('configured local test accounts authenticate as system users', function (): void {
     config()->set('roomz.test-accounts.is_enabled', true);
 
     $admin = buildAlmaProvider()->retrieveByCredentials([
@@ -137,7 +138,7 @@ test('configured local test accounts authenticate as system users', function () 
         ->and($testTwo?->isAdmin())->toBeFalse();
 });
 
-test('system user with wrong password and non debug remote failure returns null', function () {
+test('system user with wrong password and non debug remote failure returns null', function (): void {
     $user = User::factory()->create([
         'name' => 'LocalUser',
         'password' => Hash::make('secret-pass'),
@@ -154,7 +155,7 @@ test('system user with wrong password and non debug remote failure returns null'
     expect($result)->toBeNull();
 });
 
-test('password rehash only runs when needed or forced', function () {
+test('password rehash only runs when needed or forced', function (): void {
     $user = User::factory()->create([
         'password' => Hash::make('secret-pass'),
         'is_system_user' => true,

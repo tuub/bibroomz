@@ -1,20 +1,23 @@
 <?php
 
-covers(
-    App\Http\Middleware\Authenticate::class,
-    App\Http\Middleware\RedirectIfAuthenticated::class
-);
-
 use App\Http\Controllers\Admin\UserGroupController;
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\Facades\Route;
 
-test('login route uses login throttle middleware', function () {
+covers(
+    Authenticate::class,
+    RedirectIfAuthenticated::class
+);
+
+test('login route uses login throttle middleware', function (): void {
+    /** @var Illuminate\Routing\Route $route */
     $route = Route::getRoutes()->getByName('login');
 
     expect($route->gatherMiddleware())->toContain('throttle:login');
 });
 
-test('admin user group routes resolve to the correct controller', function () {
+test('admin user group routes resolve to the correct controller', function (): void {
     $routeMap = [
         'admin.user_group.index' => 'getUserGroups',
         'admin.user_group.create' => 'createUserGroup',
@@ -29,7 +32,8 @@ test('admin user group routes resolve to the correct controller', function () {
     ];
 
     foreach ($routeMap as $name => $method) {
+        /** @var Illuminate\Routing\Route $route */
         $route = Route::getRoutes()->getByName($name);
-        expect($route->getActionName())->toBe(UserGroupController::class . '@' . $method);
+        expect($route->getActionName())->toBe(UserGroupController::class.'@'.$method);
     }
 });

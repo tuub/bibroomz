@@ -37,14 +37,14 @@ class UserGroupInputCollector
         $input = [];
 
         foreach (['de', 'en'] as $lang) {
-            $input[$lang] = text($label . ' (' . $lang . ')');
+            $input[$lang] = text($label.' ('.$lang.')');
         }
 
         return $input;
     }
 
     /**
-     * @param array<int|string, string> $options
+     * @param  array<int|string, string>  $options
      */
     private function resolveSelectedKey(mixed $selection, array $options): string
     {
@@ -64,7 +64,7 @@ class UserGroupInputCollector
     }
 
     /**
-     * @param array<mixed> $options
+     * @param  array<mixed>  $options
      * @return array<int|string, string>
      */
     private function stringOptions(array $options): array

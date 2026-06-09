@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\ResourceGroup;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteResourceGroupRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteResourceGroupRequest extends AdminRouteRequest
         $resourceGroup = $this->findModel(ResourceGroup::class);
         $user = $this->userModel();
 
-        return $resourceGroup !== null && $user !== null && $user->can('delete', $resourceGroup);
+        return $resourceGroup instanceof Model && $user instanceof User && $user->can('delete', $resourceGroup);
     }
 
     /**

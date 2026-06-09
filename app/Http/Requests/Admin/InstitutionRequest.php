@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Institution;
+use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use Illuminate\Validation\Rule;
 
@@ -13,11 +14,11 @@ class InstitutionRequest extends AdminRouteRequest
         $user = $this->userModel();
         $institution = $this->institutionOrNull();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return false;
         }
 
-        if ($institution === null) {
+        if (! $institution instanceof Institution) {
             return $user->can('create', Institution::class);
         }
 
@@ -33,7 +34,7 @@ class InstitutionRequest extends AdminRouteRequest
 
         return [
             'id' => ['nullable', 'uuid', 'exists:institutions,id'],
-            'title' => [new RequiredWithTranslationRule()],
+            'title' => [new RequiredWithTranslationRule],
             'short_title' => ['required'],
             'slug' => ['required', Rule::unique('institutions')->ignore($institution?->id)],
             'location' => [],
@@ -46,6 +47,7 @@ class InstitutionRequest extends AdminRouteRequest
         ];
     }
 
+    #[\Override]
     protected function prepareForValidation(): void
     {
         $this->merge([

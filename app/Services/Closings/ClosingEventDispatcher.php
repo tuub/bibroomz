@@ -6,7 +6,6 @@ use App\Events\ClosingCreatedEvent;
 use App\Events\ClosingDeletedEvent;
 use App\Events\ClosingUpdatedEvent;
 use App\Models\Closing;
-use App\Models\User;
 
 class ClosingEventDispatcher
 {

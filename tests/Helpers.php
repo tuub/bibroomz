@@ -7,6 +7,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\Hashing\Hasher;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Ixudra\Curl\Facades\Curl;
 
@@ -47,29 +48,52 @@ function mockAlmaServiceResponse(string $response): void
     Curl::shouldReceive('to')->once()->andReturn($builder);
 }
 
-function buildAdminFormRequest(string $class, array $data, User $user)
+/**
+ * @template T of \Illuminate\Foundation\Http\FormRequest
+ *
+ * @param  class-string<T>  $class
+ * @param  array<array-key, mixed>  $data
+ * @return T
+ */
+function buildAdminFormRequest(string $class, array $data, User $user): FormRequest
 {
     return buildFormRequest($class, $data, $user);
 }
 
-function buildFormRequest(string $class, array $data, ?User $user = null)
+/**
+ * @template T of \Illuminate\Foundation\Http\FormRequest
+ *
+ * @param  class-string<T>  $class
+ * @param  array<array-key, mixed>  $data
+ * @return T
+ */
+function buildFormRequest(string $class, array $data, ?User $user = null): FormRequest
 {
+    /** @var T $request */
     $request = $class::create('/', 'POST', $data);
-    $request->setUserResolver(fn () => $user);
+    $request->setUserResolver(fn (): ?\App\Models\User => $user);
     $request->setContainer(app());
 
     return $request;
 }
 
+/**
+ * @template T of \Illuminate\Foundation\Http\FormRequest
+ *
+ * @param  class-string<T>  $class
+ * @param  array<array-key, mixed>  $data
+ * @return T
+ */
 function buildRoutedFormRequest(
     string $class,
     string $method,
     string $uri,
     array $data,
     ?User $user = null,
-) {
+): FormRequest {
+    /** @var T $request */
     $request = $class::create($uri, $method, $data);
-    $request->setUserResolver(fn () => $user);
+    $request->setUserResolver(fn (): ?\App\Models\User => $user);
     $request->setContainer(app());
 
     $route = app('router')->getRoutes()->match(Request::create($uri, $method, $data));

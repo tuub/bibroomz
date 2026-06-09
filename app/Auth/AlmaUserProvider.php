@@ -36,19 +36,14 @@ use Vyuldashev\XmlToArray\XmlToArray;
  */
 class AlmaUserProvider implements UserProvider
 {
-    private Hasher $hasher;
-
-    public function __construct(Hasher $hasher)
-    {
-        $this->hasher = $hasher;
-    }
+    public function __construct(private readonly Hasher $hasher) {}
 
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param mixed $identifier
+     * @param  mixed  $identifier
      */
-    public function retrieveById($identifier): ?Authenticatable
+    public function retrieveById($identifier): ?User
     {
         if (! is_int($identifier) && ! is_string($identifier)) {
             return null;
@@ -60,9 +55,9 @@ class AlmaUserProvider implements UserProvider
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param array<string, mixed> $credentials
+     * @param  array<string, mixed>  $credentials
      */
-    public function retrieveByCredentials(array $credentials): ?Authenticatable
+    public function retrieveByCredentials(array $credentials): ?User
     {
         $resolvedCredentials = $this->extractCredentials($credentials);
 
@@ -99,11 +94,11 @@ class AlmaUserProvider implements UserProvider
     }
 
     /**
-     * @param AuthUserData $userData
+     * @param  AuthUserData  $userData
      */
     private function upsertAuthenticatedUser(array $userData, ?User $user): ?User
     {
-        if ($user !== null) {
+        if ($user instanceof User) {
             $user->update([
                 'email' => $userData['email'],
                 'last_login' => Carbon::now(),
@@ -149,7 +144,7 @@ class AlmaUserProvider implements UserProvider
     /**
      * Validate a user against the given credentials.
      *
-     * @param array<string, mixed> $credentials
+     * @param  array<string, mixed>  $credentials
      */
     public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
@@ -159,25 +154,23 @@ class AlmaUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param string $token
+     * @param  string  $token
      */
-    public function updateRememberToken(Authenticatable $user, $token): void
-    {
-    }
+    public function updateRememberToken(Authenticatable $user, $token): void {}
 
     /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
-     * @param mixed $identifier
-     * @param string $token
+     * @param  mixed  $identifier
+     * @param  string  $token
      */
-    public function retrieveByToken($identifier, $token): ?Authenticatable
+    public function retrieveByToken($identifier, $token): ?User
     {
         return null;
     }
 
     /**
-     * @param Credentials $credentials
+     * @param  Credentials  $credentials
      * @return AuthUserData|null
      */
     private function getLocalUserInfo(array $credentials): ?array
@@ -216,7 +209,7 @@ class AlmaUserProvider implements UserProvider
     }
 
     /**
-     * @param Credentials $credentials
+     * @param  Credentials  $credentials
      * @return AuthUserData|null
      */
     private function getSystemUserInfo(array $credentials): ?array
@@ -224,7 +217,7 @@ class AlmaUserProvider implements UserProvider
         $user = $this->findUserByLoginName($credentials['username']);
 
         if (
-            $user !== null
+            $user instanceof User
             && is_string($user->email)
             && $user->isSystemUser()
             && Hash::check($credentials['password'], $user->password)
@@ -242,7 +235,7 @@ class AlmaUserProvider implements UserProvider
     }
 
     /**
-     * @param Credentials $credentials
+     * @param  Credentials  $credentials
      * @return AuthUserData|null
      */
     private function getRemoteUserInfo(array $credentials): ?array
@@ -278,7 +271,7 @@ class AlmaUserProvider implements UserProvider
         $response = $curl->post();
 
         if (! is_string($response) || $response === '' || ! str_starts_with($response, '<result')) {
-            Log::info('ALMA: failed call to API for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+            Log::info('ALMA: failed call to API for user: '.$this->jsonEncodeForLog($requestCredentials['uid']));
             Log::info(is_string($response) ? $response : $this->jsonEncodeForLog($response));
 
             return null;
@@ -305,7 +298,7 @@ class AlmaUserProvider implements UserProvider
         }
 
         if ((string) $code !== '0') {
-            Log::info('ALMA: Wrong username/password for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+            Log::info('ALMA: Wrong username/password for user: '.$this->jsonEncodeForLog($requestCredentials['uid']));
 
             return null;
         }
@@ -317,7 +310,7 @@ class AlmaUserProvider implements UserProvider
             return null;
         }
 
-        Log::info('ALMA: Successful login for user: ' . $this->jsonEncodeForLog($requestCredentials['uid']));
+        Log::info('ALMA: Successful login for user: '.$this->jsonEncodeForLog($requestCredentials['uid']));
 
         return [
             'name' => $normalizedName,
@@ -329,7 +322,7 @@ class AlmaUserProvider implements UserProvider
     }
 
     /**
-     * @param array<string, mixed> $credentials
+     * @param  array<string, mixed>  $credentials
      */
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
     {
@@ -349,7 +342,7 @@ class AlmaUserProvider implements UserProvider
     }
 
     /**
-     * @param array<string, mixed> $credentials
+     * @param  array<string, mixed>  $credentials
      * @return Credentials|null
      */
     private function extractCredentials(array $credentials): ?array

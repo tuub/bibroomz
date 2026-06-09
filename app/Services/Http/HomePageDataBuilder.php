@@ -10,10 +10,9 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 class HomePageDataBuilder
 {
     public function __construct(
-        private InstitutionAccessService $institutionAccessService,
-        private ResourceGroupSettingsMapper $settingsMapper
-    ) {
-    }
+        private readonly InstitutionAccessService $institutionAccessService,
+        private readonly ResourceGroupSettingsMapper $settingsMapper
+    ) {}
 
     /**
      * @return array<string, mixed>

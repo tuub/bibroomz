@@ -4,11 +4,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     seedBrowserPrerequisites();
 });
 
-it('shows public entry content, institutions, and locale switching', function () {
+it('shows public entry content, institutions, and locale switching', function (): void {
     [
         'institution' => $institution,
         'resourceGroups' => $resourceGroups,
@@ -31,7 +31,7 @@ it('shows public entry content, institutions, and locale switching', function ()
         ->assertSee('Buchung von Arbeitsräumen');
 });
 
-it('navigates from a start page institution card into a resource group calendar', function () {
+it('navigates from a start page institution card into a resource group calendar', function (): void {
     [
         'institution' => $institution,
         'resourceGroups' => $resourceGroups,
@@ -45,10 +45,10 @@ it('navigates from a start page institution card into a resource group calendar'
         ->click(browserInstitutionResourceGroupSelector($institution, $targetGroup))
         ->wait(1)
         ->assertPathIs($route)
-        ->assertSee($institution->getTranslation('title', 'de') . ': ' . $targetGroup->getTranslation('title', 'de'));
+        ->assertSee($institution->getTranslation('title', 'de').': '.$targetGroup->getTranslation('title', 'de'));
 });
 
-it('lets users authenticate from the start page and log out again', function () {
+it('lets users authenticate from the start page and log out again', function (): void {
     buildBrowserInstitutionCatalogFixture();
 
     $user = createBrowserSystemUser('browser.entry.user');

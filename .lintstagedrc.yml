@@ -8,4 +8,5 @@
   - "stylelint"
 
 "*.php":
-  - "vendor/bin/phpcs"
+  - vendor/bin/pint --silent --test
+  - vendor/bin/rector --dry-run --no-progress-bar

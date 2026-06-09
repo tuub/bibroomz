@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_group_user', function (Blueprint $table) {
+        Schema::create('user_group_user', function (Blueprint $table): void {
             $table->uuid('user_group_id');
             $table->foreign('user_group_id')->references('id')->on('user_groups')->onDelete('cascade');
 

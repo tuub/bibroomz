@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserHappeningsRequest;
@@ -9,9 +11,7 @@ use Illuminate\Support\Collection;
 
 class UserController extends Controller
 {
-    public function __construct(private ListUserHappeningsAction $listUserHappeningsAction)
-    {
-    }
+    public function __construct(private readonly ListUserHappeningsAction $listUserHappeningsAction) {}
 
     /**
      * @return Collection<int, array<string, mixed>>

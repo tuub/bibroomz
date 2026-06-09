@@ -5,11 +5,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     seedBrowserPrerequisites();
 });
 
-it('shows the calendar title and lets users browse dates forward and backward', function () {
+it('shows the calendar title and lets users browse dates forward and backward', function (): void {
     [
         'institution' => $institution,
         'resourceGroup' => $resourceGroup,
@@ -19,7 +19,7 @@ it('shows the calendar title and lets users browse dates forward and backward', 
     $page = visit($route)
         ->wait(1)
         ->assertPathIs($route)
-        ->assertSee($institution->getTranslation('title', 'de') . ': ' . $resourceGroup->getTranslation('title', 'de'));
+        ->assertSee($institution->getTranslation('title', 'de').': '.$resourceGroup->getTranslation('title', 'de'));
 
     $initialDate = trim((string) $page->script("document.querySelector('#calendar-date-display').textContent"));
 
@@ -35,7 +35,7 @@ it('shows the calendar title and lets users browse dates forward and backward', 
         ->assertSeeIn('#calendar-date-display', $initialDate);
 });
 
-it('lets users browse resource pages when more resources exist than fit on one calendar page', function () {
+it('lets users browse resource pages when more resources exist than fit on one calendar page', function (): void {
     ['route' => $route] = buildBrowserCalendarFixture(resourceCount: 9);
 
     visit($route)
@@ -49,7 +49,7 @@ it('lets users browse resource pages when more resources exist than fit on one c
         ->assertSee('Resource 01');
 });
 
-it('asks guests to log in before they can create a booking from the calendar', function () {
+it('asks guests to log in before they can create a booking from the calendar', function (): void {
     ['route' => $route] = buildBrowserCalendarFixture();
 
     openBrowserCreateModalForNextDay(visit($route)->wait(1))

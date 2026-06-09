@@ -8,10 +8,10 @@ use Illuminate\Support\Collection;
 class RemoveUsersAction
 {
     /**
-     * @param Collection<int, User> $users
+     * @param  Collection<int, User>  $users
      */
     public function execute(Collection $users): void
     {
-        $users->each(fn (User $user): bool|null => $user->delete());
+        $users->each(fn (User $user): ?bool => $user->delete());
     }
 }

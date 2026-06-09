@@ -10,9 +10,7 @@ use Carbon\CarbonImmutable;
 
 class GetResourceTimeSlotsAction
 {
-    public function __construct(private GenerateResourceTimeSlotsAction $generateResourceTimeSlotsAction)
-    {
-    }
+    public function __construct(private readonly GenerateResourceTimeSlotsAction $generateResourceTimeSlotsAction) {}
 
     /**
      * @return array<string, mixed>

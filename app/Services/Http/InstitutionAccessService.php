@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 class InstitutionAccessService
 {
     /**
-     * @param Collection<int, Institution> $institutions
+     * @param  Collection<int, Institution>  $institutions
      * @return Collection<int, Institution>
      */
     public function filterAllowed(Collection $institutions, ?string $ip = null): Collection

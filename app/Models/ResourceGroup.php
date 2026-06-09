@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
+use Database\Factories\ResourceGroupFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,21 +18,24 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property-read Institution $institution
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Resource> $resources
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Setting> $settings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, UserGroup> $user_groups
+ * @property-read Collection<int, \App\Models\Resource> $resources
+ * @property-read Collection<int, Setting> $settings
+ * @property-read Collection<int, UserGroup> $user_groups
  */
 class ResourceGroup extends Model implements SettingSubject
 {
-    /** @use HasFactory<\Database\Factories\ResourceGroupFactory> */
+    /** @use HasFactory<ResourceGroupFactory> */
     use HasFactory;
-    use HasUuids, HasTranslations;
+
+    use HasTranslations, HasUuids;
 
     /*****************************************************************
      * OPTIONS
      ****************************************************************/
     protected $table = 'resource_groups';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -43,10 +48,6 @@ class ResourceGroup extends Model implements SettingSubject
         'is_active',
         'order',
         'help_uri',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
     ];
 
     /**
@@ -71,7 +72,7 @@ class ResourceGroup extends Model implements SettingSubject
     }
 
     /**
-     * @return HasMany<Resource, $this>
+     * @return HasMany<\App\Models\Resource, $this>
      */
     public function resources(): HasMany
     {
@@ -99,7 +100,7 @@ class ResourceGroup extends Model implements SettingSubject
      * SCOPES
      ****************************************************************/
     /**
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
@@ -163,4 +164,8 @@ class ResourceGroup extends Model implements SettingSubject
 
         return false;
     }
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

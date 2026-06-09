@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('resource_groups', function (Blueprint $table) {
+        Schema::create('resource_groups', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('institution_id')->index();
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');

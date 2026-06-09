@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Happenings;
 
 use App\Events\HappeningDeletedEvent;
@@ -7,13 +9,11 @@ use App\Models\Happening;
 
 class DeleteHappeningAction
 {
-    public function __construct(private HappeningBroadcaster $broadcaster)
-    {
-    }
+    public function __construct(private readonly HappeningBroadcaster $broadcaster) {}
 
     public function execute(Happening $happening): bool
     {
-        if (!$happening->delete()) {
+        if (! $happening->delete()) {
             return false;
         }
 

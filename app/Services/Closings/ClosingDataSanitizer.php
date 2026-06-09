@@ -8,7 +8,7 @@ use Illuminate\Support\Arr;
 class ClosingDataSanitizer
 {
     /**
-     * @param array<string, mixed> $closingData
+     * @param  array<string, mixed>  $closingData
      * @return array<string, mixed>
      */
     public function sanitize(array $closingData): array
@@ -40,7 +40,7 @@ class ClosingDataSanitizer
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      * @return array<string, mixed>
      */
     private function normalizeStringKeys(array $values): array

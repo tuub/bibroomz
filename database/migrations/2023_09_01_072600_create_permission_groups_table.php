@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permission_groups', function (Blueprint $table) {
+        Schema::create('permission_groups', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('key')->unique();
             $table->string('name');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('permissions', function (Blueprint $table) {
+        Schema::table('permissions', function (Blueprint $table): void {
             $table->foreignUUid('group_id')->nullable()->references('id')->on('permission_groups');
         });
     }
@@ -31,7 +31,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('permission_groups');
 
-        Schema::table('permissions', function (Blueprint $table) {
+        Schema::table('permissions', function (Blueprint $table): void {
             $table->dropForeign(['group_id']);
         });
     }

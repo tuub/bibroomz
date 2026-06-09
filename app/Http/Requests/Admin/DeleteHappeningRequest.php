@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Happening;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class DeleteHappeningRequest extends AdminRouteRequest
 {
@@ -11,7 +13,7 @@ class DeleteHappeningRequest extends AdminRouteRequest
         $happening = $this->findModel(Happening::class);
         $user = $this->userModel();
 
-        return $happening !== null && $user !== null && $user->can('adminDelete', $happening);
+        return $happening instanceof Model && $user instanceof User && $user->can('adminDelete', $happening);
     }
 
     /**

@@ -1,14 +1,5 @@
 <?php
 
-covers(
-    App\Services\Resources\ResourceAvailabilityService::class,
-    App\Services\Resources\ResourceQuotaService::class,
-    App\Services\Resources\ResourceBusinessHoursResolver::class,
-    App\Services\Resources\ResourceSettingsResolver::class,
-    App\Services\Resources\GenerateResourceTimeSlotsAction::class,
-    App\Services\Resources\ResourceVisibilityService::class
-);
-
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
@@ -26,21 +17,33 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+covers(
+    ResourceAvailabilityService::class,
+    ResourceQuotaService::class,
+    ResourceBusinessHoursResolver::class,
+    ResourceSettingsResolver::class,
+    GenerateResourceTimeSlotsAction::class,
+    ResourceVisibilityService::class
+);
+
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     config()->set('roomz.app.timezone', 'UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
     Mockery::close();
 });
 
+/**
+ * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}
+ */
 function createResourceFixture(): array
 {
     $institution = Institution::factory()->create();
@@ -50,10 +53,10 @@ function createResourceFixture(): array
         'is_active' => true,
     ]);
 
-    return compact('institution', 'resourceGroup', 'resource');
+    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource];
 }
 
-test('resource settings and business hour resolvers return the active values', function () {
+test('resource settings and business hour resolvers return the active values', function (): void {
     ['resource' => $resource] = createResourceFixture();
 
     $resource->resource_group->settings()->firstWhere('key', 'time_slot_length')?->update(['value' => '00:45']);
@@ -80,7 +83,7 @@ test('resource settings and business hour resolvers return the active values', f
         ->and($businessHours->first()?->start)->toBe('12:00:00');
 });
 
-test('resource availability service trims open and closed windows and detects conflicts', function () {
+test('resource availability service trims open and closed windows and detects conflicts', function (): void {
     ['institution' => $institution, 'resource' => $resource] = createResourceFixture();
 
     $resource->closings()->create([
@@ -139,7 +142,7 @@ test('resource availability service trims open and closed windows and detects co
         ))->toBeTrue();
 });
 
-test('resource quota service enforces quota and concurrent user checks', function () {
+test('resource quota service enforces quota and concurrent user checks', function (): void {
     ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
 
     $user = User::factory()->create();
@@ -186,7 +189,7 @@ test('resource quota service enforces quota and concurrent user checks', functio
         ))->toBeTrue();
 });
 
-test('time slot generation keeps the public shape and disables reserved and closed windows', function () {
+test('time slot generation keeps the public shape and disables reserved and closed windows', function (): void {
     ['resource' => $resource] = createResourceFixture();
 
     Happening::create([
@@ -226,17 +229,23 @@ test('time slot generation keeps the public shape and disables reserved and clos
     $startSlots = collect($slots['start'])->keyBy('label');
     $endSlots = collect($slots['end'])->keyBy('label');
 
+    $start0900 = $startSlots->get('09:00') ?? [];
+    $start1000 = $startSlots->get('10:00') ?? [];
+    $end0930 = $endSlots->get('09:30') ?? [];
+    $end1030 = $endSlots->get('10:30') ?? [];
+    $end1130 = $endSlots->get('11:30') ?? [];
+    $end1230 = $endSlots->get('12:30') ?? [];
     expect($slots['start'][0])->toHaveKeys(['time', 'label', 'is_disabled', 'is_selected'])
         ->and($slots['end'][0])->toHaveKeys(['time', 'label', 'is_disabled', 'is_selected'])
-        ->and($startSlots->get('09:00')['is_selected'])->toBeTrue()
-        ->and($startSlots->get('10:00')['is_disabled'])->toBeTrue()
-        ->and($endSlots->get('09:30')['is_selected'])->toBeTrue()
-        ->and($endSlots->get('10:30')['is_disabled'])->toBeTrue()
-        ->and($endSlots->get('11:30')['is_disabled'])->toBeTrue()
-        ->and($endSlots->get('12:30')['is_disabled'])->toBeTrue();
+        ->and($start0900['is_selected'])->toBeTrue()
+        ->and($start1000['is_disabled'])->toBeTrue()
+        ->and($end0930['is_selected'])->toBeTrue()
+        ->and($end1030['is_disabled'])->toBeTrue()
+        ->and($end1130['is_disabled'])->toBeTrue()
+        ->and($end1230['is_disabled'])->toBeTrue();
 });
 
-test('resource visibility service delegates the resource abilities', function () {
+test('resource visibility service delegates the resource abilities', function (): void {
     ['resource' => $resource] = createResourceFixture();
 
     $user = Mockery::mock(User::class);
@@ -259,7 +268,7 @@ test('resource visibility service delegates the resource abilities', function ()
 // the user to exceed their quota.
 test(
     'quota service counts an existing happening in the correct week when a closing shifts its adjusted start',
-    function () {
+    function (): void {
         ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
 
         $user = User::factory()->create();
@@ -309,7 +318,7 @@ test(
 // ResourceAvailabilityService::findClosed line 39: $end->diffInMinutes($closingEnd) returns a
 // negative value when $end > $closingEnd (Carbon signed default), making the comparison always
 // false and always keeping the before-closing segment regardless of which side is larger.
-test('availability service keeps the larger segment when a happening spans an entire closing', function () {
+test('availability service keeps the larger segment when a happening spans an entire closing', function (): void {
     ['resource' => $resource] = createResourceFixture();
 
     // Closing covers 09:30-10:00; happening 08:00-12:00 spans the entire closing.
@@ -339,7 +348,7 @@ test('availability service keeps the larger segment when a happening spans an en
 
 // ── Boundary conditions for findClosed ──────────────────────────────────────
 
-test('findClosed reports fully-closed when booking start equals closing start', function () {
+test('findClosed reports fully-closed when booking start equals closing start', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:00:00',
@@ -358,7 +367,7 @@ test('findClosed reports fully-closed when booking start equals closing start', 
     expect($isClosed)->toBeTrue();
 });
 
-test('findClosed reports fully-closed when booking end equals closing end', function () {
+test('findClosed reports fully-closed when booking end equals closing end', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:00:00',
@@ -377,7 +386,7 @@ test('findClosed reports fully-closed when booking end equals closing end', func
     expect($isClosed)->toBeTrue();
 });
 
-test('findClosed does not trim when booking end equals closing start', function () {
+test('findClosed does not trim when booking end equals closing start', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 11:00:00',
@@ -397,7 +406,7 @@ test('findClosed does not trim when booking end equals closing start', function 
         ->and($end->format('H:i'))->toBe('11:00'); // end unchanged
 });
 
-test('findClosed trims end to closing start when end is inside the closing', function () {
+test('findClosed trims end to closing start when end is inside the closing', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:30:00',
@@ -417,7 +426,7 @@ test('findClosed trims end to closing start when end is inside the closing', fun
         ->and($trimmedEnd->format('H:i'))->toBe('10:30');
 });
 
-test('findClosed breaks on first full enclosure and does not process further closings', function () {
+test('findClosed breaks on first full enclosure and does not process further closings', function (): void {
     ['resource' => $resource] = createResourceFixture();
     // Two closings; first one fully covers the booking
     $resource->closings()->create([
@@ -444,7 +453,7 @@ test('findClosed breaks on first full enclosure and does not process further clo
 
 // ── Boundary conditions for isTimeSlotInClosing ──────────────────────────────
 
-test('isTimeSlotInClosing returns false when slot equals closing start (exclusive lower bound)', function () {
+test('isTimeSlotInClosing returns false when slot equals closing start (exclusive lower bound)', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:00:00',
@@ -467,7 +476,7 @@ test('isTimeSlotInClosing returns false when slot equals closing start (exclusiv
     ))->toBeFalse();
 });
 
-test('isTimeSlotInClosing returns false when slot equals closing end', function () {
+test('isTimeSlotInClosing returns false when slot equals closing end', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:00:00',
@@ -490,7 +499,7 @@ test('isTimeSlotInClosing returns false when slot equals closing end', function 
     ))->toBeTrue();
 });
 
-test('isTimeSlotInClosing isEnd path: slot at closing end is outside, one minute before is inside', function () {
+test('isTimeSlotInClosing isEnd path: slot at closing end is outside, one minute before is inside', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $resource->closings()->create([
         'start' => '2026-06-10 10:00:00',
@@ -515,7 +524,7 @@ test('isTimeSlotInClosing isEnd path: slot at closing end is outside, one minute
 
 // ── Boundary conditions for hasReservationConflict ───────────────────────────
 
-test('hasReservationConflict is false when new booking ends exactly at existing start', function () {
+test('hasReservationConflict is false when new booking ends exactly at existing start', function (): void {
     ['resource' => $resource] = createResourceFixture();
 
     Happening::create([
@@ -557,7 +566,7 @@ test('hasReservationConflict is false when new booking ends exactly at existing 
 
 // ── Quota service exact-boundary conditions ────────────────────────────────
 
-test('quota service allows booking exactly at the block-hour quota limit', function () {
+test('quota service allows booking exactly at the block-hour quota limit', function (): void {
     ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
     $resourceGroup->settings()->firstWhere('key', 'quota_happening_block_hours')?->update(['value' => '2']);
 
@@ -587,7 +596,7 @@ test('quota service allows booking exactly at the block-hour quota limit', funct
     ))->toBeTrue();
 });
 
-test('quota service ignores block-hour limit when quota is zero (unlimited)', function () {
+test('quota service ignores block-hour limit when quota is zero (unlimited)', function (): void {
     ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
     // Disable all quotas except block-hours to isolate the test
     $resourceGroup->settings()->firstWhere('key', 'quota_happening_block_hours')?->update(['value' => '0']);
@@ -613,7 +622,7 @@ test('quota service ignores block-hour limit when quota is zero (unlimited)', fu
     ))->toBeFalse();
 });
 
-test('quota service allows booking exactly at the daily-hours limit', function () {
+test('quota service allows booking exactly at the daily-hours limit', function (): void {
     ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
     $resourceGroup->settings()->firstWhere('key', 'quota_daily_hours')?->update(['value' => '3']);
 
@@ -643,7 +652,7 @@ test('quota service allows booking exactly at the daily-hours limit', function (
     ))->toBeTrue();
 });
 
-test('quota service counts same-week existing happenings toward weekly quota', function () {
+test('quota service counts same-week existing happenings toward weekly quota', function (): void {
     ['resourceGroup' => $resourceGroup, 'resource' => $resource] = createResourceFixture();
     $resourceGroup->settings()->firstWhere('key', 'quota_weekly_hours')?->update(['value' => '2']);
 
@@ -685,7 +694,7 @@ test('quota service counts same-week existing happenings toward weekly quota', f
     ))->toBeTrue();
 });
 
-test('isConcurrentUserTimeSlot boundary: slot at end-time of existing', function () {
+test('isConcurrentUserTimeSlot boundary: slot at end-time of existing', function (): void {
     ['resource' => $resource] = createResourceFixture();
     $user = User::factory()->create();
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\MailContent;
 use App\Models\MailType;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -12,7 +13,7 @@ class MissingMailTypesQuery
      */
     public function execute(string $institutionId): Collection
     {
-        $usedMailTypeIds = \App\Models\MailContent::query()
+        $usedMailTypeIds = MailContent::query()
             ->where('institution_id', $institutionId)
             ->pluck('mail_type_id');
 

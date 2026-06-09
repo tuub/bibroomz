@@ -13,7 +13,9 @@ return new class extends Migration
      */
     public function getConnection(): ?string
     {
-        return Config::get('pulse.storage.database.connection');
+        $connection = Config::get('pulse.storage.database.connection');
+
+        return is_string($connection) ? $connection : null;
     }
 
     /**
@@ -27,7 +29,7 @@ return new class extends Migration
 
         $connection = DB::connection($this->getConnection());
 
-        Schema::create('pulse_values', function (Blueprint $table) use ($connection) {
+        Schema::create('pulse_values', function (Blueprint $table) use ($connection): void {
             $table->id();
             $table->unsignedInteger('timestamp');
             $table->string('type');
@@ -44,7 +46,7 @@ return new class extends Migration
             $table->unique(['type', 'key_hash']); // For data integrity and upserts...
         });
 
-        Schema::create('pulse_entries', function (Blueprint $table) use ($connection) {
+        Schema::create('pulse_entries', function (Blueprint $table) use ($connection): void {
             $table->id();
             $table->unsignedInteger('timestamp');
             $table->string('type');
@@ -62,7 +64,7 @@ return new class extends Migration
             $table->index(['timestamp', 'type', 'key_hash', 'value']); // For aggregate queries...
         });
 
-        Schema::create('pulse_aggregates', function (Blueprint $table) use ($connection) {
+        Schema::create('pulse_aggregates', function (Blueprint $table) use ($connection): void {
             $table->id();
             $table->unsignedInteger('bucket');
             $table->unsignedMediumInteger('period');

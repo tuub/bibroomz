@@ -1,0 +1,82 @@
+<?php
+
+// PHPStan stub for Pest\PendingCalls\TestCall chained Laravel methods.
+// TestCall forwards these via __call() to the test instance at runtime.
+
+namespace Pest\PendingCalls;
+
+class TestCall
+{
+    /** @param array<class-string>|class-string $class */
+    public function seed(array|string $class = 'Database\\Seeders\\DatabaseSeeder'): static {}
+
+    public function actingAs(mixed $user, ?string $driver = null): static {}
+
+    /** @param array<string, mixed> $headers */
+    public function get(string $uri, array $headers = []): mixed {}
+
+    /** @param array<string, mixed> $headers */
+    public function getJson(string $uri, array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function post(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function postJson(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function put(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function putJson(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function patch(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function patchJson(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function delete(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $headers
+     */
+    public function deleteJson(string $uri, array $data = [], array $headers = []): mixed {}
+
+    /** @param array<string, mixed> $data */
+    public function assertDatabaseHas(string $table, array $data = [], ?string $connection = null): static {}
+
+    /** @param array<string, mixed> $data */
+    public function assertDatabaseMissing(string $table, array $data = [], ?string $connection = null): static {}
+
+    public function assertDatabaseCount(string $table, int $count, ?string $connection = null): static {}
+
+    public function withoutExceptionHandling(): static {}
+
+    public function grantPermission(mixed ...$args): static {}
+
+    public function freezeTime(): static {}
+}

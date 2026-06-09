@@ -1,11 +1,13 @@
 <?php
 
-covers(App\Providers\RouteServiceProvider::class);
-
+use App\Providers\RouteServiceProvider;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 
-test('login rate limiter uses normalized username and ip', function () {
+covers(RouteServiceProvider::class);
+
+test('login rate limiter uses normalized username and ip', function (): void {
+    /** @var Closure $limiter */
     $limiter = app(RateLimiter::class)->limiter('login');
 
     $request = Request::create('/login', 'POST', ['username' => 'MiXeD.User']);

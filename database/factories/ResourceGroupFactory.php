@@ -7,10 +7,9 @@ use App\Models\ResourceGroup;
 use App\Models\Setting;
 use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\App;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ResourceGroup>
+ * @extends Factory<ResourceGroup>
  */
 class ResourceGroupFactory extends Factory
 {
@@ -28,13 +27,16 @@ class ResourceGroupFactory extends Factory
             'title' => $this->getTranslatable($title),
             'slug' => strtolower($title),
             'term_singular' => $this->getTranslatable($title),
-            'term_plural' => $this->getTranslatable($title . 's'),
+            'term_plural' => $this->getTranslatable($title.'s'),
             'description' => $this->getTranslatable($faker->realText(125)),
             'is_active' => 1,
         ];
     }
 
-    private function getTranslatable($value): array
+    /**
+     * @return array<string, string>
+     */
+    private function getTranslatable(string $value): array
     {
         return Utility::getTranslatable($value);
     }
@@ -42,9 +44,10 @@ class ResourceGroupFactory extends Factory
     /**
      * Configure the model factory.
      */
+    #[\Override]
     public function configure(): static
     {
-        return $this->afterCreating(function (ResourceGroup $resource_group) {
+        return $this->afterCreating(function (ResourceGroup $resource_group): void {
             $settings = Setting::getInitialValues();
 
             foreach ($settings['resource_group'] as $key => $value) {

@@ -1,7 +1,5 @@
 <?php
 
-covers(App\Models\BusinessHour::class);
-
 use App\Models\BusinessHour;
 use App\Models\Institution;
 use App\Models\Resource;
@@ -11,14 +9,21 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
+covers(BusinessHour::class);
+
 uses(RefreshDatabase::class);
 
+/**
+ * @param  array<string, mixed>  $attributes
+ * @param  array<int, int>  $dayNumbers
+ */
 function createBusinessHour(array $attributes = [], array $dayNumbers = [1]): BusinessHour
 {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
     $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
 
+    /** @var BusinessHour $businessHour */
     $businessHour = BusinessHour::create(array_merge([
         'resource_id' => $resource->id,
         'start' => '09:00:00',
@@ -30,16 +35,18 @@ function createBusinessHour(array $attributes = [], array $dayNumbers = [1]): Bu
     foreach ($dayNumbers as $index => $dayNumber) {
         DB::table('week_days')->insert([
             'day_of_week' => $dayNumber,
-            'key' => 'day-' . $dayNumber . '-' . $index . '-' . uniqid(),
+            'key' => 'day-'.$dayNumber.'-'.$index.'-'.uniqid(),
         ]);
+        /** @var WeekDay $weekDay */
         $weekDay = WeekDay::query()->latest('id')->first();
         $businessHour->week_days()->attach($weekDay);
     }
 
+    /** @var BusinessHour */
     return $businessHour->fresh('week_days');
 }
 
-test('business hour detects weekday membership and fallback ranges', function () {
+test('business hour detects weekday membership and fallback ranges', function (): void {
     $fallback = createBusinessHour();
     $dated = createBusinessHour([
         'start_date' => '2026-06-01 00:00:00',
@@ -54,7 +61,7 @@ test('business hour detects weekday membership and fallback ranges', function ()
         ->and($dated->isValidForDate(CarbonImmutable::parse('2026-07-01 12:00:00')))->toBeFalse();
 });
 
-test('business hour validates open ended date ranges', function () {
+test('business hour validates open ended date ranges', function (): void {
     $startOnly = createBusinessHour([
         'start_date' => '2026-06-01 00:00:00',
         'end_date' => null,
@@ -70,7 +77,7 @@ test('business hour validates open ended date ranges', function () {
         ->and($endOnly->isValidForDate(CarbonImmutable::parse('2026-07-10 12:00:00')))->toBeFalse();
 });
 
-test('business hour returns full or trimmed open windows', function () {
+test('business hour returns full or trimmed open windows', function (): void {
     $businessHour = createBusinessHour(dayNumbers: [1]);
 
     [$isOpen, $start, $end] = $businessHour->isOpen(
@@ -98,7 +105,7 @@ test('business hour returns full or trimmed open windows', function () {
         ->and($end->format('H:i'))->toBe('10:00');
 });
 
-test('business hour handles overnight end times and closed requests', function () {
+test('business hour handles overnight end times and closed requests', function (): void {
     $overnight = createBusinessHour([
         'start' => '18:00:00',
         'end' => '00:00:00',
@@ -121,7 +128,7 @@ test('business hour handles overnight end times and closed requests', function (
     expect($isOpen)->toBeFalse();
 });
 
-test('business hour isOpen exact boundary: booking start equals business hour start', function () {
+test('business hour isOpen exact boundary: booking start equals business hour start', function (): void {
     $businessHour = createBusinessHour(dayNumbers: [1]); // 09:00-17:00
 
     // Start exactly at business hour start → open
@@ -133,7 +140,7 @@ test('business hour isOpen exact boundary: booking start equals business hour st
         ->and($start->format('H:i'))->toBe('09:00');
 });
 
-test('business hour isOpen exact boundary: booking end equals business hour end', function () {
+test('business hour isOpen exact boundary: booking end equals business hour end', function (): void {
     $businessHour = createBusinessHour(dayNumbers: [1]); // 09:00-17:00
 
     // End exactly at business hour end → open (inclusive <=)
@@ -145,7 +152,7 @@ test('business hour isOpen exact boundary: booking end equals business hour end'
         ->and($end->format('H:i'))->toBe('17:00');
 });
 
-test('business hour isOpen does not trim end when booking end equals business hour end', function () {
+test('business hour isOpen does not trim end when booking end equals business hour end', function (): void {
     $businessHour = createBusinessHour(dayNumbers: [1]); // 09:00-17:00
 
     // End exactly at business hour end — must not trigger the "trim" path
@@ -158,7 +165,7 @@ test('business hour isOpen does not trim end when booking end equals business ho
         ->and($end->format('H:i'))->toBe('17:00');
 });
 
-test('business hour isOpen: booking end equals business hour start — not open', function () {
+test('business hour isOpen: booking end equals business hour start — not open', function (): void {
     $businessHour = createBusinessHour(dayNumbers: [1]); // 09:00-17:00
 
     // Booking ends exactly at business hour start — should NOT be open
@@ -169,7 +176,7 @@ test('business hour isOpen: booking end equals business hour start — not open'
     expect($isOpen)->toBeFalse();
 });
 
-test('isValidForDate boundary: date equals start_date is valid', function () {
+test('isValidForDate boundary: date equals start_date is valid', function (): void {
     $businessHour = createBusinessHour([
         'start_date' => '2026-06-10 00:00:00',
         'end_date' => null,
@@ -179,7 +186,7 @@ test('isValidForDate boundary: date equals start_date is valid', function () {
         ->and($businessHour->isValidForDate(CarbonImmutable::parse('2026-06-09')))->toBeFalse();
 });
 
-test('isValidForDate boundary: date equals end_date is valid', function () {
+test('isValidForDate boundary: date equals end_date is valid', function (): void {
     $businessHour = createBusinessHour([
         'start_date' => null,
         'end_date' => '2026-06-10 23:59:59',

@@ -10,10 +10,9 @@ use App\Services\AdminLoggingService;
 class MailAdminService
 {
     public function __construct(
-        private AdminLoggingService $adminLoggingService,
-        private MissingMailTypesQuery $missingMailTypesQuery,
-    ) {
-    }
+        private readonly AdminLoggingService $adminLoggingService,
+        private readonly MissingMailTypesQuery $missingMailTypesQuery,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -64,7 +63,7 @@ class MailAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function store(array $attributes): MailContent
     {
@@ -76,7 +75,7 @@ class MailAdminService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function update(MailContent $mail, array $attributes): MailContent
     {

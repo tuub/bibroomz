@@ -10,9 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class RemoveUnverifiedHappeningsQueryBuilder
 {
-    public function __construct(private CleanupIntervalResolver $cleanupIntervalResolver)
-    {
-    }
+    public function __construct(private readonly CleanupIntervalResolver $cleanupIntervalResolver) {}
 
     public function resolveInstitution(mixed $institutionOption): ?Institution
     {
@@ -35,7 +33,7 @@ class RemoveUnverifiedHappeningsQueryBuilder
     }
 
     /**
-     * @param Builder<Happening> $query
+     * @param  Builder<Happening>  $query
      * @return Builder<Happening>
      */
     public function restrictToInstitution(Builder $query, Institution $institution): Builder
@@ -50,9 +48,9 @@ class RemoveUnverifiedHappeningsQueryBuilder
     }
 
     /**
-     * @param Builder<Happening> $query
-     * @param Collection<int, Institution> $institutions
-     * @param callable(Institution, Carbon): void|null $onInstitution
+     * @param  Builder<Happening>  $query
+     * @param  Collection<int, Institution>  $institutions
+     * @param  callable(Institution, Carbon): void|null  $onInstitution
      * @return Builder<Happening>
      */
     public function applySettingsPerInstitution(
@@ -62,7 +60,7 @@ class RemoveUnverifiedHappeningsQueryBuilder
     ): Builder {
         $firstInstitution = $institutions->shift();
 
-        if (!$firstInstitution instanceof Institution) {
+        if (! $firstInstitution instanceof Institution) {
             return $query->whereRaw('1 = 0');
         }
 

@@ -27,20 +27,12 @@ class AuthServiceProvider extends ServiceProvider
 
     /**
      * Register any authentication / authorization services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Gate::define('view-admin-panel', fn (User $user): bool => $user->getPermissions()->isNotEmpty());
 
-        Gate::after(function (User $user): bool {
-            if ($user->isAdmin()) {
-                return true;
-            }
-
-            return false;
-        });
+        Gate::after(fn (User $user): bool => $user->isAdmin());
 
         Gate::before(function (User $user, string $ability, array $args): ?bool {
             $institution = collect($args)->first();
@@ -68,8 +60,6 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
 
-        Auth::provider('alma', function (Application $app): AlmaUserProvider {
-            return new AlmaUserProvider($app->make(Hasher::class));
-        });
+        Auth::provider('alma', fn (Application $app): AlmaUserProvider => new AlmaUserProvider($app->make(Hasher::class)));
     }
 }
