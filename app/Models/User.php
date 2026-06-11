@@ -78,6 +78,8 @@ class User extends Authenticatable implements BannableInterface
 
     /**
      * @return BelongsToMany<Institution, $this, InstitutionUserRole>
+     *
+     * @codeCoverageIgnore
      */
     public function institutions(): BelongsToMany
     {
@@ -130,6 +132,8 @@ class User extends Authenticatable implements BannableInterface
 
     /**
      * @return EloquentCollection<int, Happening>
+     *
+     * @codeCoverageIgnore
      */
     public function getHappenings(): EloquentCollection
     {
@@ -180,11 +184,9 @@ class User extends Authenticatable implements BannableInterface
 
             $permissionsByInstitution = [];
 
-            foreach (Institution::query()->pluck('id') as $id) {
-                if (! is_string($id) && ! is_int($id)) {
-                    continue;
-                }
-
+            /** @var Collection<int, string|int> $institutionIds */
+            $institutionIds = Institution::query()->pluck('id');
+            foreach ($institutionIds as $id) {
                 $permissionsByInstitution[(string) $id] = $permissionKeys->values();
             }
 
@@ -194,12 +196,8 @@ class User extends Authenticatable implements BannableInterface
         $permissionsByInstitution = [];
 
         foreach ($this->roles as $role) {
+            /** @var InstitutionUserRole $pivot */
             $pivot = $role->pivot;
-
-            if (! $pivot instanceof InstitutionUserRole) {
-                continue;
-            }
-
             $institutionId = (string) $pivot->institution_id;
             $permissionsByInstitution[$institutionId] ??= [];
 

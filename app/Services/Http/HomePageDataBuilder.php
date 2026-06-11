@@ -43,27 +43,10 @@ class HomePageDataBuilder
         );
 
         if ($resourceGroups->count() === 1) {
+            /** @var ResourceGroup $resourceGroup */
             $resourceGroup = $resourceGroups->first();
-
-            if (! $resourceGroup instanceof ResourceGroup) {
-                return [
-                    'props' => [
-                        'appName' => config('app.name'),
-                        'institutions' => $institutions,
-                    ],
-                ];
-            }
-
+            /** @var Institution $institution */
             $institution = $institutions->firstWhere('id', $resourceGroup->institution_id);
-
-            if (! $institution instanceof Institution) {
-                return [
-                    'props' => [
-                        'appName' => config('app.name'),
-                        'institutions' => $institutions,
-                    ],
-                ];
-            }
 
             return [
                 'redirect' => [

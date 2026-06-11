@@ -38,7 +38,9 @@ class CreateInstitutionAction
     public function execute(array $validated): Institution
     {
         $institution = Institution::create(collect($validated)->except('week_days')->all());
-        $institution->week_days()->sync($this->normalizeWeekDays($validated['week_days'] ?? []));
+        /** @var array<mixed> $weekDays */
+        $weekDays = $validated['week_days'] ?? [];
+        $institution->week_days()->sync($this->normalizeWeekDays($weekDays));
 
         foreach (Setting::getInitialValues()['institution'] as $key => $value) {
             $institution->settings()->create([
@@ -53,12 +55,12 @@ class CreateInstitutionAction
     /**
      * @return array<int, int|string>
      */
-    private function normalizeWeekDays(mixed $weekDays): array
+    /**
+     * @param  array<mixed>  $weekDays
+     * @return array<int, int|string>
+     */
+    private function normalizeWeekDays(array $weekDays): array
     {
-        if (! is_array($weekDays)) {
-            return [];
-        }
-
         $map = [
             'Monday' => 1,
             'Tuesday' => 2,

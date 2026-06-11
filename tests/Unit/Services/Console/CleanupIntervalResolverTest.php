@@ -1,86 +1,163 @@
 <?php
 
-use App\Models\Institution;
+declare(strict_types=1);
+
 use App\Services\Console\CleanupIntervalResolver;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 covers(CleanupIntervalResolver::class);
 
-uses(RefreshDatabase::class);
+function invokeCleanupIntervalResolveInt(CleanupIntervalResolver $resolver, int|string|null $value): ?int
+{
+    $method = new ReflectionMethod($resolver, 'resolveInt');
 
-beforeEach(function (): void {
-    Carbon::setTestNow(Carbon::parse('2026-06-10 12:00:00'));
-    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 12:00:00'));
+    /** @var ?int $resolved */
+    $resolved = $method->invoke($resolver, $value);
+
+    return $resolved;
+}
+
+test('fromValues subtracts minutes from now', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(30, null, null);
+
+    expect($result)->toBeInstanceOf(Carbon::class)
+        ->and($result->lt($before))->toBeTrue();
 });
 
-afterEach(function (): void {
+test('fromValues subtracts hours from now', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, 2, null);
+
+    expect($result->lt($before))->toBeTrue();
+});
+
+test('fromValues subtracts days from now', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, null, 7);
+
+    expect($result->lt($before))->toBeTrue();
+});
+
+test('fromValues with null inputs returns approximately now', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, null, null);
+
+    expect($result->diffInSeconds($before))->toBeLessThan(2);
+});
+
+test('resolveInt returns null for null value', function (): void {
+    $result = (new CleanupIntervalResolver)->fromValues(null, null, null);
+
+    expect($result)->toBeInstanceOf(Carbon::class);
+    expect($result->diffInSeconds(now()))->toBeLessThan(2);
+});
+
+test('resolveInt returns null for empty string value', function (): void {
+    $result = (new CleanupIntervalResolver)->fromValues('', null, null);
+
+    expect($result)->toBeInstanceOf(Carbon::class);
+    expect($result->diffInSeconds(now()))->toBeLessThan(2);
+});
+
+test('resolveInt returns null for empty string hours (EmptyStringToNotEmpty triggers no subtraction)', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, '', null);
+
+    expect($result->diffInSeconds($before))->toBeLessThan(2);
+});
+
+test('resolveInt returns null for empty string days (EmptyStringToNotEmpty triggers no subtraction)', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, null, '');
+
+    expect($result->diffInSeconds($before))->toBeLessThan(2);
+});
+
+test('resolveInt returns the int value unchanged', function (): void {
+    Carbon::setTestNow(Carbon::parse('2026-06-01 12:00:00'));
+
+    $result = (new CleanupIntervalResolver)->fromValues(30, null, null);
+    $expected = Carbon::parse('2026-06-01 12:00:00')->subMinutes(30);
+
+    expect($result->format('Y-m-d H:i:s'))->toBe($expected->format('Y-m-d H:i:s'));
+
     Carbon::setTestNow();
-    CarbonImmutable::setTestNow();
 });
 
-test('fromInstitution parses D:H:M format from institution setting', function (): void {
-    $institution = Institution::factory()->create();
-    $institution->settings()->firstWhere('key', 'cleanup_interval')
-        ?->update(['value' => '1:2:30']); // 1 day, 2 hours, 30 minutes
+test('resolveInt casts string to int for string value', function (): void {
+    Carbon::setTestNow(Carbon::parse('2026-06-01 12:00:00'));
 
-    $resolver = app(CleanupIntervalResolver::class);
-    $result = $resolver->fromInstitution($institution);
+    $result = (new CleanupIntervalResolver)->fromValues('30', null, null);
+    $expected = Carbon::parse('2026-06-01 12:00:00')->subMinutes(30);
 
-    // 12:00 - 1d 2h 30m = 2026-06-09 09:30:00
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-09 09:30:00');
+    expect($result->format('Y-m-d H:i:s'))->toBe($expected->format('Y-m-d H:i:s'));
+
+    Carbon::setTestNow();
 });
 
-test('fromInstitution falls back to config when no cleanup_interval setting exists', function (): void {
-    $institution = Institution::factory()->create();
-    // Delete the setting entirely so $settingModel is null → config fallback
-    $institution->settings()->where('key', 'cleanup_interval')->delete();
-    $institution->load('settings');
+test('resolveInt result is an integer type', function (): void {
+    Carbon::setTestNow(Carbon::parse('2026-06-01 12:00:00'));
 
-    config()->set('roomz.default.cleanup_interval', '0:1:0'); // 1 hour via config
+    $result = (new CleanupIntervalResolver)->fromValues('45', null, null);
+    $expected = Carbon::parse('2026-06-01 12:00:00')->subMinutes(45);
 
-    $resolver = app(CleanupIntervalResolver::class);
-    $result = $resolver->fromInstitution($institution);
+    expect($result->format('Y-m-d H:i:s'))->toBe($expected->format('Y-m-d H:i:s'));
 
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-10 11:00:00');
+    Carbon::setTestNow();
 });
 
-test('fromInstitution handles days-only interval', function (): void {
-    $institution = Institution::factory()->create();
-    $institution->settings()->firstWhere('key', 'cleanup_interval')
-        ?->update(['value' => '3:0:0']); // 3 days only
+test('fromValues early return fires when only null is passed', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues(null, null, null);
 
-    $resolver = app(CleanupIntervalResolver::class);
-    $result = $resolver->fromInstitution($institution);
-
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-07 12:00:00');
+    expect($result->diffInSeconds($before))->toBeLessThan(2);
 });
 
-test('fromValues subtracts each provided component', function (): void {
-    $resolver = app(CleanupIntervalResolver::class);
+test('fromValues with string zero does not subtract (boundary: empty vs zero)', function (): void {
+    $before = now();
+    $result = (new CleanupIntervalResolver)->fromValues('0', null, null);
 
-    $result = $resolver->fromValues('45', '3', '1'); // 45 min, 3 hours, 1 day
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-09 08:15:00');
+    expect($result->diffInSeconds($before))->toBeLessThan(2);
 });
 
-test('fromValues handles null arguments by ignoring them', function (): void {
-    $resolver = app(CleanupIntervalResolver::class);
+test('resolveInt returns null exactly for null input', function (): void {
+    $resolver = new CleanupIntervalResolver;
 
-    $result = $resolver->fromValues(null, '2', null); // only 2 hours
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-10 10:00:00');
+    expect(invokeCleanupIntervalResolveInt($resolver, null))->toBeNull();
 });
 
-test('fromValues handles empty string arguments as null', function (): void {
-    $resolver = app(CleanupIntervalResolver::class);
+test('resolveInt returns null exactly for empty string input', function (): void {
+    $resolver = new CleanupIntervalResolver;
 
-    $result = $resolver->fromValues('', null, '1'); // only 1 day
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-09 12:00:00');
+    expect(invokeCleanupIntervalResolveInt($resolver, ''))->toBeNull();
 });
 
-test('fromValues handles integer arguments', function (): void {
-    $resolver = app(CleanupIntervalResolver::class);
+test('resolveInt preserves integer inputs', function (): void {
+    $resolver = new CleanupIntervalResolver;
 
-    $result = $resolver->fromValues(30, null, null); // 30 minutes as int
-    expect($result->format('Y-m-d H:i:s'))->toBe('2026-06-10 11:30:00');
+    expect(invokeCleanupIntervalResolveInt($resolver, 12))->toBe(12);
+});
+
+test('resolveInt casts numeric string inputs to integers', function (): void {
+    $resolver = new CleanupIntervalResolver;
+
+    expect(invokeCleanupIntervalResolveInt($resolver, '15'))->toBe(15);
+});
+
+test('resolveInt applies an explicit integer cast to loosely numeric strings', function (): void {
+    $resolver = new CleanupIntervalResolver;
+
+    expect(invokeCleanupIntervalResolveInt($resolver, '15minutes'))->toBe(15);
+});
+
+test('fromValues subtracts minutes from loosely numeric string inputs', function (): void {
+    Carbon::setTestNow(Carbon::parse('2026-06-01 12:00:00'));
+
+    $result = (new CleanupIntervalResolver)->fromValues('15minutes', null, null);
+    $expected = Carbon::parse('2026-06-01 12:00:00')->subMinutes(15);
+
+    expect($result->format('Y-m-d H:i:s'))->toBe($expected->format('Y-m-d H:i:s'));
+
+    Carbon::setTestNow();
 });

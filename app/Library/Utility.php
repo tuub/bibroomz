@@ -6,20 +6,10 @@ namespace App\Library;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class Utility
 {
-    public static function carbonize(Carbon|string $date): Carbon
-    {
-        if (is_string($date)) {
-            return Carbon::parse($date);
-        }
-
-        return $date;
-    }
-
     public static function getCarbonNow(): CarbonImmutable
     {
         $timezone = config('roomz.app.timezone');
@@ -30,35 +20,15 @@ class Utility
 
     public static function createCarbonDateTime(string $date, string $time): Carbon
     {
-        $dateTime = Carbon::createFromFormat('d.m.Y H:i', $date.' '.$time);
-
-        if (! $dateTime instanceof Carbon) {
+        try {
+            $result = Carbon::createFromFormat('d.m.Y H:i', $date.' '.$time);
+        } catch (\Exception) {
             throw new InvalidArgumentException('Invalid date/time combination.');
         }
 
-        return $dateTime;
-    }
+        assert($result instanceof Carbon);
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public static function sendToLog(string $channel, array $data, ?string $level = null): void
-    {
-        if ($level === null) {
-            $configuredLevel = config('roomz.log.level');
-            $level = is_string($configuredLevel) ? $configuredLevel : 'info';
-        }
-
-        $callingMethod = debug_backtrace(
-            DEBUG_BACKTRACE_IGNORE_ARGS,
-            2
-        )[1]['function'];
-
-        $data = ['ACTION' => $callingMethod] + $data;
-
-        Log::channel($channel)->$level(
-            urldecode(http_build_query($data, '', ' / '))
-        );
+        return $result;
     }
 
     /**
@@ -72,14 +42,6 @@ class Utility
             'hour' => (int) $parts[0],
             'minute' => isset($parts[1]) ? (int) $parts[1] : 0,
         ];
-    }
-
-    public static function getDateTimeFromStrings(string $date_str, string $time_str): Carbon
-    {
-        $date = Carbon::parse($date_str);
-        $time_arr = explode(':', $time_str);
-
-        return $date->hour((int) $time_arr[0])->minute((int) $time_arr[1]);
     }
 
     public static function convertCamelCaseToSnakeCase(string $camel_case): string

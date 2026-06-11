@@ -134,6 +134,55 @@ test('happening controller converts validation failures into 400 responses for c
     }
 });
 
+test('happening controller returns no content on successful add update and verify', function (): void {
+    $user = User::factory()->create();
+    $resource = new Resource;
+    $happening = new Happening;
+    $start = CarbonImmutable::parse('2026-06-04 10:00:00');
+    $end = CarbonImmutable::parse('2026-06-04 11:00:00');
+
+    Auth::login($user);
+
+    $createRequest = Mockery::mock(AddHappeningRequest::class);
+    $createRequest->shouldReceive('resource')->once()->andReturn($resource);
+    $createRequest->shouldReceive('startAt')->once()->andReturn($start);
+    $createRequest->shouldReceive('endAt')->once()->andReturn($end);
+    $createRequest->shouldReceive('label')->once()->andReturn(['en' => 'Focus']);
+    $createRequest->shouldReceive('verifier')->once()->andReturn('verifier.user');
+
+    $updateRequest = Mockery::mock(UpdateHappeningRequest::class);
+    $updateRequest->shouldReceive('happening')->once()->andReturn($happening);
+    $updateRequest->shouldReceive('startAt')->once()->andReturn($start);
+    $updateRequest->shouldReceive('endAt')->once()->andReturn($end);
+    $updateRequest->shouldReceive('label')->once()->andReturn(['en' => 'Focus']);
+
+    $verifyRequest = Mockery::mock(VerifyHappeningRequest::class);
+    $verifyRequest->shouldReceive('happening')->once()->andReturn($happening);
+    $verifyRequest->shouldReceive('startAt')->once()->andReturn($start);
+    $verifyRequest->shouldReceive('endAt')->once()->andReturn($end);
+
+    $createAction = Mockery::mock(CreateHappeningAction::class);
+    $createAction->shouldReceive('executeForUser')->once();
+
+    $updateAction = Mockery::mock(UpdateHappeningAction::class);
+    $updateAction->shouldReceive('executeForUser')->once();
+
+    $verifyAction = Mockery::mock(VerifyHappeningAction::class);
+    $verifyAction->shouldReceive('execute')->once();
+
+    $controller = new HappeningController(
+        Mockery::mock(ListCalendarEntriesAction::class),
+        $createAction,
+        $updateAction,
+        $verifyAction,
+        Mockery::mock(DeleteHappeningAction::class),
+    );
+
+    expect($controller->addHappening($createRequest)->getStatusCode())->toBe(204)
+        ->and($controller->updateHappening($updateRequest)->getStatusCode())->toBe(204)
+        ->and($controller->verifyHappening($verifyRequest)->getStatusCode())->toBe(204);
+});
+
 test('happening controller delegates deletes to the delete action', function (): void {
     $happening = new Happening;
     $request = Mockery::mock(DeleteHappeningRequest::class);
@@ -152,5 +201,5 @@ test('happening controller delegates deletes to the delete action', function ():
 
     $controller->deleteHappening($request);
 
-    expect(true)->toBeTrue();
+    expect($happening)->toBeInstanceOf(Happening::class);
 });

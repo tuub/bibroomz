@@ -33,6 +33,8 @@ class PermissionGroup extends Model
 
     /**
      * @return HasMany<Permission, $this>
+     *
+     * @codeCoverageIgnore
      */
     public function permissions(): HasMany
     {

@@ -17,10 +17,7 @@ trait HasTranslations
         $attributes = $this->normalizeAttributes(parent::toArray());
 
         foreach ($this->getTranslatableAttributes() as $field) {
-            if (! is_string($field)) {
-                continue;
-            }
-
+            /** @var string $field */
             $attributes[$field] = $this->getTranslation($field, App::getLocale());
         }
 

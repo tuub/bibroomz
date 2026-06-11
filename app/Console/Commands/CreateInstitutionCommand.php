@@ -91,15 +91,11 @@ class CreateInstitutionCommand extends Command
 
     private function renderValidationErrors(ValidationException $exception): void
     {
-        foreach ($exception->errors() as $messages) {
-            if (! is_array($messages)) {
-                continue;
-            }
-
+        /** @var array<string, list<string>> $allErrors */
+        $allErrors = $exception->errors();
+        foreach ($allErrors as $messages) {
             foreach ($messages as $message) {
-                if (is_string($message)) {
-                    error('⚠ '.$message);
-                }
+                error('⚠ '.$message);
             }
         }
     }

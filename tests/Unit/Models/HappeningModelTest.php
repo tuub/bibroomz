@@ -152,6 +152,33 @@ test('happening permissions users and status reflect the current viewer', functi
         $fixture['second']->name,
         $fixture['verifier']->name,
     );
+
+    Auth::logout();
+});
+
+test('happening status is booking for a third-party viewer of a verified happening and reservation for unverified', function (): void {
+    $fixture = createHappeningFixture();
+    /** @var Happening $happening */
+    $happening = $fixture['happening']->fresh(['user1', 'user2', 'resource.resource_group.institution']);
+
+    $verified = $happening->replicate()->fill([
+        'is_verified' => true,
+        'verified_at' => CarbonImmutable::now(),
+        'start' => CarbonImmutable::now()->subMinutes(30),
+        'end' => CarbonImmutable::now()->addMinutes(30),
+    ]);
+    $verified->id = (string) Str::uuid();
+    $verified->save();
+    /** @var Happening $verified */
+    $verified = $verified->fresh(['user1', 'user2']);
+
+    $stranger = User::factory()->create();
+    Auth::login($stranger);
+
+    expect($verified->getStatus()['type'])->toBe('booking')
+        ->and($happening->getStatus()['type'])->toBe('reservation');
+
+    Auth::logout();
 });
 
 test('happening broadcast concurrency and resource status helpers work', function (): void {

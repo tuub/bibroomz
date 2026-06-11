@@ -1,5 +1,7 @@
 /build/coverage
 *.cache
+/coverage-html
+coverage*.xml
 *.d.ts
 .env
 .env.backup

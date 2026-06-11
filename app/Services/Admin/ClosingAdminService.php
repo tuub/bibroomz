@@ -120,10 +120,7 @@ class ClosingAdminService
     private function resolveClosingClosable(Closing $closing): Institution|Resource
     {
         $closable = $closing->closable;
-
-        if (! $closable instanceof Institution && ! $closable instanceof Resource) {
-            return $this->resolveClosable($closing->closable_type, $closing->closable_id);
-        }
+        abort_unless($closable instanceof Institution || $closable instanceof Resource, 500);
 
         return $closable;
     }

@@ -111,17 +111,16 @@ class GenerateResourceTimeSlotsAction
         $start = $date->startOfDay();
         $end = $start->addDay();
 
-        $period = new CarbonPeriod($start, $end);
+        // Minute takes precedence: ->minutes() would override ->hours() in the original chained form
+        if ($interval['minute'] > 0) {
+            return new CarbonPeriod($start, "PT{$interval['minute']}M", $end);
+        }
 
         if ($interval['hour'] > 0) {
-            $period = $period->hours($interval['hour']);
+            return new CarbonPeriod($start, "PT{$interval['hour']}H", $end);
         }
 
-        if ($interval['minute'] > 0) {
-            return $period->minutes($interval['minute']);
-        }
-
-        return $period;
+        return new CarbonPeriod($start, $end);
     }
 
     /**
@@ -136,10 +135,7 @@ class GenerateResourceTimeSlotsAction
         $slots = [];
 
         foreach ($timeSlots as $timeSlot) {
-            if (! $timeSlot instanceof \DateTimeInterface) {
-                continue;
-            }
-
+            /** @var \DateTimeInterface $timeSlot */
             $slotTime = CarbonImmutable::instance($timeSlot);
             $slots[] = new ResourceTimeSlot(
                 time: $slotTime,

@@ -50,10 +50,6 @@ class UserGroupInputCollector
     {
         $selection = $this->normalizeSelection($selection);
 
-        if ($selection === null) {
-            return '';
-        }
-
         if (array_key_exists($selection, $options)) {
             return $selection;
         }
@@ -80,16 +76,8 @@ class UserGroupInputCollector
         return $normalized;
     }
 
-    private function normalizeSelection(mixed $selection): ?string
+    private function normalizeSelection(mixed $selection): string
     {
-        if (is_string($selection)) {
-            return $selection;
-        }
-
-        if (is_int($selection)) {
-            return (string) $selection;
-        }
-
-        return null;
+        return is_string($selection) ? $selection : (is_scalar($selection) ? (string) $selection : '');
     }
 }

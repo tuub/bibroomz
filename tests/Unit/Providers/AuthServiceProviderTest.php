@@ -1,40 +1,139 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Auth\AlmaUserProvider;
 use App\Models\Institution;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Tests\Concerns\InteractsWithPermissions;
 
 covers(AuthServiceProvider::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
-beforeEach(function (): void {
-    $this->seedPermissions();
-    (new AuthServiceProvider(app()))->boot();
+test('auth service provider registers view-admin-panel gate', function (): void {
+    expect(Gate::has('view-admin-panel'))->toBeTrue();
 });
 
-test('auth service provider registers the alma provider and authorization gates', function (): void {
+test('auth service provider registers viewPulse gate', function (): void {
+    expect(Gate::has('viewPulse'))->toBeTrue();
+});
+
+test('view-admin-panel gate returns true when user has permissions', function (): void {
+    $this->seed(PermissionSeeder::class);
     $institution = Institution::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    grantAdminPermission($user, $institution, 'view_users');
+    $user->load('roles.permissions');
+
+    $result = Gate::forUser($user)->allows('view-admin-panel');
+
+    expect($result)->toBeTrue();
+});
+
+test('view-admin-panel gate returns false when user has no permissions', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+    $user->load('roles.permissions');
+
+    $result = Gate::forUser($user)->allows('view-admin-panel');
+
+    expect($result)->toBeFalse();
+});
+
+test('Gate::after allows admin user on any ability', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
-    $this->grantPermission($user, $institution, 'view_users');
-    Gate::define('always-null', fn (): ?bool => null);
+    $result = Gate::forUser($admin)->allows('some-arbitrary-ability');
 
-    expect(Auth::createUserProvider('users'))->toBeInstanceOf(AlmaUserProvider::class)
-        ->and(Gate::forUser($user)->allows('view-admin-panel'))->toBeTrue()
-        ->and(Gate::forUser($user)->allows('view_users', $institution))->toBeTrue()
-        ->and(Gate::forUser($admin)->allows('viewPulse'))->toBeTrue()
-        ->and(Gate::forUser($admin)->allows('always-null'))->toBeTrue();
+    expect($result)->toBeTrue();
 });
 
-test('auth service provider denies admin panel access without permissions', function (): void {
-    $user = User::factory()->create();
+test('Gate::after does not grant non-admin user on ability they lack', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
 
-    expect(Gate::forUser($user)->allows('view-admin-panel'))->toBeFalse();
+    $result = Gate::forUser($user)->allows('some-arbitrary-ability');
+
+    expect($result)->toBeFalse();
+});
+
+test('Gate::before grants user with matching role permission', function (): void {
+    $this->seed(PermissionSeeder::class);
+    $institution = Institution::factory()->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    grantAdminPermission($user, $institution, 'view_users');
+    $user->load('roles.permissions');
+
+    $result = Gate::forUser($user)->allows('view_users', $institution);
+
+    expect($result)->toBeTrue();
+});
+
+test('Gate::before returns null for user without matching role permission', function (): void {
+    $this->seed(PermissionSeeder::class);
+    $institution = Institution::factory()->create();
+    $user = User::factory()->create(['is_admin' => false]);
+    $user->load('roles.permissions');
+
+    $result = Gate::forUser($user)->allows('view_users', $institution);
+
+    expect($result)->toBeFalse();
+});
+
+test('Gate::before grants global permissions when the first argument is not an institution', function (): void {
+    $this->seed(PermissionSeeder::class);
+    $institution = Institution::factory()->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    grantAdminPermission($user, $institution, 'delete_roles');
+    $user->load('roles.permissions');
+
+    expect(Gate::forUser($user)->allows('delete_roles'))->toBeTrue();
+});
+
+test('Gate::before does not grant global permissions a user does not have', function (): void {
+    $this->seed(PermissionSeeder::class);
+    $user = User::factory()->create(['is_admin' => false]);
+    $user->load('roles.permissions');
+
+    expect(Gate::forUser($user)->allows('delete_roles'))->toBeFalse();
+});
+
+test('Gate::before does not treat one institution permission as valid for another institution', function (): void {
+    $this->seed(PermissionSeeder::class);
+    $grantedInstitution = Institution::factory()->create();
+    $otherInstitution = Institution::factory()->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    grantAdminPermission($user, $grantedInstitution, 'view_users');
+    $user->load('roles.permissions');
+
+    expect(Gate::forUser($user)->allows('view_users', $otherInstitution))->toBeFalse();
+});
+
+test('viewPulse gate allows admin users', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $result = Gate::forUser($admin)->allows('viewPulse');
+
+    expect($result)->toBeTrue();
+});
+
+test('viewPulse gate denies non-admin users', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $result = Gate::forUser($user)->allows('viewPulse');
+
+    expect($result)->toBeFalse();
+});
+
+test('alma auth provider is registered and can be resolved', function (): void {
+    $provider = Auth::createUserProvider('users');
+
+    expect($provider)->toBeInstanceOf(AlmaUserProvider::class);
 });

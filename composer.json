@@ -65,17 +65,23 @@
         "test:unit": [
             "@pest --testsuite=Unit"
         ],
+        "coverage": [
+            "@pest --coverage --coverage-cobertura build/coverage/cobertura.xml"
+        ],
         "coverage:feature": [
             "@pest --testsuite=Feature --coverage --coverage-cobertura build/coverage/cobertura-feature.xml"
         ],
         "coverage:unit": [
             "@pest --testsuite=Unit --coverage --coverage-cobertura build/coverage/cobertura-unit.xml"
         ],
+        "mutate": [
+            "pest --mutate --covered-only --parallel"
+        ],
         "mutate:feature": [
-            "@pest --testsuite=Feature --mutate --covered-only --parallel"
+            "pest --testsuite=Feature --mutate --covered-only --parallel"
         ],
         "mutate:unit": [
-            "@pest --testsuite=Unit --mutate --covered-only --parallel"
+            "pest --testsuite=Unit --mutate --covered-only --parallel"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

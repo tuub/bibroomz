@@ -55,10 +55,12 @@ class ValidateHappeningReservation
             throw new HappeningValidationException('happening.errors.quotas');
         }
 
-        if (
-            ! $user->can('edit', $resource->resource_group->institution)
-            && $user->isHavingConcurrentHappening($start, $end, $happening)
-        ) {
+        $hasConcurrentHappening = $user->getOtherUserHappeningsForResourceGroup($resource->resource_group, $happening)
+            ->filter
+            ->isConcurrent($start, $end)
+            ->isNotEmpty();
+
+        if (! $user->can('edit', $resource->resource_group->institution) && $hasConcurrentHappening) {
             throw new HappeningValidationException('happening.errors.concurrent');
         }
     }

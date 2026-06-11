@@ -55,14 +55,7 @@ class LoginController extends Controller
         }
 
         $user = auth()->user();
-
-        if (! $user instanceof User) {
-            $response = [
-                'message' => __('auth.errors.no_auth'),
-            ];
-
-            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
-        }
+        abort_unless($user instanceof User, 401);
 
         $response = $this->currentUserStatusBuilder->build($user->refresh());
 

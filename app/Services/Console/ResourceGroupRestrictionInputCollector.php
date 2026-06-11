@@ -51,10 +51,6 @@ class ResourceGroupRestrictionInputCollector
     {
         $selection = $this->normalizeSelection($selection);
 
-        if ($selection === null) {
-            return '';
-        }
-
         if (array_key_exists($selection, $options)) {
             return $selection;
         }
@@ -100,27 +96,11 @@ class ResourceGroupRestrictionInputCollector
      */
     private function normalizeSelections(array $selections): array
     {
-        $normalized = [];
-
-        foreach ($selections as $selection) {
-            if (is_int($selection) || is_string($selection)) {
-                $normalized[] = $selection;
-            }
-        }
-
-        return $normalized;
+        return array_values(array_filter($selections, is_string(...)));
     }
 
-    private function normalizeSelection(mixed $selection): ?string
+    private function normalizeSelection(mixed $selection): string
     {
-        if (is_string($selection)) {
-            return $selection;
-        }
-
-        if (is_int($selection)) {
-            return (string) $selection;
-        }
-
-        return null;
+        return is_string($selection) ? $selection : (is_scalar($selection) ? (string) $selection : '');
     }
 }

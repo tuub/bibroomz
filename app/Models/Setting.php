@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Contracts\SettingSubject;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,10 +53,7 @@ class Setting extends Model
     public function getInstitution(): Institution
     {
         $settingable = $this->settingable;
-
-        if (! $settingable instanceof SettingSubject) {
-            throw new \InvalidArgumentException('Unsupported settingable model.');
-        }
+        assert($settingable instanceof Institution || $settingable instanceof ResourceGroup);
 
         return $settingable->institutionForSettings();
     }

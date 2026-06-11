@@ -89,6 +89,7 @@ class InstitutionInputCollector
     {
         $option = $command->option($key);
 
+        // Command options passed via --option=value are always strings when specified; this guard handles the unset/null case
         if (! is_string($option)) {
             return null;
         }
@@ -100,6 +101,7 @@ class InstitutionInputCollector
     {
         $option = $command->option($key);
 
+        // Command options passed via --option=value are always strings when specified; this guard handles the unset/null case
         if (! is_string($option)) {
             return null;
         }

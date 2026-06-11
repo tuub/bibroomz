@@ -114,15 +114,11 @@ class ImportUsers extends Command
 
     private function handleValidationException(ValidationException $exception): int
     {
-        foreach ($exception->errors() as $messages) {
-            if (! is_array($messages)) {
-                continue;
-            }
-
+        /** @var array<string, list<string>> $allErrors */
+        $allErrors = $exception->errors();
+        foreach ($allErrors as $messages) {
             foreach ($messages as $message) {
-                if (is_string($message)) {
-                    error('⚠ '.$message);
-                }
+                error('⚠ '.$message);
             }
         }
 

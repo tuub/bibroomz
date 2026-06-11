@@ -42,10 +42,7 @@ class HappeningController extends Controller
     public function addHappening(AddHappeningRequest $request): Response
     {
         $user = auth()->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        abort_unless($user instanceof User, 401);
 
         try {
             $this->createHappeningAction->executeForUser(
@@ -66,10 +63,7 @@ class HappeningController extends Controller
     public function updateHappening(UpdateHappeningRequest $request): Response
     {
         $user = auth()->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        abort_unless($user instanceof User, 401);
 
         try {
             $this->updateHappeningAction->executeForUser(
@@ -89,10 +83,7 @@ class HappeningController extends Controller
     public function verifyHappening(VerifyHappeningRequest $request): Response
     {
         $user = auth()->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        abort_unless($user instanceof User, 401);
 
         try {
             $this->verifyHappeningAction->execute(

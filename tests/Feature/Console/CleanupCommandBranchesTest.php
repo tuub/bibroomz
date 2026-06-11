@@ -1,7 +1,6 @@
 <?php
 
 use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
-use App\Console\Commands\RemoveUsersCommand;
 use App\Events\HappeningsChangedEvent;
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Happening;
@@ -9,7 +8,6 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use App\Services\Console\CleanupIntervalResolver;
 use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -19,9 +17,7 @@ use Symfony\Component\Console\Command\Command;
 
 covers(
     RemoveUnverifiedHappeningsCommand::class,
-    RemoveUsersCommand::class,
-    RemoveUnverifiedHappeningsQueryBuilder::class,
-    CleanupIntervalResolver::class
+    RemoveUnverifiedHappeningsQueryBuilder::class
 );
 
 uses(RefreshDatabase::class);

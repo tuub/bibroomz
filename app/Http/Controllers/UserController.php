@@ -19,10 +19,7 @@ class UserController extends Controller
     public function getUserHappenings(UserHappeningsRequest $request): Collection
     {
         $user = $request->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        abort_unless($user instanceof User, 401);
 
         return $this->listUserHappeningsAction->execute($request->resourceGroup(), $user);
     }

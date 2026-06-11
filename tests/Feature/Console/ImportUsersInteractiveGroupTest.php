@@ -1,17 +1,10 @@
 <?php
 
-use App\Console\Commands\ImportUsers;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
-use App\Services\Console\ImportUsersAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Console\Command\Command;
-
-covers(
-    ImportUsers::class,
-    ImportUsersAction::class
-);
 
 uses(RefreshDatabase::class);
 

@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Services\Console\ImportUsersAction;
 use App\Services\Console\ImportUsersColumnsResolver;
-use App\Services\Console\ImportUsersCsvReader;
 use App\Services\Console\ImportUsersDefaultsParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +14,6 @@ covers(
     ImportUsers::class,
     ImportUsersAction::class,
     ImportUsersColumnsResolver::class,
-    ImportUsersCsvReader::class,
     ImportUsersDefaultsParser::class
 );
 

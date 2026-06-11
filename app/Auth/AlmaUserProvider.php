@@ -130,11 +130,8 @@ class AlmaUserProvider implements UserProvider
 
     private function findUserByLoginName(string $loginName): ?User
     {
+        /** @var string $normalizedLoginName */
         $normalizedLoginName = Utility::normalizeLoginName($loginName);
-
-        if ($normalizedLoginName === null) {
-            return null;
-        }
 
         return User::query()
             ->whereRaw('LOWER(name) = ?', [strtolower($normalizedLoginName)])
@@ -373,11 +370,8 @@ class AlmaUserProvider implements UserProvider
             return null;
         }
 
+        /** @var string $normalizedName */
         $normalizedName = Utility::normalizeLoginName($username);
-
-        if ($normalizedName === null) {
-            return null;
-        }
 
         return [
             'name' => $normalizedName,

@@ -134,12 +134,8 @@ class ResourceGroup extends Model implements SettingSubject
 
         foreach ($user->user_groups as $user_group) {
             if ($this->user_groups->contains($user_group->id)) {
+                /** @var UserGroupUser $pivot */
                 $pivot = $user_group->pivot;
-
-                if (! $pivot instanceof UserGroupUser) {
-                    continue;
-                }
-
                 $now = Carbon::now();
                 $valid_from = $pivot->valid_from;
                 $valid_until = $pivot->valid_until;

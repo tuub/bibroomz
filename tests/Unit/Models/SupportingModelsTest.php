@@ -1,7 +1,5 @@
 <?php
 
-use App\Contracts\ClosingSubject;
-use App\Contracts\SettingSubject;
 use App\Library\Utility;
 use App\Models\BusinessHour;
 use App\Models\Closing;
@@ -20,6 +18,11 @@ use App\Models\WeekDay;
 use App\Rules\CurrentPasswordRule;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -34,8 +37,6 @@ covers(
     Permission::class,
     PermissionGroup::class,
     InstitutionUserRole::class,
-    ClosingSubject::class,
-    SettingSubject::class
 );
 
 uses(InteractsWithPermissions::class, RefreshDatabase::class);
@@ -128,6 +129,222 @@ test('supporting models expose domain helpers and translation wrappers', functio
         ->and($weekdayOne->institutions()->getRelated()::class)->toBe(Institution::class);
 });
 
+// ── Closing model: uncovered branches ────────────────────────────────────────
+
+test('closing institution relationship returns a BelongsTo', function (): void {
+    $closing = new Closing;
+    expect($closing->institution())->toBeInstanceOf(BelongsTo::class);
+});
+
+test('closing getClosableModel returns Institution for institution path', function (): void {
+    expect(Closing::getClosableModel('institution'))->toBeInstanceOf(Institution::class);
+});
+
+test('closing getClosableModel throws for unknown type', function (): void {
+    expect(fn (): Institution|\App\Models\Resource => Closing::getClosableModel('unknown'))
+        ->toThrow(InvalidArgumentException::class);
+});
+
+test('closing getClosingSubject throws when closable is not a ClosingSubject', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
+    $user = User::factory()->create();
+
+    $closing = Closing::create([
+        'closable_id' => $resource->id,
+        'closable_type' => $resource->getMorphClass(),
+        'start' => CarbonImmutable::now()->addHour(),
+        'end' => CarbonImmutable::now()->addHours(2),
+        'description' => ['en' => 'test'],
+    ]);
+
+    // Manually override closable to a User (which does not implement ClosingSubject)
+    $closing->setRelation('closable', $user);
+
+    expect(fn () => $closing->getClosingSubject())
+        ->toThrow(InvalidArgumentException::class);
+});
+
+// ── Institution model: uncovered relationship and scope lines ─────────────────
+
+test('institution relationship methods return correct relation types', function (): void {
+    $institution = Institution::factory()->create();
+
+    expect($institution->resource_groups())->toBeInstanceOf(HasMany::class)
+        ->and($institution->resources())->toBeInstanceOf(HasManyThrough::class)
+        ->and($institution->users())->toBeInstanceOf(BelongsToMany::class)
+        ->and($institution->user_groups())->toBeInstanceOf(HasMany::class)
+        ->and($institution->closings())->toBeInstanceOf(MorphMany::class);
+});
+
+test('institution scopeActive filters by is_active', function (): void {
+    $sql = Institution::query()->active()->toSql();
+    expect($sql)->toContain('is_active');
+});
+
+test('institution permission helpers return false for unprivileged user', function (): void {
+    $institution = Institution::factory()->create();
+    $user = User::factory()->create();
+
+    expect($institution->isEditableByUser($user))->toBeFalse()
+        ->and($institution->isUserAbleToCreateResource($user))->toBeFalse()
+        ->and($institution->isUserAbleToCreateResourceGroup($user))->toBeFalse()
+        ->and($institution->isUserAbleToCreateUserGroup($user))->toBeFalse();
+});
+
+test('institution institutionForClosings returns itself', function (): void {
+    $institution = Institution::factory()->create();
+    expect($institution->institutionForClosings()->is($institution))->toBeTrue();
+});
+
+test('institution institutionForSettings returns itself', function (): void {
+    $institution = Institution::factory()->create();
+    expect($institution->institutionForSettings()->is($institution))->toBeTrue();
+});
+
+// ── ResourceGroup model: uncovered lines ─────────────────────────────────────
+
+test('resource group resources relationship returns HasMany', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+
+    expect($resourceGroup->resources())->toBeInstanceOf(HasMany::class);
+});
+
+test('resource group scopeActive includes active institution check', function (): void {
+    $sql = ResourceGroup::query()->active()->toSql();
+    expect($sql)->toContain('is_active');
+});
+
+test('resource group isAllowedUser returns true when resource group has no user groups', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $user = User::factory()->create();
+
+    // No user_groups attached → isEmpty() → return true
+    $resourceGroup->load('user_groups');
+    expect($resourceGroup->isAllowedUser($user))->toBeTrue();
+});
+
+test('resource group isAllowedUser returns true when user group pivot has both dates null', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $userGroup = UserGroup::create([
+        'title' => Utility::getTranslatable('TestGroup2'),
+        'institution_id' => $institution->id,
+    ]);
+    $resourceGroup->user_groups()->attach($userGroup);
+
+    $user = User::factory()->create();
+    $user->user_groups()->attach($userGroup, [
+        'valid_from' => null,
+        'valid_until' => null,
+    ]);
+
+    // Both null
+    expect($resourceGroup->isAllowedUser($user))->toBeTrue();
+});
+
+test('resource group isAllowedUser branches covering valid_from only and valid_until only', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $userGroup = UserGroup::create([
+        'title' => Utility::getTranslatable('TestGroup'),
+        'institution_id' => $institution->id,
+    ]);
+    $resourceGroup->user_groups()->attach($userGroup);
+
+    // User with valid_from in the past and no valid_until (only valid_from check)
+    $userFromOnly = User::factory()->create();
+    $userFromOnly->user_groups()->attach($userGroup, [
+        'valid_from' => CarbonImmutable::now()->subDay(),
+        'valid_until' => null,
+    ]);
+
+    // User with valid_until in the future and no valid_from (only valid_until check)
+    $userUntilOnly = User::factory()->create();
+    $userUntilOnly->user_groups()->attach($userGroup, [
+        'valid_from' => null,
+        'valid_until' => CarbonImmutable::now()->addDay(),
+    ]);
+
+    expect($resourceGroup->isAllowedUser($userFromOnly))->toBeTrue()
+        ->and($resourceGroup->isAllowedUser($userUntilOnly))->toBeTrue();
+});
+
+// ── Role model: uncovered relationship and method lines ───────────────────────
+
+test('role users and institutions relationships return BelongsToMany', function (): void {
+    expect((new Role)->users())->toBeInstanceOf(BelongsToMany::class)
+        ->and((new Role)->institutions())->toBeInstanceOf(BelongsToMany::class);
+});
+
+test('role getPermissionKeys returns all keys when permissions is null', function (): void {
+    $institution = Institution::factory()->create();
+    $role = Role::create([
+        'name' => Utility::getTranslatable('TestRole'),
+        'description' => Utility::getTranslatable('Desc'),
+    ]);
+    $permission = Permission::firstWhere('key', 'view_mails');
+    $role->permissions()->attach($permission);
+    $role->load('permissions');
+
+    expect($role->getPermissionKeys(null))->toContain('view_mails')
+        ->and($role->getPermissionKeys([]))->toContain('view_mails');
+});
+
+// ── InstitutionUserRole: uncovered relationship lines ─────────────────────────
+
+test('institution user role institution relationship returns BelongsTo', function (): void {
+    $pivot = new InstitutionUserRole;
+    expect($pivot->institution())->toBeInstanceOf(BelongsTo::class);
+});
+
+test('institution user role hasPermission returns false when institution id does not match', function (): void {
+    $institution = Institution::factory()->create();
+    $otherInstitution = Institution::factory()->create();
+
+    $role = Role::create([
+        'name' => Utility::getTranslatable('SomeRole'),
+        'description' => Utility::getTranslatable('Desc'),
+    ]);
+    $permission = Permission::firstWhere('key', 'view_mails');
+    $role->permissions()->attach($permission);
+    $role->load('permissions');
+
+    $pivot = new InstitutionUserRole;
+    $pivot->institution_id = $institution->id;
+    $pivot->setRelation('role', $role);
+
+    // Different institution: should return false
+    expect($pivot->hasPermission('view_mails', $otherInstitution))->toBeFalse();
+});
+
+// ── Permission model: uncovered roles relationship ────────────────────────────
+
+test('permission roles relationship returns BelongsToMany', function (): void {
+    $permission = new Permission;
+    expect($permission->roles())->toBeInstanceOf(BelongsToMany::class);
+});
+
+// ── Resource model: uncovered scope lines ────────────────────────────────────
+
+test('resource scopeActive filters by is_active', function (): void {
+    $sql = Resource::query()->active()->toSql();
+    expect($sql)->toContain('is_active');
+});
+
+test('resource isVerificationRequired returns the boolean flag', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $resource = Resource::factory()->create([
+        'resource_group_id' => $resourceGroup->id,
+        'is_verification_required' => true,
+    ]);
+    expect($resource->isVerificationRequired())->toBeTrue();
+});
+
 test('closing and password rule handle affected users and current password checks', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
@@ -177,4 +394,42 @@ test('closing and password rule handle affected users and current password check
         });
 
     expect($errors)->toBe([]);
+});
+
+test('closing getClosableModel returns Resource for resource path', function (): void {
+    expect(Closing::getClosableModel('resource'))->toBeInstanceOf(Resource::class);
+});
+
+test('role getPermissionKeys filters when non-empty permissions array is given', function (): void {
+    $role = Role::create([
+        'name' => Utility::getTranslatable('FilterRole'),
+        'description' => Utility::getTranslatable('Desc'),
+    ]);
+    $permission = Permission::firstWhere('key', 'view_mails');
+    $role->permissions()->attach($permission);
+    $role->load('permissions');
+
+    expect($role->getPermissionKeys(['view_mails']))->toContain('view_mails')
+        ->and($role->getPermissionKeys(['nonexistent_perm']))->toBe([]);
+});
+
+test('resource group isAllowedUser returns true when only valid_until is set and now is before it', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $userGroup = UserGroup::create([
+        'title' => ['en' => 'Group'],
+        'institution_id' => $institution->id,
+    ]);
+    $resourceGroup->user_groups()->attach($userGroup);
+
+    $user = User::factory()->create();
+    $user->user_groups()->attach($userGroup, [
+        'valid_from' => null,
+        'valid_until' => Carbon::now()->addDay(),
+    ]);
+
+    $resourceGroup->load('user_groups');
+    $user->load('user_groups');
+
+    expect($resourceGroup->isAllowedUser($user))->toBeTrue();
 });

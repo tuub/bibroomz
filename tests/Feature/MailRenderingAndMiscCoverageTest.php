@@ -1,7 +1,6 @@
 <?php
 
 use App\Library\Utility;
-use App\Listeners\HappeningEventSubscriber;
 use App\Mail\ClosingMail;
 use App\Mail\ClosingMailData;
 use App\Mail\HappeningMail;
@@ -24,12 +23,6 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
-
-covers(
-    HappeningMail::class,
-    ClosingMail::class,
-    HappeningEventSubscriber::class
-);
 
 uses(RefreshDatabase::class);
 

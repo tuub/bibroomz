@@ -7,14 +7,7 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
-use App\Services\Admin\ClosableResolver;
 use App\Services\AdminLoggingService;
-use App\Services\Happenings\HappeningAudienceResolver;
-use App\Services\Http\GetResourceTimeSlotsAction;
-use App\Services\Http\ListPublicResourcesAction;
-use App\Services\Http\ListUserHappeningsAction;
-use App\Services\Http\RouteResourceGroupResolver;
-use App\Services\Http\UserHappeningPresenter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -23,13 +16,7 @@ covers(
     RequiredWithTranslationRule::class,
     UniqueResourceGroupAttributeRule::class,
     AdminLoggingService::class,
-    ClosableResolver::class,
-    HappeningAudienceResolver::class,
-    RouteResourceGroupResolver::class,
-    GetResourceTimeSlotsAction::class,
-    ListPublicResourcesAction::class,
-    ListUserHappeningsAction::class,
-    UserHappeningPresenter::class
+    HappeningValidationException::class
 );
 
 uses(RefreshDatabase::class);
@@ -96,6 +83,29 @@ test('admin logging service writes the expected admin log message', function ():
     );
 
     app(AdminLoggingService::class)->log('created', $institution);
+});
+
+test('required with translation rule fails when value is not an array', function (): void {
+    $validator = Validator::make([
+        'title' => 'plain-string-not-array',
+    ], [
+        'title' => [new RequiredWithTranslationRule],
+    ]);
+
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->messages())->toHaveKey('title');
+});
+
+test('required with translation rule fails when languages config is not an array', function (): void {
+    config()->set('app.supported_locales', null);
+
+    $validator = Validator::make([
+        'title' => ['en' => 'Test'],
+    ], [
+        'title' => [new RequiredWithTranslationRule],
+    ]);
+
+    expect($validator->fails())->toBeTrue();
 });
 
 test('happening validation exception stores translation data and renders its translated message', function (): void {

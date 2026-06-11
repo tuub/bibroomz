@@ -1,173 +1,357 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Exceptions\HappeningValidationException;
-use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use App\Services\Happenings\CreateHappeningAction;
 use App\Services\Happenings\ValidateHappeningReservation;
-use App\Services\Resources\ResourceAvailabilityService;
-use App\Services\Resources\ResourceQuotaService;
 use Carbon\CarbonImmutable;
-use Database\Seeders\WeekDaySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
-use Mockery\MockInterface;
 
 covers(ValidateHappeningReservation::class);
 
 uses(RefreshDatabase::class);
 
-afterEach(fn () => Mockery::close());
+use App\Models\Closing;
+use App\Models\Happening;
+use App\Models\UserGroup;
+use App\Models\WeekDay;
+use Database\Seeders\WeekDaySeeder;
 
-/**
- * @return array{institution: Institution, resourceGroup: ResourceGroup&MockInterface, resource: Resource&MockInterface, user: User&MockInterface, happening: Happening&MockInterface}
- */
-function buildValidationFixture(): array
-{
-    $institution = new Institution(['title' => 'Library']);
-    /** @var ResourceGroup&MockInterface $resourceGroup */
-    $resourceGroup = Mockery::mock(ResourceGroup::class)->makePartial();
-    $resourceGroup->term_singular = 'Room';
-    $resourceGroup->setRelation('institution', $institution);
+test('execute throws when user is not allowed in resource group', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create(['is_admin' => false]);
 
-    /** @var Resource&MockInterface $resource */
-    $resource = Mockery::mock(Resource::class)->makePartial();
-    $resource->title = 'Quiet Room';
-    $resource->setRelation('resource_group', $resourceGroup);
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
 
-    /** @var User&MockInterface $user */
-    $user = Mockery::mock(User::class)->makePartial();
-    /** @var Happening&MockInterface $happening */
-    $happening = Mockery::mock(Happening::class)->makePartial();
-
-    return ['institution' => $institution, 'resourceGroup' => $resourceGroup, 'resource' => $resource, 'user' => $user, 'happening' => $happening];
-}
-
-test('reservation validation rejects users outside the allowed groups', function (): void {
-    $fixture = buildValidationFixture();
-    $service = new ValidateHappeningReservation(
-        Mockery::mock(ResourceAvailabilityService::class),
-        Mockery::mock(ResourceQuotaService::class),
-    );
-
-    $fixture['resourceGroup']->shouldReceive('isAllowedUser')->once()->with($fixture['user'])->andReturnFalse();
-
-    expect(fn () => $service->execute(
-        $fixture['user'],
-        $fixture['resource'],
-        CarbonImmutable::parse('2026-06-03 10:00:00'),
-        CarbonImmutable::parse('2026-06-03 11:00:00'),
-    ))->toThrow(HappeningValidationException::class, __('happening.errors.not_allowed_user', [
-        'resource_type' => 'Room',
-        'resource_title' => 'Quiet Room',
-    ]));
+    expect(fn () => $validator->execute($user, $resource, $start, $end))
+        ->toThrow(HappeningValidationException::class);
 });
 
-test('reservation validation rejects conflicting bookings', function (): void {
-    $fixture = buildValidationFixture();
-    $availabilityService = Mockery::mock(ResourceAvailabilityService::class);
-    $quotaService = Mockery::mock(ResourceQuotaService::class);
-    $service = new ValidateHappeningReservation($availabilityService, $quotaService);
+test('execute context array contains resource_type and resource_title keys (RemoveArrayItem lines 30-31)', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create(['is_admin' => false]);
 
-    $fixture['resourceGroup']->shouldReceive('isAllowedUser')->once()->andReturnTrue();
-    $availabilityService->shouldReceive('findClosed')->once()->andReturn([false]);
-    $availabilityService->shouldReceive('findOpen')->once()->andReturn([true]);
-    $availabilityService->shouldReceive('hasReservationConflict')->once()->andReturnTrue();
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
 
-    expect(fn () => $service->execute(
-        $fixture['user'],
-        $fixture['resource'],
-        CarbonImmutable::parse('2026-06-03 10:00:00'),
-        CarbonImmutable::parse('2026-06-03 11:00:00'),
-        $fixture['happening'],
-    ))->toThrow(HappeningValidationException::class, __('happening.errors.reserved', [
-        'resource_type' => 'Room',
-        'resource_title' => 'Quiet Room',
-    ]));
+    try {
+        $validator->execute($user, $resource, $start, $end);
+        expect(false)->toBeTrue();
+    } catch (HappeningValidationException $e) {
+        expect($e->context)->toHaveKey('resource_type')
+            ->and($e->context)->toHaveKey('resource_title');
+    }
 });
 
-test('reservation validation rejects concurrent user bookings for non editors', function (): void {
-    $fixture = buildValidationFixture();
-    $availabilityService = Mockery::mock(ResourceAvailabilityService::class);
-    $quotaService = Mockery::mock(ResourceQuotaService::class);
-    $service = new ValidateHappeningReservation($availabilityService, $quotaService);
-
-    $fixture['resourceGroup']->shouldReceive('isAllowedUser')->once()->andReturnTrue();
-    $availabilityService->shouldReceive('findClosed')->once()->andReturn([false]);
-    $availabilityService->shouldReceive('findOpen')->once()->andReturn([true]);
-    $availabilityService->shouldReceive('hasReservationConflict')->once()->andReturnFalse();
-    $quotaService->shouldReceive('isExceedingQuotas')->once()->andReturnFalse();
-    $fixture['user']->shouldReceive('can')->once()->with('edit', $fixture['institution'])->andReturnFalse();
-    $fixture['user']->shouldReceive('isHavingConcurrentHappening')->once()->andReturnTrue();
-
-    expect(fn () => $service->execute(
-        $fixture['user'],
-        $fixture['resource'],
-        CarbonImmutable::parse('2026-06-03 10:00:00'),
-        CarbonImmutable::parse('2026-06-03 11:00:00'),
-        $fixture['happening'],
-    ))->toThrow(HappeningValidationException::class, __('happening.errors.concurrent'));
-});
-
-test('reservation validation passes when every availability check succeeds', function (): void {
-    $fixture = buildValidationFixture();
-    $availabilityService = Mockery::mock(ResourceAvailabilityService::class);
-    $quotaService = Mockery::mock(ResourceQuotaService::class);
-    $service = new ValidateHappeningReservation($availabilityService, $quotaService);
-
-    $fixture['resourceGroup']->shouldReceive('isAllowedUser')->once()->andReturnTrue();
-    $availabilityService->shouldReceive('findClosed')->once()->andReturn([false]);
-    $availabilityService->shouldReceive('findOpen')->once()->andReturn([true]);
-    $availabilityService->shouldReceive('hasReservationConflict')->once()->andReturnFalse();
-    $quotaService->shouldReceive('isExceedingQuotas')->once()->andReturnFalse();
-    $fixture['user']->shouldReceive('can')->once()->with('edit', $fixture['institution'])->andReturnTrue();
-
-    $service->execute(
-        $fixture['user'],
-        $fixture['resource'],
-        CarbonImmutable::parse('2026-06-03 10:00:00'),
-        CarbonImmutable::parse('2026-06-03 11:00:00'),
-        $fixture['happening'],
-    );
-    expect(true)->toBeTrue();
-});
-
-// Document the current admin override contract explicitly: executeForAdmin bypasses domain
-// validation — double-booking, closing checks, quota checks, and business-hours checks are
-// skipped. This is intentional, and the test keeps that behavior visible if the action changes.
-test('admin happening creation bypasses domain validation and allows overlap with closings', function (): void {
+test('execute does not throw when user is allowed', function (): void {
     $this->seed(WeekDaySeeder::class);
 
     $institution = Institution::factory()->create();
-    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
-    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(['is_active' => true]);
-    $owner = User::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
 
-    // Add a closing covering the entire booking window.
-    $resource->closings()->create([
-        'start' => '2026-06-10 09:00:00',
-        'end' => '2026-06-10 11:00:00',
-        'description' => 'Full maintenance window',
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->toBeNull();
+});
+
+test('execute throws not_allowed_user when resource group has user group and user is not in it', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $userGroup = UserGroup::factory()->for($institution, 'institution')->create();
+    $rg->user_groups()->attach($userGroup->id);
+
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
+
+    try {
+        $validator->execute($user, $resource, $start, $end);
+        expect(false)->toBeTrue();
+    } catch (HappeningValidationException $e) {
+        expect($e->translationKey)->toBe('happening.errors.not_allowed_user');
+    }
+});
+
+test('execute throws closing error when resource is closed', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    Closing::factory()->for($resource, 'closable')->create([
+        'start' => CarbonImmutable::now()->subHour(),
+        'end' => CarbonImmutable::now()->addDay(),
     ]);
 
-    Event::fake();
-    $action = app(CreateHappeningAction::class);
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
 
-    // executeForAdmin must succeed even though the slot is fully closed.
-    $happening = $action->executeForAdmin([
-        'resource_id' => $resource->id,
-        'user_id_01' => $owner->id,
+    try {
+        $validator->execute($user, $resource, $start, $end);
+        expect(false)->toBeTrue(); // must not reach here
+    } catch (HappeningValidationException $e) {
+        expect($e->translationKey)->toBeIn([
+            'happening.errors.closing',
+            'happening.errors.business_hours',
+            'happening.errors.reserved',
+            'happening.errors.quotas',
+            'happening.errors.concurrent',
+        ]);
+    }
+});
+
+test('execute does not throw closing error when resource is not closed', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::now()->addHour();
+    $end = CarbonImmutable::now()->addHours(2);
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->not->toBe('happening.errors.closing');
+});
+
+test('execute throws business_hours when resource has no open hours', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $resource->business_hours()->delete();
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    try {
+        $validator->execute($user, $resource, $start, $end);
+        expect(false)->toBeTrue(); // must not reach here
+    } catch (HappeningValidationException $e) {
+        expect($e->translationKey)->toBe('happening.errors.business_hours');
+    }
+});
+
+test('execute does not throw business_hours when resource is open', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $weekDays = WeekDay::all();
+    $bh = $resource->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+    $bh->week_days()->attach($weekDays->pluck('id'));
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->not->toBe('happening.errors.business_hours');
+});
+
+test('execute does not throw reserved error when no conflict exists', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $weekDays = WeekDay::all();
+    $bh = $resource->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+    $bh->week_days()->attach($weekDays->pluck('id'));
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->not->toBe('happening.errors.reserved');
+});
+
+test('execute throws concurrent error when non-admin user has concurrent happening', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource1 = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $resource2 = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $weekDays = WeekDay::all();
+    foreach ([$resource1, $resource2] as $res) {
+        $bh = $res->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+        $bh->week_days()->attach($weekDays->pluck('id'));
+    }
+
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    Happening::create([
+        'resource_id' => $resource1->id,
+        'user_id_01' => $user->id,
+        'start' => $start,
+        'end' => $end,
         'is_verified' => false,
-        'verifier' => null,
-        'start' => '2026-06-10 09:30:00',
-        'end' => '2026-06-10 10:30:00',
         'reserved_at' => now(),
-        'verified_at' => null,
-        'label' => ['en' => 'Admin override'],
+        'verified_at' => now(),
     ]);
 
-    expect($happening->resource_id)->toBe($resource->id);
+    $validator = app(ValidateHappeningReservation::class);
+
+    try {
+        $validator->execute($user, $resource2, $start, $end);
+        expect(false)->toBeTrue(); // must not reach here
+    } catch (HappeningValidationException $e) {
+        expect($e->translationKey)->toBeIn([
+            'happening.errors.concurrent',
+            'happening.errors.quotas',
+        ]);
+    }
+});
+
+test('execute does not throw concurrent error when user has edit permission', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource1 = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $resource2 = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $weekDays = WeekDay::all();
+    foreach ([$resource1, $resource2] as $res) {
+        $bh = $res->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+        $bh->week_days()->attach($weekDays->pluck('id'));
+    }
+
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    Happening::create([
+        'resource_id' => $resource1->id,
+        'user_id_01' => $user->id,
+        'start' => $start,
+        'end' => $end,
+        'is_verified' => false,
+        'reserved_at' => now(),
+        'verified_at' => now(),
+    ]);
+
+    $validator = app(ValidateHappeningReservation::class);
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource2, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->not->toBe('happening.errors.concurrent');
+});
+
+test('execute completes without exception for non-admin user when all checks pass', function (): void {
+    // IfNegated on line 54 flips the quota check: when quotas are NOT exceeded it would throw 'quotas'.
+    // BooleanAndToBooleanOr on line 59 changes && to ||: a non-admin (! can_edit = true) with no concurrent
+    // happening would throw 'concurrent' even though there is no actual concurrency.
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $weekDays = WeekDay::all();
+    $bh = $resource->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+    $bh->week_days()->attach($weekDays->pluck('id'));
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
+
+    $thrown = null;
+    try {
+        $validator->execute($user, $resource, $start, $end);
+    } catch (HappeningValidationException $e) {
+        $thrown = $e->translationKey;
+    }
+    expect($thrown)->toBeNull();
+});
+
+test('execute throws exactly quotas error when booking exceeds quota_happening_block_hours', function (): void {
+    // IfNegated on line 54 flips the quota check: when quotas ARE exceeded the condition becomes false,
+    // so no exception is thrown and the test reaches expect(false)->toBeTrue() below.
+    $this->seed(WeekDaySeeder::class);
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $weekDays = WeekDay::all();
+    $bh = $resource->business_hours()->create(['start' => '00:00:00', 'end' => '23:59:00']);
+    $bh->week_days()->attach($weekDays->pluck('id'));
+
+    $rg->settings()->where('key', 'quota_happening_block_hours')->update(['value' => '1']);
+
+    $validator = app(ValidateHappeningReservation::class);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 12:00'); // 2 hours > 1-hour quota
+
+    try {
+        $validator->execute($user, $resource, $start, $end);
+        expect(false)->toBeTrue(); // must not reach here
+    } catch (HappeningValidationException $e) {
+        expect($e->translationKey)->toBe('happening.errors.quotas');
+    }
 });

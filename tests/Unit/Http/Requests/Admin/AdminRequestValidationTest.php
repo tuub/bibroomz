@@ -29,6 +29,7 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
+use Carbon\CarbonImmutable;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
@@ -47,8 +48,6 @@ covers(
     InstitutionOrderRequest::class,
     ResourceGroupOrderRequest::class,
     ResourceOrderRequest::class,
-    HappeningRequest::class,
-    StoreHappeningRequest::class,
     UpdateHappeningRequest::class,
     ResourceRequest::class,
     StoreResourceRequest::class,
@@ -983,4 +982,552 @@ test('import users request prohibits mixing date and text valid_until', function
         'id' => $group->id, 'users' => [['name' => 'Alice']],
         'valid_until_date' => '2026-12-31', 'valid_until_text' => 'December 2026',
     ], 'valid_until_date');
+});
+
+// ── RoleRequest accessors ─────────────────────────────────────────────────────
+
+test('role request rules include permissions array and name translation rule', function (): void {
+    $rules = makeRules(RoleRequest::class, ['name' => Utility::getTranslatable('Editor')]);
+
+    expect($rules)->toHaveKey('permissions')
+        ->and($rules)->toHaveKey('name');
+});
+
+test('role request validation passes with valid name and empty permissions', function (): void {
+    $input = ['name' => Utility::getTranslatable('Editor'), 'permissions' => []];
+    $rules = makeRules(RoleRequest::class, $input);
+
+    assertPasses($rules, $input);
+});
+
+test('role request permissions roleData role and roleOrNull return correct values after validation', function (): void {
+    $input = ['name' => Utility::getTranslatable('Editor'), 'permissions' => [], 'id' => null];
+    $request = buildFormRequest(RoleRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+
+    $request->setValidator($validator);
+
+    expect($request->permissions())->toBe([])
+        ->and($request->roleData())->toHaveKey('name')
+        ->and($request->roleData())->not->toHaveKey('permissions')
+        ->and($request->roleOrNull())->toBeNull();
+});
+
+test('role request authorize returns false when no user is set', function (): void {
+    $request = buildFormRequest(RoleRequest::class, []);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('role request authorize returns true when user can create roles', function (): void {
+    $user = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(RoleRequest::class, [], $user);
+
+    expect($request->authorize())->toBeTrue();
+});
+
+// ── StoreUserGroupRequest accessors ──────────────────────────────────────────
+
+test('store user group request institution returns null when no institution_id given', function (): void {
+    $request = buildFormRequest(StoreUserGroupRequest::class, []);
+
+    expect($request->institution())->toBeNull();
+});
+
+test('store user group request institution returns the model for a valid institution_id', function (): void {
+    $institution = Institution::factory()->create();
+    $request = buildFormRequest(StoreUserGroupRequest::class, ['institution_id' => $institution->id]);
+
+    expect($request->institution()?->id)->toBe($institution->id);
+});
+
+test('store user group request authorize returns false when user is missing', function (): void {
+    $institution = Institution::factory()->create();
+    $request = buildFormRequest(StoreUserGroupRequest::class, ['institution_id' => $institution->id]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+// ── UpdateUserGroupRequest accessors ─────────────────────────────────────────
+
+test('update user group request userGroupOrNull returns null for missing id', function (): void {
+    $request = buildFormRequest(UpdateUserGroupRequest::class, []);
+
+    expect($request->userGroupOrNull())->toBeNull();
+});
+
+test('update user group request userGroupOrNull returns model for valid id', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $request = buildFormRequest(UpdateUserGroupRequest::class, ['id' => $group->id]);
+
+    expect($request->userGroupOrNull()?->id)->toBe($group->id);
+});
+
+test('update user group request authorize returns false when user is missing', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $request = buildFormRequest(UpdateUserGroupRequest::class, ['id' => $group->id]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('update user group request userGroup returns the model for valid id', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $request = buildFormRequest(UpdateUserGroupRequest::class, ['id' => $group->id]);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+
+    $request->setValidator($validator);
+
+    expect($request->userGroup()->id)->toBe($group->id);
+});
+
+// ── Order request rows() and authorize() helpers ─────────────────────────────
+
+test('institution order request rows returns parsed id-order pairs', function (): void {
+    $institution = Institution::factory()->create();
+    $request = buildFormRequest(InstitutionOrderRequest::class, [
+        ['id' => $institution->id, 'order' => 3],
+    ]);
+
+    $rows = $request->rows();
+
+    expect($rows->count())->toBe(1)
+        ->and($rows->first()['id'])->toBe($institution->id)
+        ->and($rows->first()['order'])->toBe(3);
+});
+
+test('institution order request rows handles numeric string order', function (): void {
+    $institution = Institution::factory()->create();
+    $request = buildFormRequest(InstitutionOrderRequest::class, [
+        ['id' => $institution->id, 'order' => '2'],
+    ]);
+
+    $rows = $request->rows();
+
+    expect($rows->first()['order'])->toBe(2);
+});
+
+test('institution order request rows filters out non-array entries', function (): void {
+    $request = buildFormRequest(InstitutionOrderRequest::class, ['not-an-array']);
+
+    expect($request->rows()->count())->toBe(0);
+});
+
+test('institution order request authorize returns false when user is missing', function (): void {
+    $institution = Institution::factory()->create();
+    $request = buildFormRequest(InstitutionOrderRequest::class, [
+        ['id' => $institution->id, 'order' => 1],
+    ]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('resource order request rows returns parsed id-order pairs', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+
+    $request = buildFormRequest(ResourceOrderRequest::class, [
+        ['id' => $resource->id, 'order' => 1],
+    ]);
+
+    $rows = $request->rows();
+
+    expect($rows->count())->toBe(1)
+        ->and($rows->first()['id'])->toBe($resource->id);
+});
+
+test('resource order request authorize returns false when user is missing', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+
+    $request = buildFormRequest(ResourceOrderRequest::class, [
+        ['id' => $resource->id, 'order' => 1],
+    ]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('resource group order request rows returns parsed id-order pairs', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+
+    $request = buildFormRequest(ResourceGroupOrderRequest::class, [
+        ['id' => $resourceGroup->id, 'order' => 2],
+    ]);
+
+    $rows = $request->rows();
+
+    expect($rows->count())->toBe(1)
+        ->and($rows->first()['id'])->toBe($resourceGroup->id);
+});
+
+test('resource group order request authorize returns false when user is missing', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+
+    $request = buildFormRequest(ResourceGroupOrderRequest::class, [
+        ['id' => $resourceGroup->id, 'order' => 1],
+    ]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+// ── ImportUsersRequest accessors ──────────────────────────────────────────────
+
+test('import users request userGroupOrNull returns null when no id given', function (): void {
+    $request = buildFormRequest(ImportUsersRequest::class, []);
+
+    expect($request->userGroupOrNull())->toBeNull();
+});
+
+test('import users request authorize returns false when user is missing', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $request = buildFormRequest(ImportUsersRequest::class, ['id' => $group->id]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+// ── ImportUsersRequest importData and userGroup ───────────────────────────────
+
+test('import users request custom date rule rejects non-string valid_from_text', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $rules = makeRules(ImportUsersRequest::class, ['id' => $group->id, 'valid_from_text' => ['not-a-string']]);
+    assertFails($rules, ['id' => $group->id, 'users' => [['name' => 'Alice']], 'valid_from_text' => ['not-a-string']], 'valid_from_text');
+});
+
+test('import users request custom date rule rejects invalid date string for valid_from_text', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $rules = makeRules(ImportUsersRequest::class, ['id' => $group->id, 'valid_from_text' => 'not-a-valid-date']);
+    assertFails($rules, ['id' => $group->id, 'users' => [['name' => 'Alice']], 'valid_from_text' => 'not-a-valid-date'], 'valid_from_text');
+});
+
+test('import users request userGroup returns the group model', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+    ];
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+
+    $request->setValidator($validator);
+
+    expect($request->userGroup()->id)->toBe($group->id);
+});
+
+test('import users request importData returns merged safe data including valid_from and valid_until', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+    ];
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+
+    $request->setValidator($validator);
+
+    $request->merge([
+        'valid_from' => CarbonImmutable::parse('2026-06-01'),
+        'valid_until' => null,
+    ]);
+
+    $data = $request->importData();
+
+    expect($data)->toHaveKey('id')
+        ->and($data)->toHaveKey('valid_from');
+});
+
+// ── RemoveUsersFromUserGroupRequest accessors ─────────────────────────────────
+
+test('remove users request userIds returns valid uuid list from input users', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $user = User::factory()->create();
+
+    $request = buildFormRequest(RemoveUsersFromUserGroupRequest::class, [
+        'id' => $group->id,
+        'users' => [$user->id],
+    ]);
+
+    $rules = $request->rules();
+    $validator = Validator::make($request->all(), $rules);
+    expect($validator->passes())->toBeTrue();
+
+    $validatedUsers = $validator->validated()['users'] ?? [];
+    expect($validatedUsers)->toContain($user->id);
+});
+
+test('remove users request authorize returns false when user is missing', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $request = buildFormRequest(RemoveUsersFromUserGroupRequest::class, ['id' => $group->id]);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('remove users request userGroupOrNull returns null when no id given', function (): void {
+    $request = buildFormRequest(RemoveUsersFromUserGroupRequest::class, []);
+
+    expect($request->userGroupOrNull())->toBeNull();
+});
+
+test('remove users request userGroup returns the model for valid id', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+    $user = User::factory()->create();
+
+    $request = buildFormRequest(RemoveUsersFromUserGroupRequest::class, [
+        'id' => $group->id,
+        'users' => [$user->id],
+    ]);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+
+    $request->setValidator($validator);
+
+    expect($request->userGroup()->id)->toBe($group->id);
+});
+
+// ── HappeningRequest: userOne() accessor ───────────────────────────
+
+test('store happening request userOne returns the user model for a valid user_id_01', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $request = buildFormRequest(StoreHappeningRequest::class, [
+        'user_id_01' => $user->id,
+        'resource_id' => $resource->id,
+    ]);
+
+    expect($request->userOne()?->id)->toBe($user->id);
+});
+
+test('store happening request userOne returns null when user_id_01 is not provided', function (): void {
+    $request = buildFormRequest(StoreHappeningRequest::class, []);
+
+    expect($request->userOne())->toBeNull();
+});
+
+// ── ImportUsersRequest passedValidation branches ─────────────────────────────
+
+test('import users request passedValidation uses CarbonImmutable now when neither valid_from_date nor valid_from_text is provided', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    // Neither valid_from_date nor valid_from_text → $validFrom = CarbonImmutable::now()
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+    ];
+
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+    $request->setValidator($validator);
+
+    $reflection = new ReflectionMethod($request, 'passedValidation');
+    $reflection->invoke($request);
+
+    $data = $request->importData();
+
+    expect($data)->toHaveKey('valid_from')
+        ->and($data['valid_until'])->toBeNull();
+});
+
+test('import users request passedValidation parses valid_from_text (elseif branch)', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    // valid_from_text triggers the elseif branch for validFrom
+    // valid_until is null → triggers the else branch
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+        'valid_from_text' => '2026-01-01',
+    ];
+
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+    $request->setValidator($validator);
+
+    // Trigger passedValidation (simulating what Laravel does after validation)
+    $reflection = new ReflectionMethod($request, 'passedValidation');
+    $reflection->invoke($request);
+
+    $data = $request->importData();
+
+    expect($data)->toHaveKey('valid_from')
+        ->and($data['valid_until'])->toBeNull();
+});
+
+test('import users request passedValidation computes valid_until from valid_until_text interval', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    // valid_until_text triggers the elseif branch (lines 67-69): CarbonInterval
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+        'valid_from_date' => '2026-01-01',
+        'valid_until_text' => '1 month',
+    ];
+
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+    $request->setValidator($validator);
+
+    $reflection = new ReflectionMethod($request, 'passedValidation');
+    $reflection->invoke($request);
+
+    $data = $request->importData();
+
+    expect($data)->toHaveKey('valid_from')
+        ->and($data['valid_until'])->not->toBeNull();
+});
+
+test('import users request passedValidation uses valid_from_date and valid_until_date', function (): void {
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $input = [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+        'valid_from_date' => '2026-01-15',
+        'valid_until_date' => '2026-12-31',
+    ];
+
+    $request = buildFormRequest(ImportUsersRequest::class, $input);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+    $request->setValidator($validator);
+
+    $reflection = new ReflectionMethod($request, 'passedValidation');
+    $reflection->invoke($request);
+
+    $data = $request->importData();
+
+    expect($data)->toHaveKey('valid_from')
+        ->and($data)->toHaveKey('valid_until');
+});
+
+// ── Order request authorize true-path ────────────────────────────────────────
+
+test('institution order request authorize returns true when admin user can update all institutions', function (): void {
+    $institution = Institution::factory()->create();
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(InstitutionOrderRequest::class, [
+        ['id' => $institution->id, 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeTrue();
+});
+
+test('institution order request authorize returns false when institution is not found', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(InstitutionOrderRequest::class, [
+        ['id' => (string) Str::uuid(), 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('resource order request authorize returns true when admin user can update all resources', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(ResourceOrderRequest::class, [
+        ['id' => $resource->id, 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeTrue();
+});
+
+test('resource order request authorize returns false when resource is not found', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(ResourceOrderRequest::class, [
+        ['id' => (string) Str::uuid(), 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeFalse();
+});
+
+test('resource group order request authorize returns true when admin user can update all resource groups', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(ResourceGroupOrderRequest::class, [
+        ['id' => $resourceGroup->id, 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeTrue();
+});
+
+test('resource group order request authorize returns false when resource group is not found', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $request = buildFormRequest(ResourceGroupOrderRequest::class, [
+        ['id' => (string) Str::uuid(), 'order' => 1],
+    ], $admin);
+
+    expect($request->authorize())->toBeFalse();
 });

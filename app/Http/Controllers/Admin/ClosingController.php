@@ -52,10 +52,7 @@ class ClosingController extends AdminController
     public function storeClosing(StoreClosingRequest $request): RedirectResponse
     {
         $closable = $request->closable();
-
-        if ($closable === null) {
-            abort(404);
-        }
+        abort_unless($closable !== null, 404);
 
         $this->closingAdminService->store($closable, $request->validated());
 

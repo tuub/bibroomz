@@ -20,7 +20,8 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(
     LoginController::class,
-    LoginAction::class
+    LoginAction::class,
+    HomeController::class,
 );
 
 uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
@@ -71,6 +72,23 @@ test('home controller redirects blocked terminal views back to the start page', 
 
     expect($response)->toBeInstanceOf(RedirectResponse::class)
         ->and($response->getTargetUrl())->toBe(route('start'));
+});
+
+test('home controller getStart renders Start page when redirect slugs are not strings', function (): void {
+    $builder = Mockery::mock(HomePageDataBuilder::class);
+    $accessService = Mockery::mock(InstitutionAccessService::class);
+    $localeManager = Mockery::mock(LocalePreferenceManager::class);
+    $resolver = Mockery::mock(RouteResourceGroupResolver::class);
+
+    // Return a redirect array with non-string slugs→ renders 'Start'
+    $builder->shouldReceive('buildStartPageData')
+        ->once()
+        ->andReturn(['redirect' => ['institution_slug' => null, 'resource_group_slug' => null]]);
+
+    $response = (new HomeController($builder, $accessService, $localeManager, $resolver))
+        ->getStart();
+
+    expect($response)->toBeInstanceOf(InertiaResponse::class);
 });
 
 test('login controller returns the public auth error response for invalid credentials', function (): void {

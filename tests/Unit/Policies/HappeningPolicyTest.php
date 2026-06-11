@@ -65,6 +65,13 @@ test('before rejects banned users and create is otherwise allowed', function ():
         ->and($policy->create())->toBeTrue();
 });
 
+test('before returns null for non-banned users allowing further policy checks', function (): void {
+    $user = Mockery::mock(User::class);
+    $user->shouldReceive('isBanned')->once()->andReturn(false);
+
+    expect((new HappeningPolicy)->before($user))->toBeNull();
+});
+
 test('update and delete reject past or already verified present happenings', function (): void {
     $user = User::factory()->create(['name' => 'owner']);
     $policy = new HappeningPolicy;
@@ -159,4 +166,36 @@ test('admin happening actions are scoped to institution permissions', function (
         ->and($policy->adminCreate($user, $institution))->toBeTrue()
         ->and($policy->adminUpdate($user, $happening))->toBeTrue()
         ->and($policy->adminDelete($user, $happening))->toBeTrue();
+});
+
+test('update returns false when happening has no user1', function (): void {
+    $user = User::factory()->create(['name' => 'requester']);
+    $happening = createPolicyHappening(['user_id_01' => null]);
+    $policy = new HappeningPolicy;
+
+    expect($policy->update($user, $happening))->toBeFalse();
+});
+
+test('update allows owner when happening is present but not yet verified', function (): void {
+    $owner = User::factory()->create(['name' => 'owner-present']);
+    $happening = createPolicyHappening([
+        'user_id_01' => $owner->id,
+        'is_verified' => false,
+        'start' => CarbonImmutable::now()->subMinutes(30),
+        'end' => CarbonImmutable::now()->addMinutes(30),
+    ]);
+    $policy = new HappeningPolicy;
+
+    expect($policy->update($owner, $happening))->toBeTrue();
+});
+
+test('update allows verifier when user2 is null', function (): void {
+    $verifier = User::factory()->create(['name' => 'solo-verifier']);
+    $happening = createPolicyHappening([
+        'user_id_02' => null,
+        'verifier' => Utility::normalizeLoginName($verifier->name),
+    ]);
+    $policy = new HappeningPolicy;
+
+    expect($policy->update($verifier, $happening))->toBeTrue();
 });

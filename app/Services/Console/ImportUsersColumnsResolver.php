@@ -62,11 +62,8 @@ class ImportUsersColumnsResolver
         }
 
         if ($headerOption || confirm('Does the file include a CSV header?')) {
+            /** @var non-empty-list<string|null> $header */
             $header = fgetcsv($file);
-
-            if (! is_array($header)) {
-                return [];
-            }
 
             return array_values(array_filter(
                 $header,

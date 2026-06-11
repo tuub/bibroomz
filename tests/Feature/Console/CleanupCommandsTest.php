@@ -2,7 +2,6 @@
 
 use App\Console\Commands\AnonymizeHappeningUsersCommand;
 use App\Console\Commands\RemoveUnverifiedHappeningsCommand;
-use App\Console\Commands\RemoveUsersCommand;
 use App\Events\HappeningsChangedEvent;
 use App\Events\UnverifiedHappeningRemovedBySchedulerEvent;
 use App\Models\Happening;
@@ -13,7 +12,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Services\Console\AnonymizeHappeningUsersAction;
-use App\Services\Console\CleanupIntervalResolver;
 use App\Services\Console\RemoveUnverifiedHappeningsAction;
 use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
 use App\Services\Console\RemoveUsersAction;
@@ -26,13 +24,11 @@ use Illuminate\Support\Facades\Event;
 use Symfony\Component\Console\Command\Command;
 
 covers(
-    RemoveUnverifiedHappeningsCommand::class,
     AnonymizeHappeningUsersCommand::class,
-    RemoveUsersCommand::class,
+    RemoveUnverifiedHappeningsCommand::class,
     RemoveUnverifiedHappeningsAction::class,
     RemoveUnverifiedHappeningsQueryBuilder::class,
     AnonymizeHappeningUsersAction::class,
-    CleanupIntervalResolver::class,
     RemoveUsersAction::class,
     RemoveUsersQueryBuilder::class
 );
@@ -241,7 +237,7 @@ test('anonymize command does not anonymize recent happenings when config days is
     ]);
 
     // Wipe the config so resolveDays() cannot resolve a valid integer.
-    config()->set('roomz.happenings.anonymize_days');
+    config()->set('roomz.happenings.anonymize_days', null);
 
     // Without --days and with a null config, the command should refuse to run (or default safely)
     // rather than anonymize happenings from 0 days ago (= all past happenings).

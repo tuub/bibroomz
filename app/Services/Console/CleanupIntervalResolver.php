@@ -11,12 +11,11 @@ class CleanupIntervalResolver
     {
         $time = now();
         $settingModel = $institution->settings->where('key', 'cleanup_interval')->first();
+        /** @var string|null $rawSetting */
         $rawSetting = $settingModel !== null
             ? $settingModel->value
             : config('roomz.default.cleanup_interval');
-        $setting = is_string($rawSetting)
-            ? $rawSetting
-            : (is_int($rawSetting) || is_float($rawSetting) ? (string) $rawSetting : '');
+        $setting = $rawSetting ?? '';
 
         foreach (explode(':', $setting) as $index => $interval) {
             $value = (int) $interval;

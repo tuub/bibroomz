@@ -27,5 +27,9 @@
         <include>
             <directory suffix=".php">./app</directory>
         </include>
+        <exclude>
+            <!-- Never loaded in tests because TELESCOPE_ENABLED=false -->
+            <file>./app/Providers/TelescopeServiceProvider.php</file>
+        </exclude>
     </source>
 </phpunit>

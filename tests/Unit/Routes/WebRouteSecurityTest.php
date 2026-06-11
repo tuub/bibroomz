@@ -37,3 +37,10 @@ test('admin user group routes resolve to the correct controller', function (): v
         expect($route->getActionName())->toBe(UserGroupController::class.'@'.$method);
     }
 });
+
+test('admin resource group create route uses the correctly spelled institution path', function (): void {
+    /** @var Illuminate\Routing\Route $route */
+    $route = Route::getRoutes()->getByName('admin.resource_group.create');
+
+    expect($route->uri())->toBe('admin/institution/{institution_id}/resource_group/create');
+});

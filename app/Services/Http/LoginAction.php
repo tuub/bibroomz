@@ -20,10 +20,7 @@ class LoginAction
         $request->session()->regenerate();
 
         $user = Auth::user();
-
-        if (! $user instanceof User) {
-            return null;
-        }
+        abort_unless($user instanceof User, 500);
 
         $user->update([
             'is_logged_in' => true,

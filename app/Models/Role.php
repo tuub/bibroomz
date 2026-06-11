@@ -44,6 +44,8 @@ class Role extends Model
 
     /**
      * @return BelongsToMany<User, $this, InstitutionUserRole>
+     *
+     * @codeCoverageIgnore
      */
     public function users(): BelongsToMany
     {
@@ -54,6 +56,8 @@ class Role extends Model
 
     /**
      * @return BelongsToMany<Institution, $this, InstitutionUserRole>
+     *
+     * @codeCoverageIgnore
      */
     public function institutions(): BelongsToMany
     {

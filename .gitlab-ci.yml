@@ -228,7 +228,7 @@ frontend-build:
       - public/build/
 
 ### Test stage
-unit-coverage:
+coverage:
   extends: .nix
   stage: test
   coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
@@ -237,8 +237,7 @@ unit-coverage:
       artifacts: true
   script:
     - mkdir --parents build/coverage
-    - |
-      nix develop --command composer run coverage:unit
+    - nix develop --command composer run coverage
 
   artifacts:
     when: always
@@ -246,28 +245,7 @@ unit-coverage:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: build/coverage/cobertura-unit.xml
-    paths:
-      - build/coverage/
-
-feature-coverage:
-  extends: .nix
-  stage: test
-  coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
-  needs:
-    - job: frontend-build
-      artifacts: true
-  script:
-    - mkdir --parents build/coverage
-    - |
-      nix develop --command composer run coverage:feature
-  artifacts:
-    when: always
-    expire_in: 1 week
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: build/coverage/cobertura-feature.xml
+        path: build/coverage/cobertura.xml
     paths:
       - build/coverage/
 

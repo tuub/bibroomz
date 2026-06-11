@@ -14,7 +14,7 @@ class UpdateResourceRequest extends ResourceRequest
         $resource = $this->resourceOrNull();
         $resourceGroup = $this->resourceGroup();
 
-        if (! $user instanceof User || ! $resource instanceof \App\Models\Resource || ! $resourceGroup instanceof ResourceGroup) {
+        if (! $user instanceof User || ! $resource instanceof Resource || ! $resourceGroup instanceof ResourceGroup) {
             return false;
         }
 
@@ -33,11 +33,5 @@ class UpdateResourceRequest extends ResourceRequest
     public function resourceOrNull(): ?Resource
     {
         return $this->findModel(Resource::class);
-    }
-
-    #[\Override]
-    public function resourceGroup(): ?ResourceGroup
-    {
-        return $this->findModel(ResourceGroup::class, 'resource_group_id');
     }
 }

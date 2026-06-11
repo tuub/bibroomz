@@ -3,31 +3,15 @@
 use App\Library\Utility;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Log;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(Utility::class);
 
 uses(MockeryPHPUnitIntegration::class);
 
-/**
- * @param  array<string, mixed>  $data
- */
-function callUtilitySendToLog(array $data, ?string $level = null): void
-{
-    Utility::sendToLog('audit', $data, $level);
-}
-
 afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
-});
-
-test('carbonize parses strings and preserves carbon instances', function (): void {
-    $carbon = Carbon::parse('2026-06-03 11:45:00');
-
-    expect(Utility::carbonize('2026-06-03 11:45:00')->toDateTimeString())->toBe('2026-06-03 11:45:00')
-        ->and(Utility::carbonize($carbon))->toBe($carbon);
 });
 
 test('get carbon now applies configured timezone offset', function (): void {
@@ -42,32 +26,11 @@ test('create carbon date time combines date and time strings', function (): void
         ->toBe('2026-06-03 14:30:00');
 });
 
-test('send to log uses default log level and adds calling action', function (): void {
-    config()->set('roomz.log.level', 'warning');
-
-    $logger = Mockery::mock();
-    $logger->shouldReceive('warning')
-        ->once()
-        ->with(Mockery::on(fn (string $message): bool => str_contains($message, 'ACTION=callUtilitySendToLog')
-            && str_contains($message, 'user=alice')
-            && str_contains($message, 'state=ready')));
-
-    Log::shouldReceive('channel')->once()->with('audit')->andReturn($logger);
-
-    callUtilitySendToLog([
-        'user' => 'alice',
-        'state' => 'ready',
-    ]);
-});
-
 test('time string helpers parse date and time values', function (): void {
     expect(Utility::getTimeValuesFromEnvTimeString('02:30'))->toBe([
         'hour' => 2,
         'minute' => 30,
     ]);
-
-    expect(Utility::getDateTimeFromStrings('2026-06-03', '14:45')->format('Y-m-d H:i:s'))
-        ->toBe('2026-06-03 14:45:00');
 });
 
 test('camel case conversion and login normalization are configurable', function (): void {
@@ -90,4 +53,50 @@ test('get translatable returns all locales and restores the original locale', fu
         'en' => 'Rooms',
         'de' => 'Rooms',
     ])->and(app()->getLocale())->toBe('en');
+});
+
+test('createCarbonDateTime throws InvalidArgumentException for invalid date time combination', function (): void {
+    expect(fn (): Carbon => Utility::createCarbonDateTime('not-a-date', 'not-a-time'))
+        ->toThrow(InvalidArgumentException::class, 'Invalid date/time combination.');
+});
+
+test('getTranslatable skips non-string locales in the supported_locales array', function (): void {
+    app()->setLocale('en');
+    // Mix of valid string locales and non-string values
+    config()->set('app.supported_locales', ['en', 42, null, 'de']);
+
+    $result = Utility::getTranslatable('Test');
+
+    // Non-string locales should be skipped; only 'en' and 'de' should appear
+    expect($result)->toBe(['en' => 'Test', 'de' => 'Test'])
+        ->and(app()->getLocale())->toBe('en');
+});
+
+test('createCarbonDateTime includes the time portion in the result', function (): void {
+    $result = Utility::createCarbonDateTime('01.01.2026', '15:45');
+
+    expect($result->format('H:i'))->toBe('15:45')
+        ->and($result->format('d.m.Y'))->toBe('01.01.2026');
+});
+
+test('getTimeValuesFromEnvTimeString with only hours returns zero for minute', function (): void {
+    $result = Utility::getTimeValuesFromEnvTimeString('5');
+
+    expect($result['hour'])->toBe(5)
+        ->and($result['minute'])->toBe(0);
+});
+
+test('getTimeValuesFromEnvTimeString minute is distinct from hour', function (): void {
+    $result = Utility::getTimeValuesFromEnvTimeString('10:45');
+
+    expect($result['hour'])->toBe(10)
+        ->and($result['minute'])->toBe(45)
+        ->and($result['minute'])->not->toBe($result['hour']);
+});
+
+test('getTranslatable with non-array supported_locales returns empty array', function (): void {
+    app()->setLocale('en');
+    config()->set('app.supported_locales', null);
+
+    expect(Utility::getTranslatable('Test'))->toBe([]);
 });

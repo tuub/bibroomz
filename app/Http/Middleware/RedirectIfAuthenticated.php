@@ -16,9 +16,8 @@ class RedirectIfAuthenticated
      *
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @param  string|null  ...$guards
-     * @return Response|RedirectResponse
      */
-    public function handle(Request $request, Closure $next, ...$guards)
+    public function handle(Request $request, Closure $next, ...$guards): Response|RedirectResponse
     {
         $guards = $guards === [] ? [null] : $guards;
 

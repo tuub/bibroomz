@@ -90,18 +90,15 @@ class ImportUsersAction
         $options = [];
 
         foreach ($groups as $group) {
+            /** @var string|int $groupKey */
             $groupKey = $group->getKey();
-            if (! is_string($groupKey) && ! is_int($groupKey)) {
-                continue;
-            }
-            if (! $group->institution instanceof Institution) {
-                continue;
-            }
+            /** @var Institution $institution */
+            $institution = $group->institution;
 
             $options[(string) $groupKey] = sprintf(
                 '%s (%s)',
                 $this->translatedTitle($group),
-                $this->translatedTitle($group->institution),
+                $this->translatedTitle($institution),
             );
         }
 
@@ -110,11 +107,10 @@ class ImportUsersAction
 
     private function institutionTitle(UserGroup $group): string
     {
-        if (! $group->institution instanceof Institution) {
-            return '';
-        }
+        /** @var Institution $institution */
+        $institution = $group->institution;
 
-        return $this->translatedTitle($group->institution);
+        return $this->translatedTitle($institution);
     }
 
     private function translatedTitle(UserGroup|Institution $model): string

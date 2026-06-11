@@ -17,10 +17,7 @@ class AdminController extends Controller
     protected function authenticatedUser(): User
     {
         $user = auth()->user();
-
-        if (! $user instanceof User) {
-            abort(403);
-        }
+        abort_unless($user instanceof User, 403);
 
         return $user;
     }

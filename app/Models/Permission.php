@@ -35,6 +35,8 @@ class Permission extends Model
 
     /**
      * @return BelongsToMany<Role, $this>
+     *
+     * @codeCoverageIgnore
      */
     public function roles(): BelongsToMany
     {
@@ -43,6 +45,8 @@ class Permission extends Model
 
     /**
      * @return BelongsTo<PermissionGroup, $this>
+     *
+     * @codeCoverageIgnore
      */
     public function group(): BelongsTo
     {

@@ -87,6 +87,22 @@ test('redirect if authenticated passes guests through unchanged', function (): v
     expect($response->getContent())->toBe('ok');
 });
 
+test('cache user activity middleware passes guest requests unchanged', function (): void {
+    $request = Request::create('/', 'GET');
+
+    $response = (new CacheUserActivity)->handle($request, fn () => response('ok'));
+
+    expect($response->getContent())->toBe('ok');
+});
+
+test('handle inertia requests version is callable and returns a value', function (): void {
+    $request = Request::create('/', 'GET');
+
+    $version = (new HandleInertiaRequests)->version($request);
+
+    expect(gettype($version))->toBeIn(['NULL', 'string']);
+});
+
 test('authenticate middleware redirects html guests to the start page', function (): void {
     $middleware = new class(app('auth')) extends Authenticate
     {
