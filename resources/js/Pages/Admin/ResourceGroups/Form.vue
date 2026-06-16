@@ -124,7 +124,12 @@
             <FormValidationError :message="form.errors.user_groups"></FormValidationError>
         </fieldset>
 
-        <FormAction :form="form" model="resource_group" cancel-route="admin.resource_group.index" />
+        <FormAction
+            :form="form"
+            model="resource_group"
+            cancel-route="admin.resource_group.index"
+            :cancel-route-params="{ institution_id: form.institution_id }"
+        />
     </FormLayout>
 </template>
 <script setup>

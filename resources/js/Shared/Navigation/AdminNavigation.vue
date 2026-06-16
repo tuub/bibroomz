@@ -22,9 +22,9 @@
                 </li>
             </NavLink>
             <NavLink
-                v-if="hasPermission('view_resource_groups')"
+                v-if="resourceGroupIndexHref"
                 icon="ri-map-pin-fill"
-                :href="route('admin.resource_group.index')"
+                :href="resourceGroupIndexHref"
                 :is-active="isPageResourceGroups"
             >
                 <li>
@@ -49,26 +49,6 @@
             >
                 <li>
                     {{ $t("navigation.admin.roles") }}
-                </li>
-            </NavLink>
-            <NavLink
-                v-if="hasPermission('view_permissions')"
-                icon="ri-door-lock-fill"
-                :href="route('admin.permission.index')"
-                :is-active="isPagePermissions"
-            >
-                <li>
-                    {{ $t("navigation.admin.permissions") }}
-                </li>
-            </NavLink>
-            <NavLink
-                v-if="hasPermission('view_permission_groups')"
-                icon="ri-shield-keyhole-fill"
-                :href="route('admin.permission_group.index')"
-                :is-active="isPagePermissionGroups"
-            >
-                <li>
-                    {{ $t("navigation.admin.permission_groups") }}
                 </li>
             </NavLink>
             <NavLink
@@ -97,13 +77,14 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { usePage } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, inject } from "vue";
 
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const appStore = useAppStore();
 const authStore = useAuthStore();
+const route = inject("ziggyRoute");
 
 // ------------------------------------------------
 // Variables
@@ -158,16 +139,75 @@ const isPageRoles = computed(() => {
     return inertiaPage.component.startsWith("Admin/Roles");
 });
 
-const isPagePermissions = computed(() => {
-    return inertiaPage.component.startsWith("Admin/Permissions");
-});
-
-const isPagePermissionGroups = computed(() => {
-    return inertiaPage.component.startsWith("Admin/PermissionGroups");
-});
-
 const isPageUserGroups = computed(() => {
     return inertiaPage.component.startsWith("Admin/UserGroups");
+});
+
+const findInstitutionIdForPermission = (permission) => {
+    for (const [institutionId, permissions] of Object.entries(authStore.permissions ?? {})) {
+        if (Array.isArray(permissions) && permissions.includes(permission)) {
+            return institutionId;
+        }
+    }
+
+    return null;
+};
+
+const currentInstitutionId = computed(() => {
+    if (typeof inertiaPage.props.institution?.id === "string") {
+        return inertiaPage.props.institution.id;
+    }
+
+    if (typeof inertiaPage.props.institution_id === "string") {
+        return inertiaPage.props.institution_id;
+    }
+
+    if (typeof inertiaPage.props.resourceGroup?.institution_id === "string") {
+        return inertiaPage.props.resourceGroup.institution_id;
+    }
+
+    if (typeof inertiaPage.props.resource_group?.institution_id === "string") {
+        return inertiaPage.props.resource_group.institution_id;
+    }
+
+    if (inertiaPage.props.closable_type === "institution" && typeof inertiaPage.props.closable?.id === "string") {
+        return inertiaPage.props.closable.id;
+    }
+
+    if (inertiaPage.props.settingable_type === "institution" && typeof inertiaPage.props.settingable?.id === "string") {
+        return inertiaPage.props.settingable.id;
+    }
+
+    if (
+        inertiaPage.props.settingable_type === "resource_group" &&
+        typeof inertiaPage.props.settingable?.institution_id === "string"
+    ) {
+        return inertiaPage.props.settingable.institution_id;
+    }
+
+    return null;
+});
+
+const resourceGroupInstitutionId = computed(() => {
+    return (
+        currentInstitutionId.value ??
+        findInstitutionIdForPermission("view_resource_groups") ??
+        findInstitutionIdForPermission("create_resource_groups") ??
+        findInstitutionIdForPermission("edit_resource_groups") ??
+        findInstitutionIdForPermission("delete_resource_groups")
+    );
+});
+
+const resourceGroupIndexHref = computed(() => {
+    if (resourceGroupInstitutionId.value) {
+        return route("admin.resource_group.index", { institution_id: resourceGroupInstitutionId.value });
+    }
+
+    if (canViewInstitutions()) {
+        return route("admin.institution.index");
+    }
+
+    return null;
 });
 
 const getExitUri = computed(() => {
