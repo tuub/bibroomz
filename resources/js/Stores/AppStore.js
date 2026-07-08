@@ -3,7 +3,7 @@ import { withBaseUrl } from "@/baseUrl";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
+import { I18n, getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 dayjs.extend(customParseFormat);
@@ -42,6 +42,11 @@ export const useAppStore = defineStore({
                     locale,
                 })
                 .then(() => {
+                    const i18n = I18n.getSharedInstance();
+
+                    i18n.setOptions({ fallbackLang: locale === "de" ? "en" : "de" });
+                    i18n.loadFallbackLanguage();
+
                     loadLanguageAsync(locale);
                     this.locale = locale;
                     this.setTemporalFormats(locale);

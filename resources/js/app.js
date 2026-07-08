@@ -23,6 +23,20 @@ import { ZiggyVue, route } from "ziggy-js";
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
+function stripEmpty(obj) {
+    if (typeof obj !== "object" || obj === null) return obj;
+    const out = {};
+    for (const [k, v] of Object.entries(obj)) {
+        if (typeof v === "object" && v !== null) {
+            const nested = stripEmpty(v);
+            if (Object.keys(nested).length > 0) out[k] = nested;
+        } else if (v !== "") {
+            out[k] = v;
+        }
+    }
+    return out;
+}
+
 createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
@@ -83,8 +97,11 @@ createInertiaApp({
             // i18n
             .use(i18nVue, {
                 lang: "de",
-                fallback: "en",
-                resolve: (lang) => import(`../../lang/php_${lang}.json`),
+                fallbackLang: "en",
+                resolve: async (lang) => {
+                    const mod = await import(`../../lang/php_${lang}.json`);
+                    return { default: stripEmpty(mod.default ?? mod) };
+                },
             })
             // Ziggy
             .use(ZiggyVue, Ziggy)
