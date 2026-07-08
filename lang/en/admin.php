@@ -55,7 +55,6 @@ return [
     ],
     'dashboard' => [
         'title' => 'Dashboard',
-        'description' => '',
     ],
     'happenings' => [
         'index' => [

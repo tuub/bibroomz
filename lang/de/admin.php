@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'general' => [
         'records_count' => '{0} Keine Datensätze|{1} :count Datensatz|[2,*] :count Datensätze',
         'label' => [
-            'clone' => '(KOPIE)'
+            'clone' => '(KOPIE)',
         ],
         'form' => [
             'choose' => 'Bitte auswählen',
@@ -18,7 +20,7 @@ return [
             'not_required' => 'Nicht erforderlich',
             'keyword_search' => 'Suchbegriff',
             'no_records' => 'Keine Datensätze gefunden.',
-            'loading_records' => 'Lade Datensätze ...'
+            'loading_records' => 'Lade Datensätze ...',
         ],
         'week_days' => [
             'monday' => [
@@ -47,13 +49,12 @@ return [
             ],
             'sunday' => [
                 'label' => 'Sonntag',
-                'short_label' => 'So'
+                'short_label' => 'So',
             ],
-        ]
+        ],
     ],
     'dashboard' => [
         'title' => 'Dashboard',
-        'description' => '',
     ],
     'happenings' => [
         'index' => [
@@ -239,7 +240,6 @@ return [
                     'slug' => 'Slug',
                     'institution' => 'Einrichtung',
                     'description' => 'Beschreibung',
-                    'resources_count' => 'Ressourcen',
                     'is_active' => 'Aktiv?',
                 ],
                 'actions' => [
@@ -402,7 +402,7 @@ return [
                             'placeholder' => 'Das Enddatum',
                             'hint' => 'Über das Enddatum',
                         ],
-                    ]
+                    ],
                 ],
             ],
             'actions' => [
@@ -868,7 +868,7 @@ return [
                     'weeks' => 'Woche(n)',
                     'months' => 'Monat(e)',
                     'years' => 'Jahr(e)',
-                ]
+                ],
             ],
         ],
         'users' => [
@@ -883,7 +883,7 @@ return [
                 'actions' => [
                     'remove' => 'Entfernen',
                 ],
-            ]
-        ]
+            ],
+        ],
     ],
 ];
