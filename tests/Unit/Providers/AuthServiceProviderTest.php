@@ -45,7 +45,7 @@ test('view-admin-panel gate returns false when user has no permissions', functio
     expect($result)->toBeFalse();
 });
 
-test('Gate::after allows admin user on any ability', function (): void {
+test('Gate::before allows admin user on any ability', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $result = Gate::forUser($admin)->allows('some-arbitrary-ability');
@@ -53,7 +53,16 @@ test('Gate::after allows admin user on any ability', function (): void {
     expect($result)->toBeTrue();
 });
 
-test('Gate::after does not grant non-admin user on ability they lack', function (): void {
+test('view-admin-panel gate returns true for admin user without permissions', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $admin->load('roles.permissions');
+
+    $result = Gate::forUser($admin)->allows('view-admin-panel');
+
+    expect($result)->toBeTrue();
+});
+
+test('Gate::before does not grant non-admin user on ability they lack', function (): void {
     $user = User::factory()->create(['is_admin' => false]);
 
     $result = Gate::forUser($user)->allows('some-arbitrary-ability');
