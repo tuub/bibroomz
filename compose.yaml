@@ -11,6 +11,9 @@ x-environment: &env
   REVERB_HOST: reverb
   REVERB_PORT: 6001
 
+# NOTE: YAML merge keys (<<) are shallow. If a service adds its own `depends_on`
+# block it will fully replace this anchor's entries, silently dropping the
+# mariadb/redis health gates. Merge all dependencies explicitly in that case.
 x-php: &php
   build:
     target: frankenphp
@@ -22,8 +25,10 @@ x-php: &php
     - source: .env
       target: /var/www/.env
   depends_on:
-    - mariadb
-    - redis
+    mariadb:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
   environment:
     <<: *env
   restart: unless-stopped
@@ -51,9 +56,21 @@ services:
   queue-worker:
     <<: *php
     command: ["php", "artisan", "queue:work"]
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa 'queue:work' /proc/1/cmdline"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   schedule-worker:
     <<: *php
     command: ["php", "artisan", "schedule:work"]
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa 'schedule:work' /proc/1/cmdline"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   reverb:
     <<: *php
     command: ["php", "artisan", "reverb:start"]
@@ -61,6 +78,12 @@ services:
       <<: *env
       REVERB_SERVER_HOST: 0.0.0.0
       REVERB_SERVER_PORT: 6001
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --write-out '%{http_code}' --output /dev/null http://localhost:6001 | grep -qvE '^5'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
   mariadb:
     image: ${DOCKERHUB_IMAGE_PREFIX:-}mariadb:10.11.17-jammy@sha256:8acd4a5561e8897cfc8a99480f25bcecb10b726fa17b1ec7381c6ef36fa00a79
     environment:
@@ -72,9 +95,11 @@ services:
       - mariadb-data:/var/lib/mysql
       - .docker/mariadb/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
-      test: healthcheck.sh --connect --innodb_initialized
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
       interval: 5s
-      start_period: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     ports:
       - 127.0.0.1:3306:3306
   redis:
@@ -82,8 +107,10 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: redis-cli ping
+      test: ["CMD-SHELL", "redis-cli ping"]
       interval: 5s
+      timeout: 5s
+      retries: 3
       start_period: 5s
     ports:
       - 127.0.0.1:6379:6379
@@ -95,7 +122,11 @@ services:
     volumes:
       - mailpit-data:/data
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "wget --quiet --spider http://localhost:8025$${MP_WEBROOT}/api/v1/info"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     ports:
       - 127.0.0.1:1025:1025
       - 127.0.0.1:8025:8025
