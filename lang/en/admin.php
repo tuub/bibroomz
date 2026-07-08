@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'general' => [
         'records_count' => '{0} No records|{1} :count record|[2,*] :count records',
         'label' => [
-            'clone' => '(COPY)'
+            'clone' => '(COPY)',
         ],
         'form' => [
             'choose' => 'Please choose',
@@ -18,7 +20,7 @@ return [
             'not_required' => 'Not required',
             'keyword_search' => 'Keyword',
             'no_records' => 'No records found.',
-            'loading_records' => 'Loading records ...'
+            'loading_records' => 'Loading records ...',
         ],
         'week_days' => [
             'monday' => [
@@ -47,9 +49,9 @@ return [
             ],
             'sunday' => [
                 'label' => 'Sunday',
-                'short_label' => 'Sun'
+                'short_label' => 'Sun',
             ],
-        ]
+        ],
     ],
     'dashboard' => [
         'title' => 'Dashboard',
@@ -147,7 +149,8 @@ return [
                     'short_title' => 'Short Title',
                     'slug' => 'URI-Slug',
                     'location' => 'Location',
-                    'resources' => 'Resources',
+                    'resource_groups_count' => 'Resource Groups',
+                    'resources_count' => 'Resources',
                     'is_active' => 'Active?',
                 ],
                 'actions' => [
@@ -400,7 +403,7 @@ return [
                             'placeholder' => 'The end date',
                             'hint' => 'About the end date',
                         ],
-                    ]
+                    ],
                 ],
             ],
             'actions' => [
@@ -482,7 +485,7 @@ return [
     ],
     'stats' => [
         'title' => 'Statistics',
-        'description' => 'Visualize statistics'
+        'description' => 'Visualize statistics',
     ],
     'closings' => [
         'types' => [
@@ -866,7 +869,7 @@ return [
                     'weeks' => 'Week(s)',
                     'months' => 'Month(s)',
                     'years' => 'Year(s)',
-                ]
+                ],
             ],
         ],
         'users' => [
@@ -881,7 +884,7 @@ return [
                 'actions' => [
                     'remove' => 'Remove',
                 ],
-            ]
-        ]
+            ],
+        ],
     ],
 ];
