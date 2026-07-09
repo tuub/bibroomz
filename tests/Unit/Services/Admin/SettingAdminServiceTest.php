@@ -31,7 +31,7 @@ test('update changes setting value', function (): void {
     expect($updated->value)->toBe('Europe/Berlin');
 });
 
-test('getEditFormData returns setting settingable and settingable_type keys', function (): void {
+test('getEditFormData returns setting settingable settingable_type and input_type keys', function (): void {
     $institution = Institution::factory()->create();
     $setting = $institution->settings->where('key', 'timezone')->first();
     assert($setting instanceof Setting);
@@ -41,7 +41,9 @@ test('getEditFormData returns setting settingable and settingable_type keys', fu
 
     expect($data)->toHaveKey('setting')
         ->and($data)->toHaveKey('settingable')
-        ->and($data)->toHaveKey('settingable_type');
+        ->and($data)->toHaveKey('settingable_type')
+        ->and($data)->toHaveKey('input_type')
+        ->and($data['input_type'])->toBe('text');
 });
 
 test('update calls adminLoggingService log', function (): void {

@@ -20,12 +20,27 @@ class UpdateSettingRequest extends AdminRouteRequest
      */
     public function rules(): array
     {
+        $setting = $this->settingOrNull();
+
+        if ($setting instanceof Setting) {
+            $key = $setting->key;
+            $settingableType = $setting->settingable_type;
+        } else {
+            $key = $this->input('key');
+            $settingableType = $this->input('settingable_type');
+        }
+
+        $valueRules = Setting::getValidationRules(
+            is_string($settingableType) ? $settingableType : null,
+            is_string($key) ? $key : null,
+        );
+
         return [
             'id' => ['required', 'uuid'],
             'settingable_id' => ['required', 'uuid'],
             'settingable_type' => ['required', 'string'],
             'key' => ['required'],
-            'value' => ['required'],
+            'value' => $valueRules,
         ];
     }
 

@@ -210,6 +210,7 @@ test('home page preserves the current inertia payload contract', function (): vo
             ->component('Home')
             ->where('resourceGroup.id', $resourceGroup->id)
             ->where('settings.institution.allowed_ips', '0.0.0.0/0')
+            ->where('settings.institution.system_notification', '')
             ->where('isMultiTenancy', true)
             ->where('hiddenDays', []));
 });

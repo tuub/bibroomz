@@ -39,10 +39,7 @@ const { loginUser } = useLogin();
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
-    appStore.appName = props.appName;
-    appStore.resourceGroup = null;
-    appStore.settings = null;
-    appStore.hiddenDays = null;
+    appStore.setStartPageContext(props.appName, props.institutions);
 });
 </script>
 <template>

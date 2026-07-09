@@ -77,7 +77,8 @@ test('editSetting returns 403 for user without edit_settings permission', functi
 
 test('editSetting returns ok for authorized user', function (): void {
     $institution = Institution::factory()->create();
-    $setting = $institution->settings()->firstOrFail();
+    $setting = $institution->settings()->firstWhere('key', 'timezone');
+    assert($setting instanceof Setting);
     $actor = User::factory()->create(['is_admin' => false]);
     grantAdminPermission($actor, $institution, 'edit_settings');
     $this->actingAs($actor);
@@ -86,7 +87,24 @@ test('editSetting returns ok for authorized user', function (): void {
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Settings/Form')
-            ->where('setting.id', $setting->id));
+            ->where('setting.id', $setting->id)
+            ->where('input_type', 'text'));
+});
+
+test('editSetting exposes textarea input type for system notification', function (): void {
+    $institution = Institution::factory()->create();
+    $setting = $institution->settings()->firstWhere('key', 'system_notification');
+    assert($setting instanceof Setting);
+    $actor = User::factory()->create(['is_admin' => false]);
+    grantAdminPermission($actor, $institution, 'edit_settings');
+    $this->actingAs($actor);
+
+    $this->get(route('admin.setting.edit', ['id' => $setting->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/Settings/Form')
+            ->where('setting.id', $setting->id)
+            ->where('input_type', 'textarea'));
 });
 
 test('updateSetting returns redirect on success', function (): void {
@@ -108,6 +126,27 @@ test('updateSetting returns redirect on success', function (): void {
     ]));
 
     expect($setting->fresh()?->value)->toBe('Europe/London');
+});
+
+test('system notification setting can be cleared', function (): void {
+    $institution = Institution::factory()->create();
+    $setting = $institution->settings()->where('key', 'system_notification')->firstOrFail();
+    $actor = User::factory()->create(['is_admin' => false]);
+    grantAdminPermission($actor, $institution, 'edit_settings');
+    $this->actingAs($actor);
+
+    $this->post(route('admin.setting.update'), [
+        'id' => $setting->id,
+        'key' => $setting->key,
+        'value' => '',
+        'settingable_id' => $institution->id,
+        'settingable_type' => 'institution',
+    ])->assertRedirect(route('admin.setting.index', [
+        'settingable_id' => $institution->id,
+        'settingable_type' => 'institution',
+    ]));
+
+    expect($setting->fresh()?->value)->toBeNull();
 });
 
 // ---------------------------------------------------------------------------

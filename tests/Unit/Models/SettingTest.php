@@ -28,6 +28,7 @@ test('setting getInitialValues institution contains all expected keys', function
         'time_format',
         'cleanup_interval',
         'allowed_ips',
+        'system_notification',
     ]);
 });
 
@@ -45,6 +46,16 @@ test('setting getInitialValues resource_group contains all expected keys', funct
         'quota_happening_block_hours',
         'is_label_enabled',
     ]);
+});
+
+test('setting getValidationRules returns configured rules for known setting keys', function (): void {
+    expect(Setting::getValidationRules('institution', 'system_notification'))->toBe(['nullable', 'string'])
+        ->and(Setting::getValidationRules('institution', 'timezone'))->toBe(['required']);
+});
+
+test('setting getInputType returns configured input type for known setting keys', function (): void {
+    expect(Setting::getInputType('institution', 'system_notification'))->toBe('textarea')
+        ->and(Setting::getInputType('institution', 'timezone'))->toBe('text');
 });
 
 test('setting getSettingableModel returns Institution for institution type', function (): void {

@@ -36,6 +36,7 @@ class SettingAdminService
             'setting' => $setting,
             'settingable' => $setting->settingable,
             'settingable_type' => $settingableType,
+            'input_type' => Setting::getInputType($setting->settingable_type, $setting->key),
         ];
     }
 

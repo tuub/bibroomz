@@ -609,6 +609,10 @@ return [
                 'label' => 'Allowed IPs',
                 'description' => ' ',
             ],
+            'system_notification' => [
+                'label' => 'System notification',
+                'description' => 'Shown on the start page, in the calendar, and in the login dialog. Leave empty to hide it.',
+            ],
         ],
         'index' => [
             'title' => 'Settings for :type ":title"',

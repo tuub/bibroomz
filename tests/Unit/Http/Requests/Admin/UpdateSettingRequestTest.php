@@ -37,6 +37,22 @@ test('rules include all setting fields', function (): void {
         ->and($rules['value'])->toContain('required');
 });
 
+test('system notification value may be empty', function (): void {
+    $institution = Institution::factory()->create();
+    $setting = $institution->settings()->where('key', 'system_notification')->firstOrFail();
+    $user = User::factory()->create(['is_admin' => true]);
+
+    $request = buildAdminFormRequest(UpdateSettingRequest::class, [
+        'id' => $setting->id,
+        'settingable_id' => $institution->id,
+        'settingable_type' => Institution::class,
+        'key' => 'system_notification',
+        'value' => null,
+    ], $user);
+
+    expect($request->rules()['value'])->toBe(['nullable', 'string']);
+});
+
 test('id is required', function (): void {
     $rules = buildFormRequest(UpdateSettingRequest::class, [])->rules();
 

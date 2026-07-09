@@ -5,6 +5,8 @@
             field="value"
             field-key="admin.settings.form.fields.value"
             :error="form.errors.value"
+            :type="input_type"
+            :rows="5"
         />
 
         <FormAction
@@ -42,6 +44,11 @@ const props = defineProps({
     settingable_type: {
         type: String,
         default: "",
+    },
+    // eslint-disable-next-line vue/prop-name-casing
+    input_type: {
+        type: String,
+        default: "text",
     },
 });
 

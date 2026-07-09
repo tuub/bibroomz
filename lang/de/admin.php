@@ -609,6 +609,10 @@ return [
                 'label' => 'Erlaubte IPs',
                 'description' => ' ',
             ],
+            'system_notification' => [
+                'label' => 'Systemhinweis',
+                'description' => 'Wird auf der Startseite, in der Kalenderansicht und im Login-Dialog angezeigt. Leer lassen, um ihn auszublenden.',
+            ],
         ],
         'index' => [
             'title' => 'Einstellungen für :type ":title"',

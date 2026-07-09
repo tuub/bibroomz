@@ -19,6 +19,7 @@ export const useAppStore = defineStore({
             settings: null,
             hiddenDays: null,
             isMultiTenancy: false,
+            systemNotifications: [],
             locale: getActiveLanguage(),
             shortDateFormat: null,
             dateFormat: null,
@@ -34,6 +35,42 @@ export const useAppStore = defineStore({
             this.settings = settings;
             this.hiddenDays = hiddenDays;
             this.isMultiTenancy = isMultiTenancy;
+            this.systemNotifications = [];
+
+            const message = this.getNotificationMessageFromMappedSettings(settings);
+
+            if (!message) {
+                return;
+            }
+
+            this.systemNotifications = [
+                {
+                    title: this.translate(resourceGroup?.institution?.title),
+                    message,
+                },
+            ];
+        },
+
+        setStartPageContext(appName, institutions) {
+            this.appName = appName;
+            this.resourceGroup = null;
+            this.settings = null;
+            this.hiddenDays = null;
+            this.isMultiTenancy = false;
+            this.systemNotifications = institutions.flatMap((institution) => {
+                const message = this.getNotificationMessageFromRelationSettings(institution?.settings);
+
+                if (!message) {
+                    return [];
+                }
+
+                return [
+                    {
+                        title: this.translate(institution?.title),
+                        message,
+                    },
+                ];
+            });
         },
 
         setCurrentLocale(locale) {
@@ -121,6 +158,28 @@ export const useAppStore = defineStore({
             }
 
             return "";
+        },
+
+        getNotificationMessageFromMappedSettings(settings) {
+            return this.normalizeSystemNotificationMessage(settings?.institution?.system_notification);
+        },
+
+        getNotificationMessageFromRelationSettings(settings) {
+            if (!Array.isArray(settings)) {
+                return "";
+            }
+
+            const notificationSetting = settings.find((setting) => setting?.key === "system_notification");
+
+            return this.normalizeSystemNotificationMessage(notificationSetting?.value);
+        },
+
+        normalizeSystemNotificationMessage(message) {
+            if (typeof message !== "string") {
+                return "";
+            }
+
+            return message.trim();
         },
     },
 
