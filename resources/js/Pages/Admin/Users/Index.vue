@@ -4,6 +4,7 @@ import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { FilterMatchMode } from "@primevue/core/api";
@@ -23,11 +24,13 @@ const props = defineProps({
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
+const appStore = useAppStore();
 const authStore = useAuthStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const { translate } = appStore;
 const { hasPermission } = authStore;
 const indexTable = ref({});
 
@@ -120,6 +123,11 @@ const recordsCount = computed(() => {
                 :sortable="true"
                 :header="$t('admin.users.index.table.header.happenings_count')"
             />
+            <Column :header="$t('admin.users.index.table.header.user_groups')">
+                <template #body="slotProps">
+                    {{ slotProps.data.user_groups.map((ug) => translate(ug.title)).join(", ") }}
+                </template>
+            </Column>
             <Column :header="$t('admin.general.table.actions')">
                 <template #body="slotProps">
                     <LinkGroup>

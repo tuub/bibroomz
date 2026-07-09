@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserGroup;
 use App\Services\AdminLoggingService;
 use Illuminate\Support\Carbon;
 
@@ -22,7 +23,7 @@ class UserAdminService
     {
         return [
             'users' => User::query()
-                ->with(['happenings', 'roles'])
+                ->with(['happenings', 'roles', 'user_groups'])
                 ->orderBy('name')
                 ->get()
                 ->map(fn (User $user): array => [
@@ -35,6 +36,7 @@ class UserAdminService
                     'is_privileged' => $user->roles->count() > 0,
                     'is_banned' => $user->isBanned(),
                     'happenings_count' => $user->happenings->count(),
+                    'user_groups' => array_values(array_map(fn (UserGroup $ug): array => ['id' => $ug->id, 'title' => $ug->getTranslations('title')], $user->user_groups->all())),
                 ]),
         ];
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserGroup;
 use App\Services\Admin\UserAdminService;
 use Cog\Laravel\Ban\Models\Ban;
 use Illuminate\Database\Eloquent\Model;
@@ -44,7 +45,8 @@ test('getIndexData user map contains all required keys', function (): void {
         ->toHaveKey('is_logged_in')
         ->toHaveKey('is_privileged')
         ->toHaveKey('is_banned')
-        ->toHaveKey('happenings_count');
+        ->toHaveKey('happenings_count')
+        ->toHaveKey('user_groups');
 });
 
 test('getIndexData happenings_count reflects user happenings', function (): void {
@@ -292,16 +294,17 @@ test('unban removes ban from user', function (): void {
 // getIndexData – relation loading
 // -------------------------------------------------------------------------
 
-test('getIndexData loads happenings and roles relations', function (): void {
+test('getIndexData loads happenings, roles and user_groups relations', function (): void {
     User::factory()->create();
 
     $service = app(UserAdminService::class);
     $service->getIndexData();
 
-    $freshUser = User::query()->with(['happenings', 'roles'])->firstOrFail();
+    $freshUser = User::query()->with(['happenings', 'roles', 'user_groups'])->firstOrFail();
 
     expect($freshUser->relationLoaded('happenings'))->toBeTrue()
-        ->and($freshUser->relationLoaded('roles'))->toBeTrue();
+        ->and($freshUser->relationLoaded('roles'))->toBeTrue()
+        ->and($freshUser->relationLoaded('user_groups'))->toBeTrue();
 });
 
 // -------------------------------------------------------------------------
@@ -554,7 +557,7 @@ test('delete logs deleted action via admin channel', function (): void {
     $service->delete($user);
 });
 
-test('getIndexData eager loads both happenings and roles relations', function (): void {
+test('getIndexData eager loads happenings, roles and user_groups relations', function (): void {
     User::factory()->create();
 
     $service = app(UserAdminService::class);
@@ -566,10 +569,11 @@ test('getIndexData eager loads both happenings and roles relations', function ()
 
     $service->getIndexData();
 
-    $users = User::query()->with(['happenings', 'roles'])->get();
+    $users = User::query()->with(['happenings', 'roles', 'user_groups'])->get();
 
     expect($users->first()?->relationLoaded('happenings'))->toBeTrue()
-        ->and($users->first()?->relationLoaded('roles'))->toBeTrue();
+        ->and($users->first()?->relationLoaded('roles'))->toBeTrue()
+        ->and($users->first()?->relationLoaded('user_groups'))->toBeTrue();
 });
 
 test('getIndexData result has happenings_count that reflects actual loaded happenings', function (): void {
@@ -581,6 +585,22 @@ test('getIndexData result has happenings_count that reflects actual loaded happe
     $mapped = $data['users']->firstWhere('id', $user->id);
 
     expect($mapped['happenings_count'])->toBe(0);
+});
+
+test('getIndexData user_groups contains full translations object not a plain string', function (): void {
+    $institution = Institution::factory()->create();
+    $userGroup = UserGroup::factory()->for($institution, 'institution')->create();
+    $user = User::factory()->create();
+    $user->user_groups()->attach($userGroup->id);
+
+    $service = app(UserAdminService::class);
+    $data = $service->getIndexData();
+
+    $mapped = $data['users']->firstWhere('id', $user->id);
+
+    expect($mapped['user_groups'])->toHaveCount(1)
+        ->and($mapped['user_groups'][0]['id'])->toBe($userGroup->id)
+        ->and($mapped['user_groups'][0]['title'])->toBeArray();
 });
 
 test('getIndexData result has is_privileged that reflects loaded roles', function (): void {

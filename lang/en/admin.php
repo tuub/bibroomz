@@ -424,6 +424,7 @@ return [
                     'happenings_count' => '# Happenings',
                     'is_privileged' => 'Privileged?',
                     'is_banned' => 'Banned?',
+                    'user_groups' => 'User Groups',
                 ],
                 'actions' => [
                     'create' => 'Create system user',
