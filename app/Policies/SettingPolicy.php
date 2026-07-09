@@ -11,7 +11,18 @@ class SettingPolicy
 {
     public function viewAny(User $user, Institution|ResourceGroup $closable): bool
     {
-        return $user->can('view_settings', $closable->institutionForSettings());
+        $institution = $closable->institutionForSettings();
+
+        if ($user->can('view_settings', $institution)) {
+            return true;
+        }
+
+        return $user->can('edit_settings', $institution);
+    }
+
+    public function editAny(User $user, Institution|ResourceGroup $settingable): bool
+    {
+        return $user->can('edit_settings', $settingable->institutionForSettings());
     }
 
     public function view(User $user, Setting $setting): bool

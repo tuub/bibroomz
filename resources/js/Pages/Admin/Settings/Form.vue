@@ -12,6 +12,8 @@
         <FormAction
             :form="form"
             model="setting"
+            action="update"
+            :route-params="{ settingable_id: settingable.id, settingable_type: settingable_type, key: setting.key }"
             cancel-route="admin.setting.index"
             :cancel-route-params="{ settingable_id: settingable.id, settingable_type: settingable_type }"
         />
@@ -56,7 +58,6 @@ const props = defineProps({
 // Variables
 // ------------------------------------------------
 const form = useForm({
-    id: props.setting.id ?? "",
     key: props.setting.key ?? "",
     value: props.setting.value ?? "",
     settingable_id: props.settingable.id,

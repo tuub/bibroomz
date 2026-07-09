@@ -21,8 +21,8 @@ const props = defineProps({
         default: "",
     },
     settings: {
-        type: Object,
-        default: () => ({}),
+        type: Array,
+        default: () => [],
     },
 });
 
@@ -108,7 +108,11 @@ const institutionId = computed(() => {
                             v-if="hasPermission('edit_settings', institutionId)"
                             action="edit"
                             model="setting"
-                            :params="{ id: slotProps.data.id }"
+                            :params="{
+                                settingable_type,
+                                settingable_id: settingable.id,
+                                key: slotProps.data.key,
+                            }"
                         />
                     </LinkGroup>
                 </template>

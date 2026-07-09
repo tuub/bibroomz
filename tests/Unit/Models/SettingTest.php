@@ -53,6 +53,13 @@ test('setting getValidationRules returns configured rules for known setting keys
         ->and(Setting::getValidationRules('institution', 'timezone'))->toBe(['required']);
 });
 
+test('setting exposes definition helpers for known keys', function (): void {
+    expect(Setting::getDefinitionKeys('institution'))->toContain('timezone', 'system_notification')
+        ->and(Setting::hasDefinition('institution', 'timezone'))->toBeTrue()
+        ->and(Setting::hasDefinition('institution', 'missing_key'))->toBeFalse()
+        ->and(Setting::getDefaultValue('institution', 'system_notification'))->toBe('');
+});
+
 test('setting getInputType returns configured input type for known setting keys', function (): void {
     expect(Setting::getInputType('institution', 'system_notification'))->toBe('textarea')
         ->and(Setting::getInputType('institution', 'timezone'))->toBe('text');

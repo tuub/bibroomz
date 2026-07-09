@@ -111,6 +111,16 @@ test('setting policy resolves permissions from the related institution', functio
         ->and($policy->edit($user, $setting))->toBeTrue();
 });
 
+test('setting policy allows edit_settings permission to access the settings index', function (): void {
+    $institution = Institution::factory()->create();
+    $user = User::factory()->create();
+    $policy = new SettingPolicy;
+
+    $this->grantPermission($user, $institution, 'edit_settings');
+
+    expect($policy->viewAny($user, $institution))->toBeTrue();
+});
+
 test('user policy blocks admin targets without the dedicated permission', function (): void {
     $institution = Institution::factory()->create();
     $actor = User::factory()->create();

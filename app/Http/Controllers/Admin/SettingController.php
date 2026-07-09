@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\SettingableContextRequest;
-use App\Http\Requests\Admin\SettingIdRequest;
+use App\Http\Requests\Admin\SettingKeyRequest;
 use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Models\Setting;
 use App\Services\Admin\SettingableResolver;
@@ -34,19 +34,30 @@ class SettingController extends AdminController
         ));
     }
 
-    public function editSetting(SettingIdRequest $request): Response
+    public function editSetting(SettingKeyRequest $request): Response
     {
-        $setting = $request->setting();
+        $settingable = $this->settingableResolver->resolve(
+            $request->settingableType(),
+            $request->settingableId(),
+        );
 
-        $this->authorize('edit', $setting);
+        $this->authorize('editAny', [Setting::class, $settingable]);
 
-        return Inertia::render('Admin/Settings/Form', $this->settingAdminService->getEditFormData($setting));
+        return Inertia::render('Admin/Settings/Form', $this->settingAdminService->getEditFormData(
+            $settingable,
+            $request->settingableType(),
+            $request->key(),
+        ));
     }
 
     public function updateSetting(UpdateSettingRequest $request): RedirectResponse
     {
-        $setting = $request->setting();
-        $this->settingAdminService->update($setting, $request->validated());
+        $settingable = $this->settingableResolver->resolve(
+            $request->settingableType(),
+            $request->settingableId(),
+        );
+
+        $this->settingAdminService->update($settingable, $request->validated());
 
         return redirect()->route('admin.setting.index', [
             'settingable_id' => $request->settingableId(),

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Requests\Admin\SettingableContextRequest;
-use App\Http\Requests\Admin\SettingIdRequest;
+use App\Http\Requests\Admin\SettingKeyRequest;
 use App\Models\Institution;
-use App\Models\Setting;
 use App\Services\Admin\SettingableResolver;
 use App\Services\Admin\SettingAdminService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -33,14 +32,18 @@ test('getSettings enforces authorization when no user is authenticated', functio
 });
 
 test('editSetting enforces authorization when no user is authenticated', function (): void {
-    $setting = new Setting;
+    $settingable = new Institution;
+    $resolver = Mockery::mock(SettingableResolver::class);
+    $resolver->shouldReceive('resolve')->andReturn($settingable);
 
-    $request = Mockery::mock(SettingIdRequest::class);
-    $request->shouldReceive('setting')->andReturn($setting);
+    $request = Mockery::mock(SettingKeyRequest::class);
+    $request->shouldReceive('settingableType')->andReturn('institution');
+    $request->shouldReceive('settingableId')->andReturn('1');
+    $request->shouldReceive('key')->andReturn('timezone');
 
     $controller = new SettingController(
         Mockery::mock(SettingAdminService::class),
-        Mockery::mock(SettingableResolver::class),
+        $resolver,
     );
 
     expect(fn (): Response => $controller->editSetting($request))->toThrow(AuthorizationException::class);

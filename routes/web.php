@@ -165,9 +165,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
             AdminSettingController::class, 'getSettings',
         ])
             ->name('admin.setting.index');
-        Route::get('/admin/setting/{id}/edit', [AdminSettingController::class, 'editSetting'])
+        Route::get('/admin/{settingable_type}/{settingable_id}/settings/{key}/edit', [
+            AdminSettingController::class, 'editSetting',
+        ])
             ->name('admin.setting.edit');
-        Route::post('/admin/setting/update', [AdminSettingController::class, 'updateSetting'])
+        Route::post('/admin/{settingable_type}/{settingable_id}/settings/{key}/update', [
+            AdminSettingController::class, 'updateSetting',
+        ])
             ->name('admin.setting.update');
 
         /* Mails */

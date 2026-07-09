@@ -67,6 +67,10 @@ const reorderRows = (event) => {
     }
     router.post(route("admin.resource_group.order"), resource_groups);
 };
+
+const canAccessSettings = () => {
+    return hasPermission("view_settings", props.institution.id) || hasPermission("edit_settings", props.institution.id);
+};
 </script>
 
 <template>
@@ -161,7 +165,7 @@ const reorderRows = (event) => {
                             :params="{ resource_group_id: slotProps.data.id }"
                         />
                         <RelationLink
-                            v-if="hasPermission('edit_resource_group', slotProps.data.id)"
+                            v-if="canAccessSettings()"
                             inject
                             current="resource_group"
                             relation="setting"

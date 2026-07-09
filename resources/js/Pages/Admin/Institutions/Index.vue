@@ -59,6 +59,10 @@ const reorderRows = (event) => {
     }
     router.post(route("admin.institution.order"), institutions);
 };
+
+const canAccessSettings = (institutionId) => {
+    return hasPermission("view_settings", institutionId) || hasPermission("edit_settings", institutionId);
+};
 </script>
 
 <template>
@@ -166,7 +170,7 @@ const reorderRows = (event) => {
                             :params="{ closable_type: 'institution', closable_id: slotProps.data.id }"
                         />
                         <RelationLink
-                            v-if="hasPermission('edit_institution', slotProps.data.id)"
+                            v-if="canAccessSettings(slotProps.data.id)"
                             current="institution"
                             relation="setting"
                             :params="{ settingable_type: 'institution', settingable_id: slotProps.data.id }"

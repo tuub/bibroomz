@@ -112,6 +112,42 @@ class Setting extends Model
     }
 
     /**
+     * @return array<string, array{default: mixed, rules: array<int, mixed>, input_type: string}>
+     */
+    public static function getDefinitionsFor(?string $settingableType): array
+    {
+        $normalizedType = self::normalizeSettingableType($settingableType);
+
+        if ($normalizedType === null) {
+            return [];
+        }
+
+        return self::getDefinitions()[$normalizedType];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function getDefinitionKeys(?string $settingableType): array
+    {
+        return array_keys(self::getDefinitionsFor($settingableType));
+    }
+
+    public static function hasDefinition(?string $settingableType, ?string $key): bool
+    {
+        if (! is_string($key) || $key === '') {
+            return false;
+        }
+
+        return array_key_exists($key, self::getDefinitionsFor($settingableType));
+    }
+
+    public static function getDefaultValue(?string $settingableType, ?string $key): mixed
+    {
+        return self::getDefinition($settingableType, $key)['default'];
+    }
+
+    /**
      * @return array<int, mixed>
      */
     public static function getValidationRules(?string $settingableType, ?string $key): array

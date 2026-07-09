@@ -2,65 +2,64 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Institution;
+use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 
-class UpdateSettingRequest extends AdminRouteRequest
+class UpdateSettingRequest extends SettingKeyRequest
 {
+    #[\Override]
     public function authorize(): bool
     {
         $user = $this->userModel();
-        $setting = $this->settingOrNull();
+        $settingable = $this->settingableOrNull();
 
-        return $user instanceof User && $setting instanceof Setting && $user->can('edit', $setting);
+        return $user instanceof User
+            && ($settingable instanceof Institution || $settingable instanceof ResourceGroup)
+            && $user->can('edit_settings', $settingable->institutionForSettings());
     }
 
     /**
      * @return array<string, mixed>
      */
+    #[\Override]
     public function rules(): array
     {
-        $setting = $this->settingOrNull();
-
-        if ($setting instanceof Setting) {
-            $key = $setting->key;
-            $settingableType = $setting->settingable_type;
-        } else {
-            $key = $this->input('key');
-            $settingableType = $this->input('settingable_type');
-        }
+        $settingableType = $this->inputString('settingable_type');
+        $key = $this->inputString('key');
 
         $valueRules = Setting::getValidationRules(
-            is_string($settingableType) ? $settingableType : null,
-            is_string($key) ? $key : null,
+            $settingableType,
+            $key,
         );
 
-        return [
-            'id' => ['required', 'uuid'],
-            'settingable_id' => ['required', 'uuid'],
-            'settingable_type' => ['required', 'string'],
-            'key' => ['required'],
+        return array_merge(parent::rules(), [
+            'key' => ['required', 'string', Rule::in(Setting::getDefinitionKeys($settingableType))],
             'value' => $valueRules,
-        ];
+        ]);
     }
 
-    public function setting(): Setting
+    public function settingableOrNull(): Institution|ResourceGroup|null
     {
-        return $this->findModelOrFail(Setting::class);
-    }
+        $settingableType = $this->inputString('settingable_type');
+        $settingableId = $this->inputString('settingable_id');
 
-    public function settingOrNull(): ?Setting
-    {
-        return $this->findModel(Setting::class);
-    }
+        if ($settingableType === null || $settingableId === null) {
+            return null;
+        }
 
-    public function settingableId(): string
-    {
-        return $this->validatedString('settingable_id');
-    }
+        try {
+            $model = Setting::getSettingableModel($settingableType);
+        } catch (\InvalidArgumentException) {
+            return null;
+        }
 
-    public function settingableType(): string
-    {
-        return $this->validatedString('settingable_type');
+        $settingable = $model->newQuery()->find($settingableId);
+
+        return $settingable instanceof Institution || $settingable instanceof ResourceGroup
+            ? $settingable
+            : null;
     }
 }

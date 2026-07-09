@@ -758,15 +758,22 @@ test('catalog admin routes render and mutate institutions resources settings clo
 
     $setting = $institution->settings()->firstOrFail();
 
-    $this->get(route('admin.setting.edit', ['id' => $setting->id]))
+    $this->get(route('admin.setting.edit', [
+        'settingable_type' => 'institution',
+        'settingable_id' => $institution->id,
+        'key' => $setting->key,
+    ]))
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Settings/Form')
-            ->where('setting.id', $setting->id)
+            ->where('setting.key', $setting->key)
             ->where('settingable_type', 'institution'));
 
-    $this->post(route('admin.setting.update'), [
-        'id' => $setting->id,
+    $this->post(route('admin.setting.update', [
+        'settingable_type' => 'institution',
+        'settingable_id' => $institution->id,
+        'key' => $setting->key,
+    ]), [
         'key' => $setting->key,
         'value' => 'Europe/Paris',
         'settingable_id' => $institution->id,
