@@ -108,6 +108,9 @@
                     <!-- EVENT TIME DISPLAY END -->
 
                     <div class="px-1">{{ translate(arg.event.extendedProps.label) }}</div>
+                    <div v-if="authStore.isAdmin && arg.event.extendedProps.user_01" class="px-1 text-xs font-medium">
+                        {{ arg.event.extendedProps.user_01 }}
+                    </div>
                 </div>
             </template>
         </FullCalendar>

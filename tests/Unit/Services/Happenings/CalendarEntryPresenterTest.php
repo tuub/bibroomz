@@ -49,6 +49,7 @@ test('presentHappening returns all required keys', function (): void {
         ->and($result)->toHaveKey('can')
         ->and($result)->toHaveKey('isVerificationRequired')
         ->and($result)->toHaveKey('resource')
+        ->and($result)->toHaveKey('user_01')
         ->and($result)->toHaveKey('label');
 });
 
@@ -100,6 +101,34 @@ test('presentHappening formats start and end as Y-m-d H:i', function (): void {
 
     expect($result['start'])->toBe($start->format('Y-m-d H:i'))
         ->and($result['end'])->toBe($end->format('Y-m-d H:i'));
+});
+
+test('presentHappening includes owner name for admin viewers', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $owner = User::factory()->create(['name' => 'calendar.owner']);
+    $admin = User::factory()->create(['is_admin' => true]);
+    $happening = Happening::factory()->for($resource, 'resource')->create(['user_id_01' => $owner->id]);
+
+    $presenter = app(CalendarEntryPresenter::class);
+    $result = $presenter->presentHappening($happening, $admin);
+
+    expect($result['user_01'])->toBe($owner->name);
+});
+
+test('presentHappening hides owner name from non-admin viewers', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $owner = User::factory()->create(['name' => 'calendar.owner']);
+    $viewer = User::factory()->create();
+    $happening = Happening::factory()->for($resource, 'resource')->create(['user_id_01' => $owner->id]);
+
+    $presenter = app(CalendarEntryPresenter::class);
+    $result = $presenter->presentHappening($happening, $viewer);
+
+    expect($result['user_01'])->toBeNull();
 });
 
 test('presentInstitutionClosing returns all required keys', function (): void {

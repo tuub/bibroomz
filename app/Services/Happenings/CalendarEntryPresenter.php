@@ -18,6 +18,7 @@ class CalendarEntryPresenter
     public function presentHappening(Happening $happening, ?User $viewer): array
     {
         $status = $this->statusCalculator->calculate($happening, $viewer);
+        $ownerName = $viewer?->isAdmin() ? $happening->user1?->name : null;
 
         return [
             'id' => $happening->id,
@@ -32,6 +33,7 @@ class CalendarEntryPresenter
                 'resourceGroup' => $happening->resource->resource_group->getTranslations('term_singular'),
                 'institution' => $happening->resource->resource_group->institution->title,
             ],
+            'user_01' => $ownerName,
             'label' => $happening->getTranslations('label'),
         ];
     }

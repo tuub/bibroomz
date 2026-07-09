@@ -50,6 +50,21 @@
             </div>
         </div>
 
+        <div v-if="isAdminCreateMode">
+            <FormLabel field="user_id_01" field-key="modal.form.fields.user_id_01"></FormLabel>
+            <Select
+                v-model="happening.user_id_01"
+                input-id="user_id_01"
+                :options="formUsers"
+                option-label="name"
+                option-value="id"
+                :placeholder="$t('modal.form.fields.user_id_01.placeholder')"
+                filter
+                class="w-full"
+                @change="$emit('update-happening', happening)"
+            />
+        </div>
+
         <div v-if="happening.isVerificationRequired && !can('no_verifier')">
             <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input
@@ -97,6 +112,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+import { withBaseUrl } from "@/baseUrl";
 
 import { storeToRefs } from "pinia";
 import { computed, inject, onBeforeMount, reactive, ref } from "vue";
@@ -144,6 +160,9 @@ const start_time_slots = ref({});
 const end_time_slots = ref({});
 const start_time_slot_selected = ref({});
 const end_time_slot_selected = ref({});
+
+const formUsers = ref([]);
+const isAdminCreateMode = computed(() => authStore.isAdmin && !happening.id);
 
 // ------------------------------------------------
 // Methods
@@ -203,10 +222,22 @@ const syncTimeSlotValues = ($event, start_selected, end_selected) => {
 
 const can = authStore.can;
 
+const fetchFormUsers = async () => {
+    try {
+        const response = await axios.get(withBaseUrl("/api/admin/user/users"));
+        formUsers.value = response.data;
+    } catch {
+        // ignore — selector stays empty
+    }
+};
+
 // ------------------------------------------------
 // Lifecycle
 // ------------------------------------------------
 onBeforeMount(() => {
     initTimeSlots();
+    if (isAdminCreateMode.value) {
+        fetchFormUsers();
+    }
 });
 </script>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+Route::middleware(['auth:sanctum', 'can:admin'])->group(function (): void {
+    Route::get('/admin/user/users', [AdminUserController::class, 'getFormUsers'])
+        ->name('api.admin.user.users');
+});

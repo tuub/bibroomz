@@ -54,6 +54,7 @@ const happening = reactive({
     resource: toRaw(props.payload.resource),
     start: appStore.formatDateTime(props.payload.start, true),
     end: appStore.formatDateTime(props.payload.end, true),
+    user_01: props.payload.user_01 ?? null,
     isVerificationRequired: props.payload.isVerificationRequired,
     verifier: props.payload.user_02,
     label: isPlainObject(props.payload.label) ? props.payload.label : {},

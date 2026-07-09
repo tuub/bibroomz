@@ -30,6 +30,7 @@ test('user controller renders the index payload after authorization', function (
 });
 
 test('user controller form users query only returns id name and admin flag', function (): void {
+    $actor = User::factory()->create(['is_admin' => true]);
     $first = User::factory()->create([
         'name' => 'alpha',
         'email' => 'alpha@example.test',
@@ -41,11 +42,12 @@ test('user controller form users query only returns id name and admin flag', fun
         'is_admin' => false,
     ]);
 
+    $this->actingAs($actor);
     $controller = new UserController(Mockery::mock(UserAdminService::class));
     $users = $controller->getFormUsers();
     $attributes = $users->firstWhere('id', $first->id)?->getAttributes() ?? [];
 
-    expect($users)->toHaveCount(2)
+    expect($users)->toHaveCount(3)
         ->and($attributes)->toHaveKey('id')
         ->and($attributes)->toHaveKey('name')
         ->and($attributes)->toHaveKey('is_admin')

@@ -438,3 +438,10 @@ test('people admin routes render and mutate roles users and user groups', functi
     $this->assertDatabaseMissing('user_groups', ['id' => $userGroup->id]);
     $this->assertDatabaseMissing('roles', ['id' => $role->id]);
 });
+
+test('getFormUsers returns 403 for non-admin', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $this->actingAs($user)->getJson('/api/admin/user/users')
+        ->assertStatus(403);
+});

@@ -14,6 +14,7 @@ use App\Services\Happenings\DeleteHappeningAction;
 use App\Services\Happenings\ListCalendarEntriesAction;
 use App\Services\Happenings\UpdateHappeningAction;
 use App\Services\Happenings\VerifyHappeningAction;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -44,10 +45,29 @@ class HappeningController extends Controller
         $user = auth()->user();
         abort_unless($user instanceof User, 401);
 
+        $targetUserId = $request->input('user_id_01');
+        $resource = $request->resource();
+
+        if ($user->isAdmin() && is_string($targetUserId) && $targetUserId !== '') {
+            $this->createHappeningAction->executeForAdmin([
+                'user_id_01' => $targetUserId,
+                'resource_id' => $resource->id,
+                'is_verification_required' => $resource->isVerificationRequired(),
+                'is_verified' => true,
+                'verifier' => null,
+                'start' => $request->startAt()->format('Y-m-d H:i:s'),
+                'end' => $request->endAt()->format('Y-m-d H:i:s'),
+                'verified_at' => Carbon::now(),
+                'label' => $request->label(),
+            ]);
+
+            return response()->noContent();
+        }
+
         try {
             $this->createHappeningAction->executeForUser(
                 $user,
-                $request->resource(),
+                $resource,
                 $request->startAt(),
                 $request->endAt(),
                 $request->label(),

@@ -45,7 +45,8 @@ test('rules returns array with all expected keys', function (): void {
         ->toHaveKey('start')
         ->toHaveKey('end')
         ->toHaveKey('verifier')
-        ->toHaveKey('label');
+        ->toHaveKey('label')
+        ->toHaveKey('user_id_01');
 });
 
 test('resource field rules contain required and array', function (): void {
@@ -340,6 +341,34 @@ test('isVerificationRequired is false when no user even if resource requires it'
     // verifier must be 'nullable' (not 'required')
     expect($rules['verifier'])->toContain('nullable')
         ->and($rules['verifier'])->not->toContain('required');
+});
+
+test('user_id_01 rule is nullable for admin', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
+        'is_verification_required' => false,
+    ]);
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $rules = buildFormRequest(AddHappeningRequest::class, ['resource' => ['id' => $resource->id]], $admin)->rules();
+
+    expect($rules['user_id_01'])->toContain('nullable')
+        ->and($rules['user_id_01'])->not->toContain('prohibited');
+});
+
+test('user_id_01 rule is prohibited for non-admin', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
+        'is_verification_required' => false,
+    ]);
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $rules = buildFormRequest(AddHappeningRequest::class, ['resource' => ['id' => $resource->id]], $user)->rules();
+
+    expect($rules['user_id_01'])->toContain('prohibited')
+        ->and($rules['user_id_01'])->not->toContain('nullable');
 });
 
 test('resource method caches model on second call', function (): void {

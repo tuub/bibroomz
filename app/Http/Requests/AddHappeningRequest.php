@@ -48,6 +48,7 @@ class AddHappeningRequest extends FormRequest
                 'not_in:'.$normalizedUserName,
             ],
             'label' => ['nullable'],
+            'user_id_01' => [$user instanceof User && $user->isAdmin() ? 'nullable' : 'prohibited', 'uuid', 'exists:users,id'],
         ];
     }
 

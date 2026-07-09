@@ -9,6 +9,7 @@ use App\Http\Requests\DeleteHappeningRequest;
 use App\Http\Requests\UpdateHappeningRequest;
 use App\Http\Requests\VerifyHappeningRequest;
 use App\Models\Happening;
+use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
@@ -192,6 +193,7 @@ test('addHappening passes label and verifier to create action', function (): voi
     $end = CarbonImmutable::parse('2026-01-01 11:00:00');
 
     $request = Mockery::mock(AddHappeningRequest::class);
+    $request->shouldReceive('input')->with('user_id_01')->andReturn(null);
     $request->shouldReceive('resource')->once()->andReturn($resource);
     $request->shouldReceive('startAt')->once()->andReturn($start);
     $request->shouldReceive('endAt')->once()->andReturn($end);
@@ -202,6 +204,78 @@ test('addHappening passes label and verifier to create action', function (): voi
     $createAction->shouldReceive('executeForUser')
         ->once()
         ->withArgs(fn ($u, $r, $s, $e, $label, $verifier): bool => $label === ['en' => 'Work session'] && $verifier === 'verifier@example.com');
+
+    $controller = new HappeningController(
+        Mockery::mock(ListCalendarEntriesAction::class),
+        $createAction,
+        Mockery::mock(UpdateHappeningAction::class),
+        Mockery::mock(VerifyHappeningAction::class),
+        Mockery::mock(DeleteHappeningAction::class),
+    );
+
+    $response = $controller->addHappening($request);
+    expect($response->getStatusCode())->toBe(204);
+});
+
+test('addHappening calls executeForAdmin when admin provides user_id_01', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(['is_verification_required' => false]);
+    $admin = User::factory()->create(['is_admin' => true]);
+    $targetUser = User::factory()->create();
+    Auth::login($admin);
+
+    $start = CarbonImmutable::parse('2026-01-01 10:00:00');
+    $end = CarbonImmutable::parse('2026-01-01 11:00:00');
+
+    $request = Mockery::mock(AddHappeningRequest::class);
+    $request->shouldReceive('input')->with('user_id_01')->andReturn($targetUser->id);
+    $request->shouldReceive('resource')->once()->andReturn($resource);
+    $request->shouldReceive('startAt')->once()->andReturn($start);
+    $request->shouldReceive('endAt')->once()->andReturn($end);
+    $request->shouldReceive('label')->once()->andReturn(null);
+
+    $createAction = Mockery::mock(CreateHappeningAction::class);
+    $createAction->shouldReceive('executeForAdmin')
+        ->once()
+        ->withArgs(fn (array $attrs): bool => $attrs['user_id_01'] === $targetUser->id
+            && $attrs['resource_id'] === $resource->id
+            && $attrs['is_verified'] === true
+            && $attrs['verifier'] === null
+        );
+
+    $controller = new HappeningController(
+        Mockery::mock(ListCalendarEntriesAction::class),
+        $createAction,
+        Mockery::mock(UpdateHappeningAction::class),
+        Mockery::mock(VerifyHappeningAction::class),
+        Mockery::mock(DeleteHappeningAction::class),
+    );
+
+    $response = $controller->addHappening($request);
+    expect($response->getStatusCode())->toBe(204);
+});
+
+test('addHappening calls executeForUser when admin does not provide user_id_01', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $resource = new Resource;
+    Auth::login($admin);
+
+    $start = CarbonImmutable::parse('2026-01-01 10:00:00');
+    $end = CarbonImmutable::parse('2026-01-01 11:00:00');
+
+    $request = Mockery::mock(AddHappeningRequest::class);
+    $request->shouldReceive('input')->with('user_id_01')->andReturn(null);
+    $request->shouldReceive('resource')->once()->andReturn($resource);
+    $request->shouldReceive('startAt')->once()->andReturn($start);
+    $request->shouldReceive('endAt')->once()->andReturn($end);
+    $request->shouldReceive('label')->once()->andReturn(null);
+    $request->shouldReceive('verifier')->once()->andReturn(null);
+
+    $createAction = Mockery::mock(CreateHappeningAction::class);
+    $createAction->shouldReceive('executeForUser')
+        ->once()
+        ->withArgs(fn ($u): bool => $u->id === $admin->id);
 
     $controller = new HappeningController(
         Mockery::mock(ListCalendarEntriesAction::class),

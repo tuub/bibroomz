@@ -31,6 +31,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('view-admin-panel', fn (User $user): bool => $user->getPermissions()->isNotEmpty());
+        Gate::define('admin', fn (User $user): bool => $user->isAdmin());
 
         Gate::before(function (User $user, string $ability, array $args): ?bool {
             if ($user->isAdmin()) {

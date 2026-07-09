@@ -20,6 +20,11 @@ return [
                 'placeholder' => 'Library Account (TU: TUB Account) 2nd person',
                 'hint' => ' ',
             ],
+            'user_id_01' => [
+                'label' => 'User',
+                'placeholder' => '— select user —',
+                'hint' => ' ',
+            ],
             'label' => [
                 'de' => [
                     'label' => 'Notiz (optional, öffentlich sichtbar)',

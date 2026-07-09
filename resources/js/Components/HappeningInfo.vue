@@ -29,6 +29,13 @@
         text-color-class="text-gray-700"
         icon-class="ri-hourglass-2-fill"
     ></Label>
+    <Label
+        v-if="authStore.isAdmin && happening.user_01"
+        :text="happening.user_01"
+        bg-color-class="bg-gray-200"
+        text-color-class="text-gray-700"
+        icon-class="ri-user-fill"
+    ></Label>
     <ResourceInfo
         class="mt-4 text-sm"
         :resource="happening.resource"
@@ -41,6 +48,7 @@
 import ResourceInfo from "@/Components/ResourceInfo.vue";
 import Label from "@/Shared/Label.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -65,6 +73,7 @@ dayjs.extend(duration);
 // Stores
 // ------------------------------------------------
 const appStore = useAppStore();
+const authStore = useAuthStore();
 
 // ------------------------------------------------
 // Variables

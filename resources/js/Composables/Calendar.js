@@ -170,6 +170,7 @@ export function useCalendar({ emit, pagination, translate, calendarOptions = {} 
         };
 
         happening.id = eventInfo.event.id;
+        happening.user_01 = eventInfo.event.extendedProps.user_01;
         happening.user_02 = eventInfo.event.extendedProps.status?.user?.verification;
         happening.start = dayjs.utc(eventInfo.event._instance.range.start);
         happening.end = dayjs.utc(eventInfo.event._instance.range.end);

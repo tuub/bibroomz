@@ -77,6 +77,7 @@ test('happening controller converts validation failures into 400 responses for c
     Auth::login($user);
 
     $createRequest = Mockery::mock(AddHappeningRequest::class);
+    $createRequest->shouldReceive('input')->with('user_id_01')->once()->andReturn(null);
     $createRequest->shouldReceive('resource')->once()->andReturn($resource);
     $createRequest->shouldReceive('startAt')->once()->andReturn($start);
     $createRequest->shouldReceive('endAt')->once()->andReturn($end);
@@ -144,6 +145,7 @@ test('happening controller returns no content on successful add update and verif
     Auth::login($user);
 
     $createRequest = Mockery::mock(AddHappeningRequest::class);
+    $createRequest->shouldReceive('input')->with('user_id_01')->once()->andReturn(null);
     $createRequest->shouldReceive('resource')->once()->andReturn($resource);
     $createRequest->shouldReceive('startAt')->once()->andReturn($start);
     $createRequest->shouldReceive('endAt')->once()->andReturn($end);

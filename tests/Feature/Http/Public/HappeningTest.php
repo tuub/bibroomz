@@ -895,6 +895,67 @@ test('calendar entries show booking type for a verified happening viewed by a by
         ->and($entries[0]['status']['type'])->toBe('booking');
 });
 
+test('calendar entries include the reservation owner for admin viewers', function (): void {
+    [
+        'institution' => $institution,
+        'resourceGroup' => $resourceGroup,
+        'resource' => $resource,
+        'owner' => $owner,
+        'verifier' => $verifier,
+    ] = buildStatusViewerFixture();
+
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    Happening::create([
+        'user_id_01' => $owner->id,
+        'user_id_02' => $verifier->id,
+        'resource_id' => $resource->id,
+        'is_verified' => true,
+        'verifier' => $verifier->name,
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+        'reserved_at' => now(),
+        'verified_at' => now(),
+        'label' => ['en' => 'Admin-visible booking'],
+    ]);
+
+    $this->actingAs($admin);
+    $entries = fetchStatusEntries($this, $institution, $resourceGroup);
+
+    expect($entries)->toHaveCount(1)
+        ->and($entries[0]['user_01'])->toBe($owner->name);
+});
+
+test('calendar entries hide the reservation owner from non-admin viewers', function (): void {
+    [
+        'institution' => $institution,
+        'resourceGroup' => $resourceGroup,
+        'resource' => $resource,
+        'owner' => $owner,
+        'verifier' => $verifier,
+        'bystander' => $bystander,
+    ] = buildStatusViewerFixture();
+
+    Happening::create([
+        'user_id_01' => $owner->id,
+        'user_id_02' => $verifier->id,
+        'resource_id' => $resource->id,
+        'is_verified' => true,
+        'verifier' => $verifier->name,
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+        'reserved_at' => now(),
+        'verified_at' => now(),
+        'label' => ['en' => 'Hidden owner booking'],
+    ]);
+
+    $this->actingAs($bystander);
+    $entries = fetchStatusEntries($this, $institution, $resourceGroup);
+
+    expect($entries)->toHaveCount(1)
+        ->and($entries[0]['user_01'])->toBeNull();
+});
+
 test('calendar entries show user-reservation type for the owner of an unverified happening', function (): void {
     [
         'institution' => $institution,
