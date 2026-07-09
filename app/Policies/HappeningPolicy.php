@@ -30,6 +30,10 @@ class HappeningPolicy
 
     public function update(User $user, Happening $happening): bool
     {
+        if ($user->isAdmin() && ! $happening->isPast()) {
+            return true;
+        }
+
         $user1 = $happening->user1;
 
         if (! $user1 instanceof User) {

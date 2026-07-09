@@ -189,7 +189,7 @@ test('update allows owner when happening is present but not yet verified', funct
     expect($policy->update($owner, $happening))->toBeTrue();
 });
 
-test('admin can delete any running or future happening regardless of ownership', function (): void {
+test('admin can edit or delete any running or future happening regardless of ownership', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $other = User::factory()->create();
     $policy = new HappeningPolicy;
@@ -208,7 +208,10 @@ test('admin can delete any running or future happening regardless of ownership',
         'end' => CarbonImmutable::now()->subHour(),
     ]);
 
-    expect($policy->delete($admin, $runningVerified))->toBeTrue()
+    expect($policy->update($admin, $runningVerified))->toBeTrue()
+        ->and($policy->update($admin, $future))->toBeTrue()
+        ->and($policy->update($admin, $past))->toBeFalse()
+        ->and($policy->delete($admin, $runningVerified))->toBeTrue()
         ->and($policy->delete($admin, $future))->toBeTrue()
         ->and($policy->delete($admin, $past))->toBeFalse();
 });
