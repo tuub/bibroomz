@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AppSettingController as AdminAppSettingController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
 use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
@@ -173,6 +174,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
             AdminSettingController::class, 'updateSetting',
         ])
             ->name('admin.setting.update');
+
+        /* App Settings */
+        Route::get('/admin/app-settings', [AdminAppSettingController::class, 'index'])
+            ->name('admin.app_setting.index');
+        Route::get('/admin/app-settings/edit', [AdminAppSettingController::class, 'edit'])
+            ->name('admin.app_setting.edit');
+        Route::post('/admin/app-settings/update', [AdminAppSettingController::class, 'update'])
+            ->name('admin.app_setting.update');
 
         /* Mails */
         Route::get('/admin/institution/{institution_id}/mails', [AdminMailController::class, 'getMails'])

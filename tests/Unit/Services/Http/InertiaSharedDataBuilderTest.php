@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\AppSetting;
 use App\Models\User;
 use App\Services\Http\InertiaSharedDataBuilder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,4 +34,24 @@ test('build returns user name when authenticated', function (): void {
 
     expect($data['auth'])->toBeArray()
         ->and($data['auth']['user']['name'])->toBe('Test User');
+});
+
+test('build returns the default systemNotification when no app setting exists', function (): void {
+    $request = Request::create('/');
+
+    $builder = new InertiaSharedDataBuilder;
+    $data = $builder->build($request);
+
+    expect($data['systemNotification'])->toBe('');
+});
+
+test('build returns the current app setting system_notification', function (): void {
+    AppSetting::set('system_notification', 'Global notice');
+
+    $request = Request::create('/');
+
+    $builder = new InertiaSharedDataBuilder;
+    $data = $builder->build($request);
+
+    expect($data['systemNotification'])->toBe('Global notice');
 });

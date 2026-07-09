@@ -1,5 +1,7 @@
 <template>
     <div class="space-y-4">
+        <SystemNotificationList :notifications="globalNotifications" />
+
         <div class="italic">
             {{ content.description }}
         </div>
@@ -65,8 +67,10 @@
 
 <script setup>
 import ModalAlert from "@/Components/Modals/ModalAlert.vue";
+import SystemNotificationList from "@/Components/SystemNotificationList.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import Spinner from "@/Shared/Spinner.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
@@ -90,11 +94,13 @@ defineEmits(["submit"]);
 // Stores
 // ------------------------------------------------
 const authStore = useAuthStore();
+const appStore = useAppStore();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const error = storeToRefs(authStore).error;
+const { globalNotifications } = storeToRefs(appStore);
 
 const usernameError = computed(() => {
     return error.value?.data?.errors?.username;

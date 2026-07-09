@@ -23,7 +23,6 @@ class HomePageDataBuilder
             ->where('is_active', true)
             ->whereHas('resource_groups', fn (Builder $query): Builder => $query->where('is_active', true))
             ->with([
-                'settings',
                 'resource_groups' => static function (Relation $relation): void {
                     $relation
                         ->where('is_active', true)

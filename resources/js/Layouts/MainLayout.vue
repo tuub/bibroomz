@@ -7,6 +7,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import { useToastStore } from "@/Stores/ToastStore";
 import { withBaseUrl } from "@/baseUrl";
 
+import { usePage } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
 import { onBeforeMount, onMounted, onUnmounted } from "vue";
 
@@ -21,12 +22,14 @@ const toastStore = useToastStore();
 // Variables
 // ------------------------------------------------
 const appName = appStore.appName;
+const page = usePage();
 
 // ------------------------------------------------
 // Hooks
 // ------------------------------------------------
 onBeforeMount(() => {
     authStore.check();
+    appStore.setGlobalSystemNotification(page.props.systemNotification);
 });
 onMounted(() => {
     toastStore.initToast();

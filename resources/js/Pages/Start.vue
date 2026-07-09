@@ -1,5 +1,6 @@
 <script setup>
 import InstitutionCard from "@/Components/InstitutionCard.vue";
+import SystemNotificationList from "@/Components/SystemNotificationList.vue";
 import { useLogin } from "@/Composables/Login";
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
@@ -33,17 +34,22 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const { isAuthenticated } = storeToRefs(authStore);
+const { globalNotifications } = storeToRefs(appStore);
 const { loginUser } = useLogin();
 
 // ------------------------------------------------
 // Mount
 // ------------------------------------------------
 onBeforeMount(() => {
-    appStore.setStartPageContext(props.appName, props.institutions);
+    appStore.setStartPageContext(props.appName);
 });
 </script>
 <template>
     <Head :title="'Start :: ' + appName" />
+
+    <div v-if="globalNotifications.length" class="mb-4">
+        <SystemNotificationList :notifications="globalNotifications" />
+    </div>
 
     <div class="bg-white px-6 py-6 md:px-12 lg:px-20 dark:bg-black">
         <div class="flex flex-col items-center gap-4 text-center text-black dark:text-white">

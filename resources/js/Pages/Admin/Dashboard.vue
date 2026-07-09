@@ -43,5 +43,12 @@ const { hasPermission, canViewInstitutions } = authStore;
             :link="route('admin.user_group.index')"
             icon="ri-shield-keyhole-fill"
         />
+        <DashboardCard
+            v-if="authStore.isAdmin"
+            :title="$t('admin.app_settings.index.title')"
+            :description="$t('admin.app_settings.index.description')"
+            :link="route('admin.app_setting.index')"
+            icon="ri-megaphone-fill"
+        />
     </div>
 </template>

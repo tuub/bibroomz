@@ -20,6 +20,7 @@ export const useAppStore = defineStore({
             hiddenDays: null,
             isMultiTenancy: false,
             systemNotifications: [],
+            globalSystemNotification: null,
             locale: getActiveLanguage(),
             shortDateFormat: null,
             dateFormat: null,
@@ -35,42 +36,31 @@ export const useAppStore = defineStore({
             this.settings = settings;
             this.hiddenDays = hiddenDays;
             this.isMultiTenancy = isMultiTenancy;
-            this.systemNotifications = [];
 
             const message = this.getNotificationMessageFromMappedSettings(settings);
+            const institutionNotifications = message
+                ? [
+                      {
+                          title: this.translate(resourceGroup?.institution?.title),
+                          message,
+                      },
+                  ]
+                : [];
 
-            if (!message) {
-                return;
-            }
-
-            this.systemNotifications = [
-                {
-                    title: this.translate(resourceGroup?.institution?.title),
-                    message,
-                },
-            ];
+            this.systemNotifications = [...this.globalNotifications, ...institutionNotifications];
         },
 
-        setStartPageContext(appName, institutions) {
+        setStartPageContext(appName) {
             this.appName = appName;
             this.resourceGroup = null;
             this.settings = null;
             this.hiddenDays = null;
             this.isMultiTenancy = false;
-            this.systemNotifications = institutions.flatMap((institution) => {
-                const message = this.getNotificationMessageFromRelationSettings(institution?.settings);
+            this.systemNotifications = [];
+        },
 
-                if (!message) {
-                    return [];
-                }
-
-                return [
-                    {
-                        title: this.translate(institution?.title),
-                        message,
-                    },
-                ];
-            });
+        setGlobalSystemNotification(message) {
+            this.globalSystemNotification = this.normalizeSystemNotificationMessage(message);
         },
 
         setCurrentLocale(locale) {
@@ -164,16 +154,6 @@ export const useAppStore = defineStore({
             return this.normalizeSystemNotificationMessage(settings?.institution?.system_notification);
         },
 
-        getNotificationMessageFromRelationSettings(settings) {
-            if (!Array.isArray(settings)) {
-                return "";
-            }
-
-            const notificationSetting = settings.find((setting) => setting?.key === "system_notification");
-
-            return this.normalizeSystemNotificationMessage(notificationSetting?.value);
-        },
-
         normalizeSystemNotificationMessage(message) {
             if (typeof message !== "string") {
                 return "";
@@ -185,5 +165,7 @@ export const useAppStore = defineStore({
 
     getters: {
         institution: (state) => state.resourceGroup?.institution,
+        globalNotifications: (state) =>
+            state.globalSystemNotification ? [{ message: state.globalSystemNotification }] : [],
     },
 });

@@ -611,7 +611,7 @@ return [
             ],
             'system_notification' => [
                 'label' => 'Systemhinweis',
-                'description' => 'Wird auf der Startseite, in der Kalenderansicht und im Login-Dialog angezeigt. Leer lassen, um ihn auszublenden.',
+                'description' => 'Wird auf den Kalenderseiten dieser Einrichtung angezeigt. Leer lassen, um ihn auszublenden.',
             ],
         ],
         'index' => [
@@ -642,6 +642,33 @@ return [
                     'label' => 'Wert',
                     'placeholder' => 'Der Wert',
                     'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
+    'app_settings' => [
+        'index' => [
+            'title' => 'App-Einstellungen',
+            'description' => 'Einstellungen, die für alle Einrichtungen gelten',
+            'table' => [
+                'header' => [
+                    'label' => 'Bezeichnung',
+                    'key' => 'Schlüssel',
+                    'value' => 'Wert',
+                ],
+                'actions' => [
+                    'edit' => 'Bearbeiten',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'App-Einstellungen',
+            'description' => 'Einstellungen bearbeiten, die für alle Einrichtungen gelten',
+            'fields' => [
+                'system_notification' => [
+                    'label' => 'Systemhinweis',
+                    'placeholder' => ' ',
+                    'hint' => 'Wird auf der Startseite, in jedem Kalender und im Login-Dialog angezeigt. Leer lassen, um ihn auszublenden.',
                 ],
             ],
         ],

@@ -2,6 +2,7 @@
 
 namespace App\Services\Http;
 
+use App\Models\AppSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,6 +22,7 @@ class InertiaSharedDataBuilder
                     'name' => $user->name,
                 ],
             ] : null,
+            'systemNotification' => AppSetting::get('system_notification'),
         ];
     }
 }

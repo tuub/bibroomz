@@ -611,7 +611,7 @@ return [
             ],
             'system_notification' => [
                 'label' => 'System notification',
-                'description' => 'Shown on the start page, in the calendar, and in the login dialog. Leave empty to hide it.',
+                'description' => 'Shown on this institution\'s calendar pages. Leave empty to hide it.',
             ],
         ],
         'index' => [
@@ -642,6 +642,33 @@ return [
                     'label' => 'Value',
                     'placeholder' => 'Value',
                     'hint' => ' ',
+                ],
+            ],
+        ],
+    ],
+    'app_settings' => [
+        'index' => [
+            'title' => 'App Settings',
+            'description' => 'Settings that apply across all institutions',
+            'table' => [
+                'header' => [
+                    'label' => 'Label',
+                    'key' => 'Key',
+                    'value' => 'Value',
+                ],
+                'actions' => [
+                    'edit' => 'Edit',
+                ],
+            ],
+        ],
+        'form' => [
+            'title' => 'App Settings',
+            'description' => 'Edit settings that apply across all institutions',
+            'fields' => [
+                'system_notification' => [
+                    'label' => 'System notification',
+                    'placeholder' => ' ',
+                    'hint' => 'Shown on the start page, in every calendar, and in the login dialog. Leave empty to hide it.',
                 ],
             ],
         ],
