@@ -53,6 +53,12 @@ services:
         - action: sync
           path: ./database
           target: /var/www/database
+        - action: sync
+          path: ./lang
+          target: /var/www/lang
+        - action: rebuild
+          path: ./resources
+          target: /var/www/resources
   queue-worker:
     <<: *php
     command: ["php", "artisan", "queue:work"]
