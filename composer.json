@@ -26,7 +26,7 @@
     "require-dev": {
         "driftingly/rector-laravel": "^2.4.0",
         "larastan/larastan": "^3.10",
-        "laravel-lang/common": "^3.1.1",
+        "laravel-lang/common": "^6.0",
         "laravel/pint": "^1.29.1",
         "laravel/sail": "^1.61.0",
         "laravel/telescope": "^5.20",

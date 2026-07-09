@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'header' => 'Login',
     'description' => 'TU Berlin students log in with their TUB account. UdK students log in with their campus card number and library account password.',

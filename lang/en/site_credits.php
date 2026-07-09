@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'title' => 'Site Credits',
     'description' => ' ',
@@ -26,6 +28,6 @@ return [
         'tax_id' => [
             'header' => 'Value added tax identification number',
             'content' => 'DE 811 231 089',
-        ]
+        ],
     ],
 ];

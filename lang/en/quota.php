@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'daily_hours' => [
         'label' => 'Daily hour|Daily hours',

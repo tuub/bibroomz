@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'header' => 'Anmelden',
     'description' => 'Studierende der TU Berlin melden sich mit ihrem TUB-Account an. UdK-Studierende melden sich

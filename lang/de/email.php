@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'general' => [
         'start' => [
@@ -100,5 +102,5 @@ return [
             'outro' => 'Weitere Informationen erfahren Sie bei uns.',
             'farewell' => 'Mit freundlichen Grüßen',
         ],
-    ]
+    ],
 ];

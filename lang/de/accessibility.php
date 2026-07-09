@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'skip_to_main_content' => 'Zum Inhalt springen',
     'open_navigation' => 'Öffne Navigation',
@@ -11,5 +13,5 @@ return [
         ],
         'main' => 'Inhaltsbereich',
         'footer' => 'Seitenfuss mit Links zu Datenschutzerklärung, Impressum, Kontakt und Github-Repository',
-    ]
+    ],
 ];

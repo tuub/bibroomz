@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'errors' => [
         'closing' => ':Resource_type :resource_title is not available.',
@@ -8,5 +10,5 @@ return [
         'quotas' => 'Booking quota exceeded!',
         'concurrent' => 'Only one booking is allowed at the same time.',
         'not_allowed_user' => ':Resource_type :resource_title is not available for your user group.',
-    ]
+    ],
 ];

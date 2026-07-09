@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'skip_to_main_content' => 'Skip to main content',
     'open_navigation' => 'Open Navigation',
@@ -11,5 +13,5 @@ return [
         ],
         'main' => 'Content area',
         'footer' => 'Footer area with links to privacy statement, site credits, contact, and github repository',
-    ]
+    ],
 ];

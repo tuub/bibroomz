@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'header' => 'Booking of study rooms',
     'teaser' => 'No matter what you are looking for, we got the perfect study rooms for you. Just choose below and get starting!',

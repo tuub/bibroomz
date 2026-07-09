@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'title' => 'Impressum',
     'description' => ' ',
@@ -26,6 +28,6 @@ return [
         'tax_id' => [
             'header' => 'Umsatzsteueridentifikationsnummer (USt-Id-Nr.)',
             'content' => 'DE 811 231 089',
-        ]
+        ],
     ],
 ];

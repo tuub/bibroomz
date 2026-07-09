@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'no_auth' => 'You need to login in order to create bookings',
     'login' => [

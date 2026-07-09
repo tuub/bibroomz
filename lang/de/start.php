@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'header' => 'Buchung von Arbeitsräumen',
     'teaser' => 'Ob Gruppen- oder Einzelarbeitsraum, ob Prüfungs- oder Lerngruppe. Wir haben die passenden Räume für

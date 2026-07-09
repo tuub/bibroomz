@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'user-reservation' => 'Von Ihnen vorgemerkt',
     'user-booking' => 'Von Ihnen gebucht',

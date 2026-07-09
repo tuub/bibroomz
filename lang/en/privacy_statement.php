@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'title' => 'Privacy Statement',
     'description' => 'This is DS-related stuff.',

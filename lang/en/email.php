@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'general' => [
         'start' => [
@@ -25,7 +27,7 @@ return [
             'value' => [
                 'unverified' => 'Pending verification',
                 'verified' => 'Verified',
-            ]
+            ],
         ],
     ],
     'happening' => [
@@ -100,5 +102,5 @@ return [
             'outro' => 'Contact us for further information.',
             'farewell' => 'Best regards',
         ],
-    ]
+    ],
 ];

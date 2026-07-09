@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    //'institutions' => 'zurück zur Übersicht',
+    // 'institutions' => 'zurück zur Übersicht',
     'home' => 'Start',
     'admin' => 'Admin',
     'help' => [

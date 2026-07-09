@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'no_auth' => 'Sie müssen sich anmelden, um Reservierungen vornehmen zu können.',
     'login' => [
@@ -31,5 +33,5 @@ return [
         'daily_hours' => 'Tägliches Stundenkontingent überschritten: :remaining Stunden verbleibend',
     ],
     'concurrent_happening' => 'Es ist nur eine Buchung zur gleichen Zeit möglich!',
-    'wrong_user_group' => ':Resource_type :resource_title ist für Ihre Nutzer:innengruppe nicht verfügbar.'
+    'wrong_user_group' => ':Resource_type :resource_title ist für Ihre Nutzer:innengruppe nicht verfügbar.',
 ];
