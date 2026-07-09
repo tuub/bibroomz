@@ -128,6 +128,10 @@ class ResourceGroup extends Model implements SettingSubject
 
     public function isAllowedUser(User $user): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         if ($this->user_groups->isEmpty()) {
             return true;
         }

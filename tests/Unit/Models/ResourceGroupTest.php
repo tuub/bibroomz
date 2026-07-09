@@ -208,6 +208,19 @@ test('isAllowedUser returns false when valid_from is in the past but valid_until
     Carbon::setTestNow();
 });
 
+test('isAllowedUser returns true for admin even when resource group has user groups and admin is not a member', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $userGroup = UserGroup::factory()->for($institution, 'institution')->create();
+    $rg->user_groups()->attach($userGroup->id);
+
+    $admin = User::factory()->create(['is_admin' => true]);
+    $rg->load('user_groups');
+    $admin->load('user_groups');
+
+    expect($rg->isAllowedUser($admin))->toBeTrue();
+});
+
 test('resource group isViewableByUser returns false for user without permission', function (): void {
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
