@@ -189,6 +189,30 @@ test('update allows owner when happening is present but not yet verified', funct
     expect($policy->update($owner, $happening))->toBeTrue();
 });
 
+test('admin can delete any running or future happening regardless of ownership', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $other = User::factory()->create();
+    $policy = new HappeningPolicy;
+
+    $runningVerified = createPolicyHappening([
+        'user_id_01' => $other->id,
+        'is_verified' => true,
+        'verified_at' => CarbonImmutable::now()->subMinutes(15),
+        'start' => CarbonImmutable::now()->subMinutes(30),
+        'end' => CarbonImmutable::now()->addMinutes(30),
+    ]);
+    $future = createPolicyHappening(['user_id_01' => $other->id]);
+    $past = createPolicyHappening([
+        'user_id_01' => $other->id,
+        'start' => CarbonImmutable::now()->subHours(3),
+        'end' => CarbonImmutable::now()->subHour(),
+    ]);
+
+    expect($policy->delete($admin, $runningVerified))->toBeTrue()
+        ->and($policy->delete($admin, $future))->toBeTrue()
+        ->and($policy->delete($admin, $past))->toBeFalse();
+});
+
 test('update allows verifier when user2 is null', function (): void {
     $verifier = User::factory()->create(['name' => 'solo-verifier']);
     $happening = createPolicyHappening([

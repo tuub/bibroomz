@@ -57,6 +57,10 @@ class HappeningPolicy
 
     public function delete(User $user, Happening $happening): bool
     {
+        if ($user->isAdmin() && ! $happening->isPast()) {
+            return true;
+        }
+
         return $this->update($user, $happening);
     }
 
