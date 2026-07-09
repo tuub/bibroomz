@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\Exceptions\AlmaNoEmailException;
 use App\Library\Utility;
 use App\Models\User;
 use Carbon\Carbon;
@@ -301,10 +302,15 @@ class AlmaUserProvider implements UserProvider
         }
 
         $normalizedName = Utility::normalizeLoginName($requestCredentials['uid']);
+
+        if ($normalizedName === null) {
+            return null;
+        }
+
         $email = $result['email_address'] ?? null;
 
-        if ($normalizedName === null || ! is_string($email)) {
-            return null;
+        if (! is_string($email)) {
+            throw new AlmaNoEmailException;
         }
 
         Log::info('ALMA: Successful login for user: '.$this->jsonEncodeForLog($requestCredentials['uid']));

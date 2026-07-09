@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AlmaNoEmailException;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Services\Http\CurrentUserStatusBuilder;
@@ -10,7 +11,6 @@ use App\Services\Http\LogoutAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class LoginController extends Controller
 {
@@ -22,19 +22,26 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = $this->loginAction->execute($request, $request->credentials());
+        try {
+            $user = $this->loginAction->execute($request, $request->credentials());
+        } catch (AlmaNoEmailException) {
+            return response()->json(
+                ['message' => __('auth.errors.no_email')],
+                Response::HTTP_UNAUTHORIZED,
+            );
+        }
 
         if (! $user instanceof User) {
             $response = [
                 'message' => __('auth.errors.user_not_found'),
             ];
 
-            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
+            return response()->json($response, Response::HTTP_UNAUTHORIZED);
         }
 
         $response = $this->currentUserStatusBuilder->build($user);
 
-        return response()->json($response, SymfonyResponse::HTTP_OK);
+        return response()->json($response, Response::HTTP_OK);
     }
 
     public function logout(Request $request): Response
@@ -51,7 +58,7 @@ class LoginController extends Controller
                 'message' => __('auth.errors.no_auth'),
             ];
 
-            return response()->json($response, SymfonyResponse::HTTP_UNAUTHORIZED);
+            return response()->json($response, Response::HTTP_UNAUTHORIZED);
         }
 
         $user = auth()->user();
@@ -59,6 +66,6 @@ class LoginController extends Controller
 
         $response = $this->currentUserStatusBuilder->build($user->refresh());
 
-        return response()->json($response, SymfonyResponse::HTTP_OK);
+        return response()->json($response, Response::HTTP_OK);
     }
 }

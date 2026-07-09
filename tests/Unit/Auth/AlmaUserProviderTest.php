@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Auth\AlmaUserProvider;
+use App\Exceptions\AlmaNoEmailException;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -336,16 +337,14 @@ test('getRemoteUserInfo returns null when code is not a scalar', function (): vo
     expect($result)->toBeNull();
 });
 
-test('getRemoteUserInfo returns null when email address is missing in successful response', function (): void {
-    // code=0 but no email_address element
+test('getRemoteUserInfo throws AlmaNoEmailException when email address is missing in successful response', function (): void {
+    // code=0 but no email_address element — credentials are valid but account has no email
     mockAlmaServiceResponse('<result><code>0</code></result>');
 
-    $result = buildAlmaProvider()->retrieveByCredentials([
+    expect(fn (): ?User => buildAlmaProvider()->retrieveByCredentials([
         'username' => 'remote-user',
         'password' => 'pass',
-    ]);
-
-    expect($result)->toBeNull();
+    ]))->toThrow(AlmaNoEmailException::class);
 });
 
 test('buildTestAccountUserData returns null when account email config is null', function (): void {

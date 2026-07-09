@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
@@ -14,6 +16,7 @@ return [
     ],
     'errors' => [
         'user_not_found' => 'Login failed (check your password and library account).',
+        'no_email' => 'Login failed: your library account has no email address registered.',
         'no_auth' => 'Not logged in.',
     ],
 ];
