@@ -35,12 +35,20 @@ class Closing extends Model
 
     public $timestamps = false;
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'notify_users' => true,
+    ];
+
     protected $fillable = [
         'closable_id',
         'closable_type',
         'start',
         'end',
         'description',
+        'notify_users',
     ];
 
     /**
@@ -123,6 +131,11 @@ class Closing extends Model
             ->values();
     }
 
+    public function shouldNotifyUsers(): bool
+    {
+        return $this->notify_users;
+    }
+
     /**
      * @return Collection<int, Happening>
      */
@@ -142,5 +155,6 @@ class Closing extends Model
     protected $casts = [
         'start' => 'datetime',
         'end' => 'datetime',
+        'notify_users' => 'boolean',
     ];
 }

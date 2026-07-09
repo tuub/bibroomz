@@ -29,7 +29,8 @@ test('rules include all required update closing fields', function (): void {
         ->and($rules)->toHaveKey('start_time')
         ->and($rules)->toHaveKey('end_date')
         ->and($rules)->toHaveKey('end_time')
-        ->and($rules)->toHaveKey('description');
+        ->and($rules)->toHaveKey('description')
+        ->and($rules)->toHaveKey('notify_users');
 });
 
 test('id field rules contain required and uuid', function (): void {
@@ -90,6 +91,41 @@ test('end_time field rules contain required and date_format:H:i', function (): v
 
 test('description keeps the exact empty-string placeholder rule', function (): void {
     expect(buildFormRequest(UpdateClosingRequest::class, [])->rules()['description'])->toBe(['']);
+});
+
+test('notify_users accepts boolean values', function (): void {
+    $rules = buildFormRequest(UpdateClosingRequest::class, [])->rules();
+
+    $validator = Validator::make([
+        'id' => (string) Str::uuid(),
+        'closable_id' => (string) Str::uuid(),
+        'closable_type' => 'institution',
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:00',
+        'notify_users' => true,
+    ], $rules);
+
+    expect($validator->passes())->toBeTrue();
+});
+
+test('notify_users rejects non-boolean values', function (): void {
+    $rules = buildFormRequest(UpdateClosingRequest::class, [])->rules();
+
+    $validator = Validator::make([
+        'id' => (string) Str::uuid(),
+        'closable_id' => (string) Str::uuid(),
+        'closable_type' => 'institution',
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:00',
+        'notify_users' => 'yes',
+    ], $rules);
+
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('notify_users'))->toBeTrue();
 });
 
 test('id is required', function (): void {

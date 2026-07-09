@@ -27,7 +27,8 @@ test('rules include all required closing fields', function (): void {
         ->and($rules)->toHaveKey('start_time')
         ->and($rules)->toHaveKey('end_date')
         ->and($rules)->toHaveKey('end_time')
-        ->and($rules)->toHaveKey('description');
+        ->and($rules)->toHaveKey('description')
+        ->and($rules)->toHaveKey('notify_users');
 });
 
 test('start_date requires d.m.Y format', function (): void {
@@ -250,6 +251,41 @@ test('description key exists in rules', function (): void {
     expect($rules)->toHaveKey('description');
 });
 
+test('notify_users accepts boolean values', function (): void {
+    $institution = Institution::factory()->create();
+    $rules = buildFormRequest(StoreClosingRequest::class, [])->rules();
+
+    $validator = Validator::make([
+        'closable_id' => $institution->id,
+        'closable_type' => 'institution',
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:00',
+        'notify_users' => false,
+    ], $rules);
+
+    expect($validator->passes())->toBeTrue();
+});
+
+test('notify_users rejects non-boolean values', function (): void {
+    $institution = Institution::factory()->create();
+    $rules = buildFormRequest(StoreClosingRequest::class, [])->rules();
+
+    $validator = Validator::make([
+        'closable_id' => $institution->id,
+        'closable_type' => 'institution',
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:00',
+        'notify_users' => 'yes',
+    ], $rules);
+
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('notify_users'))->toBeTrue();
+});
+
 test('description rule keeps the exact empty-string placeholder', function (): void {
     expect(buildFormRequest(StoreClosingRequest::class, [])->rules()['description'])->toBe(['']);
 });
@@ -275,5 +311,7 @@ test('rules returns all required field validation rules', function (): void {
         ->and($rules)->toHaveKey('end_time')
         ->and($rules['end_time'])->toContain('required')
         ->and($rules['end_time'])->toContain('date_format:H:i')
-        ->and($rules)->toHaveKey('description');
+        ->and($rules)->toHaveKey('description')
+        ->and($rules)->toHaveKey('notify_users')
+        ->and($rules['notify_users'])->toContain('boolean');
 });

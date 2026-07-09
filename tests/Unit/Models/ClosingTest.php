@@ -26,7 +26,8 @@ test('closing creates with valid data for an institution closable', function ():
 
     expect($closing->id)->not->toBeNull()
         ->and($closing->closable_id)->toBe($institution->id)
-        ->and($closing->closable_type)->toBe(Institution::class);
+        ->and($closing->closable_type)->toBe(Institution::class)
+        ->and($closing->notify_users)->toBeTrue();
 });
 
 test('closing start and end fields are cast to datetime', function (): void {
@@ -61,6 +62,22 @@ test('closing description field stores translations', function (): void {
 
     expect($closing->getTranslation('description', 'en'))->toBe('English desc')
         ->and($closing->getTranslation('description', 'de'))->toBe('Deutsch Beschreibung');
+});
+
+test('closing notify_users field is cast to boolean', function (): void {
+    $institution = Institution::factory()->create();
+
+    $closing = Closing::create([
+        'closable_id' => $institution->id,
+        'closable_type' => Institution::class,
+        'start' => now(),
+        'end' => now()->addDay(),
+        'description' => ['en' => 'Notify cast'],
+        'notify_users' => 0,
+    ]);
+
+    expect($closing->notify_users)->toBeFalse()
+        ->and($closing->shouldNotifyUsers())->toBeFalse();
 });
 
 test('closing soft delete removes it from normal queries', function (): void {

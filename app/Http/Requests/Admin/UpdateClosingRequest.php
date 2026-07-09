@@ -29,6 +29,7 @@ class UpdateClosingRequest extends AdminRouteRequest
             'end_date' => ['required', 'date_format:d.m.Y'],
             'end_time' => ['required', 'date_format:H:i'],
             'description' => [''],
+            'notify_users' => ['sometimes', 'boolean'],
         ];
     }
 

@@ -28,6 +28,10 @@ class ClosingEventDispatcher
     {
         $closing->loadMissing('closable');
 
+        if (! $closing->shouldNotifyUsers()) {
+            return;
+        }
+
         foreach ($closing->getUsersAffected() as $user) {
             $eventClass::dispatch($user, $closing->getUserHappeningsAffected($user), $closing);
         }

@@ -27,6 +27,7 @@ class ClosingFactory extends Factory
             'start' => now(),
             'end' => now()->addDay(),
             'description' => ['en' => 'Test closing'],
+            'notify_users' => true,
         ];
     }
 }

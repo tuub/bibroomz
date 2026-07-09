@@ -44,6 +44,12 @@
             rows="4"
         ></TranslatableFormInput>
 
+        <div class="space-x-2">
+            <ToggleSwitch v-model="form.notify_users" input-id="notify_users" />
+            <FormLabel field="notify_users" field-key="admin.closings.form.fields.notify_users" class="inline-block" />
+            <FormValidationError :message="form.errors.notify_users"></FormValidationError>
+        </div>
+
         <FormAction
             :form="form"
             model="closing"
@@ -56,11 +62,14 @@
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
+import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
+import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
 
 import { useForm } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
+import ToggleSwitch from "primevue/toggleswitch";
 import { computed } from "vue";
 
 // ------------------------------------------------
@@ -103,6 +112,7 @@ const form = useForm({
     end_date: props.closing.end_date ?? "",
     end_time: props.closing.end_time ?? "",
     description: props.closing.description ?? {},
+    notify_users: props.closing.notify_users ?? true,
     closable_id: props.closable.id,
     closable_type: props.closable_type,
 });

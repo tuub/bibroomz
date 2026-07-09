@@ -539,6 +539,11 @@ return [
                     'placeholder' => 'Die Beschreibung',
                     'hint' => 'Über die Beschreibung',
                 ],
+                'notify_users' => [
+                    'label' => 'Nutzer benachrichtigen',
+                    'placeholder' => ' ',
+                    'hint' => 'Betroffene Nutzer benachrichtigen.',
+                ],
             ],
         ],
     ],

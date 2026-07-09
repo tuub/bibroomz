@@ -186,3 +186,32 @@ test('dispatch calls loadMissing on closing', function (): void {
 
     expect($closing->relationLoaded('closable'))->toBeTrue();
 });
+
+test('dispatchCreated does not dispatch events when notify_users is false even if users are affected', function (): void {
+    Event::fake();
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = App\Models\Resource::factory()->for($rg, 'resource_group')->create(['is_active' => true]);
+    $user = User::factory()->create();
+
+    $closing = Closing::factory()->for($institution, 'closable')->create([
+        'start' => now()->subDay(),
+        'end' => now()->addDays(2),
+        'notify_users' => false,
+    ]);
+
+    Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => now()->addHour(),
+        'end' => now()->addHours(2),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $dispatcher = new ClosingEventDispatcher;
+    $dispatcher->dispatchCreated($closing);
+
+    Event::assertNotDispatched(ClosingCreatedEvent::class);
+});

@@ -185,6 +185,24 @@ test('creating an institution closing with an affected happening dispatches a cl
     Mail::assertQueued(ClosingMail::class, fn (ClosingMail $mail): bool => $mail->hasTo($fixture['owner']->email ?? ''));
 });
 
+test('creating a closing with notify_users disabled does not dispatch a closing mail', function (): void {
+    Mail::fake();
+    $fixture = buildClosingNotificationFixture();
+
+    $this->post(route('admin.closing.store'), [
+        'closable_type' => 'institution',
+        'closable_id' => $fixture['institution']->id,
+        'start_date' => '10.06.2026',
+        'start_time' => '09:30',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:30',
+        'description' => Utility::getTranslatable('Silent maintenance'),
+        'notify_users' => false,
+    ])->assertRedirect();
+
+    Mail::assertNothingQueued();
+});
+
 test('updating a closing with an affected happening dispatches an update mail', function (): void {
     Mail::fake();
     $fixture = buildClosingNotificationFixture();
@@ -217,6 +235,39 @@ test('updating a closing with an affected happening dispatches an update mail', 
     Mail::assertQueued(ClosingMail::class);
 });
 
+test('updating a closing with notify_users disabled does not dispatch an update mail', function (): void {
+    Mail::fake();
+    $fixture = buildClosingNotificationFixture();
+
+    $this->post(route('admin.closing.store'), [
+        'closable_type' => 'institution',
+        'closable_id' => $fixture['institution']->id,
+        'start_date' => '10.06.2026',
+        'start_time' => '09:30',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:30',
+        'description' => Utility::getTranslatable('Initial'),
+    ])->assertRedirect();
+
+    Mail::fake();
+
+    $closing = $fixture['institution']->closings()->firstOrFail();
+
+    $this->post(route('admin.closing.update'), [
+        'id' => $closing->id,
+        'closable_type' => 'institution',
+        'closable_id' => $fixture['institution']->id,
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '11:00',
+        'description' => Utility::getTranslatable('Extended'),
+        'notify_users' => false,
+    ])->assertRedirect();
+
+    Mail::assertNothingQueued();
+});
+
 test('deleting a closing with a previously affected happening dispatches a deletion mail', function (): void {
     Mail::fake();
     $fixture = buildClosingNotificationFixture();
@@ -239,6 +290,31 @@ test('deleting a closing with a previously affected happening dispatches a delet
         ->assertRedirect();
 
     Mail::assertQueued(ClosingMail::class);
+});
+
+test('deleting a closing with notify_users disabled does not dispatch a deletion mail', function (): void {
+    Mail::fake();
+    $fixture = buildClosingNotificationFixture();
+
+    $this->post(route('admin.closing.store'), [
+        'closable_type' => 'institution',
+        'closable_id' => $fixture['institution']->id,
+        'start_date' => '10.06.2026',
+        'start_time' => '09:30',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:30',
+        'description' => Utility::getTranslatable('Temporary'),
+        'notify_users' => false,
+    ])->assertRedirect();
+
+    Mail::fake();
+
+    $closing = $fixture['institution']->closings()->firstOrFail();
+
+    $this->post(route('admin.closing.delete'), ['id' => $closing->id])
+        ->assertRedirect();
+
+    Mail::assertNothingQueued();
 });
 
 // ---------------------------------------------------------------------------

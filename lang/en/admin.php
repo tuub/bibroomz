@@ -539,6 +539,11 @@ return [
                     'placeholder' => 'The description',
                     'hint' => 'About the description',
                 ],
+                'notify_users' => [
+                    'label' => 'Notify users',
+                    'placeholder' => ' ',
+                    'hint' => 'Send notifications to affected users.',
+                ],
             ],
         ],
     ],

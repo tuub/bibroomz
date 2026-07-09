@@ -959,6 +959,31 @@ test('update closing request rejects non-uuid closable_id', function (): void {
     ], 'closable_id');
 });
 
+test('store closing request rejects non-boolean notify_users', function (): void {
+    $institution = Institution::factory()->create();
+    $rules = makeRules(StoreClosingRequest::class, [
+        'closable_id' => $institution->id, 'closable_type' => 'institution',
+    ]);
+    assertFails($rules, [
+        'closable_id' => $institution->id, 'closable_type' => 'institution',
+        'start_date' => '10.06.2026', 'start_time' => '09:00',
+        'end_date' => '10.06.2026', 'end_time' => '10:00',
+        'notify_users' => 'yes',
+    ], 'notify_users');
+});
+
+test('update closing request rejects non-boolean notify_users', function (): void {
+    $rules = makeRules(UpdateClosingRequest::class, []);
+    assertFails($rules, [
+        'id' => (string) Str::uuid(),
+        'closable_id' => (string) Str::uuid(),
+        'closable_type' => 'institution',
+        'start_date' => '10.06.2026', 'start_time' => '09:00',
+        'end_date' => '10.06.2026', 'end_time' => '10:00',
+        'notify_users' => 'yes',
+    ], 'notify_users');
+});
+
 // ── Additional: ImportUsersRequest ───────────────────────────────────────────
 
 test('import users request requires users to be an array not a string', function (): void {
