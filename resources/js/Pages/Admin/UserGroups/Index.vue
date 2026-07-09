@@ -3,6 +3,7 @@ import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
+import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
@@ -105,14 +106,27 @@ const recordsCount = computed(() => {
             <Column :header="$t('admin.general.table.actions')">
                 <template #body="slotProps">
                     <LinkGroup>
+                        <RelationLink
+                            v-if="hasPermission('view_user_groups', slotProps.data.institution_id)"
+                            current="user_group"
+                            relation="user"
+                            route="admin.user_group.users"
+                            :params="{ id: slotProps.data.id }"
+                        />
                         <ActionLink
-                            v-if="hasPermission('edit_user_group', slotProps.data.id)"
+                            v-if="hasPermission('edit_user_groups', slotProps.data.institution_id)"
+                            action="import"
+                            model="user_group"
+                            :params="{ id: slotProps.data.id }"
+                        />
+                        <ActionLink
+                            v-if="hasPermission('edit_user_groups', slotProps.data.institution_id)"
                             action="edit"
                             model="user_group"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_user_group', slotProps.data.id)"
+                            v-if="hasPermission('delete_user_groups', slotProps.data.institution_id)"
                             action="delete"
                             model="user_group"
                             :params="{ id: slotProps.data.id }"
