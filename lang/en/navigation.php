@@ -15,4 +15,9 @@ return [
     'privacy_statement' => 'Privacy Statement',
     'site_credits' => 'Site Credits',
     'jump_to_sidebar' => 'To your booking overview',
+    'theme' => [
+        'system' => 'System',
+        'light' => 'Light',
+        'dark' => 'Dark',
+    ],
 ];

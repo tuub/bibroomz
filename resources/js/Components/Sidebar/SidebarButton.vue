@@ -20,7 +20,9 @@ defineProps({
 </script>
 
 <template>
-    <button class="flex items-center justify-center rounded border border-black p-1 hover:bg-tub hover:text-white">
+    <button
+        class="flex items-center justify-center rounded border border-black p-1 hover:bg-tub hover:text-white dark:border-gray-300"
+    >
         <i v-if="icon" class="text-xs" :class="icon" :title="label"></i>
         <span class="ml-1 text-xs">{{ label }}</span>
     </button>

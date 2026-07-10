@@ -51,10 +51,13 @@ onUnmounted(() => {
 
     <!-- MAIN CONTENT START -->
     <main
-        class="flex flex-1 items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300"
+        class="flex flex-1 items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 dark:bg-gray-900"
         :aria-label="$t('accessibility.aria_label.main')"
     >
-        <section id="content" class="w-3/4 flex-grow rounded bg-white p-6 shadow-md">
+        <section
+            id="content"
+            class="w-3/4 flex-grow rounded bg-white p-6 shadow-md dark:bg-gray-800 dark:text-gray-100"
+        >
             <slot />
             <Toast
                 position="bottom-right"

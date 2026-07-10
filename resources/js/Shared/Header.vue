@@ -21,7 +21,7 @@ const { isPrivileged } = storeToRefs(authStore);
         <title>{{ appName }}</title>
     </Head>
     <header
-        class="flex items-center justify-between bg-white p-4 text-tub"
+        class="flex items-center justify-between bg-white p-4 text-tub dark:bg-gray-800"
         :aria-label="$t('accessibility.aria_label.header')"
     >
         <a class="sr-only" href="#content">{{ $t("accessibility.skip_to_main_content") }}</a>
@@ -57,7 +57,7 @@ const { isPrivileged } = storeToRefs(authStore);
                     </template>
                 </Drawer>
                 <Button
-                    class="border-0 bg-white text-tub hover:bg-tub hover:text-white"
+                    class="border-0 bg-white text-tub hover:bg-tub hover:text-white dark:bg-gray-800"
                     size="small"
                     aria-label="Open Navigation"
                     @click="isResponsive = true"
@@ -70,7 +70,7 @@ const { isPrivileged } = storeToRefs(authStore);
         <!-- RESPONSIVE END -->
         <!-- DESKTOP START -->
         <div
-            class="absolute left-0 top-16 hidden w-full gap-4 bg-gray-800 p-4 shadow-md md:relative md:top-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none lg:flex"
+            class="absolute left-0 top-16 hidden w-full gap-4 bg-gray-800 p-4 shadow-md md:relative md:top-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none lg:flex dark:bg-gray-900"
         >
             <NavigationBar
                 :is-responsive="isResponsive"

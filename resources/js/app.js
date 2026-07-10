@@ -1,3 +1,4 @@
+import { useTheme } from "@/Composables/Theme";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
 import "./bootstrap";
@@ -78,7 +79,7 @@ createInertiaApp({
                 theme: {
                     preset: Material,
                     options: {
-                        darkModeSelector: "system",
+                        darkModeSelector: ".dark",
                         cssLayer: {
                             name: "primevue",
                             order: "tailwind-base, primevue, tailwind-utilities",
@@ -111,6 +112,8 @@ createInertiaApp({
             // Custom components
             .component("Head", Head)
             .component("Link", Link);
+
+        useTheme().init();
 
         app.mount(el);
     },

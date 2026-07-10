@@ -26,18 +26,6 @@ main {
     @apply text-black;
 }
 
-main.dark-mode {
-    @apply bg-black text-white;
-
-    #content {
-        @apply bg-black;
-    }
-
-    #sidebar {
-        @apply bg-black;
-    }
-}
-
 .status-reservation {
     background-color: variables.$status-reservation-bg;
     color: variables.$status-reservation-fg;

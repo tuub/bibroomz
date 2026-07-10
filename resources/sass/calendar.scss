@@ -158,3 +158,46 @@ a.fc-event {
     height: 18px;
     font-size: 0.4em;
 }
+
+/* Dark mode overrides */
+.dark {
+    .fc {
+        --fc-border-color: #374151; // gray-700
+        --fc-page-bg-color: #1f2937; // gray-800
+        --fc-neutral-bg-color: #374151; // gray-700
+        --fc-neutral-text-color: #d1d5db; // gray-300
+        --fc-non-business-color: rgba(0, 0, 0, 30%);
+        --fc-more-link-bg-color: #374151; // gray-700
+        --fc-today-bg-color: rgba(196, 13, 30, 15%); // tub-tinted
+    }
+
+    .fc-non-business {
+        background-color: #374151 !important; // gray-700
+    }
+
+    div.fc-timegrid-slots tr {
+        background-color: #1f2937; // gray-800
+    }
+
+    .fc-unthemed td.fc-today {
+        background-color: #374151 !important; // gray-700
+    }
+
+    .fc-bg-event {
+        background-color: #1f2937; // gray-800
+        background: repeating-linear-gradient(45deg, #374151, #374151 10px, #4b5563 10px, #4b5563 20px) !important;
+        color: #f3f4f6; // gray-100
+    }
+
+    a.fc-event.past-event {
+        background-color: #4b5563; // gray-600
+    }
+
+    .fc-timegrid-slots tr:nth-child(odd) {
+        background-color: #1f2937; // gray-800
+    }
+
+    .fc-timegrid-slots tr:nth-child(even) {
+        background-color: #374151; // gray-700
+    }
+}

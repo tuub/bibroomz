@@ -13,5 +13,6 @@ return [
         ],
         'main' => 'Inhaltsbereich',
         'footer' => 'Seitenfuss mit Links zu Datenschutzerklärung, Impressum, Kontakt und Github-Repository',
+        'theme_switch' => 'Farbschema wechseln, aktuell: :mode',
     ],
 ];

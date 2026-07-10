@@ -13,5 +13,6 @@ return [
         ],
         'main' => 'Content area',
         'footer' => 'Footer area with links to privacy statement, site credits, contact, and github repository',
+        'theme_switch' => 'Switch color theme, currently: :mode',
     ],
 ];

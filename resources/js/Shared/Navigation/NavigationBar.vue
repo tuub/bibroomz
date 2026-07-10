@@ -3,6 +3,7 @@ import { useLogin } from "@/Composables/Login";
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import InternalLink from "@/Shared/Navigation/InternalLink.vue";
 import LanguageSwitch from "@/Shared/Navigation/LanguageSwitch.vue";
+import ThemeSwitch from "@/Shared/Navigation/ThemeSwitch.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
@@ -91,6 +92,11 @@ const { loginUser, logoutUser } = useLogin();
             <li :class="isResponsive ? 'block' : 'inline-block'">
                 <div id="i18n" class="block px-3 py-2 text-tub">
                     <LanguageSwitch />
+                </div>
+            </li>
+            <li :class="isResponsive ? 'block' : 'inline-block'">
+                <div id="theme" class="block px-3 py-2 text-tub">
+                    <ThemeSwitch />
                 </div>
             </li>
         </ul>

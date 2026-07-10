@@ -62,9 +62,12 @@ onUnmounted(() => {
 
     <!-- MAIN CONTENT START -->
     <div
-        class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 lg:flex-nowrap"
+        class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 lg:flex-nowrap dark:bg-gray-900"
     >
-        <main id="content" class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4">
+        <main
+            id="content"
+            class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4 dark:bg-gray-800 dark:text-gray-100"
+        >
             <div class="flex justify-center">
                 <Button
                     class="mb-2 text-xs lg:hidden"
@@ -86,7 +89,7 @@ onUnmounted(() => {
         <!-- SIDEBAR CONTENT START -->
         <aside
             id="sidebar"
-            class="order-last m-2 w-full rounded bg-white p-5 shadow-md md:order-none lg:w-2/5 xl:w-1/4"
+            class="order-last m-2 w-full rounded bg-white p-5 shadow-md md:order-none lg:w-2/5 xl:w-1/4 dark:bg-gray-800 dark:text-gray-100"
         ></aside>
         <!-- SIDEBAR CONTENT END -->
     </div>

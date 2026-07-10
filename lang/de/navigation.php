@@ -15,4 +15,9 @@ return [
     'privacy_statement' => 'Datenschutzhinweis',
     'site_credits' => 'Impressum',
     'jump_to_sidebar' => 'Zu Ihrer Buchungsübersicht',
+    'theme' => [
+        'system' => 'System',
+        'light' => 'Hell',
+        'dark' => 'Dunkel',
+    ],
 ];
