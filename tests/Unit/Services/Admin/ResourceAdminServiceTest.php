@@ -701,6 +701,11 @@ test('getEditFormData loads business_hours.week_days and resource_group via load
     expect($freshResource->relationLoaded('business_hours'))->toBeTrue()
         ->and($freshResource->relationLoaded('resource_group'))->toBeTrue();
 
+    // RemoveArrayItem/String mutation on 'resource_group.institution' would drop the
+    // nested eager load, breaking the breadcrumb's institution name lookup.
+    expect($freshResource->resource_group->relationLoaded('institution'))->toBeTrue()
+        ->and($freshResource->resource_group->institution->id)->toBe($institution->id);
+
     $bh = $data['resource']['business_hours']->first();
     expect($bh)->not->toBeNull()
         ->and($bh['week_days'])->not->toBeNull();

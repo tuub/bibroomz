@@ -63,7 +63,7 @@ class ResourceAdminService
      */
     public function getEditFormData(Resource $resource): array
     {
-        $resource->loadMissing(['business_hours.week_days:id', 'resource_group']);
+        $resource->loadMissing(['business_hours.week_days:id', 'resource_group.institution']);
 
         return [
             'resourceGroup' => $resource->resource_group,

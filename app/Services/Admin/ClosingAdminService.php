@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Closing;
 use App\Models\Institution;
 use App\Models\Resource;
+use App\Models\ResourceGroup;
 use App\Services\AdminLoggingService;
 use App\Services\Closings\CreateClosingAction;
 use App\Services\Closings\DeleteClosingAction;
@@ -36,6 +37,7 @@ class ClosingAdminService
         return [
             'closable' => $closable->withoutRelations(),
             'closable_type' => $closableType,
+            ...$this->resolveClosableContext($closable),
             'closings' => $this->listClosingsAction->execute($closable),
         ];
     }
@@ -48,6 +50,7 @@ class ClosingAdminService
         return [
             'closable' => $closable,
             'closable_type' => $closableType,
+            ...$this->resolveClosableContext($closable),
             'languages' => config('app.supported_locales'),
         ];
     }
@@ -69,7 +72,25 @@ class ClosingAdminService
             ],
             'closable' => $closable,
             'closable_type' => $this->closableResolver->typeForModel($closable),
+            ...$this->resolveClosableContext($closable),
             'languages' => config('app.supported_locales'),
+        ];
+    }
+
+    /**
+     * @return array{institution: Institution|null, resource_group: ResourceGroup|null}
+     */
+    private function resolveClosableContext(Institution|Resource $closable): array
+    {
+        if (! $closable instanceof Resource) {
+            return ['institution' => null, 'resource_group' => null];
+        }
+
+        $closable->loadMissing('resource_group.institution');
+
+        return [
+            'institution' => $closable->resource_group->institution,
+            'resource_group' => $closable->resource_group,
         ];
     }
 

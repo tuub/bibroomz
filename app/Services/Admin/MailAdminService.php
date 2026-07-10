@@ -43,6 +43,7 @@ class MailAdminService
     public function getCreateFormData(Institution $institution): array
     {
         return [
+            'institution' => $institution,
             'institution_id' => $institution->id,
             'mail_types' => $this->missingMailTypesQuery->execute($institution->id),
             'languages' => config('app.supported_locales'),
@@ -55,7 +56,8 @@ class MailAdminService
     public function getEditFormData(MailContent $mail): array
     {
         return [
-            'mail' => $mail,
+            'mail' => $mail->loadMissing('mail_type'),
+            'institution' => $mail->institution,
             'institution_id' => $mail->institution_id,
             'mail_types' => $this->missingMailTypesQuery->execute($mail->institution_id),
             'languages' => config('app.supported_locales'),

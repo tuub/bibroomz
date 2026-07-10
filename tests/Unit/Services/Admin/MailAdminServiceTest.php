@@ -125,6 +125,17 @@ test('getCreateFormData institution_id matches institution', function (): void {
     expect($data['institution_id'])->toBe($institution->id);
 });
 
+test('getCreateFormData returns the institution model', function (): void {
+    $institution = Institution::factory()->create();
+
+    $service = app(MailAdminService::class);
+    $data = $service->getCreateFormData($institution);
+
+    expect($data)->toHaveKey('institution')
+        ->and($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id);
+});
+
 // -------------------------------------------------------------------------
 // getEditFormData
 // -------------------------------------------------------------------------
@@ -182,6 +193,33 @@ test('getEditFormData institution_id matches mail institution', function (): voi
     $data = $service->getEditFormData($mail);
 
     expect($data['institution_id'])->toBe($institution->id);
+});
+
+test('getEditFormData returns the mail institution model', function (): void {
+    $institution = Institution::factory()->create();
+    $mailType = MailType::factory()->create(['key' => 'edit_type6_'.uniqid()]);
+    $mail = MailContent::factory()->for($institution, 'institution')->create(['mail_type_id' => $mailType->id]);
+
+    $service = app(MailAdminService::class);
+    $data = $service->getEditFormData($mail);
+
+    expect($data)->toHaveKey('institution')
+        ->and($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id);
+});
+
+test('getEditFormData eager loads the mail_type relation', function (): void {
+    // RemoveMethodCall mutation would drop the loadMissing('mail_type') call,
+    // leaving mail_type unloaded and breaking the breadcrumb's mail-type label lookup.
+    $institution = Institution::factory()->create();
+    $mailType = MailType::factory()->create(['key' => 'edit_type7_'.uniqid()]);
+    $mail = MailContent::factory()->for($institution, 'institution')->create(['mail_type_id' => $mailType->id]);
+
+    $service = app(MailAdminService::class);
+    $data = $service->getEditFormData($mail);
+
+    expect($data['mail']->relationLoaded('mail_type'))->toBeTrue()
+        ->and($data['mail']->mail_type->key)->toBe($mailType->key);
 });
 
 // -------------------------------------------------------------------------

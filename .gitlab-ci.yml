@@ -185,6 +185,12 @@ stylelint:
   script:
     - nix develop --command node_modules/.bin/stylelint resources/
 
+typescript:
+  extends: .nix
+  stage: lint
+  script:
+    - nix develop --command npm run typecheck
+
 frontend-build:
   extends: .nix
   stage: build
@@ -224,6 +230,12 @@ browser:
   stage: test
   script:
     - nix develop --command composer run test:browser
+
+vitest:
+  extends: .nix
+  stage: test
+  script:
+    - nix develop --command npm run test
 
 ### Deploy stage
 deploy-staging:

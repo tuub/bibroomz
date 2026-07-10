@@ -7,11 +7,12 @@
         "isolatedModules": true,
         "noEmit": true,
         "allowJs": true,
+        "esModuleInterop": true,
         "skipLibCheck": true,
         "paths": {
-            "@/*": [
-                "./resources/js/*"
-            ]
+            "@/*": ["./resources/js/*"]
         }
-    }
+    },
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "*.ts"],
+    "exclude": ["node_modules", "public", "vendor"]
 }

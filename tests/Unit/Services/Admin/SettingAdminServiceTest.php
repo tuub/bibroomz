@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Institution;
+use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Services\Admin\SettingAdminService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -73,6 +74,38 @@ test('update creates a missing setting row', function (): void {
     expect($created->exists)->toBeTrue()
         ->and($created->key)->toBe('system_notification')
         ->and($created->value)->toBe('Outage');
+});
+
+test('getIndexData returns the institution itself as institution when settingable is an institution', function (): void {
+    $institution = Institution::factory()->create();
+    $service = app(SettingAdminService::class);
+
+    $data = $service->getIndexData($institution, 'institution');
+
+    expect($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id);
+});
+
+test('getIndexData returns the owning institution when settingable is a resource_group', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $service = app(SettingAdminService::class);
+
+    $data = $service->getIndexData($resourceGroup, 'resource_group');
+
+    expect($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id);
+});
+
+test('getEditFormData returns the owning institution when settingable is a resource_group', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $service = app(SettingAdminService::class);
+
+    $data = $service->getEditFormData($resourceGroup, 'resource_group', 'start_time_slot');
+
+    expect($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id);
 });
 
 test('update calls adminLoggingService log', function (): void {

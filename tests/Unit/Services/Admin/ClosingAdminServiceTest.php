@@ -201,6 +201,55 @@ test('delete logs the deleted closing', function (): void {
     $service->delete($closing);
 });
 
+test('getIndexData returns null institution and resource_group for institution closable', function (): void {
+    $institution = Institution::factory()->create();
+    $service = app(ClosingAdminService::class);
+
+    $data = $service->getIndexData($institution, 'institution');
+
+    expect($data['institution'])->toBeNull()
+        ->and($data['resource_group'])->toBeNull();
+});
+
+test('getIndexData returns owning institution and resource_group for resource closable', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $service = app(ClosingAdminService::class);
+
+    $data = $service->getIndexData($resource, 'resource');
+
+    expect($data['institution'])->toBeInstanceOf(Institution::class)
+        ->and($data['institution']->id)->toBe($institution->id)
+        ->and($data['resource_group'])->toBeInstanceOf(ResourceGroup::class)
+        ->and($data['resource_group']->id)->toBe($resourceGroup->id);
+});
+
+test('getCreateFormData returns owning institution and resource_group for resource closable', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $service = app(ClosingAdminService::class);
+
+    $data = $service->getCreateFormData($resource, 'resource');
+
+    expect($data['institution']->id)->toBe($institution->id)
+        ->and($data['resource_group']->id)->toBe($resourceGroup->id);
+});
+
+test('getEditFormData returns owning institution and resource_group for resource closable', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $closing = Closing::factory()->for($resource, 'closable')->create();
+    $service = app(ClosingAdminService::class);
+
+    $data = $service->getEditFormData($closing);
+
+    expect($data['institution']->id)->toBe($institution->id)
+        ->and($data['resource_group']->id)->toBe($resourceGroup->id);
+});
+
 test('resolveClosingClosable aborts with 500 when closable is neither Institution nor Resource', function (): void {
     // InstanceOfToTrue mutation would skip the abort_unless, allowing invalid models through.
     // We test with a closing that has its closable relation null-loaded (detached morph).

@@ -16,6 +16,7 @@ class SettingAdminService
      * @return array{
      *   settingable: Institution|ResourceGroup,
      *   settingable_type: string,
+     *   institution: Institution,
      *   settings: array<int, array{id: string|null, key: string, value: string}>
      * }
      */
@@ -24,6 +25,7 @@ class SettingAdminService
         return [
             'settingable' => $settingable->withoutRelations(),
             'settingable_type' => $settingableType,
+            'institution' => $this->resolveSettingableInstitution($settingable),
             'settings' => $this->buildDefinitionSettings(
                 $settingableType,
                 $settingable->settings()->get()->keyBy('key'),
@@ -36,6 +38,7 @@ class SettingAdminService
      *   setting: array{id: string|null, key: string, value: string},
      *   settingable: Institution|ResourceGroup,
      *   settingable_type: string,
+     *   institution: Institution,
      *   input_type: string
      * }
      */
@@ -56,8 +59,18 @@ class SettingAdminService
             ],
             'settingable' => $settingable->withoutRelations(),
             'settingable_type' => $settingableType,
+            'institution' => $this->resolveSettingableInstitution($settingable),
             'input_type' => Setting::getInputType($settingableType, $key),
         ];
+    }
+
+    private function resolveSettingableInstitution(Institution|ResourceGroup $settingable): Institution
+    {
+        if ($settingable instanceof Institution) {
+            return $settingable;
+        }
+
+        return $settingable->loadMissing('institution')->institution;
     }
 
     /**

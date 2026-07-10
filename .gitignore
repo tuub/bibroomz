@@ -17,6 +17,7 @@ _ide_helper.php
 /public/images
 /public/storage
 /public/vendor
+!/resources/js/env.d.ts
 /resources/js/ziggy.js
 /storage/*.key
 /tests/Browser/Screenshots/

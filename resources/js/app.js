@@ -1,4 +1,5 @@
 import { useTheme } from "@/Composables/Theme";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
 import "./bootstrap";
@@ -42,7 +43,7 @@ createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     resolve: async (name) => {
         const page = await resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob("./Pages/**/*.vue"));
-        page.default.layout = page.default.layout || MainLayout;
+        page.default.layout = page.default.layout || (name.startsWith("Admin/") ? AdminLayout : MainLayout);
 
         return page;
     },
