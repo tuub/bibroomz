@@ -73,7 +73,7 @@ export const useAuthStore = defineStore({
                 this.permissions = response.data.permissions;
                 this.allowedResourceGroups = response.data.allowedResourceGroups;
 
-                this.fetchUserHappenings();
+                void this.fetchUserHappenings();
                 this.subscribe();
             } catch {
                 this.$reset();
@@ -96,7 +96,7 @@ export const useAuthStore = defineStore({
             this.permissions = response.data.permissions;
             this.allowedResourceGroups = response.data.allowedResourceGroups;
 
-            this.fetchUserHappenings();
+            void this.fetchUserHappenings();
             this.subscribe();
 
             toastStore.addAuthToast({ summary: trans("toast.login.success") });
@@ -420,7 +420,8 @@ export const useAuthStore = defineStore({
             resourceGroup?: number | string;
             translations?: { resourceGroup?: Record<string, string>; title?: Record<string, string> };
         }) {
-            const isAllowed = this.allowedResourceGroups.includes(resource.resourceGroup);
+            const resourceGroupId = resource.resourceGroup;
+            const isAllowed = resourceGroupId != null && this.allowedResourceGroups.includes(resourceGroupId);
 
             if (!isAllowed) {
                 const appStore = useAppStore();
@@ -428,8 +429,8 @@ export const useAuthStore = defineStore({
                 const translate = appStore.translate;
 
                 const summary = trans("toast.wrong_user_group", {
-                    resource_type: translate(resource.translations?.resourceGroup) ?? "",
-                    resource_title: translate(resource.translations?.title) ?? "",
+                    resource_type: translate(resource.translations?.resourceGroup),
+                    resource_title: translate(resource.translations?.title),
                 });
 
                 toastStore.addUserGroupToast({ summary });

@@ -8,7 +8,7 @@ import { usePage } from "@inertiajs/vue3";
 import Breadcrumb from "primevue/breadcrumb";
 import { computed, inject, ref } from "vue";
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 const page = usePage<{ route?: string }>();
 
 // Compute the breadcrumbs based on the current route name
@@ -27,8 +27,9 @@ const items = computed(() => {
 
     parts.forEach((part, index) => {
         accumulatedRoute += (index ? "." : "") + part;
-        if (routesMap[accumulatedRoute]) {
-            breadcrumbs.push(routesMap[accumulatedRoute]);
+        const routeMapItem = routesMap[accumulatedRoute];
+        if (routeMapItem) {
+            breadcrumbs.push(routeMapItem);
         }
     });
 

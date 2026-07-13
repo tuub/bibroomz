@@ -85,10 +85,13 @@ export function useSortFilterTable<T extends Record<string, unknown>>({
 
     const filterFunction = (obj: Record<string, unknown>) => {
         return Object.keys(filters).every((key) => {
-            return (obj[key] as { toString(): string } | undefined)
-                ?.toString()
-                .toLowerCase()
-                .includes(filters[key].toLowerCase());
+            const filterValue = filters[key];
+            if (!filterValue) {
+                return true;
+            }
+
+            const fieldValue = obj[key] as { toString(): string } | undefined;
+            return fieldValue?.toString().toLowerCase().includes(filterValue.toLowerCase()) ?? false;
         });
     };
 

@@ -25,8 +25,8 @@ function setMetaBaseUrl(url: string) {
 
 beforeEach(() => {
     echoConstructorMock.mockReset();
-    window.Echo = undefined;
-    window.Pusher = undefined;
+    window.Echo = undefined as unknown as typeof window.Echo;
+    window.Pusher = undefined as unknown as typeof window.Pusher;
 });
 
 afterEach(() => {

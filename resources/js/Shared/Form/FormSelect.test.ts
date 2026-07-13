@@ -31,11 +31,12 @@ describe("FormSelect", () => {
     test("renders the default placeholder option when none is provided", () => {
         const wrapper = render();
         const options = wrapper.findAll("option");
+        expect(options).toHaveLength(3);
 
-        expect(options[0].element.value).toBe("");
-        expect(options[0].text()).toBe("admin.general.form.choose");
-        expect(options[1].text()).toBe("Reader");
-        expect(options[2].text()).toBe("Writer");
+        expect(options[0]!.element.value).toBe("");
+        expect(options[0]!.text()).toBe("admin.general.form.choose");
+        expect(options[1]!.text()).toBe("Reader");
+        expect(options[2]!.text()).toBe("Writer");
     });
 
     test("respects a custom placeholder value", () => {

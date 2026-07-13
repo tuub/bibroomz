@@ -6,13 +6,7 @@
             v-model="form.mail_type_id"
             field="mail_type_id"
             field-key="admin.mails.form.fields.mail_type"
-            :options="
-                mail_types.map((mail_type) => ({
-                    key: mail_type.id,
-                    value: mail_type.id.toString(),
-                    label: $t('admin.mails.mail_types.' + mail_type.key),
-                }))
-            "
+            :options="mailTypeOptions"
             :error="form.errors.mail_type_id"
         />
 
@@ -124,6 +118,8 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import type { Mail, MailType } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
+import { trans } from "laravel-vue-i18n";
+import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -146,6 +142,20 @@ const props = withDefaults(
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
+const mailTypeOptions = computed(() =>
+    props.mail_types.flatMap((mailType) =>
+        mailType.id != null
+            ? [
+                  {
+                      key: mailType.id,
+                      value: mailType.id.toString(),
+                      label: mailType.key ? trans(`admin.mails.mail_types.${mailType.key}`) : "",
+                  },
+              ]
+            : [],
+    ),
+);
+
 const form = useForm({
     id: props.mail?.id ?? "",
     institution_id: props.institution_id,

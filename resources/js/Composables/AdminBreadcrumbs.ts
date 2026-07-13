@@ -41,7 +41,7 @@ type BreadcrumbContext = {
     props: BreadcrumbProps;
     push: (label?: string | null, url?: string | null) => void;
     t: (key: string) => string;
-    translate: (value?: Translatable) => string | undefined;
+    translate: (value?: Translatable) => string;
     route: RouteFn;
     isCreate?: boolean;
     isEdit?: boolean;
@@ -261,7 +261,10 @@ export function useAdminBreadcrumbs() {
         });
 
         if (crumbs.length > 0) {
-            crumbs[crumbs.length - 1].url = null;
+            const lastCrumb = crumbs[crumbs.length - 1];
+            if (lastCrumb) {
+                lastCrumb.url = null;
+            }
         }
 
         return crumbs;
@@ -269,7 +272,7 @@ export function useAdminBreadcrumbs() {
 
     const home = computed(() => ({
         icon: "pi pi-home",
-        url: route?.("start"),
+        url: route?.("start") ?? null,
     }));
 
     return { items, home };

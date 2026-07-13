@@ -29,10 +29,12 @@ const page = usePage();
 // ------------------------------------------------
 const scrollToSidebar = () => {
     const element = document.getElementById("sidebar");
-    element.scrollIntoView({
-        block: "start",
-        behavior: "smooth", // smooth scroll
-    });
+    if (element) {
+        element.scrollIntoView({
+            block: "start",
+            behavior: "smooth", // smooth scroll
+        });
+    }
 };
 
 // ------------------------------------------------

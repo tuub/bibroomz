@@ -120,10 +120,17 @@ const units = computed(() => [
     { value: "years", label: trans("admin.user_groups.import.fields.units.years") },
 ]);
 
-const validUntilNumber = ref();
-const validUntilUnit = ref(units.value[0].value);
+const validUntilNumber = ref<number | null>(null);
+const validUntilUnit = ref(units.value[0]?.value ?? "days");
 
-const form = useForm({
+const form = useForm<{
+    id: string | number;
+    users: { name: string }[];
+    valid_from_date: string | null;
+    valid_until_date: string | null;
+    valid_from_text: string;
+    valid_until_text: string | null;
+}>({
     id: props.user_group.id ?? "",
     users: [] as { name: string }[],
     valid_from_date: null,

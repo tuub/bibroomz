@@ -192,7 +192,7 @@ export const useAppStore = defineStore({
             };
 
             return {
-                month: months[this.locale][date.month()],
+                month: months[this.locale]?.[date.month()] ?? "",
                 day: date.date(),
             };
         },
@@ -214,24 +214,26 @@ export const useAppStore = defineStore({
             return dayjs(datetimeStr, dateTimeStrFormat);
         },
 
-        translate(translatable: TranslatableValue | undefined, locale?: string): string | undefined {
+        translate(translatable: TranslatableValue | undefined, locale?: string): string {
             if (typeof translatable === "string") {
                 return translatable;
             }
 
             if (!translatable) {
-                return;
+                return "";
             }
 
             locale = locale ?? this.locale;
 
-            if (translatable[locale]) {
-                return translatable[locale];
+            const currentTranslation = translatable[locale];
+            if (currentTranslation) {
+                return currentTranslation;
             }
 
             for (const supportedLocale of this.supportedLocales) {
-                if (translatable[supportedLocale]) {
-                    return translatable[supportedLocale];
+                const fallbackTranslation = translatable[supportedLocale];
+                if (fallbackTranslation) {
+                    return fallbackTranslation;
                 }
             }
 

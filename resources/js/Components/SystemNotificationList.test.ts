@@ -20,7 +20,7 @@ describe("SystemNotificationList", () => {
         const sections = wrapper.findAll('[role="status"]');
 
         expect(sections).toHaveLength(2);
-        expect(sections[0].text()).toContain("Maintenance tonight");
-        expect(sections[1].text()).toContain("Bring your card");
+        expect(sections[0]!.text()).toContain("Maintenance tonight");
+        expect(sections[1]!.text()).toContain("Bring your card");
     });
 });

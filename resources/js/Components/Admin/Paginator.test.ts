@@ -20,11 +20,12 @@ describe("Paginator", () => {
     test("emits page-changed for the navigation buttons", async () => {
         const wrapper = render();
         const buttons = wrapper.findAll("button");
+        expect(buttons).toHaveLength(8);
 
-        await buttons[0].trigger("click");
-        await buttons[1].trigger("click");
-        await buttons[2].trigger("click");
-        await buttons[3].trigger("click");
+        await buttons[0]!.trigger("click");
+        await buttons[1]!.trigger("click");
+        await buttons[2]!.trigger("click");
+        await buttons[3]!.trigger("click");
 
         expect(wrapper.emitted("page-changed")).toEqual([[1], [1], [3], [12]]);
     });
@@ -40,10 +41,11 @@ describe("Paginator", () => {
     test("emits update:per-page for preset buttons and show all", async () => {
         const wrapper = render({ perPage: 20 });
         const buttons = wrapper.findAll("button");
+        expect(buttons).toHaveLength(8);
 
-        await buttons[4].trigger("click");
-        await buttons[6].trigger("click");
-        await buttons[7].trigger("click");
+        await buttons[4]!.trigger("click");
+        await buttons[6]!.trigger("click");
+        await buttons[7]!.trigger("click");
 
         expect(wrapper.emitted("update:per-page")).toEqual([[10], [30], [-1]]);
     });

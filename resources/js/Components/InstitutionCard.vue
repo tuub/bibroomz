@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
+
+import { inject } from "vue";
 
 // ------------------------------------------------
 // Props
@@ -13,6 +16,7 @@ defineProps({
 
 const appStore = useAppStore();
 const translate = appStore.translate;
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 </script>
 <template>
     <Card class="mx-10 my-5 flex max-w-full md:max-w-96">

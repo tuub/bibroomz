@@ -103,7 +103,7 @@ describe("pagination", () => {
         expect(paginator.prevPage).toBe(1);
         expect(paginator.nextPage).toBe(2);
         expect(paginator.data).toHaveLength(10);
-        expect(paginator.data?.[0].id).toBe(1);
+        expect(paginator.data?.[0]?.id).toBe(1);
     });
 
     test("jumpToPage moves to the requested page", async () => {
@@ -115,7 +115,7 @@ describe("pagination", () => {
         await flush();
 
         expect(paginator.currentPage).toBe(2);
-        expect(paginator.data?.[0].id).toBe(11);
+        expect(paginator.data?.[0]?.id).toBe(11);
         expect(paginator.prevPage).toBe(1);
         expect(paginator.nextPage).toBe(3);
     });

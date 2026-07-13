@@ -37,7 +37,7 @@ const deleteUserHappening = (happening: Happening) => {
 <template>
     <div class="flex flex-wrap space-x-1">
         <SidebarButton
-            v-if="happening.can.verify"
+            v-if="happening.can?.verify"
             icon="pi pi-check"
             type="verify"
             :label="$t('user_happenings.item.form.verify')"
@@ -45,7 +45,7 @@ const deleteUserHappening = (happening: Happening) => {
             @click="verifyUserHappening(happening)"
         />
         <SidebarButton
-            v-if="happening.can.edit"
+            v-if="happening.can?.edit"
             icon="pi pi-pencil"
             type="edit"
             :label="$t('user_happenings.item.form.edit')"
@@ -53,7 +53,7 @@ const deleteUserHappening = (happening: Happening) => {
             @click="editUserHappening(happening)"
         />
         <SidebarButton
-            v-if="happening.can.delete"
+            v-if="happening.can?.delete"
             icon="pi pi-trash"
             type="delete"
             :label="$t('user_happenings.item.form.delete')"

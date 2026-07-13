@@ -18,7 +18,7 @@ import { inject, onBeforeMount } from "vue";
 type PopupLinkAction = "delete" | "clone" | "ban" | "unban" | "remove";
 
 const modal = useModal();
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 
 const props = withDefaults(
     defineProps<{

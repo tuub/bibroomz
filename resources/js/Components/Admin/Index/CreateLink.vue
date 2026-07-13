@@ -10,12 +10,12 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { router } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
 import Button from "primevue/button";
 import { computed, inject } from "vue";
-import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
@@ -39,8 +39,9 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject<typeof ZiggyRoute>("route");
-const { hasPermission } = authStore;
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
+const hasPermission = (ability: string, institutionId?: string | number) =>
+    authStore.hasPermission(ability, institutionId);
 const buttonLabel = computed(() => trans("admin." + props.model + "s.index.table.actions.create"));
 
 // ------------------------------------------------

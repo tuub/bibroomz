@@ -12,7 +12,7 @@ import { computed, inject } from "vue";
 
 type ActionLinkAction = "edit" | "import";
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 
 const props = withDefaults(
     defineProps<{

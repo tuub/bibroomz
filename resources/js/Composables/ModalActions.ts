@@ -13,6 +13,10 @@ import type { ApiError } from "@/Types/Api";
 import { trans } from "laravel-vue-i18n";
 
 type Translatable = Record<string, string>;
+type LoginCredentials = {
+    username: string;
+    password: string;
+};
 
 function getApiError(error: unknown): ApiError {
     if (typeof error === "object" && error !== null && "response" in error) {
@@ -22,7 +26,7 @@ function getApiError(error: unknown): ApiError {
     return null;
 }
 
-function happeningCallback(callback: (happening: Happening) => Promise<unknown>) {
+function happeningCallback(callback: (happening: Happening) => Promise<unknown>): ModalAction<Happening>["callback"] {
     const modal = useModal();
     const happeningStore = useHappeningStore();
 
@@ -44,15 +48,15 @@ function callLogin({
     loginCallback,
     happeningModalCallback,
 }: {
-    loginCallback: (credentials: { username: string; password: string }) => Promise<unknown>;
+    loginCallback: (credentials: LoginCredentials) => Promise<unknown>;
     happeningModalCallback?: () => void;
-}) {
+}): ModalAction<LoginCredentials>["callback"] {
     const modal = useModal();
     const authStore = useAuthStore();
 
     authStore.error = null;
 
-    return async ({ username, password }: { username: string; password: string }) => {
+    return async ({ username, password }: LoginCredentials) => {
         if (authStore.isProcessingLogin) {
             return;
         }
@@ -92,7 +96,7 @@ export function useHappeningModal({
     const modal = useModal();
     const happeningStore = useHappeningStore();
 
-    const actions: ModalAction[] = [];
+    const actions: ModalAction<Happening>[] = [];
 
     if (can) {
         if (can.verify && editable) {
@@ -115,12 +119,13 @@ export function useHappeningModal({
             });
         }
 
-        if (can.delete) {
+        if (can.delete && happening.id != null) {
+            const happeningId = happening.id;
             actions.push({
                 label: trans("modal.delete.action.delete"),
                 testId: "modal-action-delete",
-                callback: happeningCallback((happening) => {
-                    return happeningStore.deleteHappening(happening.id);
+                callback: happeningCallback(() => {
+                    return happeningStore.deleteHappening(happeningId);
                 }),
             });
         }
@@ -268,7 +273,7 @@ export function useLoginModal(happeningModalCallback?: () => void) {
         payload: {
             username: "",
             password: "",
-        },
+        } satisfies LoginCredentials,
         actions: [
             {
                 label: trans("login.form.submit.label"),

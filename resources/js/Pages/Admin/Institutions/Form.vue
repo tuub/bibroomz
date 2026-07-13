@@ -121,7 +121,7 @@ const props = withDefaults(
         languages: string[];
     }>(),
     {
-        institution: () => null,
+        institution: () => ({}),
         daysOfWeek: () => [],
     },
 );

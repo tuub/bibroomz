@@ -64,7 +64,7 @@ describe("HappeningQuotas", () => {
         const quotas = wrapper.findAllComponents(HappeningQuotaStub);
 
         expect(quotas).toHaveLength(1);
-        expect(quotas[0].props()).toEqual({
+        expect(quotas[0]!.props()).toEqual({
             type: "daily_hours",
             value: 1.5,
             setting: 2,

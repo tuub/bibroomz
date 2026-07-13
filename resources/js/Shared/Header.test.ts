@@ -87,12 +87,12 @@ describe("Header", () => {
         const navigationBars = wrapper.findAllComponents({ name: "NavigationBarStub" });
 
         expect(navigationBars).toHaveLength(2);
-        expect(navigationBars[0].props()).toMatchObject({
+        expect(navigationBars[0]!.props()).toMatchObject({
             isResponsive: false,
             isPrivileged: true,
             isMultiTenancy: false,
         });
-        expect(navigationBars[1].props()).toMatchObject({
+        expect(navigationBars[1]!.props()).toMatchObject({
             isResponsive: false,
             isPrivileged: true,
             isMultiTenancy: false,

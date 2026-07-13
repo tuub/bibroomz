@@ -104,7 +104,7 @@ describe("AdminBreadcrumbs", () => {
         const slots = wrapper.findAll('[data-test="item-slot"]');
 
         expect(slots).toHaveLength(2);
-        expect(slots[0].text()).toBe("Institutions");
-        expect(slots[1].text()).toBe("TU Berlin");
+        expect(slots[0]!.text()).toBe("Institutions");
+        expect(slots[1]!.text()).toBe("TU Berlin");
     });
 });

@@ -21,7 +21,7 @@ type AppStoreMock = {
     resourceGroup: ResourceGroup | null;
     institution: Institution | null;
     settings: Settings | null;
-    translate: (value?: Record<string, string>) => string | undefined;
+    translate: (value?: Record<string, string>) => string;
     getDateTimeFromString: ReturnType<typeof vi.fn>;
     formatDate: ReturnType<typeof vi.fn>;
     formatTime: ReturnType<typeof vi.fn>;
@@ -32,7 +32,7 @@ const appStoreMock = vi.hoisted(
         resourceGroup: null,
         institution: null,
         settings: null,
-        translate: vi.fn((value?: Record<string, string>) => value?.en),
+        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
         getDateTimeFromString: vi.fn((value?: string) => value),
         formatDate: vi.fn(() => "05.03.2026"),
         formatTime: vi.fn(() => "14:30"),
@@ -218,7 +218,7 @@ describe("user happening list management", () => {
 
         store.updateUserHappening({ id: 1, start: "2026-03-05T12:00:00", summary: "new" });
 
-        expect(store.userHappenings[0].summary).toBe("new");
+        expect(store.userHappenings[0]!.summary).toBe("new");
     });
 
     test("removeUserHappening removes the matching entry", () => {
@@ -477,5 +477,22 @@ describe("isAllowedForResource", () => {
 
         expect(store.isAllowedForResource({ resourceGroup: 2 })).toBe(false);
         expect(toastStoreMock.addUserGroupToast).toHaveBeenCalled();
+    });
+
+    test("returns false and shows a toast when the resource group id is missing", () => {
+        const store = useAuthStore();
+        store.allowedResourceGroups = [1];
+
+        expect(
+            store.isAllowedForResource({
+                translations: {
+                    resourceGroup: { en: "Room" },
+                    title: { en: "Study Room 1" },
+                },
+            }),
+        ).toBe(false);
+        expect(toastStoreMock.addUserGroupToast).toHaveBeenCalledWith({
+            summary: 'toast.wrong_user_group:{"resource_type":"Room","resource_title":"Study Room 1"}',
+        });
     });
 });

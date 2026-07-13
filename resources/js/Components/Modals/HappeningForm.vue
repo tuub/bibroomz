@@ -169,7 +169,7 @@ const modal = useModal();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 const happening = reactive<HappeningFormPayload>({
     ...props.happening,
     resource: props.happening.resource ?? {},

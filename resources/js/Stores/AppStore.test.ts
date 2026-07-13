@@ -94,9 +94,9 @@ describe("setTemporalFormats", () => {
 });
 
 describe("translate", () => {
-    test("returns undefined for a falsy translatable", () => {
+    test("returns an empty string for a falsy translatable", () => {
         const store = useAppStore();
-        expect(store.translate(undefined)).toBeUndefined();
+        expect(store.translate(undefined)).toBe("");
     });
 
     test("returns the value for the current locale", () => {

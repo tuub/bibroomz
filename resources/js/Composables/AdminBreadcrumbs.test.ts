@@ -2,7 +2,7 @@ import { useAdminBreadcrumbs } from "@/Composables/AdminBreadcrumbs";
 
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { type ComputedRef, defineComponent, h } from "vue";
+import { defineComponent, h } from "vue";
 
 interface BreadcrumbItem {
     label: string;
@@ -10,6 +10,7 @@ interface BreadcrumbItem {
 }
 
 type BreadcrumbsResult = ReturnType<typeof useAdminBreadcrumbs>;
+type BreadcrumbItems = BreadcrumbsResult["items"];
 
 const pageProps: { value: Record<string, unknown> } = { value: {} };
 
@@ -51,8 +52,20 @@ function setup(routeName: string | undefined, props: Record<string, unknown> = {
     return result;
 }
 
-function labels(items: ComputedRef<BreadcrumbItem[]>): string[] {
+function labels(items: BreadcrumbItems): string[] {
     return items.value.map((item) => item.label);
+}
+
+function firstItem(items: BreadcrumbItems): BreadcrumbItem {
+    return items.value[0]!;
+}
+
+function lastItem(items: BreadcrumbItems): BreadcrumbItem {
+    return items.value.at(-1)!;
+}
+
+function lastLabel(items: BreadcrumbItems): string {
+    return labels(items).at(-1)!;
 }
 
 beforeEach(() => {
@@ -73,12 +86,12 @@ describe("useAdminBreadcrumbs", () => {
 
     test("always starts with the dashboard crumb", () => {
         const { items } = setup("admin.institution.index");
-        expect(items.value[0]).toEqual({ label: "admin.breadcrumbs.dashboard", url: "admin.dashboard" });
+        expect(firstItem(items)).toEqual({ label: "admin.breadcrumbs.dashboard", url: "admin.dashboard" });
     });
 
     test("the last crumb never has a url", () => {
         const { items } = setup("admin.institution.index");
-        expect(items.value.at(-1).url).toBeNull();
+        expect(lastItem(items).url).toBeNull();
     });
 
     test("home points at the start route", () => {
@@ -103,12 +116,12 @@ describe("useAdminBreadcrumbs", () => {
 
         test("edit uses the happening label", () => {
             const { items } = setup("admin.happening.edit", { happening: { label: { en: "Open Day" } } });
-            expect(labels(items).at(-1)).toBe("Open Day");
+            expect(lastLabel(items)).toBe("Open Day");
         });
 
         test("edit falls back to the generic edit label", () => {
             const { items } = setup("admin.happening.edit", { happening: { label: null } });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.edit");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.edit");
         });
     });
 
@@ -120,12 +133,12 @@ describe("useAdminBreadcrumbs", () => {
 
         test("create", () => {
             const { items } = setup("admin.institution.create");
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit uses the institution title", () => {
             const { items } = setup("admin.institution.edit", { institution: { title: { en: "TU Berlin" } } });
-            expect(labels(items).at(-1)).toBe("TU Berlin");
+            expect(lastLabel(items)).toBe("TU Berlin");
         });
     });
 
@@ -137,7 +150,7 @@ describe("useAdminBreadcrumbs", () => {
                 "admin.breadcrumbs.institutions",
                 "admin.breadcrumbs.resource_groups",
             ]);
-            expect(items.value.at(-1).url).toBeNull();
+            expect(lastItem(items).url).toBeNull();
         });
 
         test("index with an institution builds the full chain", () => {
@@ -165,7 +178,7 @@ describe("useAdminBreadcrumbs", () => {
                 institution,
                 resource_group: { title: { en: "Study Rooms" } },
             });
-            expect(labels(items).at(-1)).toBe("Study Rooms");
+            expect(lastLabel(items)).toBe("Study Rooms");
         });
     });
 
@@ -177,7 +190,7 @@ describe("useAdminBreadcrumbs", () => {
                 "admin.breadcrumbs.institutions",
                 "admin.breadcrumbs.resources",
             ]);
-            expect(items.value.at(-1).url).toBeNull();
+            expect(lastItem(items).url).toBeNull();
         });
 
         test("index with a resource group builds the full chain", () => {
@@ -202,7 +215,7 @@ describe("useAdminBreadcrumbs", () => {
                 resourceGroup,
                 resource: { title: { en: "Room 101" } },
             });
-            expect(labels(items).at(-1)).toBe("Room 101");
+            expect(lastLabel(items)).toBe("Room 101");
         });
     });
 
@@ -245,19 +258,19 @@ describe("useAdminBreadcrumbs", () => {
         test("without a closable falls back to a bare closings crumb", () => {
             const { items } = setup("admin.closing.index", {});
             expect(labels(items)).toEqual(["admin.breadcrumbs.dashboard", "admin.breadcrumbs.closings"]);
-            expect(items.value.at(-1).url).toBeNull();
+            expect(lastItem(items).url).toBeNull();
         });
 
         test("create appends the create crumb", () => {
             const closable = { id: 3, title: { en: "TU Berlin" } };
             const { items } = setup("admin.closing.create", { closable, closable_type: "institution" });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit appends the edit crumb", () => {
             const closable = { id: 3, title: { en: "TU Berlin" } };
             const { items } = setup("admin.closing.edit", { closable, closable_type: "institution" });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.edit");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.edit");
         });
     });
 
@@ -298,7 +311,7 @@ describe("useAdminBreadcrumbs", () => {
         test("without a settingable falls back to a bare settings crumb", () => {
             const { items } = setup("admin.setting.index", {});
             expect(labels(items)).toEqual(["admin.breadcrumbs.dashboard", "admin.breadcrumbs.settings"]);
-            expect(items.value.at(-1).url).toBeNull();
+            expect(lastItem(items).url).toBeNull();
         });
 
         test("edit appends the setting key label", () => {
@@ -308,7 +321,7 @@ describe("useAdminBreadcrumbs", () => {
                 settingable_type: "institution",
                 setting: { key: "timezone" },
             });
-            expect(labels(items).at(-1)).toBe("admin.settings.keys.timezone.label");
+            expect(lastLabel(items)).toBe("admin.settings.keys.timezone.label");
         });
     });
 
@@ -320,7 +333,7 @@ describe("useAdminBreadcrumbs", () => {
 
         test("edit", () => {
             const { items } = setup("admin.app_setting.edit");
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.edit");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.edit");
         });
     });
 
@@ -332,7 +345,7 @@ describe("useAdminBreadcrumbs", () => {
                 "admin.breadcrumbs.institutions",
                 "admin.breadcrumbs.mails",
             ]);
-            expect(items.value.at(-1).url).toBeNull();
+            expect(lastItem(items).url).toBeNull();
         });
 
         test("index with an institution builds the full chain", () => {
@@ -351,7 +364,7 @@ describe("useAdminBreadcrumbs", () => {
         test("create appends the create crumb", () => {
             const institution = { id: 1, title: { en: "TU Berlin" } };
             const { items } = setup("admin.mail.create", { institution });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit uses the mail type label", () => {
@@ -360,13 +373,13 @@ describe("useAdminBreadcrumbs", () => {
                 institution,
                 mail: { mail_type: { key: "booking_confirmation" } },
             });
-            expect(labels(items).at(-1)).toBe("admin.mails.mail_types.booking_confirmation");
+            expect(lastLabel(items)).toBe("admin.mails.mail_types.booking_confirmation");
         });
 
         test("edit falls back to the generic edit label without a mail type", () => {
             const institution = { id: 1, title: { en: "TU Berlin" } };
             const { items } = setup("admin.mail.edit", { institution, mail: {} });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.edit");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.edit");
         });
     });
 
@@ -378,12 +391,12 @@ describe("useAdminBreadcrumbs", () => {
 
         test("create", () => {
             const { items } = setup("admin.user_group.create");
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit uses the user group title", () => {
             const { items } = setup("admin.user_group.edit", { user_group: { title: { en: "Librarians" } } });
-            expect(labels(items).at(-1)).toBe("Librarians");
+            expect(lastLabel(items)).toBe("Librarians");
         });
 
         test("import with a user group links back to its users page", () => {
@@ -410,7 +423,7 @@ describe("useAdminBreadcrumbs", () => {
 
         test("users page shows the group title", () => {
             const { items } = setup("admin.user_group.users", { user_group: { title: { en: "Librarians" } } });
-            expect(labels(items).at(-1)).toBe("Librarians");
+            expect(lastLabel(items)).toBe("Librarians");
         });
     });
 
@@ -422,17 +435,17 @@ describe("useAdminBreadcrumbs", () => {
 
         test("create", () => {
             const { items } = setup("admin.user.create");
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit uses the user's name", () => {
             const { items } = setup("admin.user.edit", { user: { name: "Jane Doe" } });
-            expect(labels(items).at(-1)).toBe("Jane Doe");
+            expect(lastLabel(items)).toBe("Jane Doe");
         });
 
         test("edit falls back to the generic edit label without a name", () => {
             const { items } = setup("admin.user.edit", { user: {} });
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.edit");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.edit");
         });
     });
 
@@ -444,12 +457,12 @@ describe("useAdminBreadcrumbs", () => {
 
         test("create", () => {
             const { items } = setup("admin.role.create");
-            expect(labels(items).at(-1)).toBe("admin.breadcrumbs.create");
+            expect(lastLabel(items)).toBe("admin.breadcrumbs.create");
         });
 
         test("edit uses the role name", () => {
             const { items } = setup("admin.role.edit", { role: { name: { en: "Administrator" } } });
-            expect(labels(items).at(-1)).toBe("Administrator");
+            expect(lastLabel(items)).toBe("Administrator");
         });
     });
 });

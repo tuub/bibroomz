@@ -1,5 +1,5 @@
 <template>
-    <Breadcrumb v-if="items.length > 0" :home="home" :model="items" class="mb-4 !bg-transparent !p-0">
+    <Breadcrumb v-if="items.length > 0" :home="homeItem" :model="menuItems" class="mb-4 !bg-transparent !p-0">
         <template #item="{ item, label, props: itemProps }">
             <Link v-if="item.url" :href="item.url" v-bind="itemProps.action">
                 <span v-if="item.icon" :class="item.icon" v-bind="itemProps.icon"></span>
@@ -17,6 +17,9 @@
 import { useAdminBreadcrumbs } from "@/Composables/AdminBreadcrumbs";
 
 import { Link } from "@inertiajs/vue3";
+import { computed } from "vue";
 
 const { items, home } = useAdminBreadcrumbs();
+const menuItems = computed(() => items.value.map((item) => ({ ...item, url: item.url ?? undefined })));
+const homeItem = computed(() => ({ ...home.value, url: home.value.url ?? undefined }));
 </script>

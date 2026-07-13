@@ -104,7 +104,7 @@ describe("UserGroups/Import", () => {
         expect(form.valid_from_text).toBe("next monday");
 
         const pickers = wrapper.findAllComponents({ name: "DatePickerStub" });
-        await pickers[0].vm.$emit("update:modelValue", date);
+        await pickers[0]!.vm.$emit("update:modelValue", date);
         await nextTick();
 
         expect(form.valid_from_date).toBe(date.toDateString());

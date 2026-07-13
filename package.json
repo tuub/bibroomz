@@ -6,9 +6,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "eslint": "eslint resources/",
-        "format": "prettier --write resources/",
-        "format:check": "prettier --list-different resources/",
+        "eslint": "eslint resources/ *.ts",
+        "format": "prettier --write resources/ *.ts",
+        "format:check": "prettier --list-different resources/ *.ts",
         "lint": "npm run eslint && npm run stylelint",
         "prepare": "husky install",
         "stylelint": "stylelint resources/",

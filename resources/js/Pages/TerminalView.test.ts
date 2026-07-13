@@ -82,7 +82,6 @@ describe("TerminalView", () => {
         );
 
         expect(useCalendarMock).toHaveBeenCalledWith({
-            emit: expect.any(Function),
             calendarOptions: {
                 headerToolbar: {
                     left: "title",
@@ -107,11 +106,16 @@ describe("TerminalView", () => {
 
         expect(Echo.channel).toHaveBeenCalledWith("happenings");
 
-        const listenMock = (Echo.channel as unknown as ReturnType<typeof vi.fn>).mock.results[0].value
-            .listen as ReturnType<typeof vi.fn>;
+        const channelResult = (Echo.channel as unknown as ReturnType<typeof vi.fn>).mock.results[0];
+        expect(channelResult?.value).toBeDefined();
+
+        const listenMock = (channelResult?.value as { listen: ReturnType<typeof vi.fn> }).listen;
         expect(listenMock).toHaveBeenCalledWith("HappeningsChangedEvent", expect.any(Function));
 
-        const listener = listenMock.mock.calls[0][1] as () => void;
+        const listenCall = listenMock.mock.calls[0];
+        expect(listenCall).toBeDefined();
+
+        const listener = listenCall?.[1] as () => void;
         listener();
 
         expect(refetchHappeningsMock).toHaveBeenCalledOnce();

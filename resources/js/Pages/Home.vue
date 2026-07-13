@@ -56,7 +56,7 @@ const modal = useModal();
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const getModal = (data: ModalOpenPayload) => {
+const getModal = <Props,>(data: ModalOpenPayload<Props>) => {
     modal.open(data.view, data.content, data.payload, data.actions);
 };
 

@@ -52,7 +52,7 @@ const filters = ref({
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.happenings.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.happenings.length;
 });
 
 type MappedAdminHappening = Omit<

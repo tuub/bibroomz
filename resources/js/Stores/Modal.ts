@@ -7,11 +7,11 @@ export type ModalContent = {
     message?: string;
 };
 
-export type ModalOpenPayload = {
+export type ModalOpenPayload<Props = unknown> = {
     view: Component;
     content: ModalContent;
-    payload: unknown;
-    actions?: ModalAction[] | null;
+    payload: Props;
+    actions?: ModalAction<Props>[] | null;
 };
 
 export type Modal = {
@@ -22,11 +22,11 @@ export type Modal = {
     isOpen: boolean;
 };
 
-export type ModalAction = {
+export type ModalAction<Props = unknown> = {
     label: string;
     testId?: string;
     callback: {
-        bivarianceHack: (props?: unknown) => Promise<unknown>;
+        bivarianceHack: (props: Props) => Promise<unknown>;
     }["bivarianceHack"];
 };
 
@@ -56,12 +56,17 @@ export const useModal = defineStore("modal", {
     }),
 
     actions: {
-        open(view: Component, content: ModalContent, payload: unknown, actions?: ModalAction[] | null): void {
+        open<Props>(
+            view: Component,
+            content: ModalContent,
+            payload: Props,
+            actions?: ModalAction<Props>[] | null,
+        ): void {
             this.view = markRaw(view);
 
             this.content = content;
             this.payload = payload;
-            this.actions = actions;
+            this.actions = actions as ModalAction[] | null;
 
             this.isOpen = true;
             blurBackgroundElements();
@@ -86,7 +91,12 @@ export const useModal = defineStore("modal", {
                 return;
             }
 
-            this.actions[0].callback(this.payload);
+            const [action] = this.actions;
+            if (!action) {
+                return;
+            }
+
+            void action.callback(this.payload);
         },
     },
 });

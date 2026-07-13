@@ -47,7 +47,7 @@
                 </div>
 
                 <ul class="mb-2 ml-6">
-                    <li v-for="permission in permissions.filter((x) => x.group_id === group.id)" :key="permission.id">
+                    <li v-for="permission in getPermissionsByGroup(group.id)" :key="permission.id">
                         <LabeledCheckbox
                             :value="permission.id"
                             :checked="form.permissions.includes(permission.id)"
@@ -74,7 +74,7 @@
                 </div>
 
                 <ul class="mb-2 ml-6">
-                    <li v-for="permission in permissions.filter((x) => !x.group_id)" :key="permission.id">
+                    <li v-for="permission in getUngroupedPermissions()" :key="permission.id">
                         <LabeledCheckbox
                             :value="permission.id"
                             :checked="form.permissions.includes(permission.id)"
@@ -131,12 +131,23 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
+type PermissionWithId = Permission & { id: number | string };
+
+const hasPermissionId = (permission: Permission): permission is PermissionWithId => permission.id != null;
+const getPermissionsByGroup = (groupId?: number | string) =>
+    props.permissions.filter(
+        (permission): permission is PermissionWithId => hasPermissionId(permission) && permission.group_id == groupId,
+    );
+const getUngroupedPermissions = () =>
+    props.permissions.filter(
+        (permission): permission is PermissionWithId => hasPermissionId(permission) && !permission.group_id,
+    );
 
 const form = useForm({
     id: props.role.id ?? "",
     name: props.role.name ?? {},
     description: props.role.description ?? {},
-    permissions: props.role.permissions?.map((permission) => permission.id) ?? [],
+    permissions: props.role.permissions?.filter(hasPermissionId).map((permission) => permission.id) ?? [],
 });
 
 // ------------------------------------------------
@@ -152,6 +163,10 @@ const updatePermission = ({ value, checked }: LabeledCheckboxUpdatePayload) => {
 
 const isGroupChecked = (groupId?: number | string) => {
     for (const permission of props.permissions) {
+        if (permission.id == null) {
+            continue;
+        }
+
         if (permission.group_id == groupId) {
             if (!form.permissions.includes(permission.id)) {
                 return false;
@@ -164,6 +179,10 @@ const isGroupChecked = (groupId?: number | string) => {
 
 const isGroupUnchecked = (groupId?: number | string) => {
     for (const permission of props.permissions) {
+        if (permission.id == null) {
+            continue;
+        }
+
         if (permission.group_id == groupId) {
             if (form.permissions.includes(permission.id)) {
                 return false;
@@ -188,6 +207,10 @@ const updateCheckedPermissions = (groupId?: number | string) => {
 
 const checkPermissionGroup = (groupId?: number | string) => {
     for (const permission of props.permissions) {
+        if (permission.id == null) {
+            continue;
+        }
+
         if (permission.group_id == groupId && !form.permissions.includes(permission.id)) {
             form.permissions.push(permission.id);
         }
@@ -196,6 +219,10 @@ const checkPermissionGroup = (groupId?: number | string) => {
 
 const uncheckPermissionGroup = (groupId?: number | string) => {
     for (const permission of props.permissions) {
+        if (permission.id == null) {
+            continue;
+        }
+
         if (permission.group_id == groupId) {
             form.permissions = form.permissions.filter((x) => x !== permission.id);
         }

@@ -80,12 +80,12 @@
                 </div>
             </legend>
 
-            <div v-for="institution in institutions" :key="institution.id" class="grid">
+            <div v-for="institution in institutionsWithIds" :key="institution.id" class="grid">
                 <span>{{ institution.title }}</span>
 
                 <MultiSelect
                     v-model="selectedRoles[institution.id]"
-                    :options="roles"
+                    :options="rolesWithIds"
                     :option-label="(role) => translate(role.name)"
                     :option-value="(role) => role.id"
                     :show-toggle-all="false"
@@ -146,10 +146,22 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const translate = appStore.translate;
+type RoleWithId = Role & { id: string | number };
+
+const institutionsWithIds = computed(() =>
+    props.institutions.flatMap((institution) =>
+        institution.id != null ? [{ ...institution, id: String(institution.id) }] : [],
+    ),
+);
+const rolesWithIds = computed(() => props.roles.filter((role): role is RoleWithId => role.id != null));
 
 const selectedRoles = ref<Record<string, (number | string)[]>>({});
 if (props.user.roles) {
     for (const { institution_id, role_id } of props.user.roles) {
+        if (institution_id == null || role_id == null) {
+            continue;
+        }
+
         const institutionRoles = selectedRoles.value[institution_id] ?? [];
         institutionRoles.push(role_id);
         selectedRoles.value[institution_id] = institutionRoles;
@@ -159,7 +171,7 @@ if (props.user.roles) {
 function rolesFromSelected(): { institution_id: string; role_id: (number | string)[] }[] {
     return Object.keys(selectedRoles.value).map((institutionId) => ({
         institution_id: institutionId,
-        role_id: selectedRoles.value[institutionId],
+        role_id: selectedRoles.value[institutionId] ?? [],
     }));
 }
 

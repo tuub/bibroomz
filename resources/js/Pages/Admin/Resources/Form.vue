@@ -220,7 +220,9 @@ const updateBusinessHourField = ({
     currentTimeSlot.start_date = startDate;
     currentTimeSlot.end_date = endDate;
 
-    currentTimeSlot.week_days = props.weekDays.filter((el) => checkedWeekDays.includes(el.id)).map((el) => el.id);
+    currentTimeSlot.week_days = props.weekDays.flatMap((day) =>
+        day.id != null && checkedWeekDays.includes(day.id) ? [day.id] : [],
+    );
 };
 
 const generateUid = () => {

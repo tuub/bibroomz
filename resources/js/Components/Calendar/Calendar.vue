@@ -23,7 +23,11 @@
                 </div>
                 <!-- DATE DISPLAY -->
                 <div id="calendar-date-display" class="flex w-full items-center justify-center text-center lg:w-4/6">
-                    {{ date?.isToday() ? $t("calendar.today") : date?.locale(locale).format(appStore.dateFormat) }}
+                    {{
+                        date?.isToday()
+                            ? $t("calendar.today")
+                            : date?.locale(locale).format(appStore.dateFormat ?? undefined)
+                    }}
                 </div>
                 <!-- ARROW RIGHT -->
                 <div class="flex w-full items-center justify-start lg:w-1/6">
@@ -154,7 +158,7 @@ const authStore = useAuthStore();
 
 const emit = defineEmits<{
     (event: "show-status"): void;
-    (event: "open-modal-component", payload: ModalOpenPayload): void;
+    <Props>(event: "open-modal-component", payload: ModalOpenPayload<Props>): void;
 }>();
 
 const windowWidth = ref(window.innerWidth);
@@ -164,15 +168,17 @@ const resourceCount = ref(0);
 // Variables
 // ------------------------------------------------
 const resourceGroup = appStore.resourceGroup;
+if (!resourceGroup?.institution) {
+    throw new Error("Calendar requires a current resource group with an institution.");
+}
+const institution = resourceGroup.institution;
 
 const initialPage = computed(() =>
-    withBaseUrl(
-        `/${resourceGroup.institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`,
-    ),
+    withBaseUrl(`/${institution.slug}/${resourceGroup.slug}/resources?count=${resourceCount.value}&page=1`),
 );
 
 const resourceGroupTitle = computed(() => {
-    return translate(resourceGroup.institution.title) + ": " + translate(resourceGroup.title);
+    return translate(institution.title) + ": " + translate(resourceGroup.title);
 });
 
 const pagination = reactive({
@@ -271,6 +277,10 @@ watch(resourceCount, () => {
 // ------------------------------------------------
 
 const resourcesPrev = () => {
+    if (!pagination.previousPage) {
+        return;
+    }
+
     pagination.currentPage = pagination.previousPage;
 
     const api = unref(refCalendar)?.getApi();
@@ -278,6 +288,10 @@ const resourcesPrev = () => {
 };
 
 const resourcesNext = () => {
+    if (!pagination.nextPage) {
+        return;
+    }
+
     pagination.currentPage = pagination.nextPage;
 
     const api = unref(refCalendar)?.getApi();

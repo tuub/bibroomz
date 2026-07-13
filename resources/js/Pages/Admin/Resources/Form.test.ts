@@ -203,7 +203,7 @@ describe("Resources/Form", () => {
         });
         const fields = wrapper.findAllComponents({ name: "BusinessHourFieldStub" });
 
-        await fields[0].vm.$emit("remove-business-hour-field", {
+        await fields[0]!.vm.$emit("remove-business-hour-field", {
             time_slot: {
                 id: "bh-1",
             },

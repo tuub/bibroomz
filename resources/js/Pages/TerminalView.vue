@@ -51,7 +51,6 @@ const pagination: CalendarPagination = {
 };
 
 const { calendarOptions: rawCalendarOptions, refetchHappenings } = useCalendar({
-    emit: () => undefined,
     calendarOptions: {
         headerToolbar: {
             left: "title",

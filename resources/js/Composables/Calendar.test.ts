@@ -44,7 +44,7 @@ const appStoreMock = vi.hoisted(() => ({
     },
     hiddenDays: [0, 6] as number[] | null,
     locale: "en",
-    translate: vi.fn((value?: Record<string, string>) => value?.en),
+    translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
 }));
 vi.mock("@/Stores/AppStore", () => ({
     useAppStore: () => appStoreMock,
@@ -67,7 +67,7 @@ function makeCalendar(overrides: Partial<Parameters<typeof useCalendar>[0]> = {}
     const pagination: { currentPage?: string | null; nextPage?: string | null; previousPage?: string | null } = {
         currentPage: "https://rooms.example.com/resources?page=1",
     };
-    const translate = (value?: Record<string, string>) => value?.en;
+    const translate = (value?: Record<string, string>) => value?.en ?? "";
 
     const calendar = useCalendar({ emit, pagination, translate, ...overrides });
 
@@ -98,7 +98,7 @@ describe("resources (fetchResources)", () => {
     test("does nothing without a current page", () => {
         const emit = vi.fn();
         const pagination: CalendarPagination = { currentPage: null };
-        const { calendarOptions } = useCalendar({ emit, pagination, translate: (v) => v?.en });
+        const { calendarOptions } = useCalendar({ emit, pagination, translate: (v) => v?.en ?? "" });
         const successCallback = vi.fn();
         const failureCallback = vi.fn();
 
@@ -417,9 +417,9 @@ describe("resourceLabelContent (getResourceInfoLabel)", () => {
 
         const { domNodes } = calendarOptions.resourceLabelContent(resourceInfo);
 
-        expect(domNodes[0].textContent).toBe("Study Room");
+        expect(domNodes[0]!.textContent).toBe("Study Room");
 
-        (domNodes[1] as HTMLAnchorElement).onclick?.(new MouseEvent("click") as unknown as PointerEvent);
+        (domNodes[1]! as HTMLAnchorElement).onclick?.(new MouseEvent("click") as unknown as PointerEvent);
 
         expect(modalActionsMock.useResourceInfoModal).toHaveBeenCalledWith(
             expect.objectContaining({ title: "Study Room", resourceGroup: "Library", capacity: 4 }),

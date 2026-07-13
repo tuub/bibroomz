@@ -28,7 +28,7 @@ defineProps({
     },
 });
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 const { isAuthenticated, user: currentUser } = storeToRefs(useAuthStore());
 const { loginUser, logoutUser } = useLogin();
 </script>

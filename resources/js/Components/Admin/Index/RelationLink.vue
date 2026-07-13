@@ -13,7 +13,7 @@ import { computed, inject } from "vue";
 type RelationLinkRelation = "closing" | "mail" | "resource" | "resource_group" | "setting" | "user";
 
 // eslint-disable-next-line vue/no-dupe-keys
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 
 const props = withDefaults(
     defineProps<{

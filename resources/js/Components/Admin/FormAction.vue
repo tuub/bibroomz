@@ -46,7 +46,7 @@ const props = withDefaults(
     },
 );
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 
 const submitForm = () => {
     const action = props.action ?? (props.form.id ? "update" : "store");

@@ -8,13 +8,13 @@ import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, DataTableRef } from "@/Types/Admin";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import type { RequestPayload } from "@inertiajs/core";
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
-import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
@@ -37,8 +37,9 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject<typeof ZiggyRoute>("route");
-const { hasPermission } = authStore;
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
+const hasPermission = (ability: string, institutionId?: string | number) =>
+    authStore.hasPermission(ability, institutionId);
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -111,7 +112,7 @@ const canAccessSettings = (institutionId?: number | string) => {
             <template #loading>{{ $t("admin.general.table.loading_records") }}</template>
             <Column :row-reorder="!isSortedByColumn()" header-style="width: 3rem" />
             <Column
-                :field="(i) => translate(i.title)"
+                :field="(i) => translate(i.title) ?? ''"
                 :sortable="true"
                 :header="$t('admin.institutions.index.table.header.title')"
             />

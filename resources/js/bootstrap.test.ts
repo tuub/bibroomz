@@ -18,7 +18,7 @@ async function loadBootstrap() {
 }
 
 beforeEach(() => {
-    window.axios = undefined as typeof window.axios;
+    window.axios = undefined as unknown as typeof window.axios;
     axiosMock.defaults.headers.common = {};
     axiosMock.defaults.withCredentials = false;
 });

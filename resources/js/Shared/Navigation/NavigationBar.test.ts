@@ -75,10 +75,12 @@ describe("NavigationBar", () => {
     test("renders home, help, and admin links from the injected route helper", () => {
         const wrapper = render({ isPrivileged: true });
         const links = wrapper.findAll("a");
+        expect(links).toHaveLength(4);
 
-        expect(links[0].attributes("href")).toBe("/start");
-        expect(links[1].attributes("href")).toBe("/help");
-        expect(links[2].attributes("href")).toBe("/admin.dashboard");
+        expect(links[0]!.attributes("href")).toBe("/start");
+        expect(links[1]!.attributes("href")).toBe("/help");
+        expect(links[2]!.attributes("href")).toBe("/admin.dashboard");
+        expect(links[3]!.attributes("href")).toBe("#");
     });
 
     test("hides the admin link when the user is not privileged", () => {

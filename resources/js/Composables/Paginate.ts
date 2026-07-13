@@ -21,8 +21,8 @@ export function usePaginate(paginator: Paginator) {
     const getPageUrlFromPaginator = (page: number) => {
         const link = paginator.links[page];
 
-        if (link.active || !link.url) {
-            return;
+        if (!link || link.active || !link.url) {
+            return undefined;
         }
 
         return link.url;
@@ -32,6 +32,10 @@ export function usePaginate(paginator: Paginator) {
         const url = parseInt(page as string) ? getPageUrlFromPaginator(page as number) : (page as string);
 
         if (!isValidUrl(url)) {
+            return;
+        }
+
+        if (!url) {
             return;
         }
 

@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import DashboardCard from "@/Components/Admin/DashboardCard.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
+
+import { inject } from "vue";
 
 const authStore = useAuthStore();
 const { hasPermission, canViewInstitutions } = authStore;
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 </script>
 
 <template>

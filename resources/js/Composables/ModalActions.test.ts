@@ -67,13 +67,13 @@ vi.mock("@/Stores/AuthStore", () => ({
 }));
 
 type AppStoreMock = {
-    translate: (value?: Record<string, string>) => string | undefined;
+    translate: (value?: Record<string, string>) => string;
     resourceGroup: ResourceGroup | null;
 };
 
 const appStoreMock = vi.hoisted(
     (): AppStoreMock => ({
-        translate: vi.fn((value?: Record<string, string>) => value?.en),
+        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
         resourceGroup: null,
     }),
 );
@@ -98,7 +98,7 @@ describe("useHappeningModal", () => {
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-verify"]);
 
-        await actions[0].callback(happening);
+        await actions[0]!.callback(happening);
 
         expect(happeningStoreMock.verifyHappening).toHaveBeenCalledWith(happening);
         expect(modalMock.close).toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe("useHappeningModal", () => {
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-update"]);
 
-        await actions[0].callback(happening);
+        await actions[0]!.callback(happening);
 
         expect(happeningStoreMock.editHappening).toHaveBeenCalledWith(happening);
     });
@@ -133,9 +133,18 @@ describe("useHappeningModal", () => {
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-delete"]);
 
-        await actions[0].callback(happening);
+        await actions[0]!.callback(happening);
 
         expect(happeningStoreMock.deleteHappening).toHaveBeenCalledWith(7);
+    });
+
+    test("falls back to ok when delete is allowed but the happening has no id", () => {
+        const happening = { can: { delete: true } };
+
+        const { actions } = useHappeningModal({ happening, editable: false });
+
+        expect(actions.map((a) => a.testId)).toEqual(["modal-action-ok"]);
+        expect(happeningStoreMock.deleteHappening).not.toHaveBeenCalled();
     });
 
     test("pushes a create action when there is no can and editable is true", async () => {
@@ -146,7 +155,7 @@ describe("useHappeningModal", () => {
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-create"]);
 
-        await actions[0].callback(happening);
+        await actions[0]!.callback(happening);
 
         expect(happeningStoreMock.addHappening).toHaveBeenCalledWith(happening);
     });
@@ -158,7 +167,7 @@ describe("useHappeningModal", () => {
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-ok"]);
 
-        await actions[0].callback();
+        await actions[0]!.callback(happening);
 
         expect(modalMock.close).toHaveBeenCalled();
         expect(happeningStoreMock.addHappening).not.toHaveBeenCalled();
@@ -169,7 +178,7 @@ describe("useHappeningModal", () => {
         const happening = { id: 1, can: { verify: true } };
 
         const { actions } = useHappeningModal({ happening, editable: true });
-        await actions[0].callback(happening);
+        await actions[0]!.callback(happening);
 
         expect(happeningStoreMock.error).toEqual({ status: 422 });
         expect(modalMock.close).not.toHaveBeenCalled();
@@ -236,7 +245,7 @@ describe("useResourceGroupInfoModal", () => {
         expect(content).toEqual({ title: "Study Rooms", description: "Rooms for studying" });
         expect(payload).toEqual({ resourceGroup });
 
-        await actions[0].callback();
+        await actions[0]!.callback();
 
         expect(modalMock.close).toHaveBeenCalled();
     });
@@ -264,7 +273,7 @@ describe("useLoginModal", () => {
         authStoreMock.isProcessingLogin = true;
         const { actions } = useLoginModal();
 
-        await actions[0].callback({ username: "alice", password: "secret" });
+        await actions[0]!.callback({ username: "alice", password: "secret" });
 
         expect(authStoreMock.login).not.toHaveBeenCalled();
     });
@@ -273,7 +282,7 @@ describe("useLoginModal", () => {
         authStoreMock.login.mockResolvedValue({});
         const { actions } = useLoginModal();
 
-        await actions[0].callback({ username: "alice", password: "secret" });
+        await actions[0]!.callback({ username: "alice", password: "secret" });
 
         expect(authStoreMock.login).toHaveBeenCalledWith("alice", "secret");
         expect(modalMock.close).toHaveBeenCalled();
@@ -285,7 +294,7 @@ describe("useLoginModal", () => {
         const happeningModalCallback = vi.fn();
         const { actions } = useLoginModal(happeningModalCallback);
 
-        await actions[0].callback({ username: "alice", password: "secret" });
+        await actions[0]!.callback({ username: "alice", password: "secret" });
 
         expect(happeningModalCallback).toHaveBeenCalled();
         expect(modalMock.close).not.toHaveBeenCalled();
@@ -295,7 +304,7 @@ describe("useLoginModal", () => {
         authStoreMock.login.mockRejectedValue({ response: { status: 401 } });
         const { actions } = useLoginModal();
 
-        await actions[0].callback({ username: "alice", password: "wrong" });
+        await actions[0]!.callback({ username: "alice", password: "wrong" });
 
         expect(authStoreMock.error).toEqual({ status: 401 });
         expect(authStoreMock.isProcessingLogin).toBe(false);

@@ -5,7 +5,7 @@ import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { inject } from "vue";
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 </script>
 <template>
     <footer

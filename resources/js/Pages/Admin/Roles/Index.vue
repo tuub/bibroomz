@@ -48,7 +48,7 @@ const filters = ref({
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.roles.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.roles.length;
 });
 
 // ------------------------------------------------

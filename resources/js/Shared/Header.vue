@@ -8,7 +8,7 @@ import { Head } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { inject, ref } from "vue";
 
-const route = inject<ZiggyRouteFn>("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 const appStore = useAppStore();
 const authStore = useAuthStore();
 

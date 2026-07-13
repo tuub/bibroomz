@@ -110,7 +110,7 @@ export type CalendarPagination = {
 
 type CalendarEmit = {
     (event: "show-status"): void;
-    (event: "open-modal-component", payload: ModalOpenPayload): void;
+    <Props>(event: "open-modal-component", payload: ModalOpenPayload<Props>): void;
 };
 type CalendarTimeFormat = {
     hour: "numeric";
@@ -118,6 +118,11 @@ type CalendarTimeFormat = {
     meridiem: false;
     hour12: false;
 };
+
+function noopCalendarEmit(event: "show-status"): void;
+function noopCalendarEmit<Props>(event: "open-modal-component", payload: ModalOpenPayload<Props>): void;
+function noopCalendarEmit(): void {}
+
 type UseCalendarOptions = Record<string, unknown> & {
     resources: (
         fetchInfo: ResourceFuncArg,
@@ -143,14 +148,14 @@ type UseCalendarOptions = Record<string, unknown> & {
 };
 
 export function useCalendar({
-    emit = () => undefined,
+    emit = noopCalendarEmit,
     pagination,
     translate,
     calendarOptions = {},
 }: {
     emit?: CalendarEmit;
     pagination: CalendarPagination;
-    translate: (value?: Translatable) => string | undefined;
+    translate: (value?: Translatable) => string;
     calendarOptions?: Partial<UseCalendarOptions>;
 }) {
     const appStore = useAppStore();
@@ -163,7 +168,7 @@ export function useCalendar({
     const { isAuthenticated } = storeToRefs(authStore);
 
     function fetchResources(
-        fetchInfo: ResourceFuncArg,
+        _fetchInfo: ResourceFuncArg,
         successCallback: (resources: ResourceInput[]) => void,
         failureCallback: (error: unknown) => void,
     ) {
@@ -242,10 +247,10 @@ export function useCalendar({
             return false;
         }
 
-        const tsLenConfig = resourceGroupSettings?.["time_slot_length"].split(":") ?? [];
+        const tsLenConfig = (resourceGroupSettings?.["time_slot_length"] ?? "00:00").split(":");
         const tsLen = {
-            hours: parseInt(tsLenConfig[0]),
-            minutes: parseInt(tsLenConfig[1]),
+            hours: parseInt(tsLenConfig[0] ?? "0"),
+            minutes: parseInt(tsLenConfig[1] ?? "0"),
         };
 
         const now = dayjs.utc();
@@ -258,7 +263,8 @@ export function useCalendar({
     };
 
     function onSelect(eventInfo: SelectInfo) {
-        if (!eventInfo.resource) {
+        const resource = eventInfo.resource;
+        if (!resource) {
             return;
         }
 
@@ -266,17 +272,17 @@ export function useCalendar({
             const happening: Happening = reactive({
                 isSelected: true,
                 resource: {
-                    id: eventInfo.resource.id,
-                    title: translate(eventInfo.resource.extendedProps.translations?.title),
-                    location: translate(eventInfo.resource.extendedProps.translations?.location),
-                    location_uri: eventInfo.resource.extendedProps.location_uri,
-                    capacity: eventInfo.resource.extendedProps.capacity,
-                    description: translate(eventInfo.resource.extendedProps.translations?.description),
-                    resourceGroup: translate(eventInfo.resource.extendedProps.translations?.resourceGroup),
+                    id: resource.id,
+                    title: translate(resource.extendedProps.translations?.title),
+                    location: translate(resource.extendedProps.translations?.location),
+                    location_uri: resource.extendedProps.location_uri,
+                    capacity: resource.extendedProps.capacity,
+                    description: translate(resource.extendedProps.translations?.description),
+                    resourceGroup: translate(resource.extendedProps.translations?.resourceGroup),
                 },
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
-                isVerificationRequired: eventInfo.resource.extendedProps.isVerificationRequired,
+                isVerificationRequired: resource.extendedProps.isVerificationRequired,
             });
 
             emit("open-modal-component", useHappeningCreateModal(happening));
@@ -293,10 +299,7 @@ export function useCalendar({
         const isBgEvent = eventInfo.el.classList.contains("fc-bg-event");
 
         const firstResource = eventInfo.event.getResources()[0];
-        const resource =
-            firstResource && "_resource" in firstResource
-                ? firstResource._resource
-                : (firstResource as CalendarResource | undefined);
+        const resource = firstResource && "_resource" in firstResource ? firstResource._resource : firstResource;
 
         if (!resource) {
             return;

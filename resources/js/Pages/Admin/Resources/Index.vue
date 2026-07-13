@@ -8,13 +8,13 @@ import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminResource, DataTableRef, ResourceGroup } from "@/Types/Admin";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import type { RequestPayload } from "@inertiajs/core";
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
-import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
@@ -39,10 +39,15 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject<typeof ZiggyRoute>("route");
-const { hasPermission } = authStore;
+const route = inject<ZiggyRouteFn>("ziggyRoute")!;
+const hasPermission = (ability: string, institutionId?: string | number) =>
+    authStore.hasPermission(ability, institutionId);
 const { formatDate, formatTime, translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
+const institution = props.resourceGroup.institution;
+if (!institution) {
+    throw new Error("Resources index requires a resource group with an institution.");
+}
 const routeParams = {
     resource_group_id: props.resourceGroup.id,
 };
@@ -116,7 +121,7 @@ const reorderRows = (event: { value: AdminResource[] }) => {
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
                         <div class="text-xl font-bold">
-                            {{ translate(resourceGroup.institution.title) }}
+                            {{ translate(institution.title) }}
                             <i class="pi pi-angle-double-right"></i>
                             {{ translate(resourceGroup.title) }}
                             <i class="pi pi-angle-double-right"></i>

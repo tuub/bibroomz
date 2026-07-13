@@ -32,7 +32,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const can = authStore.can;
+const can = (ability: string) => authStore.can(ability);
 const { loginUser } = useLogin();
 const { allowedResourceGroups, isAuthenticated, userHappenings } = storeToRefs(authStore);
 const translate = appStore.translate;

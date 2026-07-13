@@ -42,6 +42,14 @@ describe("jumpToPage", () => {
         expect(routerMock.visit).not.toHaveBeenCalled();
     });
 
+    test("does not visit when the numeric page is missing from the paginator links", () => {
+        const { jumpToPage } = usePaginate({ links: {} });
+
+        jumpToPage(2);
+
+        expect(routerMock.visit).not.toHaveBeenCalled();
+    });
+
     test("visits a valid url passed directly as the page", () => {
         const { jumpToPage } = usePaginate({ links: {} });
 

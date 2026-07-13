@@ -37,16 +37,28 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    if (!id.includes("node_modules")) return;
-                    if (id.includes("/primevue/") || id.includes("/@primevue/")) return "vendor-primevue";
-                    if (id.includes("/@fullcalendar/")) return "vendor-fullcalendar";
+                    if (!id.includes("node_modules")) {
+                        return undefined;
+                    }
+
+                    if (id.includes("/primevue/") || id.includes("/@primevue/")) {
+                        return "vendor-primevue";
+                    }
+
+                    if (id.includes("/@fullcalendar/")) {
+                        return "vendor-fullcalendar";
+                    }
+
                     if (
                         id.includes("/vue/") ||
                         id.includes("/@vue/") ||
                         id.includes("/@inertiajs/") ||
                         id.includes("/pinia")
-                    )
+                    ) {
                         return "vendor-vue";
+                    }
+
+                    return undefined;
                 },
             },
         },

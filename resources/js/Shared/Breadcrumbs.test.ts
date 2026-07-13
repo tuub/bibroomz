@@ -59,6 +59,6 @@ describe("Breadcrumbs", () => {
         const crumbs = wrapper.findAll('[data-test="crumb"]');
 
         expect(crumbs).toHaveLength(1);
-        expect(crumbs[0].text()).toBe("PRIVACY|/privacy_statement");
+        expect(crumbs[0]!.text()).toBe("PRIVACY|/privacy_statement");
     });
 });

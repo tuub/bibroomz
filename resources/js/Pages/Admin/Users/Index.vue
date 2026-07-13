@@ -42,7 +42,7 @@ const filters = ref({
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.users.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.users.length;
 });
 
 const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {

@@ -37,13 +37,7 @@
             v-model="form.resource_id"
             field="resource_id"
             field-key="admin.happenings.form.fields.resource"
-            :options="
-                resources.map((resource) => ({
-                    key: resource.id,
-                    value: resource.id.toString(),
-                    label: translate(resource.title),
-                }))
-            "
+            :options="resourceOptions"
             :placeholder="{ value: '-1' }"
             :error="form.errors.resource_id"
         />
@@ -53,13 +47,7 @@
             v-model="form.user_id_01"
             field="user_01"
             field-key="admin.happenings.form.fields.user_01"
-            :options="
-                users.map((user) => ({
-                    key: user.id,
-                    value: user.id.toString(),
-                    label: user.name,
-                }))
-            "
+            :options="userOptions"
             :error="form.errors.user_id_01"
         />
 
@@ -185,7 +173,33 @@ const form = useForm({
     label: props.happening.label ?? {},
 });
 
-const savedVerifier = form["verifier"];
+const savedVerifier = form.verifier;
+const resourceOptions = computed(() =>
+    props.resources.flatMap((resource) =>
+        resource.id != null
+            ? [
+                  {
+                      key: resource.id,
+                      value: resource.id.toString(),
+                      label: translate(resource.title),
+                  },
+              ]
+            : [],
+    ),
+);
+const userOptions = computed(() =>
+    props.users.flatMap((user) =>
+        user.id != null
+            ? [
+                  {
+                      key: user.id,
+                      value: user.id.toString(),
+                      label: user.name ?? "",
+                  },
+              ]
+            : [],
+    ),
+);
 
 // ------------------------------------------------
 // Methods
@@ -197,7 +211,7 @@ const updateVerifier = (event: Event) => {
     if (!verifier) {
         form.verifier = savedVerifier;
     } else {
-        form.verifier = verifier.name;
+        form.verifier = verifier.name ?? savedVerifier;
     }
 };
 
@@ -205,7 +219,7 @@ const updateUser2 = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const user2 = props.users.filter((x) => x.id !== form.user_id_01).find((x) => x.name === target.value);
 
-    if (user2) {
+    if (user2?.id != null) {
         form.user_id_02 = user2.id;
     } else {
         form.user_id_02 = "";
@@ -216,17 +230,21 @@ const updateUser2 = (event: Event) => {
 // Computed
 // ------------------------------------------------
 const currentUser = computed(() => {
-    return props.users?.find((x) => x.id === form.user_id_01);
+    return props.users.find((x) => x.id === form.user_id_01);
 });
 
 const currentResource = computed(() => {
-    return props.resources?.find((x) => x.id === form.resource_id);
+    return props.resources.find((x) => x.id === form.resource_id);
 });
 
 const isHappeningToVerify = computed(() => {
     const currentInstitutionId = currentResource.value?.institution_id;
 
     if (!currentUser.value || !currentResource.value) {
+        return true;
+    }
+
+    if (!currentInstitutionId || !currentUser.value.permissions) {
         return true;
     }
 

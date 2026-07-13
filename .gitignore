@@ -18,8 +18,10 @@ _ide_helper.php
 /public/storage
 /public/vendor
 !/resources/js/env.d.ts
+!/resources/js/ziggy.d.ts
 /resources/js/ziggy.js
 /storage/*.key
+!/tailwindcss-primeui.d.ts
 /tests/Browser/Screenshots/
 /vendor
 /.vscode
