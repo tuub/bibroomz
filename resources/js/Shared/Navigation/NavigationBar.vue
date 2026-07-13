@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { useLogin } from "@/Composables/Login";
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import InternalLink from "@/Shared/Navigation/InternalLink.vue";
 import LanguageSwitch from "@/Shared/Navigation/LanguageSwitch.vue";
 import ThemeSwitch from "@/Shared/Navigation/ThemeSwitch.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { storeToRefs } from "pinia";
 import { inject } from "vue";
@@ -27,7 +28,7 @@ defineProps({
     },
 });
 
-const route = inject("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute");
 const { isAuthenticated, user: currentUser } = storeToRefs(useAuthStore());
 const { loginUser, logoutUser } = useLogin();
 </script>

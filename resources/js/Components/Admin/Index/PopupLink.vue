@@ -5,42 +5,40 @@
     </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ConfirmModal from "@/Components/Modals/ConfirmModal.vue";
+import type { ModalAction } from "@/Stores/Modal";
 import useModal from "@/Stores/Modal";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { router } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
-import { computed, inject, onBeforeMount } from "vue";
+import { inject, onBeforeMount } from "vue";
+
+type PopupLinkAction = "delete" | "clone" | "ban" | "unban" | "remove";
 
 const modal = useModal();
-const route = inject("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute");
 
-const props = defineProps({
-    action: {
-        type: String,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        action: PopupLinkAction;
+        label?: string | null;
+        model: string;
+        params?: Record<string, unknown>;
+    }>(),
+    {
+        label: null,
+        params: () => ({}),
     },
-    label: {
-        type: String,
-        default: null,
-    },
-    model: {
-        type: String,
-        required: true,
-    },
-    params: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const actions = [];
+const actions: ModalAction[] = [];
 
-const icons = {
+const icons: Record<PopupLinkAction, string> = {
     delete: "ri-delete-bin-line",
     clone: "ri-file-copy-line",
     ban: "ri-prohibited-line",
@@ -66,12 +64,9 @@ function openModal() {
 // Lifecycle
 // ------------------------------------------------
 onBeforeMount(() => {
-    const confirmLabel = computed(() => trans("popup.actions." + props.action));
-    const cancelLabel = computed(() => trans("popup.actions.cancel"));
-
-    const confirmAction = {
-        label: confirmLabel,
-        callback: () => {
+    const confirmAction: ModalAction = {
+        label: trans("popup.actions." + props.action),
+        callback: async () => {
             router.visit(route("admin." + props.model + "." + props.action, props.params), {
                 method: "post",
                 onStart: () => modal.close(),
@@ -81,9 +76,11 @@ onBeforeMount(() => {
         },
     };
 
-    const cancelAction = {
-        label: cancelLabel,
-        callback: () => modal.close(),
+    const cancelAction: ModalAction = {
+        label: trans("popup.actions.cancel"),
+        callback: async () => {
+            modal.close();
+        },
     };
 
     actions.push(confirmAction, cancelAction);

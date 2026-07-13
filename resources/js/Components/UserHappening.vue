@@ -45,13 +45,14 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import SidebarLabel from "@/Components/Sidebar/SidebarLabel.vue";
 import FancyDate from "@/Components/UserHappening/FancyDate.vue";
 import UserHappeningActions from "@/Components/UserHappening/UserHappeningActions.vue";
 import UserHappeningData from "@/Components/UserHappening/UserHappeningData.vue";
 import UserHappeningStatus from "@/Components/UserHappening/UserHappeningStatus.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { Happening } from "@/Stores/HappeningStore";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -60,12 +61,9 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happening: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+const props = defineProps<{
+    happening: Happening;
+}>();
 
 // ------------------------------------------------
 // DayJS
@@ -85,17 +83,21 @@ const translate = appStore.translate;
 // ------------------------------------------------
 // Computed
 // ------------------------------------------------
-const happening = computed(() => ({
-    ...props.happening,
-    resource: {
-        ...props.happening.resource,
-        title: translate(props.happening.resource.title),
-        location: translate(props.happening.resource.location),
-        description: translate(props.happening.resource.description),
-        resourceGroup: translate(props.happening.resource.resourceGroup),
-        institution: props.happening.resource.institution,
-    },
-}));
+const happening = computed<Happening>(() => {
+    const resource = props.happening.resource ?? {};
+
+    return {
+        ...props.happening,
+        resource: {
+            ...resource,
+            title: translate(resource.title),
+            location: translate(resource.location),
+            description: translate(resource.description),
+            resourceGroup: translate(resource.resourceGroup),
+            institution: resource.institution,
+        },
+    };
+});
 
 const isPast = computed(() => {
     return dayjs(props.happening.end).isBefore(dayjs.utc());
@@ -106,7 +108,7 @@ const isPresent = computed(() => {
 });
 
 const getStatusClass = computed(() => {
-    if (props.isPast) {
+    if (isPast.value) {
         return "over";
     } else if (props.happening.isVerified) {
         return "status-booking";

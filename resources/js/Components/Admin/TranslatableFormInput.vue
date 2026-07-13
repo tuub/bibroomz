@@ -27,52 +27,35 @@
     </TranslatableFormField>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import TranslatableFormField from "@/Components/Admin/TranslatableFormField.vue";
 
 import { ref } from "vue";
 
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        modelValue: Record<string, string> | unknown[];
+        field: string;
+        fieldKey: string;
+        placeholder?: string;
+        required?: boolean;
+        languages: string[];
+        errors?: Record<string, string | undefined>;
+        type?: string;
+        rows?: string;
+    }>(),
+    {
+        placeholder: "",
+        required: false,
+        errors: () => ({}),
+        type: "input",
+        rows: "10",
     },
-    field: {
-        type: String,
-        required: true,
-    },
-    fieldKey: {
-        type: String,
-        required: true,
-    },
-    placeholder: {
-        type: String,
-        default: "",
-    },
-    required: {
-        type: Boolean,
-        default: false,
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-    errors: {
-        type: Object,
-        default: () => ({}),
-    },
-    type: {
-        type: String,
-        default: "input",
-        validator: (value) => ["input", "textarea"].includes(value),
-    },
-    rows: {
-        type: String,
-        default: "10",
-    },
-});
+);
 
-defineEmits(["update:model-value"]);
+defineEmits<{
+    (event: "update:model-value", value: Record<string, string>): void;
+}>();
 
-const input = Array.isArray(props.modelValue) ? {} : ref(props.modelValue);
+const input = ref<Record<string, string>>(Array.isArray(props.modelValue) ? {} : props.modelValue);
 </script>

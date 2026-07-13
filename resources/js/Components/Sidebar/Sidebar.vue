@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import HappeningQuotas from "@/Components/HappeningQuotas.vue";
 import SidebarBlock from "@/Components/Sidebar/SidebarBlock.vue";
 import UserHappenings from "@/Components/UserHappenings.vue";

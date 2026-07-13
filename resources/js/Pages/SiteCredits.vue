@@ -17,6 +17,6 @@
     <p>{{ $t("site_credits.paragraphs.tax_id.content") }}</p>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Breadcrumbs from "@/Shared/Breadcrumbs.vue";
 </script>

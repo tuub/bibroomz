@@ -3,7 +3,7 @@
     <i v-else class="ri-close-circle-line text-red-500"></i>
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({
     isTrue: {
         type: Boolean,

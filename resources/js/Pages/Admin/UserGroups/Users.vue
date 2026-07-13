@@ -49,15 +49,23 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminUser, UserGroup } from "@/Types/Admin";
 
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import { storeToRefs } from "pinia";
+
+type UserGroupUser = AdminUser & {
+    pivot?: {
+        valid_from?: string | null;
+        valid_until?: string | null;
+    };
+};
 
 /* DayJS */
 dayjs.extend(LocalizedFormat);
@@ -69,20 +77,20 @@ const { locale } = storeToRefs(app);
 const translate = app.translate;
 
 /* Props */
-defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
-    user_group: {
-        type: Object,
-        default: () => ({}),
+withDefaults(
+    defineProps<{
+        // eslint-disable-next-line vue/prop-name-casing
+        user_group?: UserGroup;
+        users?: UserGroupUser[];
+    }>(),
+    {
+        user_group: () => ({}),
+        users: () => [],
     },
-    users: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 /* Methods */
-function formatDate(date) {
-    return date ? dayjs(date).locale(locale).format("L") : "";
+function formatDate(date?: string | null) {
+    return date ? dayjs(date).locale(locale.value).format("L") : "";
 }
 </script>

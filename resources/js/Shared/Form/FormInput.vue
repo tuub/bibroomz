@@ -28,7 +28,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 

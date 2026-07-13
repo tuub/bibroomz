@@ -10,8 +10,7 @@ declare module "*.vue" {
 interface Window {
     axios: import("axios").AxiosStatic;
     Pusher: typeof import("pusher-js").default;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Echo: import("laravel-echo").default<any>;
+    Echo: import("laravel-echo").default<"reverb" | "pusher">;
 }
 
 // eslint-disable-next-line no-var

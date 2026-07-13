@@ -15,12 +15,19 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { Happening, HappeningResource } from "@/Stores/HappeningStore";
 
 import { reactive, toRaw } from "vue";
+
+type HappeningModalPayload = Happening & {
+    resource?: HappeningResource;
+    label?: Record<string, string>;
+    editable?: boolean;
+};
 
 // ------------------------------------------------
 // Props
@@ -44,7 +51,10 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits(["update:payload", "submit"]);
+defineEmits<{
+    (event: "update:payload", payload: HappeningModalPayload): void;
+    (event: "submit"): void;
+}>();
 
 // ------------------------------------------------
 // Variables
@@ -65,7 +75,7 @@ const editable = props.payload?.editable ?? false;
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-function isPlainObject(obj) {
+function isPlainObject(obj: unknown): obj is Record<string, string> {
     return typeof obj === "object" && obj !== null && !Array.isArray(obj);
 }
 </script>

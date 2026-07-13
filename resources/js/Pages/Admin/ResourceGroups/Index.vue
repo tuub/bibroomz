@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -7,26 +7,29 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminInstitution, DataTableRef, ResourceGroup } from "@/Types/Admin";
 
+import type { RequestPayload } from "@inertiajs/core";
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
+import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    institution: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        institution?: AdminInstitution;
+        // eslint-disable-next-line vue/prop-name-casing
+        resource_groups?: ResourceGroup[];
+    }>(),
+    {
+        institution: () => ({}),
+        resource_groups: () => [],
     },
-    // eslint-disable-next-line vue/prop-name-casing
-    resource_groups: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -37,10 +40,10 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("route");
+const route = inject<typeof ZiggyRoute>("route");
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 const routeParams = {
     institution_id: props.institution.id,
 };
@@ -50,22 +53,22 @@ const filters = ref({
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.resource_groups.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.resource_groups.length;
 });
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const isSortedByColumn = () => {
-    return !!indexTable.value.d_sortField;
+    return !!indexTable.value?.d_sortField;
 };
 
-const reorderRows = (event) => {
+const reorderRows = (event: { value: ResourceGroup[] }) => {
     const resource_groups = event.value;
     for (const [index, resource_group] of resource_groups.entries()) {
         resource_group.order = index + 1;
     }
-    router.post(route("admin.resource_group.order"), resource_groups);
+    router.post(route("admin.resource_group.order"), resource_groups as unknown as RequestPayload);
 };
 
 const canAccessSettings = () => {
@@ -111,7 +114,7 @@ const canAccessSettings = () => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

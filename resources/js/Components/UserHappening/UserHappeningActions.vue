@@ -1,17 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import SidebarButton from "@/Components/Sidebar/SidebarButton.vue";
 import { useHappeningDeleteModal, useHappeningEditModal, useHappeningVerifyModal } from "@/Composables/ModalActions";
+import type { Happening } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    happening: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+defineProps<{
+    happening: Happening;
+}>();
 
 // ------------------------------------------------
 // Variables
@@ -21,17 +19,17 @@ const modal = useModal();
 // ------------------------------------------------
 // Modal Actions
 // ------------------------------------------------
-const editUserHappening = (happening) => {
+const editUserHappening = (happening: Happening) => {
     const editModal = useHappeningEditModal(happening);
     modal.open(editModal.view, editModal.content, editModal.payload, editModal.actions);
 };
 
-const verifyUserHappening = (happening) => {
+const verifyUserHappening = (happening: Happening) => {
     const verifyModal = useHappeningVerifyModal(happening);
     modal.open(verifyModal.view, verifyModal.content, verifyModal.payload, verifyModal.actions);
 };
 
-const deleteUserHappening = (happening) => {
+const deleteUserHappening = (happening: Happening) => {
     const deleteModal = useHappeningDeleteModal(happening);
     modal.open(deleteModal.view, deleteModal.content, deleteModal.payload, deleteModal.actions);
 };

@@ -5,36 +5,34 @@
     </Link>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { ZiggyRouteFn } from "@/ziggyRoute";
+
 import { computed, inject } from "vue";
 
-// eslint-disable-next-line vue/no-dupe-keys
-const route = inject("ziggyRoute");
+type RelationLinkRelation = "closing" | "mail" | "resource" | "resource_group" | "setting" | "user";
 
-const props = defineProps({
-    current: {
-        type: String,
-        required: true,
+// eslint-disable-next-line vue/no-dupe-keys
+const route = inject<ZiggyRouteFn>("ziggyRoute");
+
+const props = withDefaults(
+    defineProps<{
+        current: string;
+        relation: RelationLinkRelation;
+        params?: Record<string, unknown>;
+        route?: string | null;
+    }>(),
+    {
+        params: () => ({}),
+        route: null,
     },
-    relation: {
-        type: String,
-        required: true,
-    },
-    params: {
-        type: Object,
-        default: () => ({}),
-    },
-    route: {
-        type: String,
-        default: null,
-    },
-});
+);
 
 const href = computed(() => {
     return route(props.route ?? `admin.${props.relation}.index`, props.params);
 });
 
-const icons = {
+const icons: Record<RelationLinkRelation, string> = {
     closing: "ri-calendar-close-fill",
     mail: "ri-mail-line",
     resource: "ri-calendar-line",

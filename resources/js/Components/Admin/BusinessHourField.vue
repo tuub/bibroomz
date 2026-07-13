@@ -92,50 +92,46 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import type {
+    BusinessHour,
+    BusinessHourFieldRemovePayload,
+    BusinessHourFieldUpdatePayload,
+    WeekDay,
+} from "@/Types/Admin";
 
 import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    timeSlot: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        timeSlot: BusinessHour;
+        index: number;
+        daysOfWeek: WeekDay[];
+        isOnly?: boolean;
+        startDate?: Date | null;
+        endDate?: Date | null;
+        errors?: Record<string, string | undefined>;
+    }>(),
+    {
+        isOnly: false,
+        startDate: null,
+        endDate: null,
+        errors: () => ({}),
     },
-    index: {
-        type: Number,
-        required: true,
-    },
-    daysOfWeek: {
-        type: Array,
-        required: true,
-    },
-    isOnly: {
-        type: Boolean,
-        default: false,
-    },
-    startDate: {
-        type: Date,
-        default: null,
-    },
-    endDate: {
-        type: Date,
-        default: null,
-    },
-    errors: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-const emit = defineEmits(["remove-business-hour-field", "update-business-hour-field"]);
+const emit = defineEmits<{
+    (event: "remove-business-hour-field", payload: BusinessHourFieldRemovePayload): void;
+    (event: "update-business-hour-field", payload: BusinessHourFieldUpdatePayload): void;
+}>();
 
 // ------------------------------------------------
 // Variables
@@ -160,10 +156,10 @@ const removeBusinessHourField = () => {
 const updateBusinessHourField = () => {
     emit("update-business-hour-field", {
         id: props.timeSlot.id,
-        start,
-        end,
-        startDate,
-        endDate,
+        start: start.value,
+        end: end.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
         checkedWeekDays: checkedWeekDays.value.sort(),
     });
 };

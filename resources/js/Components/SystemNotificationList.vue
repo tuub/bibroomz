@@ -18,11 +18,15 @@
     </div>
 </template>
 
-<script setup>
-defineProps({
-    notifications: {
-        type: Array,
-        default: () => [],
+<script setup lang="ts">
+import type { SystemNotification } from "@/Stores/AppStore";
+
+withDefaults(
+    defineProps<{
+        notifications?: SystemNotification[];
+    }>(),
+    {
+        notifications: () => [],
     },
-});
+);
 </script>

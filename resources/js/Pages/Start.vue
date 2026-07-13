@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import InstitutionCard from "@/Components/InstitutionCard.vue";
 import SystemNotificationList from "@/Components/SystemNotificationList.vue";
 import { useLogin } from "@/Composables/Login";
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { Institution } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { Head } from "@inertiajs/vue3";
@@ -13,16 +14,15 @@ import { onBeforeMount } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    appName: {
-        type: String,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        appName: string;
+        institutions?: Institution[];
+    }>(),
+    {
+        institutions: () => [],
     },
-    institutions: {
-        type: Array,
-        default: () => [],
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores

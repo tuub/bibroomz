@@ -1,18 +1,33 @@
 import { defineStore } from "pinia";
-import { markRaw } from "vue";
+import { type Component, markRaw } from "vue";
+
+export type ModalContent = {
+    title?: string;
+    description?: string;
+    message?: string;
+};
+
+export type ModalOpenPayload = {
+    view: Component;
+    content: ModalContent;
+    payload: unknown;
+    actions?: ModalAction[] | null;
+};
 
 export type Modal = {
-    view: object;
-    content: object;
-    payload: object;
-    actions?: ModalAction[];
+    view: Component | null;
+    content: ModalContent | null;
+    payload: unknown;
+    actions: ModalAction[] | null;
     isOpen: boolean;
 };
 
 export type ModalAction = {
     label: string;
     testId?: string;
-    callback: (props?: unknown) => Promise<unknown>;
+    callback: {
+        bivarianceHack: (props?: unknown) => Promise<unknown>;
+    }["bivarianceHack"];
 };
 
 const getBackgroundElements = () => {
@@ -41,7 +56,7 @@ export const useModal = defineStore("modal", {
     }),
 
     actions: {
-        open(view: object, content: object, payload: object, actions?: ModalAction[]): void {
+        open(view: Component, content: ModalContent, payload: unknown, actions?: ModalAction[] | null): void {
             this.view = markRaw(view);
 
             this.content = content;
@@ -67,7 +82,7 @@ export const useModal = defineStore("modal", {
         },
 
         submit(): void {
-            if (this.actions.length != 1) {
+            if (!this.actions || this.actions.length !== 1) {
                 return;
             }
 

@@ -2,7 +2,7 @@
     <ResourceInfo :resource="payload.resource" :is-expandable="false" :is-initially-visible="true" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ResourceInfo from "@/Components/ResourceInfo.vue";
 
 // ------------------------------------------------

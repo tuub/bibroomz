@@ -44,7 +44,7 @@
     />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ResourceInfo from "@/Components/ResourceInfo.vue";
 import Label from "@/Shared/Label.vue";
 import { useAppStore } from "@/Stores/AppStore";

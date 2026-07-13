@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -6,6 +6,7 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminInstitution, DataTableRef, Mail } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
@@ -14,16 +15,16 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    institution: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        institution?: AdminInstitution;
+        mails?: Mail[];
+    }>(),
+    {
+        institution: () => ({}),
+        mails: () => [],
     },
-    mails: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -36,14 +37,14 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.mails.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.mails.length;
 });
 
 // ------------------------------------------------
@@ -86,7 +87,7 @@ const recordsCount = computed(() => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

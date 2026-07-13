@@ -8,7 +8,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
 
 import { computed } from "vue";

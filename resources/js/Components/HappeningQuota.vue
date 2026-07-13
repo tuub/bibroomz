@@ -4,7 +4,7 @@
             {{ remaining }}
         </div>
         <div class="flex bg-gray-500 px-2 py-1 text-white">
-            {{ $tChoice("quota." + type + ".label", remaining) }}
+            {{ $tChoice("quota." + type + ".label", remainingValue) }}
         </div>
     </div>
 
@@ -32,31 +32,25 @@
         -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 
-const props = defineProps({
-    type: {
-        type: String,
-        default: "",
-    },
-    value: {
-        type: Number,
-        default: 0,
-    },
-    setting: {
-        type: Number,
-        default: 0,
-    },
-});
+const props = defineProps<{
+    type: string;
+    value: number;
+    setting: number;
+}>();
+
+const remainingValue = computed(() => props.setting - props.value);
 
 const remaining = computed(() => {
-    let remainingTime = props.setting - props.value;
-    let hrs = parseInt(Number(remainingTime));
-    let min = Math.round((Number(remainingTime) - hrs) * 60);
-    if (min !== 0) {
-        return hrs + ":" + min;
+    const hours = Math.trunc(remainingValue.value);
+    const minutes = Math.round((remainingValue.value - hours) * 60);
+
+    if (minutes !== 0) {
+        return `${hours}:${String(Math.abs(minutes)).padStart(2, "0")}`;
     }
-    return hrs;
+
+    return String(hours);
 });
 </script>

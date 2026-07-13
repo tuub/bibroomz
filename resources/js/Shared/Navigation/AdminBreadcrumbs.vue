@@ -13,7 +13,7 @@
     </Breadcrumb>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useAdminBreadcrumbs } from "@/Composables/AdminBreadcrumbs";
 
 import { Link } from "@inertiajs/vue3";

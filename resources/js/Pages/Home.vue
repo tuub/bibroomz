@@ -10,45 +10,37 @@
     </Teleport>
 </template>
 
-<script>
-import CalendarLayout from "@/Layouts/CalendarLayout.vue";
-
-export default {
-    layout: CalendarLayout,
-};
-</script>
-
-<script setup>
-import { onBeforeMount } from "vue";
-import { useAppStore } from "@/Stores/AppStore";
-import useModal from "@/Stores/Modal";
+<script setup lang="ts">
 import Calendar from "@/Components/Calendar/Calendar.vue";
 import Sidebar from "@/Components/Sidebar/Sidebar.vue";
 import SystemNotificationList from "@/Components/SystemNotificationList.vue";
+import CalendarLayout from "@/Layouts/CalendarLayout.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import type { ResourceGroup, Settings } from "@/Stores/AppStore";
+import type { ModalOpenPayload } from "@/Stores/Modal";
+import useModal from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";
+import { onBeforeMount } from "vue";
+
+defineOptions({
+    layout: CalendarLayout,
+});
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resourceGroup: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        resourceGroup: ResourceGroup;
+        settings: Settings;
+        hiddenDays: number[];
+        isMultiTenancy?: boolean;
+    }>(),
+    {
+        isMultiTenancy: false,
     },
-    settings: {
-        type: Object,
-        required: true,
-    },
-    hiddenDays: {
-        type: Array,
-        required: true,
-    },
-    isMultiTenancy: {
-        type: Boolean,
-        default: false,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -64,7 +56,7 @@ const modal = useModal();
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const getModal = (data) => {
+const getModal = (data: ModalOpenPayload) => {
     modal.open(data.view, data.content, data.payload, data.actions);
 };
 

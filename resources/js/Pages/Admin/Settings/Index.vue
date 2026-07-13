@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AppSetting, DataTableRef, Settingable } from "@/Types/Admin";
 
 import { transChoice } from "laravel-vue-i18n";
 import { computed, ref } from "vue";
@@ -10,21 +11,19 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    settingable: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        settingable?: Settingable;
+        // eslint-disable-next-line vue/prop-name-casing
+        settingable_type?: string;
+        settings?: AppSetting[];
+    }>(),
+    {
+        settingable: () => ({}),
+        settingable_type: "",
+        settings: () => [],
     },
-    // eslint-disable-next-line vue/prop-name-casing
-    settingable_type: {
-        type: String,
-        default: "",
-    },
-    settings: {
-        type: Array,
-        default: () => [],
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -37,10 +36,10 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.settings.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.settings.length;
 });
 
 const institutionId = computed(() => {
@@ -83,7 +82,7 @@ const institutionId = computed(() => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

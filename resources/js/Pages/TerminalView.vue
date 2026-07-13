@@ -12,34 +12,27 @@
     </FullCalendar>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { CalendarOptions as FullCalendarOptions } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/vue3";
 
-import { useCalendar } from "@/Composables/Calendar";
+import { type CalendarPagination, useCalendar } from "@/Composables/Calendar";
 import TerminalLayout from "@/Layouts/TerminalLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { ResourceGroup, Settings } from "@/Stores/AppStore";
 
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 defineOptions({ layout: TerminalLayout });
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resourceGroup: {
-        type: Object,
-        required: true,
-    },
-    settings: {
-        type: Object,
-        required: true,
-    },
-    hiddenDays: {
-        type: Array,
-        required: true,
-    },
-});
+const props = defineProps<{
+    resourceGroup: ResourceGroup;
+    settings: Settings;
+    hiddenDays: number[];
+}>();
 
 // ------------------------------------------------
 // Stores
@@ -49,38 +42,31 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-let calendarOptions, refetchHappenings;
+appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, false);
+
+const pagination: CalendarPagination = {
+    currentPage: `/${props.resourceGroup.institution?.slug ?? ""}/${props.resourceGroup.slug ?? ""}/resources`,
+    nextPage: null,
+    previousPage: null,
+};
+
+const { calendarOptions: rawCalendarOptions, refetchHappenings } = useCalendar({
+    emit: () => undefined,
+    calendarOptions: {
+        headerToolbar: {
+            left: "title",
+            center: "",
+            right: "",
+        },
+        selectable: false,
+    },
+    pagination,
+    translate: appStore.translate,
+});
+const calendarOptions = rawCalendarOptions as FullCalendarOptions;
+
 const translate = appStore.translate;
 const refCalendar = ref(null);
-
-// ------------------------------------------------
-// Mount
-// ------------------------------------------------
-onBeforeMount(() => {
-    appStore.setCurrent(props.resourceGroup, props.settings, props.hiddenDays, false);
-
-    const pagination = {
-        currentPage: `/${props.resourceGroup.institution.slug}/${props.resourceGroup.slug}/resources`,
-        nextPage: null,
-        previousPage: null,
-    };
-
-    ({ calendarOptions, refetchHappenings } = useCalendar({
-        calendarOptions: {
-            headerToolbar: {
-                left: "title",
-                center: "",
-                right: "",
-            },
-            select: false,
-            selectable: false,
-            selectAllow: false,
-            eventClick: false,
-        },
-        pagination,
-        translate,
-    }));
-});
 
 onMounted(() => {
     Echo.channel("happenings").listen("HappeningsChangedEvent", () => {

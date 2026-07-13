@@ -23,7 +23,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import XModal from "@/Shared/XModal.vue";
 

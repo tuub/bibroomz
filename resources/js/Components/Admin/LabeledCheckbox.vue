@@ -9,7 +9,12 @@
                 :checked="checked"
                 :aria-describedby="`${name}-checkbox-text-${value}`"
                 class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600"
-                @change="$emit('update-checked', { value: $event.target.value, checked: $event.target.checked })"
+                @change="
+                    $emit('update-checked', {
+                        value: props.value,
+                        checked: ($event.target as HTMLInputElement).checked,
+                    })
+                "
             />
         </div>
         <div class="ml-2 text-sm">
@@ -23,10 +28,12 @@
     </div>
 </template>
 
-<script setup>
-defineProps({
+<script setup lang="ts">
+import type { LabeledCheckboxUpdatePayload } from "@/Types/Admin";
+
+const props = defineProps({
     value: {
-        type: String,
+        type: [String, Number],
         required: true,
     },
     checked: {
@@ -46,5 +53,7 @@ defineProps({
     },
 });
 
-defineEmits(["update-checked"]);
+defineEmits<{
+    (event: "update-checked", payload: LabeledCheckboxUpdatePayload): void;
+}>();
 </script>

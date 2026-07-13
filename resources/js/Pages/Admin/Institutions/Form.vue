@@ -96,13 +96,14 @@
         <FormAction :form="form" model="institution" cancel-route="admin.institution.index" />
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import type { AdminInstitution, WeekDay } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import dayjs from "dayjs";
@@ -113,20 +114,17 @@ import { onMounted } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    institution: {
-        type: Object,
-        default: () => null,
+const props = withDefaults(
+    defineProps<{
+        institution?: AdminInstitution | null;
+        daysOfWeek?: WeekDay[];
+        languages: string[];
+    }>(),
+    {
+        institution: () => null,
+        daysOfWeek: () => [],
     },
-    daysOfWeek: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -142,7 +140,7 @@ const form = useForm({
     short_title: props.institution?.short_title ?? "",
     slug: props.institution?.slug ?? "",
     location: props.institution?.location ?? "",
-    week_days: [],
+    week_days: [] as (number | string)[],
     home_uri: props.institution?.home_uri ?? "",
     email: props.institution?.email ?? "",
     logo_uri: props.institution?.logo_uri ?? "",
@@ -155,8 +153,10 @@ const form = useForm({
 // Mount
 // ------------------------------------------------
 onMounted(() => {
-    props.institution?.week_days.forEach((week_day) => {
-        form.week_days.push(week_day.id);
+    props.institution?.week_days?.forEach((week_day) => {
+        if (week_day.id !== undefined) {
+            form.week_days.push(week_day.id);
+        }
     });
 });
 </script>

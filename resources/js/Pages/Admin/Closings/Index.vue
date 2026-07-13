@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -6,6 +6,7 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { Closable, Closing, DataTableRef } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -16,21 +17,19 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    closable: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        closable?: Closable;
+        // eslint-disable-next-line vue/prop-name-casing
+        closable_type?: string;
+        closings?: Closing[];
+    }>(),
+    {
+        closable: () => ({}),
+        closable_type: "",
+        closings: () => [],
     },
-    // eslint-disable-next-line vue/prop-name-casing
-    closable_type: {
-        type: String,
-        default: "",
-    },
-    closings: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -48,24 +47,24 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.closings.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.closings.length;
 });
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const getClosingDateTime = (dateTime) => {
+const getClosingDateTime = (dateTime?: string) => {
     return [appStore.formatDate(dateTime, true), appStore.formatTime(dateTime, true)].join(" ");
 };
 
-const isPastClosing = (closing) => {
+const isPastClosing = (closing: Closing) => {
     return dayjs(closing.end).isBefore(dayjs().utcOffset(0, true));
 };
 </script>
@@ -113,7 +112,7 @@ const isPastClosing = (closing) => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

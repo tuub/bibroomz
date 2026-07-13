@@ -1,12 +1,28 @@
 import { useAppStore } from "@/Stores/AppStore";
 
+import type { Ref } from "vue";
 import { reactive, ref, unref, watch, watchEffect } from "vue";
 
-export function useSortFilterTable({
+type Paginator<T> = {
+    currentPage: number;
+    perPage: number;
+    lastPage: number;
+    nextPage: number;
+    prevPage: number;
+    jumpToPage?: (page: number | string) => void;
+    data?: T[];
+};
+
+export function useSortFilterTable<T extends Record<string, unknown>>({
     data,
     initialSortField = "",
     initialSortDirection = "asc",
     nonNumericFields = [],
+}: {
+    data: Ref<T[]> | T[];
+    initialSortField?: string;
+    initialSortDirection?: "asc" | "desc";
+    nonNumericFields?: string[];
 }) {
     // ------------------------------------------------
     // Variables
@@ -16,10 +32,10 @@ export function useSortFilterTable({
     const sortField = ref(initialSortField);
     const sortDirection = ref(initialSortDirection);
 
-    const filters = reactive({});
+    const filters = reactive<Record<string, string>>({});
     const filteredData = ref(unref(data));
 
-    const paginator = reactive({
+    const paginator = reactive<Paginator<T>>({
         currentPage: 1,
         perPage: 10,
         lastPage: 1,
@@ -30,21 +46,21 @@ export function useSortFilterTable({
     // ------------------------------------------------
     // Methods
     // ------------------------------------------------
-    paginator.jumpToPage = (page) => {
-        paginator.currentPage = page > 0 ? parseInt(page) : 1;
+    paginator.jumpToPage = (page: number | string) => {
+        paginator.currentPage = Number(page) > 0 ? parseInt(page as string) : 1;
     };
 
-    const toggleFilter = (field) => {
+    const toggleFilter = (field: string) => {
         if (filters[field]) {
             delete filters[field];
         }
     };
 
-    const isSortNumeric = (field) => {
+    const isSortNumeric = (field: string) => {
         return !nonNumericFields.includes(field);
     };
 
-    const sortFunction = (a, b) => {
+    const sortFunction = (a: Record<string, unknown>, b: Record<string, unknown>) => {
         // equal items sort equally
         if (a[sortField.value] === b[sortField.value]) {
             return 0;
@@ -61,15 +77,18 @@ export function useSortFilterTable({
         const modifier = sortDirection.value === "asc" ? 1 : -1;
 
         if (isSortNumeric(sortField.value)) {
-            return modifier * (a[sortField.value] - b[sortField.value]);
+            return modifier * ((a[sortField.value] as number) - (b[sortField.value] as number));
         }
 
-        return modifier * new Intl.Collator(locale).compare(a[sortField.value], b[sortField.value]);
+        return modifier * new Intl.Collator(locale).compare(a[sortField.value] as string, b[sortField.value] as string);
     };
 
-    const filterFunction = (obj) => {
+    const filterFunction = (obj: Record<string, unknown>) => {
         return Object.keys(filters).every((key) => {
-            return obj[key]?.toString().toLowerCase().includes(filters[key].toLowerCase());
+            return (obj[key] as { toString(): string } | undefined)
+                ?.toString()
+                .toLowerCase()
+                .includes(filters[key].toLowerCase());
         });
     };
 

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 

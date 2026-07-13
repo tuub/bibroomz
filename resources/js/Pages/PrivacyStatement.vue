@@ -8,6 +8,6 @@
     <p>{{ $t("privacy_statement.paragraphs.05") }}</p>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Breadcrumbs from "@/Shared/Breadcrumbs.vue";
 </script>

@@ -27,7 +27,7 @@ import { ZiggyVue, route } from "ziggy-js";
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
-createInertiaApp({
+void createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     // Cast needed because @inertiajs/vue3's ComponentResolver type doesn't account for
     // async resolvers returning the Vite module namespace object ({ default: Component }).
@@ -99,13 +99,10 @@ createInertiaApp({
                 },
             })
             // Ziggy
-            .use(ZiggyVue, Ziggy as Config)
-            .provide(
-                "ziggyRoute",
-                (name: string, params?: unknown, absolute?: boolean, config: Config = Ziggy as Config) => {
-                    return route(name, params as never, absolute, config);
-                },
-            )
+            .use(ZiggyVue, Ziggy)
+            .provide("ziggyRoute", (name: string, params?: unknown, absolute?: boolean, config: Config = Ziggy) => {
+                return route(name, params as never, absolute, config);
+            })
             // Custom components
             .component("Head", Head)
             .component("Link", Link);

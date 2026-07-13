@@ -130,7 +130,7 @@
     </FormLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
@@ -139,6 +139,7 @@ import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormSelect from "@/Shared/Form/FormSelect.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminHappening, AdminResource, AdminUser } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import ToggleSwitch from "primevue/toggleswitch";
@@ -147,24 +148,19 @@ import { computed, watch } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happening: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        happening?: AdminHappening;
+        resources?: AdminResource[];
+        users?: AdminUser[];
+        languages: string[];
+    }>(),
+    {
+        happening: () => ({}),
+        resources: () => [],
+        users: () => [],
     },
-    resources: {
-        type: Array,
-        default: () => [],
-    },
-    users: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -194,8 +190,9 @@ const savedVerifier = form["verifier"];
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const updateVerifier = (event) => {
-    const verifier = props.users.find((x) => x.id === event.target.value);
+const updateVerifier = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    const verifier = props.users.find((x) => String(x.id) === target.value);
 
     if (!verifier) {
         form.verifier = savedVerifier;
@@ -204,8 +201,9 @@ const updateVerifier = (event) => {
     }
 };
 
-const updateUser2 = (event) => {
-    const user2 = props.users.filter((x) => x.id !== form.user_id_01).find((x) => x.name === event.target.value);
+const updateUser2 = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const user2 = props.users.filter((x) => x.id !== form.user_id_01).find((x) => x.name === target.value);
 
     if (user2) {
         form.user_id_02 = user2.id;

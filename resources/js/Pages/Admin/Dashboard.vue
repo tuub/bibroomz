@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import DashboardCard from "@/Components/Admin/DashboardCard.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
 

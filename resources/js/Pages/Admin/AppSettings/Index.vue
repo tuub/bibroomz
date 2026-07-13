@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
+import type { AppSetting, DataTableRef } from "@/Types/Admin";
 
 import { transChoice } from "laravel-vue-i18n";
 import { computed, ref } from "vue";
@@ -7,20 +8,22 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    settings: {
-        type: Array,
-        default: () => [],
+const props = withDefaults(
+    defineProps<{
+        settings?: AppSetting[];
+    }>(),
+    {
+        settings: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.settings.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.settings.length;
 });
 </script>
 
@@ -45,7 +48,7 @@ const recordsCount = computed(() => {
                     <ActionLink action="edit" model="app_setting" />
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

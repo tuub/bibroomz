@@ -8,26 +8,19 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 
-defineProps({
-    field: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        field: string;
+        fieldKey: string;
+        languages: string[];
+        errors?: Record<string, string | undefined>;
+    }>(),
+    {
+        errors: () => ({}),
     },
-    fieldKey: {
-        type: String,
-        required: true,
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-    errors: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 </script>

@@ -37,34 +37,32 @@
         <FormAction :form="form" model="user_group" cancel-route="admin.user_group.index" />
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminInstitution, UserGroup } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
-    user_group: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        // eslint-disable-next-line vue/prop-name-casing
+        user_group?: UserGroup;
+        institutions?: AdminInstitution[];
+        languages: string[];
+    }>(),
+    {
+        user_group: () => ({}),
+        institutions: () => [],
     },
-    institutions: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores

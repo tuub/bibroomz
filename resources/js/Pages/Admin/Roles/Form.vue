@@ -91,44 +91,36 @@
         <FormAction :form="form" model="role" cancel-route="admin.role.index"></FormAction>
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import LabeledCheckbox from "@/Components/Admin/LabeledCheckbox.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { LabeledCheckboxUpdatePayload, Permission, PermissionGroup, Role } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    role: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        role?: Role;
+        permissions?: Permission[];
+        groups?: PermissionGroup[];
+        languages: string[];
+        errors?: Record<string, unknown>;
+        auth?: Record<string, unknown>;
+    }>(),
+    {
+        role: () => ({}),
+        permissions: () => [],
+        groups: () => [],
+        errors: () => ({}),
+        auth: () => ({}),
     },
-    permissions: {
-        type: Array,
-        default: () => [],
-    },
-    groups: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-    errors: {
-        type: Object,
-        default: () => ({}),
-    },
-    auth: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -150,7 +142,7 @@ const form = useForm({
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const updatePermission = ({ value, checked }) => {
+const updatePermission = ({ value, checked }: LabeledCheckboxUpdatePayload) => {
     form.permissions = form.permissions.filter((x) => x !== value);
 
     if (checked) {
@@ -158,7 +150,7 @@ const updatePermission = ({ value, checked }) => {
     }
 };
 
-const isGroupChecked = (groupId) => {
+const isGroupChecked = (groupId?: number | string) => {
     for (const permission of props.permissions) {
         if (permission.group_id == groupId) {
             if (!form.permissions.includes(permission.id)) {
@@ -170,7 +162,7 @@ const isGroupChecked = (groupId) => {
     return true;
 };
 
-const isGroupUnchecked = (groupId) => {
+const isGroupUnchecked = (groupId?: number | string) => {
     for (const permission of props.permissions) {
         if (permission.group_id == groupId) {
             if (form.permissions.includes(permission.id)) {
@@ -182,11 +174,11 @@ const isGroupUnchecked = (groupId) => {
     return true;
 };
 
-const isGroupIndeterminate = (groupId) => {
+const isGroupIndeterminate = (groupId?: number | string) => {
     return !isGroupChecked(groupId) && !isGroupUnchecked(groupId);
 };
 
-const updateCheckedPermissions = (groupId) => {
+const updateCheckedPermissions = (groupId?: number | string) => {
     if (isGroupChecked(groupId)) {
         uncheckPermissionGroup(groupId);
     } else {
@@ -194,7 +186,7 @@ const updateCheckedPermissions = (groupId) => {
     }
 };
 
-const checkPermissionGroup = (groupId) => {
+const checkPermissionGroup = (groupId?: number | string) => {
     for (const permission of props.permissions) {
         if (permission.group_id == groupId && !form.permissions.includes(permission.id)) {
             form.permissions.push(permission.id);
@@ -202,7 +194,7 @@ const checkPermissionGroup = (groupId) => {
     }
 };
 
-const uncheckPermissionGroup = (groupId) => {
+const uncheckPermissionGroup = (groupId?: number | string) => {
     for (const permission of props.permissions) {
         if (permission.group_id == groupId) {
             form.permissions = form.permissions.filter((x) => x !== permission.id);

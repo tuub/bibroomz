@@ -26,7 +26,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
@@ -34,22 +34,19 @@ import HappeningQuota from "./HappeningQuota.vue";
 
 import { computed } from "vue";
 
-defineProps({
-    happenings: {
-        type: Object,
-        default: () => ({}),
-    },
-});
-
 const authStore = useAuthStore();
 const appStore = useAppStore();
 
-const getQuotaSetting = (type) => {
-    let setting = appStore.resourceGroup.settings.find((x) => x.key === "quota_" + type);
-    return Number(setting["value"]);
+const getQuotaSetting = (type: string) => {
+    const setting = appStore.resourceGroup?.settings?.find((entry) => entry.key === `quota_${type}`);
+    return Number(setting?.value ?? 0);
 };
 
-const quotas = computed(() =>
-    Object.fromEntries(Object.entries({ ...authStore.quotas }).filter(([key]) => getQuotaSetting(key) > 0)),
+const quotas = computed<Record<string, number>>(() =>
+    Object.fromEntries(
+        Object.entries(authStore.quotas).filter(
+            (entry): entry is [string, number] => typeof entry[1] === "number" && getQuotaSetting(entry[0]) > 0,
+        ),
+    ),
 );
 </script>

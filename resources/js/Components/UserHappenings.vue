@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import SidebarBlock from "@/Components/Sidebar/SidebarBlock.vue";
+import type { Happening } from "@/Stores/HappeningStore";
 
 import UserHappening from "./UserHappening.vue";
 
@@ -11,12 +12,14 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happenings: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        happenings?: Happening[];
+    }>(),
+    {
+        happenings: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -40,7 +43,7 @@ const happenings = computed(() => {
 // Methods
 // ------------------------------------------------
 
-const isPastHappening = (happening) => {
+const isPastHappening = (happening: Happening) => {
     return dayjs(happening.end).isBefore(dayjs.utc());
 };
 </script>

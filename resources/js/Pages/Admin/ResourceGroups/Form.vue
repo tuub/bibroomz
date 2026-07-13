@@ -97,7 +97,7 @@
             <FormValidationError :message="form.errors.is_active"></FormValidationError>
         </div>
 
-        <fieldset :hidden="form.is_admin" class="space-y-4">
+        <fieldset class="space-y-4">
             <legend class="space-y-2">
                 <div class="text-sm font-bold uppercase text-gray-900 dark:text-white">
                     {{ $t("admin.resource_groups.form.fields.user_groups.label") }}
@@ -114,7 +114,7 @@
                 :option-label="(userGroup) => translate(userGroup.title)"
                 :option-value="(userGroup) => userGroup.id"
                 :show-toggle-all="false"
-                :invalid="form.errors.user_groups"
+                :invalid="!!form.errors.user_groups"
                 :placeholder="$t('admin.resource_groups.form.fields.user_groups.placeholder')"
                 display="chip"
                 input-id="user-groups"
@@ -132,7 +132,7 @@
         />
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
@@ -140,6 +140,7 @@ import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminInstitution, ResourceGroup } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import { computed } from "vue";
@@ -147,26 +148,21 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    institution: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        institution?: AdminInstitution;
+        // Inertia provides this page prop in snake_case from the backend contract.
+        // eslint-disable-next-line vue/prop-name-casing
+        resource_group?: ResourceGroup;
+        institutions?: AdminInstitution[];
+        languages: string[];
+    }>(),
+    {
+        institution: () => ({}),
+        resource_group: () => ({}),
+        institutions: () => [],
     },
-    // Inertia provides this page prop in snake_case from the backend contract.
-    // eslint-disable-next-line vue/prop-name-casing
-    resource_group: {
-        type: Object,
-        default: () => ({}),
-    },
-    institutions: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores

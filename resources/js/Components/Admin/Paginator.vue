@@ -15,8 +15,8 @@
                     class="bg-transparent text-center outline-none"
                     :style="{ width: inputWidth }"
                     :value="currentPage"
-                    :placeholder="currentPage"
-                    @change="$emit('page-changed', $event.target.value)"
+                    :placeholder="currentPage.toString()"
+                    @change="$emit('page-changed', ($event.target as HTMLInputElement).value)"
                 />
                 <span v-if="lastPage > 1"> / {{ lastPage }} </span>
             </span>
@@ -54,7 +54,7 @@
         </span>
     </div>
 </template>
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
     currentPage: {
         type: Number,
@@ -65,7 +65,7 @@ const props = defineProps({
         required: true,
     },
     nextPage: {
-        type: String,
+        type: Number,
         default: null,
     },
     perPage: {
@@ -73,12 +73,15 @@ const props = defineProps({
         required: true,
     },
     prevPage: {
-        type: String,
+        type: Number,
         default: null,
     },
 });
 
-defineEmits(["update:per-page", "page-changed"]);
+defineEmits<{
+    (event: "update:per-page", perPage: number): void;
+    (event: "page-changed", page: number | string | null): void;
+}>();
 
 const inputWidth = props.lastPage.toString().length + "em";
 </script>

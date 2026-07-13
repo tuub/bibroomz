@@ -117,7 +117,8 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { CalendarApi, EventApi, CalendarOptions as FullCalendarOptions } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/vue3";
 
 import Legend from "@/Components/Calendar/Legend.vue";
@@ -125,6 +126,7 @@ import { useCalendar } from "@/Composables/Calendar";
 //import { useResourceGroupInfoModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ModalOpenPayload } from "@/Stores/Modal";
 import { withBaseUrl } from "@/baseUrl";
 
 import dayjs from "dayjs";
@@ -135,16 +137,25 @@ import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, unref, 
 
 dayjs.extend(isToday);
 
+type ResourceCalendarApi = CalendarApi & {
+    refetchResources: () => void;
+    getOption: (name: string) => { start: Date; end: Date };
+};
+
+type FullCalendarRef = {
+    getApi: () => ResourceCalendarApi;
+};
+
 // ------------------------------------------------
 // Stores
 // ------------------------------------------------
 const appStore = useAppStore();
 const authStore = useAuthStore();
 
-// ------------------------------------------------
-// Emits
-// ------------------------------------------------
-const emit = defineEmits(["show-status", "open-modal-component"]);
+const emit = defineEmits<{
+    (event: "show-status"): void;
+    (event: "open-modal-component", payload: ModalOpenPayload): void;
+}>();
 
 const windowWidth = ref(window.innerWidth);
 const resourceCount = ref(0);
@@ -170,31 +181,43 @@ const pagination = reactive({
     previousPage: null,
 });
 
-const refCalendar = ref(null);
-let calendarApi;
+const refCalendar = ref<FullCalendarRef | null>(null);
+let calendarApi: ResourceCalendarApi | null = null;
 
-const date = ref();
-const validRange = ref();
+const date = ref<dayjs.Dayjs | null>(null);
+const validRange = ref<{ start: Date; end: Date } | null>(null);
 
 watch(date, () => {
-    validRange.value = calendarApi.getOption("validRange");
+    validRange.value = calendarApi ? (calendarApi.getOption("validRange") as { start: Date; end: Date }) : null;
 });
 
 const resetCalendarDate = () => {
+    if (!calendarApi || !pagination.currentPage) {
+        return;
+    }
+
     date.value = dayjs(calendarApi.getDate());
 
     const url = new URL(pagination.currentPage, window.location.origin);
     url.searchParams.set("date", date.value.utcOffset(0, true).format("YY-MM-DD"));
-    pagination.currentPage = url.pathname + "?" + url.searchParams;
+    pagination.currentPage = `${url.pathname}?${url.searchParams.toString()}`;
 };
 
 function dateNext() {
+    if (!calendarApi) {
+        return;
+    }
+
     calendarApi.next();
     resetCalendarDate();
     calendarApi.refetchResources();
 }
 
 function datePrev() {
+    if (!calendarApi) {
+        return;
+    }
+
     calendarApi.prev();
     resetCalendarDate();
     calendarApi.refetchResources();
@@ -203,11 +226,12 @@ function datePrev() {
 const { locale } = storeToRefs(appStore);
 
 const translate = appStore.translate;
-const { calendarOptions, refetchHappenings } = useCalendar({
+const { calendarOptions: rawCalendarOptions, refetchHappenings } = useCalendar({
     emit,
     pagination,
     translate,
 });
+const calendarOptions = rawCalendarOptions as FullCalendarOptions;
 
 const { isAuthenticated } = storeToRefs(authStore);
 
@@ -231,7 +255,7 @@ watch(
     () => locale,
     () => {
         const api = unref(refCalendar)?.getApi();
-        api?.setOption("locale", locale);
+        api?.setOption("locale", locale.value);
     },
 );
 
@@ -292,19 +316,23 @@ const handleScreenResize = () => {
     setResourceCountFromScreen();
 };
 
-const convertTimeToMinutes = (time) => {
-    const timeParts = time.split(":");
-    return Number(timeParts[0]) * 60 + Number(timeParts[1]);
+const convertTimeToMinutes = (time: string) => {
+    const [hours = "0", minutes = "0"] = time.split(":");
+    return Number(hours) * 60 + Number(minutes);
 };
 
 //https://github.com/fullcalendar/fullcalendar/issues/4816
 
-const countLines = (event) => {
-    const milliseconds = event.end - event.start;
+const countLines = (event: EventApi) => {
+    if (!event.start || !event.end) {
+        return 1;
+    }
+
+    const milliseconds = event.end.getTime() - event.start.getTime();
     const seconds = milliseconds / 1000;
     const minutes = seconds / 60;
 
-    const timeSlotLength = convertTimeToMinutes(appStore.settings.resource_group.time_slot_length);
+    const timeSlotLength = convertTimeToMinutes(appStore.settings?.resource_group?.time_slot_length ?? "01:00");
 
     return minutes / timeSlotLength;
 };
@@ -322,12 +350,16 @@ onMounted(() => {
     });
 
     const slotAxis = document.querySelector(".fc-timegrid-axis-frame");
-    slotAxis.innerHTML = '<i class="ri-time-line"></i>';
+    if (slotAxis) {
+        slotAxis.innerHTML = '<i class="ri-time-line"></i>';
+    }
 
     window.addEventListener("resize", handleScreenResize);
 
-    calendarApi = unref(refCalendar)?.getApi();
-    date.value = dayjs(calendarApi.getDate());
+    calendarApi = unref(refCalendar)?.getApi() ?? null;
+    if (calendarApi) {
+        date.value = dayjs(calendarApi.getDate());
+    }
 });
 
 onUnmounted(() => {

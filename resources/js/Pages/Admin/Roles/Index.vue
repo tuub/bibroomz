@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { DataTableRef, Permission, Role } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -15,12 +16,14 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    roles: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        roles?: Role[];
+    }>(),
+    {
+        roles: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -38,7 +41,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -86,7 +89,7 @@ const recordsCount = computed(() => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
@@ -101,12 +104,12 @@ const recordsCount = computed(() => {
                 :sortable="true"
                 :header="$t('admin.roles.index.table.header.description')"
             />
-            <Column :field="permissions" :sortable="true" :header="$t('admin.roles.index.table.header.description')">
+            <Column field="permissions" :sortable="true" :header="$t('admin.roles.index.table.header.description')">
                 <template #body="slotProps">
                     {{
                         slotProps.data.permissions
-                            .sort((a, b) => translate(a.name).localeCompare(translate(b.name)))
-                            .map((permission) => translate(permission.name))
+                            .sort((a: Permission, b: Permission) => translate(a.name).localeCompare(translate(b.name)))
+                            .map((permission: Permission) => translate(permission.name))
                             .join(", ")
                     }}
                 </template>

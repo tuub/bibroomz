@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
@@ -6,6 +6,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { DataTableRef, UserGroup } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -16,13 +17,15 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
-    user_groups: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        // eslint-disable-next-line vue/prop-name-casing
+        user_groups?: UserGroup[];
+    }>(),
+    {
+        user_groups: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -40,14 +43,14 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.user_groups.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.user_groups.length;
 });
 
 // ------------------------------------------------
@@ -88,7 +91,7 @@ const recordsCount = computed(() => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

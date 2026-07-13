@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -6,8 +6,10 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminHappening, DataTableRef } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
+import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { transChoice } from "laravel-vue-i18n";
@@ -16,12 +18,14 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happenings: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        happenings?: AdminHappening[];
+    }>(),
+    {
+        happenings: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // DayJS
@@ -39,7 +43,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const { hasPermission } = authStore;
 const { formatDate, formatTime, translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const happenings = ref(mapHappenings(props.happenings));
 
@@ -51,22 +55,36 @@ const recordsCount = computed(() => {
     return indexTable.value.processedData ? indexTable.value.processedData.length : props.happenings.length;
 });
 
+type MappedAdminHappening = Omit<
+    AdminHappening,
+    "start" | "end" | "institution" | "resource_group" | "resource" | "label"
+> & {
+    date: Dayjs;
+    start: Dayjs;
+    end: Dayjs;
+    institution?: string;
+    resource_group?: string;
+    resource?: string;
+    label?: string;
+    is_over: boolean;
+};
+
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-function getHappeningDate(datetime) {
+function getHappeningDate(datetime: AdminHappening["start"]) {
     return formatDate(datetime, true);
 }
 
-function getHappeningTime(datetime) {
+function getHappeningTime(datetime: AdminHappening["start"]) {
     return formatTime(datetime, true);
 }
 
-function isPastHappening(happening) {
+function isPastHappening(happening: AdminHappening) {
     return dayjs(happening.end).isBefore(dayjs().utcOffset(0, true));
 }
 
-function mapHappenings(happenings) {
+function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
     return happenings.map((happening) => ({
         ...happening,
         date: dayjs(happening.start),
@@ -114,7 +132,7 @@ function mapHappenings(happenings) {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

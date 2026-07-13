@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import Footer from "@/Shared/Footer.vue";
 import Header from "@/Shared/Header.vue";
 import AdminBreadcrumbs from "@/Shared/Navigation/AdminBreadcrumbs.vue";
@@ -29,7 +29,7 @@ const page = usePage();
 // Hooks
 // ------------------------------------------------
 onBeforeMount(() => {
-    authStore.check();
+    void authStore.check();
     appStore.setGlobalSystemNotification(page.props.systemNotification);
 });
 onMounted(() => {

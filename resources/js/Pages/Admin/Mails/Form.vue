@@ -113,7 +113,7 @@
         />
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
@@ -121,32 +121,27 @@ import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormSelect from "@/Shared/Form/FormSelect.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import type { Mail, MailType } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    // eslint-disable-next-line vue/prop-name-casing
-    institution_id: {
-        type: String,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        // eslint-disable-next-line vue/prop-name-casing
+        institution_id: string;
+        mail?: Mail;
+        // eslint-disable-next-line vue/prop-name-casing
+        mail_types?: MailType[];
+        languages: string[];
+    }>(),
+    {
+        mail: () => ({}),
+        mail_types: () => [],
     },
-    mail: {
-        type: Object,
-        default: () => ({}),
-    },
-    // eslint-disable-next-line vue/prop-name-casing
-    mail_types: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // Variables

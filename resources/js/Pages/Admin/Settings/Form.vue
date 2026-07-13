@@ -20,7 +20,7 @@
     </FormLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";

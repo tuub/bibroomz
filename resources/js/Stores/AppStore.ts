@@ -1,18 +1,97 @@
 import { withBaseUrl } from "@/baseUrl";
 
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import "dayjs/locale/de";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+// Only needed so dayjs's `utc()` type augmentation is loaded; the plugin itself
+// is registered by Calendar.ts, which is guaranteed to load before this is used.
+import type {} from "dayjs/plugin/utc";
 import { I18n, getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 dayjs.extend(customParseFormat);
 
+export type Translatable = Partial<Record<string, string>>;
+export type TranslatableValue = string | Translatable;
+
+export interface ResourceGroupSetting {
+    key?: string;
+    value?: string | number | null;
+}
+
+export interface Institution {
+    id?: number | string;
+    title?: Translatable;
+    description?: Translatable;
+    location?: string;
+    slug?: string;
+    home_uri?: string;
+    logo_uri?: string;
+    teaser_uri?: string;
+    resource_groups?: ResourceGroup[];
+    system_notification?: string | null;
+    [key: string]: unknown;
+}
+
+export interface ResourceGroup {
+    id?: number | string;
+    institution_id?: number | string;
+    slug?: string;
+    institution?: Institution;
+    term_singular?: Translatable;
+    title?: Translatable;
+    description?: Translatable;
+    settings?: ResourceGroupSetting[];
+    [key: string]: unknown;
+}
+
+export interface ResourceGroupSettings {
+    quota_happening_block_hours?: number | string;
+    quota_weekly_happenings?: number | string;
+    quota_weekly_hours?: number | string;
+    quota_daily_hours?: number | string;
+    weeks_in_advance?: number | string;
+    time_slot_length?: string;
+    start_time_slot?: string;
+    end_time_slot?: string;
+    is_label_enabled?: number | string;
+    [key: string]: unknown;
+}
+
+export interface Settings {
+    institution?: {
+        system_notification?: string | null;
+    };
+    resource_group?: ResourceGroupSettings;
+    [key: string]: unknown;
+}
+
+export type SystemNotification = {
+    title?: string;
+    message: string;
+};
+
+type AppStoreState = {
+    appName: string;
+    resourceGroup: ResourceGroup | null;
+    settings: Settings | null;
+    hiddenDays: number[] | null;
+    isMultiTenancy: boolean;
+    systemNotifications: SystemNotification[];
+    globalSystemNotification: string | null;
+    locale: string;
+    shortDateFormat: string | null;
+    dateFormat: string | null;
+    timeFormat: string | null;
+    dateTimeFormat: string | null;
+    supportedLocales: string[];
+};
+
 export const useAppStore = defineStore({
     id: "app",
     persist: true,
 
-    state: () => {
+    state: (): AppStoreState => {
         return {
             appName: import.meta.env.VITE_APP_NAME ?? "BibRoomz",
             resourceGroup: null,
@@ -31,14 +110,19 @@ export const useAppStore = defineStore({
     },
 
     actions: {
-        setCurrent(resourceGroup, settings, hiddenDays, isMultiTenancy) {
+        setCurrent(
+            resourceGroup: ResourceGroup | null,
+            settings: Settings | null,
+            hiddenDays: number[] | null,
+            isMultiTenancy: boolean,
+        ) {
             this.resourceGroup = resourceGroup;
             this.settings = settings;
             this.hiddenDays = hiddenDays;
             this.isMultiTenancy = isMultiTenancy;
 
             const message = this.getNotificationMessageFromMappedSettings(settings);
-            const institutionNotifications = message
+            const institutionNotifications: SystemNotification[] = message
                 ? [
                       {
                           title: this.translate(resourceGroup?.institution?.title),
@@ -50,7 +134,7 @@ export const useAppStore = defineStore({
             this.systemNotifications = [...this.globalNotifications, ...institutionNotifications];
         },
 
-        setStartPageContext(appName) {
+        setStartPageContext(appName: string) {
             this.appName = appName;
             this.resourceGroup = null;
             this.settings = null;
@@ -59,12 +143,12 @@ export const useAppStore = defineStore({
             this.systemNotifications = [];
         },
 
-        setGlobalSystemNotification(message) {
+        setGlobalSystemNotification(message: unknown) {
             this.globalSystemNotification = this.normalizeSystemNotificationMessage(message);
         },
 
-        setCurrentLocale(locale) {
-            axios
+        setCurrentLocale(locale: string) {
+            void axios
                 .post(withBaseUrl("/switch-lang"), {
                     locale,
                 })
@@ -74,13 +158,13 @@ export const useAppStore = defineStore({
                     i18n.setOptions({ fallbackLang: locale === "de" ? "en" : "de" });
                     i18n.loadFallbackLanguage();
 
-                    loadLanguageAsync(locale);
+                    void loadLanguageAsync(locale);
                     this.locale = locale;
                     this.setTemporalFormats(locale);
                 });
         },
 
-        setTemporalFormats(locale) {
+        setTemporalFormats(locale: string) {
             switch (locale) {
                 case "en":
                     this.dateFormat = "YYYY/MM/DD";
@@ -94,15 +178,15 @@ export const useAppStore = defineStore({
             }
         },
 
-        formatDate(dateTimeStr, isUTC = false) {
-            let date = this.getDateTimeFromString(dateTimeStr, isUTC);
-            return date.format(this.dateFormat);
+        formatDate(dateTimeStr: dayjs.ConfigType, isUTC = false) {
+            const date = this.getDateTimeFromString(dateTimeStr, isUTC);
+            return date.format(this.dateFormat ?? undefined);
         },
 
-        formatFancyDate(dateTimeStr, isUTC = false) {
-            let date = this.getDateTimeFromString(dateTimeStr, isUTC);
+        formatFancyDate(dateTimeStr: dayjs.ConfigType, isUTC = false) {
+            const date = this.getDateTimeFromString(dateTimeStr, isUTC);
 
-            let months = {
+            const months: Record<string, string[]> = {
                 de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
                 en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             };
@@ -113,24 +197,28 @@ export const useAppStore = defineStore({
             };
         },
 
-        formatTime(dateTimeStr, isUTC = false, dateTimeStrFormat = null) {
-            let time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || null);
-            return time.format(this.timeFormat);
+        formatTime(dateTimeStr: dayjs.ConfigType, isUTC = false, dateTimeStrFormat: string | null = null) {
+            const time = this.getDateTimeFromString(dateTimeStr, isUTC, dateTimeStrFormat || undefined);
+            return time.format(this.timeFormat ?? undefined);
         },
 
-        formatDateTime(datetimeStr, isUTC = false) {
-            let dateTime = this.getDateTimeFromString(datetimeStr, isUTC);
-            return dateTime.format(this.dateTimeFormat);
+        formatDateTime(datetimeStr: dayjs.ConfigType, isUTC = false) {
+            const dateTime = this.getDateTimeFromString(datetimeStr, isUTC);
+            return dateTime.format(this.dateTimeFormat ?? undefined);
         },
 
-        getDateTimeFromString(datetimeStr, isUTC = false, dateTimeStrFormat) {
+        getDateTimeFromString(datetimeStr: dayjs.ConfigType, isUTC = false, dateTimeStrFormat?: string): Dayjs {
             if (isUTC) {
                 return dayjs.utc(datetimeStr, dateTimeStrFormat);
             }
             return dayjs(datetimeStr, dateTimeStrFormat);
         },
 
-        translate(translatable, locale) {
+        translate(translatable: TranslatableValue | undefined, locale?: string): string | undefined {
+            if (typeof translatable === "string") {
+                return translatable;
+            }
+
             if (!translatable) {
                 return;
             }
@@ -150,11 +238,11 @@ export const useAppStore = defineStore({
             return "";
         },
 
-        getNotificationMessageFromMappedSettings(settings) {
+        getNotificationMessageFromMappedSettings(settings: Settings | null) {
             return this.normalizeSystemNotificationMessage(settings?.institution?.system_notification);
         },
 
-        normalizeSystemNotificationMessage(message) {
+        normalizeSystemNotificationMessage(message: unknown): string {
             if (typeof message !== "string") {
                 return "";
             }
@@ -165,7 +253,7 @@ export const useAppStore = defineStore({
 
     getters: {
         institution: (state) => state.resourceGroup?.institution,
-        globalNotifications: (state) =>
+        globalNotifications: (state): SystemNotification[] =>
             state.globalSystemNotification ? [{ message: state.globalSystemNotification }] : [],
     },
 });

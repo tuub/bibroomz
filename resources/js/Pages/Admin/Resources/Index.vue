@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -7,25 +7,28 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminResource, DataTableRef, ResourceGroup } from "@/Types/Admin";
 
+import type { RequestPayload } from "@inertiajs/core";
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
+import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resourceGroup: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        resourceGroup?: ResourceGroup;
+        resources?: AdminResource[];
+    }>(),
+    {
+        resourceGroup: () => ({}),
+        resources: () => [],
     },
-    resources: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -36,10 +39,10 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("route");
+const route = inject<typeof ZiggyRoute>("route");
 const { hasPermission } = authStore;
 const { formatDate, formatTime, translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 const routeParams = {
     resource_group_id: props.resourceGroup.id,
 };
@@ -49,17 +52,17 @@ const filters = ref({
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.resources.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.resources.length;
 });
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const getBusinessHourTime = (datetime) => {
+const getBusinessHourTime = (datetime?: string) => {
     return formatTime(datetime, false, "HH:mm:ss");
 };
 
-const formatBusinessHourDates = (startDate, endDate) => {
+const formatBusinessHourDates = (startDate?: string | null, endDate?: string | null) => {
     let formatString = "";
 
     if (startDate) {
@@ -82,15 +85,15 @@ const formatBusinessHourDates = (startDate, endDate) => {
 };
 
 const isSortedByColumn = () => {
-    return !!indexTable.value.d_sortField;
+    return !!indexTable.value?.d_sortField;
 };
 
-const reorderRows = (event) => {
+const reorderRows = (event: { value: AdminResource[] }) => {
     const resources = event.value;
     for (const [index, resource] of resources.entries()) {
         resource.order = index + 1;
     }
-    router.post(route("admin.resource.order"), resources);
+    router.post(route("admin.resource.order"), resources as unknown as RequestPayload);
 };
 </script>
 
@@ -135,7 +138,7 @@ const reorderRows = (event) => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

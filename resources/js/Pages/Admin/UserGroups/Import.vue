@@ -77,43 +77,41 @@
     </FormLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { UserGroup } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 
 const translate = useAppStore().translate;
 
-function toDateString(date) {
-    return date ? date.toDateString() : date;
+function toDateString(date?: Date | null): string | null {
+    return date ? date.toDateString() : null;
 }
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
+const props = defineProps<{
     // eslint-disable-next-line vue/prop-name-casing
-    user_group: {
-        type: Object,
-        required: true,
-    },
-});
+    user_group: UserGroup;
+}>();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const users = ref("");
 
-const validFromDate = ref();
-const validUntilDate = ref();
+const validFromDate = ref<Date | null>(null);
+const validUntilDate = ref<Date | null>(null);
 
-const validFromText = ref();
+const validFromText = ref("");
 
 const units = computed(() => [
     { value: "days", label: trans("admin.user_groups.import.fields.units.days") },
@@ -126,9 +124,16 @@ const validUntilNumber = ref();
 const validUntilUnit = ref(units.value[0].value);
 
 const form = useForm({
-    id: props.user_group.id,
+    id: props.user_group.id ?? "",
+    users: [] as { name: string }[],
+    valid_from_date: null,
+    valid_until_date: null,
+    valid_from_text: "",
+    valid_until_text: null,
+});
 
-    users: computed(() => [
+watchEffect(() => {
+    form.users = [
         ...new Set(
             users.value
                 .split("\n")
@@ -137,15 +142,23 @@ const form = useForm({
                     name: name.trim(),
                 })),
         ),
-    ]),
+    ];
+});
 
-    valid_from_date: computed(() => toDateString(validFromDate.value)),
-    valid_until_date: computed(() => toDateString(validUntilDate.value)),
+watchEffect(() => {
+    form.valid_from_date = toDateString(validFromDate.value);
+});
 
-    valid_from_text: computed(() => validFromText.value),
-    valid_until_text: computed(() =>
-        validUntilNumber.value ? [validUntilNumber.value, validUntilUnit.value].join(" ") : null,
-    ),
+watchEffect(() => {
+    form.valid_until_date = toDateString(validUntilDate.value);
+});
+
+watchEffect(() => {
+    form.valid_from_text = validFromText.value;
+});
+
+watchEffect(() => {
+    form.valid_until_text = validUntilNumber.value ? [validUntilNumber.value, validUntilUnit.value].join(" ") : null;
 });
 
 const title = computed(() => translate(props.user_group.title));

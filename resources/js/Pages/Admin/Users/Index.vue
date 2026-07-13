@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -6,6 +6,7 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminUser, DataTableRef } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
@@ -14,12 +15,14 @@ import { computed, ref } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    users: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        users?: AdminUser[];
+    }>(),
+    {
+        users: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -32,7 +35,7 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 const { translate } = appStore;
 const { hasPermission } = authStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -41,6 +44,10 @@ const filters = ref({
 const recordsCount = computed(() => {
     return indexTable.value.processedData ? indexTable.value.processedData.length : props.users.length;
 });
+
+const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
+    return userGroups.map((userGroup) => translate(userGroup.title)).join(", ");
+};
 </script>
 
 <template>
@@ -76,7 +83,7 @@ const recordsCount = computed(() => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>
@@ -125,7 +132,7 @@ const recordsCount = computed(() => {
             />
             <Column :header="$t('admin.users.index.table.header.user_groups')">
                 <template #body="slotProps">
-                    {{ slotProps.data.user_groups.map((ug) => translate(ug.title)).join(", ") }}
+                    {{ translateUserGroups(slotProps.data.user_groups) }}
                 </template>
             </Column>
             <Column :header="$t('admin.general.table.actions')">

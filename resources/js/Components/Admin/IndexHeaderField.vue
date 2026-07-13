@@ -19,14 +19,14 @@
                 ref="filterInput"
                 class="rounded p-1 outline-none"
                 :value="filter"
-                @input="$emit('update:filter', $event.target.value)"
+                @input="$emit('update:filter', ($event.target as HTMLInputElement).value)"
                 @keyup.escape="toggleFilter"
             />
         </div>
     </th>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // ------------------------------------------------
 // Imports
 // ------------------------------------------------
@@ -64,13 +64,18 @@ const props = defineProps({
     },
 });
 
-const emits = defineEmits(["sort", "toggle-filter", "update:filter", "update:sort-direction"]);
+const emits = defineEmits<{
+    (event: "sort"): void;
+    (event: "toggle-filter", isVisible: boolean): void;
+    (event: "update:filter", value: string): void;
+    (event: "update:sort-direction", direction: "asc" | "desc"): void;
+}>();
 
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const isFilterVisible = ref(false);
-const filterInput = ref(null);
+const filterInput = ref<HTMLInputElement | null>(null);
 
 // ------------------------------------------------
 // Methods
@@ -87,8 +92,8 @@ function toggleFilter() {
     isFilterVisible.value = !isFilterVisible.value;
 
     if (isFilterVisible.value) {
-        nextTick(() => {
-            filterInput.value.focus();
+        void nextTick(() => {
+            filterInput.value?.focus();
         });
     }
 

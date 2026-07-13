@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import ExternalLink from "@/Shared/Navigation/ExternalLink.vue";
 import InternalLink from "@/Shared/Navigation/InternalLink.vue";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { inject } from "vue";
 
-const route = inject("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute");
 </script>
 <template>
     <footer

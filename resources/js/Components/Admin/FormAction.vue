@@ -15,41 +15,38 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { ZiggyRouteFn } from "@/ziggyRoute";
+
 import { router } from "@inertiajs/vue3";
 import { inject } from "vue";
+
+type FormActionForm = {
+    id?: number | string;
+    processing?: boolean;
+    post: (url: string) => void;
+};
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    form: {
-        type: Object,
-        default: () => null,
+const props = withDefaults(
+    defineProps<{
+        form: FormActionForm;
+        model: string;
+        action?: string | null;
+        routeParams?: Record<string, unknown>;
+        cancelRoute: string;
+        cancelRouteParams?: Record<string, unknown>;
+    }>(),
+    {
+        action: null,
+        routeParams: () => ({}),
+        cancelRouteParams: () => ({}),
     },
-    model: {
-        type: String,
-        default: null,
-    },
-    action: {
-        type: String,
-        default: null,
-    },
-    routeParams: {
-        type: Object,
-        default: () => ({}),
-    },
-    cancelRoute: {
-        type: String,
-        default: null,
-    },
-    cancelRouteParams: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
-const route = inject("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute");
 
 const submitForm = () => {
     const action = props.action ?? (props.form.id ? "update" : "store");

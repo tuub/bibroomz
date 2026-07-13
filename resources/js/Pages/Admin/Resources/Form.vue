@@ -123,7 +123,7 @@
         />
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import BusinessHourField from "@/Components/Admin/BusinessHourField.vue";
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
@@ -131,6 +131,14 @@ import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
+import type {
+    AdminResource,
+    BusinessHour,
+    BusinessHourFieldRemovePayload,
+    BusinessHourFieldUpdatePayload,
+    ResourceGroup,
+    WeekDay,
+} from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import ToggleSwitch from "primevue/toggleswitch";
@@ -138,24 +146,18 @@ import ToggleSwitch from "primevue/toggleswitch";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resourceGroup: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        resourceGroup: ResourceGroup;
+        resource?: AdminResource;
+        weekDays?: WeekDay[];
+        languages: string[];
+    }>(),
+    {
+        resource: () => ({}),
+        weekDays: () => [],
     },
-    resource: {
-        type: Object,
-        default: () => ({}),
-    },
-    weekDays: {
-        type: Array,
-        default: () => [],
-    },
-    languages: {
-        type: Array,
-        required: true,
-    },
-});
+);
 
 // ------------------------------------------------
 // Variables
@@ -182,7 +184,7 @@ const routeParams = {
 // Methods
 // ------------------------------------------------
 const addBusinessHourField = () => {
-    const businessHourField = {
+    const businessHourField: BusinessHour = {
         id: generateUid(),
         resource_id: form.id,
     };
@@ -190,12 +192,27 @@ const addBusinessHourField = () => {
     form.business_hours.push(businessHourField);
 };
 
-const removeBusinessHourField = () => {
-    form.business_hours.splice(-1);
+const removeBusinessHourField = ({ time_slot }: BusinessHourFieldRemovePayload) => {
+    const currentTimeSlotIndex = form.business_hours.findIndex((businessHour) => businessHour.id === time_slot.id);
+    if (currentTimeSlotIndex === -1) {
+        return;
+    }
+
+    form.business_hours.splice(currentTimeSlotIndex, 1);
 };
 
-const updateBusinessHourField = ({ id, start, end, startDate, endDate, checkedWeekDays }) => {
+const updateBusinessHourField = ({
+    id,
+    start,
+    end,
+    startDate,
+    endDate,
+    checkedWeekDays,
+}: BusinessHourFieldUpdatePayload) => {
     const currentTimeSlot = form.business_hours.find((business_hour) => business_hour.id === id);
+    if (!currentTimeSlot) {
+        return;
+    }
 
     currentTimeSlot.start = start;
     currentTimeSlot.end = end;
@@ -210,7 +227,7 @@ const generateUid = () => {
     return Date.now().toString();
 };
 
-const getBusinessHourErrors = (index) => {
+const getBusinessHourErrors = (index: number) => {
     return {
         start: form.errors[`business_hours.${index}.start`],
         end: form.errors[`business_hours.${index}.end`],

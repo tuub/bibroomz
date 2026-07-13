@@ -21,37 +21,23 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import FormLabel from "./FormLabel.vue";
 import FormValidationError from "./FormValidationError.vue";
 
-defineProps({
-    field: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        field: string;
+        fieldKey: string;
+        options: { key: number | string; value: string; label?: string }[];
+        placeholder?: { value: string };
+        error?: string | null;
+    }>(),
+    {
+        placeholder: () => ({ value: "" }),
+        error: null,
     },
-    fieldKey: {
-        type: String,
-        required: true,
-    },
-    options: {
-        type: Array,
-        required: true,
-    },
-    placeholder: {
-        type: Object,
-        default: () => ({
-            value: "",
-        }),
-    },
-    error: {
-        type: String,
-        default: null,
-    },
-});
+);
 
-const model = defineModel({
-    type: String,
-    required: true,
-});
+const model = defineModel<string | number>({ required: true });
 </script>

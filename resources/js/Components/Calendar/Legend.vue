@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { trans } from "laravel-vue-i18n";
 import { computed } from "vue";
 

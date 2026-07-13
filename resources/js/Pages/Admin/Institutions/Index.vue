@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
@@ -7,21 +7,26 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { AdminInstitution, DataTableRef } from "@/Types/Admin";
 
+import type { RequestPayload } from "@inertiajs/core";
 import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
+import type { route as ZiggyRoute } from "ziggy-js";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    institutions: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        institutions?: AdminInstitution[];
+    }>(),
+    {
+        institutions: () => [],
     },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -32,35 +37,35 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("route");
+const route = inject<typeof ZiggyRoute>("route");
 const { hasPermission } = authStore;
 const { translate } = appStore;
-const indexTable = ref({});
+const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 const recordsCount = computed(() => {
-    return indexTable.value.processedData ? indexTable.value.processedData.length : props.institutions.length;
+    return indexTable.value?.processedData ? indexTable.value.processedData.length : props.institutions.length;
 });
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
 const isSortedByColumn = () => {
-    return !!indexTable.value.d_sortField;
+    return !!indexTable.value?.d_sortField;
 };
 
-const reorderRows = (event) => {
+const reorderRows = (event: { value: AdminInstitution[] }) => {
     const institutions = event.value;
     for (const [index, institution] of institutions.entries()) {
         institution.order = index + 1;
     }
-    router.post(route("admin.institution.order"), institutions);
+    router.post(route("admin.institution.order"), institutions as unknown as RequestPayload);
 };
 
-const canAccessSettings = (institutionId) => {
+const canAccessSettings = (institutionId?: number | string) => {
     return hasPermission("view_settings", institutionId) || hasPermission("edit_settings", institutionId);
 };
 </script>
@@ -99,7 +104,7 @@ const canAccessSettings = (institutionId) => {
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
-                    {{ transChoice("admin.general.records_count", recordsCount, { count: recordsCount }) }}
+                    {{ transChoice("admin.general.records_count", recordsCount, { count: String(recordsCount) }) }}
                 </div>
             </template>
             <template #empty>{{ $t("admin.general.table.no_records") }}</template>

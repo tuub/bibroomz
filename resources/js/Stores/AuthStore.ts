@@ -1,8 +1,11 @@
 import { useAppStore } from "@/Stores/AppStore";
+import type { Happening } from "@/Stores/HappeningStore";
 import { useToastStore } from "@/Stores/ToastStore";
+import type { ApiError } from "@/Types/Api";
 import { withBaseUrl } from "@/baseUrl";
 
 import { router } from "@inertiajs/vue3";
+import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { trans } from "laravel-vue-i18n";
@@ -10,11 +13,34 @@ import { defineStore } from "pinia";
 
 dayjs.extend(isoWeek);
 
+type User = {
+    id?: number | string;
+    name?: string;
+};
+
+type Quotas = {
+    daily_hours?: number;
+    weekly_hours?: number;
+    weekly_happenings?: number;
+};
+
+type AuthStoreState = {
+    user: User | null;
+    isAuthenticated: boolean;
+    isAdmin: boolean;
+    permissions: Record<string, string[]>;
+    userHappenings: Happening[];
+    quotas: Quotas;
+    error: ApiError;
+    isProcessingLogin: boolean;
+    allowedResourceGroups: (number | string)[];
+};
+
 export const useAuthStore = defineStore({
     id: "auth",
     persist: true,
 
-    state: () => ({
+    state: (): AuthStoreState => ({
         user: null,
         isAuthenticated: false,
         isAdmin: false,
@@ -54,7 +80,7 @@ export const useAuthStore = defineStore({
             }
         },
 
-        async login(username, password) {
+        async login(username: string, password: string) {
             const toastStore = useToastStore();
 
             // await this.csrf();
@@ -118,7 +144,7 @@ export const useAuthStore = defineStore({
             }
         },
 
-        addUserHappening(happening) {
+        addUserHappening(happening: Happening) {
             const index = this._findUserHappeningIndex(happening.id);
 
             // filter duplicate happenings
@@ -127,17 +153,21 @@ export const useAuthStore = defineStore({
             }
 
             this.userHappenings.push(happening);
-            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+            this.userHappenings.sort((a: Happening, b: Happening) =>
+                String(a.start ?? "").localeCompare(String(b.start ?? "")),
+            );
         },
 
-        updateUserHappening(happening) {
+        updateUserHappening(happening: Happening) {
             const index = this._findUserHappeningIndex(happening.id);
 
             this.userHappenings[index] = happening;
-            this.userHappenings.sort((a, b) => a.start.localeCompare(b.start));
+            this.userHappenings.sort((a: Happening, b: Happening) =>
+                String(a.start ?? "").localeCompare(String(b.start ?? "")),
+            );
         },
 
-        removeUserHappening(happening) {
+        removeUserHappening(happening: Happening) {
             const index = this._findUserHappeningIndex(happening.id);
 
             if (index < 0) {
@@ -147,17 +177,25 @@ export const useAuthStore = defineStore({
             this.userHappenings.splice(index, 1);
         },
 
-        _findUserHappeningIndex(id) {
-            return this.userHappenings.findIndex((x) => x.id === id);
+        _findUserHappeningIndex(id?: number | string) {
+            return this.userHappenings.findIndex((x: Happening) => x.id === id);
         },
 
-        updateUserHappenings({ happening, callback, summary }) {
+        updateUserHappenings({
+            happening,
+            callback,
+            summary,
+        }: {
+            happening: Happening;
+            callback: (happening: Happening) => void;
+            summary?: string;
+        }) {
             const appStore = useAppStore();
             const resourceGroup = appStore.resourceGroup;
             const toastStore = useToastStore();
 
             // filter happenings from other institutions
-            if (happening.resource.resourceGroupId !== resourceGroup.id) {
+            if (happening.resource?.resourceGroupId !== resourceGroup?.id) {
                 return;
             }
 
@@ -171,38 +209,38 @@ export const useAuthStore = defineStore({
                 return;
             }
 
-            const userChannel = `happenings.${this.user.id}`;
+            const userChannel = `happenings.${this.user?.id}`;
 
             Echo.private(userChannel)
-                .listen("HappeningCreatedEvent", (event) => {
+                .listen("HappeningCreatedEvent", (event: { happening: Happening }) => {
                     this.updateUserHappenings({
                         happening: event.happening,
                         callback: this.addUserHappening,
                         summary: trans("toast.happening.event.created"),
                     });
                 })
-                .listen("HappeningUpdatedEvent", (event) => {
+                .listen("HappeningUpdatedEvent", (event: { happening: Happening }) => {
                     this.updateUserHappenings({
                         happening: event.happening,
                         callback: this.updateUserHappening,
                         summary: trans("toast.happening.event.updated"),
                     });
                 })
-                .listen("HappeningDeletedEvent", (event) => {
+                .listen("HappeningDeletedEvent", (event: { happening: Happening }) => {
                     this.updateUserHappenings({
                         happening: event.happening,
                         callback: this.removeUserHappening,
                         summary: trans("toast.happening.event.deleted"),
                     });
                 })
-                .listen("HappeningVerifiedEvent", (event) => {
+                .listen("HappeningVerifiedEvent", (event: { happening: Happening }) => {
                     this.updateUserHappenings({
                         happening: event.happening,
                         callback: this.updateUserHappening,
                         summary: trans("toast.happening.event.verified"),
                     });
                 })
-                .listen("UnverifiedHappeningRemovedBySchedulerEvent", (event) => {
+                .listen("UnverifiedHappeningRemovedBySchedulerEvent", (event: { happening: Happening }) => {
                     this.updateUserHappenings({
                         happening: event.happening,
                         callback: this.removeUserHappening,
@@ -221,12 +259,12 @@ export const useAuthStore = defineStore({
         },
 
         _filteredUserHappenings() {
-            return this.userHappenings.filter((happening) => {
-                if (happening.user_01 === this.user.name) {
+            return this.userHappenings.filter((happening: Happening) => {
+                if (happening.user_01 === this.user?.name) {
                     return true;
                 }
 
-                if (happening.user_02 === this.user.name && happening.isVerified) {
+                if (happening.user_02 === this.user?.name && happening.isVerified) {
                     return true;
                 }
 
@@ -234,27 +272,31 @@ export const useAuthStore = defineStore({
             });
         },
 
-        updateQuotas(currentDate) {
-            currentDate = dayjs(currentDate);
+        updateQuotas(currentDateInput: dayjs.ConfigType) {
+            const currentDate = dayjs(currentDateInput);
 
             const happenings = this._filteredUserHappenings();
 
-            const isSameDay = (date) => currentDate.isSame(date, "day");
-            const isSameWeek = (date) => currentDate.isSame(date, "isoWeek");
+            const isSameDay = (date?: string) => currentDate.isSame(date, "day");
+            const isSameWeek = (date?: string) => currentDate.isSame(date, "isoWeek");
 
-            const happeningHoursSum = (hours, happening) =>
+            const happeningHoursSum = (hours: number, happening: Happening) =>
                 hours + dayjs(happening.end).diff(happening.start, "hours", true);
 
-            const sameDayHappenings = happenings.filter((happening) => isSameDay(happening.start));
-            const sameWeekHappenings = happenings.filter((happening) => isSameWeek(happening.start));
+            const sameDayHappenings = happenings.filter((happening: Happening) =>
+                isSameDay(String(happening.start ?? "")),
+            );
+            const sameWeekHappenings = happenings.filter((happening: Happening) =>
+                isSameWeek(String(happening.start ?? "")),
+            );
 
             this.quotas.daily_hours = sameDayHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_hours = sameWeekHappenings.reduce(happeningHoursSum, 0);
             this.quotas.weekly_happenings = sameWeekHappenings.length;
         },
 
-        isOverlappingUserHappening(start, end) {
-            return this._filteredUserHappenings().some((happening) => {
+        isOverlappingUserHappening(start: Dayjs, end: Dayjs) {
+            return this._filteredUserHappenings().some((happening: Happening) => {
                 const happeningStart = dayjs(happening.start);
                 const happeningEnd = dayjs(happening.end);
 
@@ -270,14 +312,14 @@ export const useAuthStore = defineStore({
             });
         },
 
-        isExceedingQuotas(start, end) {
+        isExceedingQuotas(start: Dayjs, end: Dayjs) {
             const toastStore = useToastStore();
-            const settings = useAppStore().settings["resource_group"];
+            const settings = useAppStore().settings?.resource_group;
 
-            const quota_happening_block_hours = settings.quota_happening_block_hours;
-            const quota_weekly_happenings = settings.quota_weekly_happenings;
-            const quota_weekly_hours = settings.quota_weekly_hours;
-            const quota_daily_hours = settings.quota_daily_hours;
+            const quota_happening_block_hours = Number(settings?.quota_happening_block_hours ?? 0);
+            const quota_weekly_happenings = Number(settings?.quota_weekly_happenings ?? 0);
+            const quota_weekly_hours = Number(settings?.quota_weekly_hours ?? 0);
+            const quota_daily_hours = Number(settings?.quota_daily_hours ?? 0);
 
             if (this.can("unlimited_quotas")) {
                 return false;
@@ -294,7 +336,7 @@ export const useAuthStore = defineStore({
             const happening_block_hours = selectLength;
             if (quota_happening_block_hours > 0 && happening_block_hours > quota_happening_block_hours) {
                 const summary = trans("toast.quota.happening_block_hours", {
-                    limit: quota_happening_block_hours,
+                    limit: String(quota_happening_block_hours),
                 });
 
                 toastStore.addQuotaToast({ summary });
@@ -302,13 +344,13 @@ export const useAuthStore = defineStore({
                 return true;
             }
 
-            const weekly_happenings = this.quotas.weekly_happenings + 1;
+            const weekly_happenings = (this.quotas.weekly_happenings ?? 0) + 1;
             if (quota_weekly_happenings > 0 && weekly_happenings > quota_weekly_happenings) {
-                const remaining = quota_weekly_happenings - this.quotas.weekly_happenings;
+                const remaining = quota_weekly_happenings - (this.quotas.weekly_happenings ?? 0);
 
                 const summary = trans("toast.quota.weekly_happenings", {
-                    remaining,
-                    limit: quota_weekly_happenings,
+                    remaining: String(remaining),
+                    limit: String(quota_weekly_happenings),
                 });
 
                 toastStore.addQuotaToast({ summary });
@@ -316,13 +358,13 @@ export const useAuthStore = defineStore({
                 return true;
             }
 
-            const weekly_hours = this.quotas.weekly_hours + selectLength;
+            const weekly_hours = (this.quotas.weekly_hours ?? 0) + selectLength;
             if (quota_weekly_hours > 0 && weekly_hours > quota_weekly_hours) {
-                const remaining = quota_weekly_hours - this.quotas.weekly_hours;
+                const remaining = quota_weekly_hours - (this.quotas.weekly_hours ?? 0);
 
                 const summary = trans("toast.quota.weekly_hours", {
-                    remaining,
-                    limit: quota_weekly_hours,
+                    remaining: String(remaining),
+                    limit: String(quota_weekly_hours),
                 });
 
                 toastStore.addQuotaToast({ summary });
@@ -330,13 +372,13 @@ export const useAuthStore = defineStore({
                 return true;
             }
 
-            const daily_hours = this.quotas.daily_hours + selectLength;
+            const daily_hours = (this.quotas.daily_hours ?? 0) + selectLength;
             if (quota_daily_hours > 0 && daily_hours > quota_daily_hours) {
-                const remaining = quota_daily_hours - this.quotas.daily_hours;
+                const remaining = quota_daily_hours - (this.quotas.daily_hours ?? 0);
 
                 const summary = trans("toast.quota.daily_hours", {
-                    remaining,
-                    limit: quota_daily_hours,
+                    remaining: String(remaining),
+                    limit: String(quota_daily_hours),
                 });
 
                 toastStore.addQuotaToast({ summary });
@@ -347,14 +389,14 @@ export const useAuthStore = defineStore({
             return false;
         },
 
-        can(ability) {
+        can(ability: string) {
             const appStore = useAppStore();
             const institution = appStore.institution;
 
-            return this.hasPermission(ability, institution.id);
+            return this.hasPermission(ability, institution?.id);
         },
 
-        hasPermission(name, institution) {
+        hasPermission(name: string, institution?: string | number) {
             if (this.isAdmin) {
                 return true;
             }
@@ -367,14 +409,17 @@ export const useAuthStore = defineStore({
                 }
             }
 
-            if (this.permissions[institution]?.includes(name)) {
+            if (this.permissions[institution as string]?.includes(name)) {
                 return true;
             }
 
             return false;
         },
 
-        isAllowedForResource(resource) {
+        isAllowedForResource(resource: {
+            resourceGroup?: number | string;
+            translations?: { resourceGroup?: Record<string, string>; title?: Record<string, string> };
+        }) {
             const isAllowed = this.allowedResourceGroups.includes(resource.resourceGroup);
 
             if (!isAllowed) {
@@ -383,8 +428,8 @@ export const useAuthStore = defineStore({
                 const translate = appStore.translate;
 
                 const summary = trans("toast.wrong_user_group", {
-                    resource_type: translate(resource.translations.resourceGroup),
-                    resource_title: translate(resource.translations.title),
+                    resource_type: translate(resource.translations?.resourceGroup) ?? "",
+                    resource_title: translate(resource.translations?.title) ?? "",
                 });
 
                 toastStore.addUserGroupToast({ summary });

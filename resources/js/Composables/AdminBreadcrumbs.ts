@@ -4,11 +4,55 @@ import { usePage } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject } from "vue";
 
-function pushInstitutionsRoot(ctx) {
+export type BreadcrumbItem = {
+    label: string;
+    url: string | null;
+};
+
+type Translatable = Partial<Record<string, string>>;
+
+type WithTitle = {
+    id?: number | string;
+    title?: Translatable;
+};
+
+type BreadcrumbProps = {
+    happening?: { label?: Translatable };
+    institution?: WithTitle;
+    resource_group?: WithTitle & { institution?: WithTitle };
+    resourceGroup?: WithTitle & { institution?: WithTitle };
+    resource?: WithTitle;
+    closable?: WithTitle;
+    closable_type?: string;
+    institution_id?: number | string;
+    settingable?: WithTitle;
+    settingable_type?: string;
+    setting?: { key?: string };
+    mail?: { mail_type?: { key?: string } };
+    user_group?: WithTitle;
+    user?: { name?: string };
+    role?: { name?: Translatable };
+    route?: string;
+};
+
+type RouteFn = (name: string, params?: Record<string, unknown>) => string | null;
+
+type BreadcrumbContext = {
+    props: BreadcrumbProps;
+    push: (label?: string | null, url?: string | null) => void;
+    t: (key: string) => string;
+    translate: (value?: Translatable) => string | undefined;
+    route: RouteFn;
+    isCreate?: boolean;
+    isEdit?: boolean;
+    routeName?: string;
+};
+
+function pushInstitutionsRoot(ctx: BreadcrumbContext) {
     ctx.push(ctx.t("institutions"), ctx.route("admin.institution.index"));
 }
 
-function pushInstitution(ctx, institution) {
+function pushInstitution(ctx: BreadcrumbContext, institution?: WithTitle) {
     if (!institution) return;
     ctx.push(
         ctx.translate(institution.title),
@@ -16,7 +60,7 @@ function pushInstitution(ctx, institution) {
     );
 }
 
-function pushResourceGroup(ctx, resourceGroup) {
+function pushResourceGroup(ctx: BreadcrumbContext, resourceGroup?: WithTitle) {
     if (!resourceGroup) return;
     ctx.push(
         ctx.translate(resourceGroup.title),
@@ -24,19 +68,19 @@ function pushResourceGroup(ctx, resourceGroup) {
     );
 }
 
-function buildHappeningCrumbs({ props, push, t, translate, route, isCreate, isEdit }) {
+function buildHappeningCrumbs({ props, push, t, translate, route, isCreate, isEdit }: BreadcrumbContext) {
     push(t("happenings"), route("admin.happening.index"));
     if (isCreate) push(t("create"));
     if (isEdit) push(translate(props.happening?.label) || t("edit"));
 }
 
-function buildInstitutionCrumbs({ props, push, t, translate, route, isCreate, isEdit }) {
+function buildInstitutionCrumbs({ props, push, t, translate, route, isCreate, isEdit }: BreadcrumbContext) {
     push(t("institutions"), route("admin.institution.index"));
     if (isCreate) push(t("create"));
     if (isEdit) push(translate(props.institution?.title) || t("edit"));
 }
 
-function buildResourceGroupCrumbs(ctx) {
+function buildResourceGroupCrumbs(ctx: BreadcrumbContext) {
     const { props, push, t, translate, route, isCreate, isEdit } = ctx;
     const institution = props.institution ?? props.resource_group?.institution;
 
@@ -50,7 +94,7 @@ function buildResourceGroupCrumbs(ctx) {
     if (isEdit) push(translate(props.resource_group?.title) || t("edit"));
 }
 
-function buildResourceCrumbs(ctx) {
+function buildResourceCrumbs(ctx: BreadcrumbContext) {
     const { props, push, t, translate, route, isCreate, isEdit } = ctx;
     const resourceGroup = props.resourceGroup;
     const institution = resourceGroup?.institution;
@@ -63,7 +107,7 @@ function buildResourceCrumbs(ctx) {
     if (isEdit) push(translate(props.resource?.title) || t("edit"));
 }
 
-function buildClosingCrumbs(ctx) {
+function buildClosingCrumbs(ctx: BreadcrumbContext) {
     const { props, push, t, translate, route, isCreate, isEdit } = ctx;
     const closable = props.closable;
     const closableType = props.closable_type;
@@ -94,7 +138,7 @@ function buildClosingCrumbs(ctx) {
     if (isEdit) push(t("edit"));
 }
 
-function buildSettingCrumbs(ctx) {
+function buildSettingCrumbs(ctx: BreadcrumbContext) {
     const { props, push, t, translate, route, isEdit } = ctx;
     const settingable = props.settingable;
     const settingableType = props.settingable_type;
@@ -117,12 +161,12 @@ function buildSettingCrumbs(ctx) {
     if (isEdit) push(trans(`admin.settings.keys.${props.setting?.key}.label`));
 }
 
-function buildAppSettingCrumbs({ push, t, route, isEdit }) {
+function buildAppSettingCrumbs({ push, t, route, isEdit }: BreadcrumbContext) {
     push(t("app_settings"), route("admin.app_setting.index"));
     if (isEdit) push(t("edit"));
 }
 
-function buildMailCrumbs({ props, push, t, translate, route, isCreate, isEdit }) {
+function buildMailCrumbs({ props, push, t, translate, route, isCreate, isEdit }: BreadcrumbContext) {
     const institution = props.institution;
     const institutionId = props.institution_id ?? institution?.id;
 
@@ -138,7 +182,7 @@ function buildMailCrumbs({ props, push, t, translate, route, isCreate, isEdit })
     }
 }
 
-function buildUserGroupCrumbs({ props, routeName, push, t, translate, route }) {
+function buildUserGroupCrumbs({ props, routeName, push, t, translate, route }: BreadcrumbContext) {
     const userGroup = props.user_group;
 
     push(t("user_groups"), route("admin.user_group.index"));
@@ -155,19 +199,19 @@ function buildUserGroupCrumbs({ props, routeName, push, t, translate, route }) {
     }
 }
 
-function buildUserCrumbs({ props, push, t, route, isCreate, isEdit }) {
+function buildUserCrumbs({ props, push, t, route, isCreate, isEdit }: BreadcrumbContext) {
     push(t("users"), route("admin.user.index"));
     if (isCreate) push(t("create"));
     if (isEdit) push(props.user?.name || t("edit"));
 }
 
-function buildRoleCrumbs({ props, push, t, translate, route, isCreate, isEdit }) {
+function buildRoleCrumbs({ props, push, t, translate, route, isCreate, isEdit }: BreadcrumbContext) {
     push(t("roles"), route("admin.role.index"));
     if (isCreate) push(t("create"));
     if (isEdit) push(translate(props.role?.name) || t("edit"));
 }
 
-const breadcrumbSections = [
+const breadcrumbSections: { prefix: string; build: (ctx: BreadcrumbContext) => void }[] = [
     { prefix: "admin.happening.", build: buildHappeningCrumbs },
     { prefix: "admin.institution.", build: buildInstitutionCrumbs },
     { prefix: "admin.resource_group.", build: buildResourceGroupCrumbs },
@@ -182,27 +226,27 @@ const breadcrumbSections = [
 ];
 
 export function useAdminBreadcrumbs() {
-    const route = inject("ziggyRoute");
+    const route = inject<RouteFn>("ziggyRoute");
     const page = usePage();
     const appStore = useAppStore();
 
-    const t = (key) => trans(`admin.breadcrumbs.${key}`);
-    const translate = (value) => appStore.translate(value);
+    const t = (key: string) => trans(`admin.breadcrumbs.${key}`);
+    const translate = (value?: Translatable) => appStore.translate(value);
 
-    const items = computed(() => {
-        const props = page.props;
+    const items = computed<BreadcrumbItem[]>(() => {
+        const props = page.props as BreadcrumbProps;
         const routeName = props.route;
 
         if (typeof routeName !== "string" || !routeName.startsWith("admin.")) {
             return [];
         }
 
-        const crumbs = [];
-        const push = (label, url = null) => {
+        const crumbs: BreadcrumbItem[] = [];
+        const push = (label?: string | null, url: string | null = null) => {
             if (label) crumbs.push({ label, url });
         };
 
-        push(t("dashboard"), route("admin.dashboard"));
+        push(t("dashboard"), route?.("admin.dashboard") ?? null);
 
         const section = breadcrumbSections.find(({ prefix }) => routeName.startsWith(prefix));
         section?.build({
@@ -211,7 +255,7 @@ export function useAdminBreadcrumbs() {
             push,
             t,
             translate,
-            route,
+            route: (name, params) => route?.(name, params) ?? null,
             isCreate: routeName.endsWith(".create"),
             isEdit: routeName.endsWith(".edit"),
         });
@@ -225,7 +269,7 @@ export function useAdminBreadcrumbs() {
 
     const home = computed(() => ({
         icon: "pi pi-home",
-        url: route("start"),
+        url: route?.("start"),
     }));
 
     return { items, home };

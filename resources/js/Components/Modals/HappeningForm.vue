@@ -88,7 +88,7 @@
                     :language="locale"
                 ></FormLabel>
                 <input
-                    id="`label-${locale}`"
+                    :id="`label-${locale}`"
                     v-model="happening.label[locale]"
                     type="text"
                     name="label"
@@ -100,37 +100,63 @@
             </div>
         </div>
 
-        <ModalAlert v-if="errorMessage" :error="errorMessage" @close="error = null" />
+        <ModalAlert v-if="errorMessage" :error="errorMessage" @close="clearError" />
     </form>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ModalAlert from "@/Components/Modals/ModalAlert.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import Spinner from "@/Shared/Spinner.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import { useHappeningStore } from "@/Stores/HappeningStore";
+import { type Happening, type HappeningResource, useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 import { withBaseUrl } from "@/baseUrl";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { storeToRefs } from "pinia";
 import { computed, inject, onBeforeMount, reactive, ref } from "vue";
 
-// ------------------------------------------------
-// Props
-// ------------------------------------------------
-const props = defineProps({
-    happening: {
-        type: Object,
-        default: () => ({}),
+type TimeSlot = {
+    time: string;
+    label: string;
+    is_selected?: boolean;
+    is_disabled?: boolean;
+};
+
+type FormUser = {
+    id: number | string;
+    name: string;
+};
+
+type HappeningFormPayload = Happening & {
+    resource: HappeningResource;
+    label: Record<string, string>;
+    verifier?: string;
+};
+
+const props = withDefaults(
+    defineProps<{
+        happening?: HappeningFormPayload;
+    }>(),
+    {
+        happening: () => ({
+            resource: {},
+            start: "",
+            end: "",
+            label: {},
+        }),
     },
-});
+);
 
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits(["update-happening", "submit"]);
+defineEmits<{
+    (event: "update-happening", payload: HappeningFormPayload): void;
+    (event: "submit"): void;
+}>();
 
 // ------------------------------------------------
 // Stores
@@ -143,31 +169,49 @@ const modal = useModal();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const route = inject("ziggyRoute");
-const happening = reactive(props.happening);
+const route = inject<ZiggyRouteFn>("ziggyRoute");
+const happening = reactive<HappeningFormPayload>({
+    ...props.happening,
+    resource: props.happening.resource ?? {},
+    label:
+        typeof props.happening.label === "object" &&
+        props.happening.label !== null &&
+        !Array.isArray(props.happening.label)
+            ? { ...props.happening.label }
+            : {},
+});
 
 const error = storeToRefs(happeningStore).error;
 const errorMessage = computed(() => error.value?.data?.message);
 
-const institutionSlug = appStore.institution.slug;
-const resourceGroupSlug = appStore.resourceGroup.slug;
-const isLabelEnabled = appStore.settings["resource_group"]["is_label_enabled"] == 1;
+const institutionSlug = appStore.institution?.slug ?? "";
+const resourceGroupSlug = appStore.resourceGroup?.slug ?? "";
+const isLabelEnabled = Number(appStore.settings?.resource_group?.["is_label_enabled"] ?? 0) === 1;
 
 const isInitial = ref(true);
 const isLoading = ref(false);
 
-const start_time_slots = ref({});
-const end_time_slots = ref({});
-const start_time_slot_selected = ref({});
-const end_time_slot_selected = ref({});
+const start_time_slots = ref<TimeSlot[]>([]);
+const end_time_slots = ref<TimeSlot[]>([]);
+const start_time_slot_selected = ref(typeof happening.start === "string" ? happening.start : "");
+const end_time_slot_selected = ref(typeof happening.end === "string" ? happening.end : "");
 
-const formUsers = ref([]);
+const formUsers = ref<FormUser[]>([]);
 const isAdminCreateMode = computed(() => authStore.isAdmin && !happening.id);
 
 // ------------------------------------------------
 // Methods
 // ------------------------------------------------
-const getTimeSlotValues = async (resource_id, start, end, event) => {
+const getTimeSlotValues = async (
+    resource_id: number | string | undefined,
+    start: Happening["start"],
+    end: Happening["end"],
+    event: Event | null,
+) => {
+    if (!resource_id) {
+        return;
+    }
+
     if (!isInitial.value && event === null) {
         return;
     }
@@ -181,21 +225,20 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
             id: resource_id,
         });
 
-        const response = await axios.post(url, {
+        const response = await axios.post<{ start: TimeSlot[]; end: TimeSlot[] }>(url, {
             happening_id: happening?.id,
-            start: start,
-            end: end,
-            event: event,
+            start,
+            end,
+            event,
         });
 
-        start_time_slots.value = response.data["start"];
+        start_time_slots.value = response.data.start ?? [];
         start_time_slot_selected.value =
-            start_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ??
-            start_time_slot_selected.value;
+            start_time_slots.value.find((time_slot) => time_slot.is_selected)?.time ?? start_time_slot_selected.value;
 
-        end_time_slots.value = response.data["end"];
+        end_time_slots.value = response.data.end ?? [];
         end_time_slot_selected.value =
-            end_time_slots.value?.filter((time_slot) => time_slot.is_selected)[0]?.time ?? end_time_slot_selected.value;
+            end_time_slots.value.find((time_slot) => time_slot.is_selected)?.time ?? end_time_slot_selected.value;
 
         isLoading.value = false;
         isInitial.value = false;
@@ -203,32 +246,36 @@ const getTimeSlotValues = async (resource_id, start, end, event) => {
         console.log(error);
 
         modal.close();
-        authStore.check();
+        void authStore.check();
     }
 };
 
 const initTimeSlots = () => {
     if (happening.resource.id) {
-        getTimeSlotValues(happening.resource.id, happening.start, happening.end, null);
+        void getTimeSlotValues(happening.resource.id, happening.start, happening.end, null);
     }
 };
 
-const syncTimeSlotValues = ($event, start_selected, end_selected) => {
-    getTimeSlotValues(happening.resource.id, start_selected, end_selected, $event);
+const syncTimeSlotValues = (event: Event, start_selected: string, end_selected: string) => {
+    void getTimeSlotValues(happening.resource.id, start_selected, end_selected, event);
 
-    happening.start = start_time_slot_selected;
-    happening.end = end_time_slot_selected;
+    happening.start = start_selected;
+    happening.end = end_selected;
 };
 
 const can = authStore.can;
 
 const fetchFormUsers = async () => {
     try {
-        const response = await axios.get(withBaseUrl("/api/admin/user/users"));
+        const response = await axios.get<FormUser[]>(withBaseUrl("/api/admin/user/users"));
         formUsers.value = response.data;
     } catch {
         // ignore — selector stays empty
     }
+};
+
+const clearError = () => {
+    happeningStore.error = null;
 };
 
 // ------------------------------------------------
@@ -237,7 +284,7 @@ const fetchFormUsers = async () => {
 onBeforeMount(() => {
     initTimeSlots();
     if (isAdminCreateMode.value) {
-        fetchFormUsers();
+        void fetchFormUsers();
     }
 });
 </script>

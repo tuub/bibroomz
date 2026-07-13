@@ -16,7 +16,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
 
 import { Link } from "@inertiajs/vue3";
@@ -32,12 +32,12 @@ const locales = {
 
 const { locale: activeLocale } = storeToRefs(appStore);
 
-const switchLocale = (code) => {
+const switchLocale = (code: keyof typeof locales) => {
     appStore.setCurrentLocale(code);
 };
 
 onBeforeMount(() => {
-    switchLocale(activeLocale.value);
+    switchLocale(activeLocale.value as keyof typeof locales);
 });
 </script>
 

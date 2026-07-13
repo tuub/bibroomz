@@ -28,7 +28,7 @@
     </Dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useModal } from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";

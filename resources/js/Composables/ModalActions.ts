@@ -4,36 +4,55 @@ import ResourceGroupInfoModal from "@/Components/Modals/ResourceGroupInfoModal.v
 import ResourceInfoModal from "@/Components/Modals/ResourceInfoModal.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { Happening } from "@/Stores/HappeningStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
+import type { ModalAction } from "@/Stores/Modal";
 import useModal from "@/Stores/Modal";
+import type { ApiError } from "@/Types/Api";
 
 import { trans } from "laravel-vue-i18n";
 
-function happeningCallback(callback) {
+type Translatable = Record<string, string>;
+
+function getApiError(error: unknown): ApiError {
+    if (typeof error === "object" && error !== null && "response" in error) {
+        return (error as { response?: ApiError }).response ?? null;
+    }
+
+    return null;
+}
+
+function happeningCallback(callback: (happening: Happening) => Promise<unknown>) {
     const modal = useModal();
     const happeningStore = useHappeningStore();
 
     happeningStore.error = null;
 
-    return async (happening) => {
+    return async (happening: Happening) => {
         happeningStore.error = null;
 
         try {
             await callback(happening);
             modal.close();
         } catch (error) {
-            happeningStore.error = error.response;
+            happeningStore.error = getApiError(error);
         }
     };
 }
 
-function callLogin({ loginCallback, happeningModalCallback }) {
+function callLogin({
+    loginCallback,
+    happeningModalCallback,
+}: {
+    loginCallback: (credentials: { username: string; password: string }) => Promise<unknown>;
+    happeningModalCallback?: () => void;
+}) {
     const modal = useModal();
     const authStore = useAuthStore();
 
     authStore.error = null;
 
-    return async ({ username, password }) => {
+    return async ({ username, password }: { username: string; password: string }) => {
         if (authStore.isProcessingLogin) {
             return;
         }
@@ -50,18 +69,30 @@ function callLogin({ loginCallback, happeningModalCallback }) {
                 happeningModalCallback();
             }
         } catch (error) {
-            authStore.error = error.response;
+            authStore.error = getApiError(error);
         }
 
         authStore.isProcessingLogin = false;
     };
 }
 
-export function useHappeningModal({ happening, can = happening.can, title, description, editable = false }) {
+export function useHappeningModal({
+    happening,
+    can = happening.can,
+    title,
+    description,
+    editable = false,
+}: {
+    happening: Happening;
+    can?: Happening["can"];
+    title?: string;
+    description?: string;
+    editable?: boolean;
+}) {
     const modal = useModal();
     const happeningStore = useHappeningStore();
 
-    const actions = [];
+    const actions: ModalAction[] = [];
 
     if (can) {
         if (can.verify && editable) {
@@ -107,7 +138,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
         actions.push({
             label: trans("modal.info.action.ok"),
             testId: "modal-action-ok",
-            callback: () => {
+            callback: async () => {
                 modal.close();
             },
         });
@@ -124,7 +155,7 @@ export function useHappeningModal({ happening, can = happening.can, title, descr
     };
 }
 
-export function useHappeningCreateModal(happening) {
+export function useHappeningCreateModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.create.title"),
@@ -133,7 +164,7 @@ export function useHappeningCreateModal(happening) {
     });
 }
 
-export function useHappeningVerifyModal(happening) {
+export function useHappeningVerifyModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.verify.title"),
@@ -142,7 +173,7 @@ export function useHappeningVerifyModal(happening) {
     });
 }
 
-export function useHappeningEditModal(happening) {
+export function useHappeningEditModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.edit.title"),
@@ -151,7 +182,7 @@ export function useHappeningEditModal(happening) {
     });
 }
 
-export function useHappeningDeleteModal(happening) {
+export function useHappeningDeleteModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.delete.title"),
@@ -160,7 +191,7 @@ export function useHappeningDeleteModal(happening) {
     });
 }
 
-export function useHappeningInfoModal(happening) {
+export function useHappeningInfoModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.info.title"),
@@ -169,7 +200,7 @@ export function useHappeningInfoModal(happening) {
     });
 }
 
-export function useResourceGroupInfoModal(resourceGroup) {
+export function useResourceGroupInfoModal(resourceGroup: { title?: Translatable; description?: Translatable }) {
     const modal = useModal();
     const appStore = useAppStore();
     const translate = appStore.translate;
@@ -185,7 +216,7 @@ export function useResourceGroupInfoModal(resourceGroup) {
             {
                 label: trans("modal.resource_group_info.action.ok"),
                 testId: "modal-action-resource-group-info-ok",
-                callback: () => {
+                callback: async () => {
                     modal.close();
                 },
             },
@@ -193,7 +224,14 @@ export function useResourceGroupInfoModal(resourceGroup) {
     };
 }
 
-export function useResourceInfoModal(resource) {
+export function useResourceInfoModal(resource: {
+    title?: string;
+    description?: string;
+    location?: string;
+    resourceGroup?: string;
+    location_uri?: string;
+    capacity?: number;
+}) {
     const modal = useModal();
     const appStore = useAppStore();
     const translate = appStore.translate;
@@ -202,8 +240,8 @@ export function useResourceInfoModal(resource) {
         view: ResourceInfoModal,
         content: {
             title: trans("modal.resource_info.title", {
-                resource_group: translate(appStore.resourceGroup.term_singular),
-                resource_title: resource.title,
+                resource_group: translate(appStore.resourceGroup?.term_singular) ?? "",
+                resource_title: resource.title ?? "",
             }),
         },
         payload: { resource },
@@ -211,7 +249,7 @@ export function useResourceInfoModal(resource) {
             {
                 label: trans("modal.resource_info.action.ok"),
                 testId: "modal-action-resource-info-ok",
-                callback: () => {
+                callback: async () => {
                     modal.close();
                 },
             },
@@ -219,7 +257,7 @@ export function useResourceInfoModal(resource) {
     };
 }
 
-export function useLoginModal(happeningModalCallback) {
+export function useLoginModal(happeningModalCallback?: () => void) {
     const authStore = useAuthStore();
     return {
         view: LoginModal,

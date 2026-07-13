@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import NavigationBar from "@/Shared/Navigation/NavigationBar.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { Head } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { inject, ref } from "vue";
 
-const route = inject("ziggyRoute");
+const route = inject<ZiggyRouteFn>("ziggyRoute");
 const appStore = useAppStore();
 const authStore = useAuthStore();
 

@@ -90,7 +90,7 @@
                     :option-value="(role) => role.id"
                     :show-toggle-all="false"
                     :max-selected-labels="2"
-                    :invalid="form.errors.roles"
+                    :invalid="!!form.errors.roles"
                     display="chip"
                 />
             </div>
@@ -101,48 +101,41 @@
         <FormAction :form="form" model="user" cancel-route="admin.user.index"></FormAction>
     </FormLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminInstitution, AdminUser, Role } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import MultiSelect from "primevue/multiselect";
 import ToggleSwitch from "primevue/toggleswitch";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    user: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        user?: AdminUser;
+        institutions?: AdminInstitution[];
+        roles?: Role[];
+        // eslint-disable-next-line vue/prop-name-casing
+        is_system_user?: boolean;
+        // eslint-disable-next-line vue/prop-name-casing
+        is_set_password?: boolean;
+    }>(),
+    {
+        user: () => ({}),
+        institutions: () => [],
+        roles: () => [],
+        is_system_user: false,
+        is_set_password: false,
     },
-    institutions: {
-        type: Array,
-        default: () => [],
-    },
-    roles: {
-        type: Array,
-        default: () => [],
-    },
-
-    // eslint-disable-next-line vue/prop-name-casing
-    is_system_user: {
-        type: Boolean,
-        default: false,
-    },
-
-    // eslint-disable-next-line vue/prop-name-casing
-    is_set_password: {
-        type: Boolean,
-        default: false,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -154,13 +147,20 @@ const appStore = useAppStore();
 // ------------------------------------------------
 const translate = appStore.translate;
 
-let selectedRoles = ref({});
+const selectedRoles = ref<Record<string, (number | string)[]>>({});
 if (props.user.roles) {
     for (const { institution_id, role_id } of props.user.roles) {
-        let institutionRoles = selectedRoles.value[institution_id] ?? [];
+        const institutionRoles = selectedRoles.value[institution_id] ?? [];
         institutionRoles.push(role_id);
         selectedRoles.value[institution_id] = institutionRoles;
     }
+}
+
+function rolesFromSelected(): { institution_id: string; role_id: (number | string)[] }[] {
+    return Object.keys(selectedRoles.value).map((institutionId) => ({
+        institution_id: institutionId,
+        role_id: selectedRoles.value[institutionId],
+    }));
 }
 
 const form = useForm({
@@ -174,14 +174,16 @@ const form = useForm({
     password: props.user.password ?? "",
     password_confirm: props.user.password_confirm ?? "",
     banned_at: props.user.banned_at ?? "",
-    roles: computed(() => {
-        let roles = [];
-        for (const institutionId of Object.keys(selectedRoles.value)) {
-            roles.push({ institution_id: institutionId, role_id: selectedRoles.value[institutionId] });
-        }
-        return roles;
-    }),
+    roles: rolesFromSelected(),
 });
+
+watch(
+    selectedRoles,
+    () => {
+        form.roles = rolesFromSelected();
+    },
+    { deep: true },
+);
 
 // ------------------------------------------------
 // Computed
@@ -209,8 +211,10 @@ const togglePassword = () => {
     const passwordElementIds = ["current_password", "password", "password_confirm"];
 
     for (const elementId of passwordElementIds) {
-        const passwordElement = document.getElementById(elementId);
-        passwordElement.type = passwordElement.type === "password" ? "text" : "password";
+        const passwordElement = document.getElementById(elementId) as HTMLInputElement | null;
+        if (passwordElement) {
+            passwordElement.type = passwordElement.type === "password" ? "text" : "password";
+        }
     }
 };
 </script>
