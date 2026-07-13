@@ -27,5 +27,5 @@
 <body class="bg-gray-100 dark:bg-gray-900">
     @inertia
 </body>
-@vite('resources/js/app.js')
+@vite('resources/js/app.ts')
 </html>

@@ -3,7 +3,7 @@ const runtimeBaseUrl =
 
 export const baseUrl = runtimeBaseUrl.replace(/\/$/, "");
 
-export function withBaseUrl(path = "") {
+export function withBaseUrl(path = ""): string {
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
     return `${baseUrl}${normalizedPath}`;

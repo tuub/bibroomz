@@ -1,9 +1,9 @@
 import { useTheme } from "@/Composables/Theme";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
-
-import "./bootstrap";
-import { Ziggy } from "./ziggy";
+import "@/bootstrap";
+import { stripEmpty } from "@/stripEmpty";
+import { Ziggy } from "@/ziggy";
 
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
 //import { definePreset } from "@primevue/themes";
@@ -19,34 +19,27 @@ import StyleClass from "primevue/styleclass";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import "remixicon/fonts/remixicon.css";
+import type { DefineComponent } from "vue";
 import { createApp, h } from "vue";
+import type { Config } from "ziggy-js";
 import { ZiggyVue, route } from "ziggy-js";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
-function stripEmpty(obj) {
-    if (typeof obj !== "object" || obj === null) return obj;
-    const out = {};
-    for (const [k, v] of Object.entries(obj)) {
-        if (typeof v === "object" && v !== null) {
-            const nested = stripEmpty(v);
-            if (Object.keys(nested).length > 0) out[k] = nested;
-        } else if (v !== "") {
-            out[k] = v;
-        }
-    }
-    return out;
-}
-
 createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
-    resolve: async (name) => {
-        const page = await resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob("./Pages/**/*.vue"));
+    // Cast needed because @inertiajs/vue3's ComponentResolver type doesn't account for
+    // async resolvers returning the Vite module namespace object ({ default: Component }).
+    resolve: (async (name: string) => {
+        const page = await resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob<{ default: DefineComponent }>("./Pages/**/*.vue"),
+        );
         page.default.layout = page.default.layout || (name.startsWith("Admin/") ? AdminLayout : MainLayout);
 
         return page;
-    },
+    }) as unknown as (name: string) => DefineComponent,
     progress: {
         // The delay after which the progress bar will appear during navigation, in milliseconds.
         delay: 250,
@@ -100,16 +93,19 @@ createInertiaApp({
             .use(i18nVue, {
                 lang: "de",
                 fallbackLang: "en",
-                resolve: async (lang) => {
+                resolve: async (lang: string) => {
                     const mod = await import(`../../lang/php_${lang}.json`);
                     return { default: stripEmpty(mod.default ?? mod) };
                 },
             })
             // Ziggy
-            .use(ZiggyVue, Ziggy)
-            .provide("ziggyRoute", (name, params, absolute, config = Ziggy) => {
-                return route(name, params, absolute, config);
-            })
+            .use(ZiggyVue, Ziggy as Config)
+            .provide(
+                "ziggyRoute",
+                (name: string, params?: unknown, absolute?: boolean, config: Config = Ziggy as Config) => {
+                    return route(name, params as never, absolute, config);
+                },
+            )
             // Custom components
             .component("Head", Head)
             .component("Link", Link);

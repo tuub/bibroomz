@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import type { Linter } from "eslint";
 import prettier from "eslint-config-prettier";
 import vuePlugin from "eslint-plugin-vue";
 import globals from "globals";
@@ -10,7 +11,7 @@ export default [
         ignores: ["node_modules/**", "public/build/**", "resources/js/ziggy.js"],
     },
     js.configs.recommended,
-    ...tsPlugin.configs["flat/recommended"],
+    ...(tsPlugin.configs["flat/recommended"] as Linter.Config[]),
     ...vuePlugin.configs["flat/recommended"],
     {
         files: ["**/*.{js,ts,vue}"],

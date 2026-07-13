@@ -4,11 +4,16 @@
     "packageManager": "npm@11.12.1",
     "type": "module",
     "scripts": {
-        "dev": "vite",
         "build": "vite build",
+        "dev": "vite",
+        "eslint": "eslint resources/",
+        "format": "prettier --write resources/",
+        "format:check": "prettier --list-different resources/",
+        "lint": "npm run eslint && npm run stylelint",
+        "prepare": "husky install",
+        "stylelint": "stylelint resources/",
         "test": "vitest run",
-        "typecheck": "tsc --noEmit",
-        "prepare": "husky install"
+        "typecheck": "vue-tsc"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.3.0",
@@ -47,7 +52,8 @@
         "typescript": "^5.0.4",
         "unplugin-vue-components": "^0.27.2",
         "vite": "^6.4.2",
-        "vitest": "^4.1.10"
+        "vitest": "^4.1.10",
+        "vue-tsc": "^3.3.7"
     },
     "dependencies": {
         "@fullcalendar/core": "^6.1.19",

@@ -1,5 +1,8 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import typography from "@tailwindcss/typography";
+import type { Config } from "tailwindcss";
+import tailwindcssPrimeui from "tailwindcss-primeui";
+
+export default {
     darkMode: "selector",
     content: [
         "./index.html",
@@ -9,15 +12,12 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'tub': '#c40d1e',
+                tub: "#c40d1e",
             },
             fontSize: {
-                'tiny': '0.55rem',
+                tiny: "0.55rem",
             },
         },
     },
-    plugins: [
-        require("@tailwindcss/typography"),
-        require("tailwindcss-primeui"),
-    ],
-}
+    plugins: [typography, tailwindcssPrimeui],
+} satisfies Config;

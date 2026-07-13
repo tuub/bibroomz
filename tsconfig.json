@@ -2,17 +2,17 @@
     "compilerOptions": {
         "target": "esnext",
         "module": "esnext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "importHelpers": true,
         "isolatedModules": true,
         "noEmit": true,
-        "allowJs": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "paths": {
-            "@/*": ["./resources/js/*"]
+            "@/*": ["./resources/js/*"],
+            "ziggy-js": ["./vendor/tightenco/ziggy/src/js/index"]
         }
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "*.ts"],
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.vue", "*.ts"],
     "exclude": ["node_modules", "public", "vendor"]
 }

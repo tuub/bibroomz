@@ -142,7 +142,7 @@ eslint:
   extends: .nix
   stage: lint
   script:
-    - nix develop --command node_modules/.bin/eslint resources/
+    - nix develop --command npm run eslint
 
 gitleaks:
   image:
@@ -170,7 +170,7 @@ prettier:
   extends: .nix
   stage: lint
   script:
-    - nix develop --command node_modules/.bin/prettier --list-different resources/
+    - nix develop --command npm run format:check
 
 rector:
   extends: .nix
@@ -183,7 +183,7 @@ stylelint:
   extends: .nix
   stage: lint
   script:
-    - nix develop --command node_modules/.bin/stylelint resources/
+    - nix develop --command npm run stylelint
 
 typescript:
   extends: .nix

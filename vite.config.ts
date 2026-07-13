@@ -21,7 +21,7 @@ export default defineConfig({
             resolvers: [PrimeVueResolver()],
         }),
         laravel({
-            input: ["resources/js/app.js", "resources/sass/main.scss"],
+            input: ["resources/js/app.ts", "resources/sass/main.scss"],
             refresh: true,
         }),
         i18n(),
