@@ -26,7 +26,7 @@ defineProps({
 <template>
     <Link :href="link">
         <div
-            class="m-4 w-64 border border-gray-200 bg-white p-4 text-center shadow hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
+            class="m-4 w-64 border border-gray-200 bg-white p-4 text-center shadow hover:shadow-lg dark:border-gray-700 dark:bg-surface-900"
         >
             <div class="2xl font-bold">
                 <i :class="icon" class="text-2xl"></i>

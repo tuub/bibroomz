@@ -58,6 +58,7 @@ onUnmounted(() => {
             id="content"
             class="w-3/4 flex-grow rounded bg-white p-6 shadow-md dark:bg-gray-800 dark:text-gray-100"
         >
+            <slot name="breadcrumbs" />
             <slot />
             <Toast
                 position="bottom-right"
