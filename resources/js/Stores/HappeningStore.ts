@@ -39,6 +39,13 @@ export type Happening = {
     [key: string]: unknown;
 };
 
+// A happening being actively edited in the create/edit form and its modal wrapper:
+// resource and label are always populated by the time either component uses them.
+export type HappeningEditPayload = Happening & {
+    resource: HappeningResource;
+    label: Record<string, string>;
+};
+
 type HappeningStoreState = {
     happening: {
         resource: HappeningResource;

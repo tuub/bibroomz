@@ -5,13 +5,12 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
+import { postReorderedRows } from "@/Composables/Reorder";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminResource, DataTableRef, ResourceGroup } from "@/Types/Admin";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
-import type { RequestPayload } from "@inertiajs/core";
-import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
@@ -94,11 +93,7 @@ const isSortedByColumn = () => {
 };
 
 const reorderRows = (event: { value: AdminResource[] }) => {
-    const resources = event.value;
-    for (const [index, resource] of resources.entries()) {
-        resource.order = index + 1;
-    }
-    router.post(route("admin.resource.order"), resources as unknown as RequestPayload);
+    postReorderedRows(route("admin.resource.order"), event.value);
 };
 </script>
 

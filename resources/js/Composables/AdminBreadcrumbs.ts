@@ -1,4 +1,5 @@
 import { useAppStore } from "@/Stores/AppStore";
+import type { Translatable } from "@/Types/Admin";
 
 import { usePage } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
@@ -8,8 +9,6 @@ export type BreadcrumbItem = {
     label: string;
     url: string | null;
 };
-
-type Translatable = Partial<Record<string, string>>;
 
 type WithTitle = {
     id?: number | string;

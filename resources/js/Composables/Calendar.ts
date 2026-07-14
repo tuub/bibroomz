@@ -14,6 +14,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { Happening } from "@/Stores/HappeningStore";
 import type { ModalOpenPayload } from "@/Stores/Modal";
+import type { Translatable } from "@/Types/Admin";
 import { withBaseUrl } from "@/baseUrl";
 
 import dayjs from "dayjs";
@@ -44,8 +45,6 @@ type ResourceResponse = {
 type HappeningResponse = {
     data: Happening[];
 };
-
-type Translatable = Record<string, string>;
 
 type ResourceExtendedProps = {
     translations?: {

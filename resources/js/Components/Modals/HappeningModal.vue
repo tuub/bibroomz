@@ -19,13 +19,11 @@
 import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { useAppStore } from "@/Stores/AppStore";
-import type { Happening, HappeningResource } from "@/Stores/HappeningStore";
+import type { HappeningEditPayload } from "@/Stores/HappeningStore";
 
 import { reactive, toRaw } from "vue";
 
-type HappeningModalPayload = Happening & {
-    resource?: HappeningResource;
-    label?: Record<string, string>;
+type HappeningModalPayload = HappeningEditPayload & {
     editable?: boolean;
 };
 

@@ -127,7 +127,6 @@ import FullCalendar from "@fullcalendar/vue3";
 
 import Legend from "@/Components/Calendar/Legend.vue";
 import { useCalendar } from "@/Composables/Calendar";
-//import { useResourceGroupInfoModal } from "@/Composables/ModalActions";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { ModalOpenPayload } from "@/Stores/Modal";
@@ -297,20 +296,6 @@ const resourcesNext = () => {
     const api = unref(refCalendar)?.getApi();
     api?.refetchResources();
 };
-
-/*
-const getResourceGroupInfo = (resourceGroup) => {
-    emit(
-        "open-modal-component",
-        useResourceGroupInfoModal({
-            title: resourceGroup.title,
-            description: resourceGroup.description,
-        }),
-    );
-};
-
-//https://github.com/fullcalendar/fullcalendar/issues/4816
-*/
 
 const setResourceCountFromScreen = () => {
     if (windowWidth.value < 600) {

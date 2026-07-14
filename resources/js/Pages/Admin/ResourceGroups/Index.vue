@@ -5,13 +5,12 @@ import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
+import { postReorderedRows } from "@/Composables/Reorder";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, DataTableRef, ResourceGroup } from "@/Types/Admin";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
-import type { RequestPayload } from "@inertiajs/core";
-import { router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
@@ -65,11 +64,7 @@ const isSortedByColumn = () => {
 };
 
 const reorderRows = (event: { value: ResourceGroup[] }) => {
-    const resource_groups = event.value;
-    for (const [index, resource_group] of resource_groups.entries()) {
-        resource_group.order = index + 1;
-    }
-    router.post(route("admin.resource_group.order"), resource_groups as unknown as RequestPayload);
+    postReorderedRows(route("admin.resource_group.order"), event.value);
 };
 
 const canAccessSettings = () => {

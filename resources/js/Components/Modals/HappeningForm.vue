@@ -110,7 +110,7 @@ import FormLabel from "@/Shared/Form/FormLabel.vue";
 import Spinner from "@/Shared/Spinner.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import { type Happening, type HappeningResource, useHappeningStore } from "@/Stores/HappeningStore";
+import { type Happening, type HappeningEditPayload, useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
 import { withBaseUrl } from "@/baseUrl";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
@@ -130,11 +130,7 @@ type FormUser = {
     name: string;
 };
 
-type HappeningFormPayload = Happening & {
-    resource: HappeningResource;
-    label: Record<string, string>;
-    verifier?: string;
-};
+type HappeningFormPayload = HappeningEditPayload;
 
 const props = withDefaults(
     defineProps<{

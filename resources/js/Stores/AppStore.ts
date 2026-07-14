@@ -1,3 +1,4 @@
+import type { Translatable } from "@/Types/Admin";
 import { withBaseUrl } from "@/baseUrl";
 
 import dayjs, { type Dayjs } from "dayjs";
@@ -11,7 +12,6 @@ import { defineStore } from "pinia";
 
 dayjs.extend(customParseFormat);
 
-export type Translatable = Partial<Record<string, string>>;
 export type TranslatableValue = string | Translatable;
 
 export interface ResourceGroupSetting {

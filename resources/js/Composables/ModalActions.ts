@@ -8,11 +8,11 @@ import type { Happening } from "@/Stores/HappeningStore";
 import { useHappeningStore } from "@/Stores/HappeningStore";
 import type { ModalAction } from "@/Stores/Modal";
 import useModal from "@/Stores/Modal";
+import type { Translatable } from "@/Types/Admin";
 import type { ApiError } from "@/Types/Api";
 
 import { trans } from "laravel-vue-i18n";
 
-type Translatable = Record<string, string>;
 type LoginCredentials = {
     username: string;
     password: string;
