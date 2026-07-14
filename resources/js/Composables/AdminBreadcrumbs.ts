@@ -226,14 +226,14 @@ const breadcrumbSections: { prefix: string; build: (ctx: BreadcrumbContext) => v
 
 export function useAdminBreadcrumbs() {
     const route = inject<RouteFn>("ziggyRoute");
-    const page = usePage();
+    const page = usePage<BreadcrumbProps>();
     const appStore = useAppStore();
 
     const t = (key: string) => trans(`admin.breadcrumbs.${key}`);
     const translate = (value?: Translatable) => appStore.translate(value);
 
     const items = computed<BreadcrumbItem[]>(() => {
-        const props = page.props as BreadcrumbProps;
+        const props = page.props;
         const routeName = props.route;
 
         if (typeof routeName !== "string" || !routeName.startsWith("admin.")) {

@@ -1,17 +1,23 @@
 import { defineStore } from "pinia";
 
+export type ThemePreference = "system" | "light" | "dark";
+
+type ThemeStoreState = {
+    preference: ThemePreference;
+};
+
 export const useThemeStore = defineStore({
     id: "theme",
     persist: true,
 
-    state: () => {
+    state: (): ThemeStoreState => {
         return {
             preference: "system",
         };
     },
 
     actions: {
-        setPreference(preference) {
+        setPreference(preference: ThemePreference) {
             this.preference = preference;
         },
     },
