@@ -231,10 +231,14 @@ const getTimeSlotValues = async (
         start_time_slots.value = response.data.start ?? [];
         start_time_slot_selected.value =
             start_time_slots.value.find((time_slot) => time_slot.is_selected)?.time ?? start_time_slot_selected.value;
+        // The server can correct the selection (e.g. it was no longer available);
+        // keep the emitted happening in sync with that authoritative choice.
+        happening.start = start_time_slot_selected.value;
 
         end_time_slots.value = response.data.end ?? [];
         end_time_slot_selected.value =
             end_time_slots.value.find((time_slot) => time_slot.is_selected)?.time ?? end_time_slot_selected.value;
+        happening.end = end_time_slot_selected.value;
 
         isLoading.value = false;
         isInitial.value = false;

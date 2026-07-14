@@ -58,6 +58,10 @@ const { calendarOptions: rawCalendarOptions, refetchHappenings } = useCalendar({
             right: "",
         },
         selectable: false,
+        select: false,
+        selectAllow: false,
+        // The kiosk is unattended: clicking an event must not open the edit/verify modals.
+        eventClick: false,
     },
     pagination,
     translate: appStore.translate,

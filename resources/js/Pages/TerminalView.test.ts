@@ -89,6 +89,9 @@ describe("TerminalView", () => {
                     right: "",
                 },
                 selectable: false,
+                select: false,
+                selectAllow: false,
+                eventClick: false,
             },
             pagination: {
                 currentPage: "/tu-berlin/rooms/resources",
@@ -99,6 +102,21 @@ describe("TerminalView", () => {
         });
 
         expect(wrapper.find('[data-test="full-calendar"]').exists()).toBe(true);
+    });
+
+    test("disables select, selectAllow, and eventClick interactions on the unattended kiosk view", () => {
+        render();
+
+        const options = useCalendarMock.mock.calls[0]?.[0] as {
+            calendarOptions: Record<string, unknown>;
+        };
+
+        expect(options.calendarOptions).toMatchObject({
+            selectable: false,
+            select: false,
+            selectAllow: false,
+            eventClick: false,
+        });
     });
 
     test("subscribes to happening updates on mount and leaves the channel on unmount", () => {

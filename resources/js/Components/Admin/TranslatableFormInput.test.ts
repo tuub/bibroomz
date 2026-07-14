@@ -1,7 +1,7 @@
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
 
 import { mount } from "@vue/test-utils";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 
 const TranslatableFormFieldStub = defineComponent({
@@ -47,6 +47,20 @@ describe("TranslatableFormInput", () => {
         await wrapper.get("#title-en").setValue("Study room");
 
         expect(wrapper.emitted("update:model-value")).toEqual([[{ en: "Study room" }]]);
+    });
+
+    test("warns and falls back to a text input for an unsupported type value", () => {
+        const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        const wrapper = render({ type: "unsupported-type" });
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'TranslatableFormInput: unsupported type "unsupported-type"; falling back to a text input.',
+        );
+        expect(wrapper.find("input").exists()).toBe(true);
+        expect(wrapper.find("textarea").exists()).toBe(false);
+
+        consoleSpy.mockRestore();
     });
 
     test("renders a textarea when requested", () => {

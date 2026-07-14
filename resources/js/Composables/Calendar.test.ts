@@ -31,21 +31,32 @@ vi.mock("@/Stores/ToastStore", () => ({
     }),
 }));
 
-const appStoreMock = vi.hoisted(() => ({
-    institution: { id: 1, slug: "tu-berlin" },
-    resourceGroup: { id: 2, slug: "library" },
-    settings: {
+const appStoreMock = vi.hoisted(() => {
+    const settings: {
+        resource_group?: {
+            weeks_in_advance: string;
+            time_slot_length: string;
+            start_time_slot: string;
+            end_time_slot: string;
+        };
+    } = {
         resource_group: {
             weeks_in_advance: "4",
             time_slot_length: "01:00",
             start_time_slot: "08:00:00",
             end_time_slot: "20:00:00",
         },
-    },
-    hiddenDays: [0, 6] as number[] | null,
-    locale: "en",
-    translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
-}));
+    };
+
+    return {
+        institution: { id: 1, slug: "tu-berlin" },
+        resourceGroup: { id: 2, slug: "library" },
+        settings,
+        hiddenDays: [0, 6] as number[] | null,
+        locale: "en",
+        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
+    };
+});
 vi.mock("@/Stores/AppStore", () => ({
     useAppStore: () => appStoreMock,
 }));
@@ -434,6 +445,15 @@ describe("calendarOptions", () => {
 
         expect(calendarOptions.hiddenDays).toEqual([0, 6]);
         expect(calendarOptions.locale).toBe("de");
+    });
+
+    test("leaves slot duration unset so FullCalendar's default applies when resource group settings are missing", () => {
+        appStoreMock.settings = {};
+
+        const { calendarOptions } = makeCalendar();
+
+        expect(calendarOptions.slotDuration).toBeUndefined();
+        expect(calendarOptions.slotLabelInterval).toBeUndefined();
     });
 });
 

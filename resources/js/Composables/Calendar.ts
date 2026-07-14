@@ -146,6 +146,15 @@ type UseCalendarOptions = Record<string, unknown> & {
     eventTimeFormat: CalendarTimeFormat;
 };
 
+// FullCalendar's Emitter treats a falsy hook value as "no handler" (see
+// Emitter.trigger's `optionHandler || []`), so callers may pass `false` to
+// disable one of these interactions instead of supplying a no-op function.
+type CalendarOptionsOverride = Partial<Omit<UseCalendarOptions, "selectAllow" | "select" | "eventClick">> & {
+    selectAllow?: UseCalendarOptions["selectAllow"] | false;
+    select?: UseCalendarOptions["select"] | false;
+    eventClick?: UseCalendarOptions["eventClick"] | false;
+};
+
 export function useCalendar({
     emit = noopCalendarEmit,
     pagination,
@@ -155,12 +164,13 @@ export function useCalendar({
     emit?: CalendarEmit;
     pagination: CalendarPagination;
     translate: (value?: Translatable) => string;
-    calendarOptions?: Partial<UseCalendarOptions>;
+    calendarOptions?: CalendarOptionsOverride;
 }) {
     const appStore = useAppStore();
     const institution = appStore.institution;
     const resourceGroup = appStore.resourceGroup;
     const resourceGroupSettings = appStore.settings?.resource_group;
+    const timeSlotLength = resourceGroupSettings?.["time_slot_length"];
     const hiddenDays = appStore.hiddenDays;
 
     const authStore = useAuthStore();
@@ -408,8 +418,11 @@ export function useCalendar({
         longPressDelay: import.meta.env.VITE_LONG_PRESS_DELAY ?? 500,
         unselectAuto: true,
         selectMirror: true,
-        slotDuration: resourceGroupSettings?.["time_slot_length"] + ":00",
-        slotLabelInterval: resourceGroupSettings?.["time_slot_length"] + ":00",
+        // A zero-length slotDuration breaks FullCalendar's rendering, so leave it
+        // unset (FullCalendar falls back to its own default) rather than build
+        // "undefined:00"/"00:00:00" when the resource group has no configured length.
+        slotDuration: timeSlotLength && `${timeSlotLength}:00`,
+        slotLabelInterval: timeSlotLength && `${timeSlotLength}:00`,
         selectOverlap: false,
         selectConstraint: "businessHours",
         selectable: true,

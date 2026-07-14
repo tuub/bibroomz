@@ -36,4 +36,14 @@ describe("HappeningQuota", () => {
         expect(wrapper.text()).toContain("2");
         expect(wrapper.text()).toContain("quota.weekly_hours.label|2|number");
     });
+
+    test("prefixes the overage with a negative sign when the quota is exceeded by less than an hour", () => {
+        const wrapper = render({
+            type: "daily_hours",
+            value: 2.5,
+            setting: 2,
+        });
+
+        expect(wrapper.get(".bg-gray-600").text()).toBe("-0:30");
+    });
 });

@@ -95,7 +95,18 @@ describe("HappeningForm", () => {
 
         await flushPromises();
 
+        axiosMock.post.mockResolvedValueOnce({
+            data: {
+                start: [
+                    { time: "09:00", label: "09:00", is_selected: false, is_disabled: false },
+                    { time: "09:30", label: "09:30", is_selected: true, is_disabled: false },
+                ],
+                end: [{ time: "10:00", label: "10:00", is_selected: true, is_disabled: false }],
+            },
+        });
+
         await wrapper.find("#start").setValue("09:30");
+        await flushPromises();
         await wrapper.find("#verifier").setValue("Alice");
 
         const emissions = wrapper.emitted("update-happening");
@@ -108,6 +119,31 @@ describe("HappeningForm", () => {
         expect(payload.end).toBe("10:00");
         expect(typeof payload.start).toBe("string");
         expect(typeof payload.end).toBe("string");
+    });
+
+    test("reflects a server-side time slot correction that disagrees with the user's selection", async () => {
+        const wrapper = render();
+        await flushPromises();
+
+        axiosMock.post.mockResolvedValueOnce({
+            data: {
+                start: [
+                    { time: "09:00", label: "09:00", is_selected: true, is_disabled: false },
+                    { time: "09:30", label: "09:30", is_selected: false, is_disabled: false },
+                ],
+                end: [{ time: "10:00", label: "10:00", is_selected: true, is_disabled: false }],
+            },
+        });
+
+        await wrapper.find("#start").setValue("09:30");
+        await flushPromises();
+
+        await wrapper.find("#verifier").setValue("Alice");
+
+        const emissions = wrapper.emitted("update-happening");
+        const payload = emissions?.at(-1)?.[0] as { start: unknown };
+
+        expect(payload.start).toBe("09:00");
     });
 
     test("fetches admin users for the create flow and passes them to the select", async () => {

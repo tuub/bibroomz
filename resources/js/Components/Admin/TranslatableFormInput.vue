@@ -57,5 +57,10 @@ defineEmits<{
     (event: "update:model-value", value: Record<string, string>): void;
 }>();
 
+const supportedTypes = ["input", "textarea"];
+if (!supportedTypes.includes(props.type)) {
+    console.warn(`TranslatableFormInput: unsupported type "${props.type}"; falling back to a text input.`);
+}
+
 const input = ref<Record<string, string>>(Array.isArray(props.modelValue) ? {} : props.modelValue);
 </script>
