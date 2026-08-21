@@ -137,12 +137,19 @@ test('login rate limiter normalizes username in the key', function (): void {
         ->and($key)->not->toBe('|127.0.0.1'); // would be this if TernaryNegated
 });
 
-test('application registers the admin users api route from routes/api.php', function (): void {
+test('application registers the admin users api route with web session authentication', function (): void {
     $routes = app('router')->getRoutes()->getRoutes();
 
-    $apiRoutes = array_values(array_filter($routes, fn ($r): bool => str_starts_with((string) $r->uri(), 'api/')));
+    $apiRoutes = array_values(array_filter($routes, fn ($r): bool => (string) $r->uri() === 'api/admin/user/users'));
+    $route = $apiRoutes[0] ?? null;
+    $middleware = $route?->gatherMiddleware() ?? [];
 
-    expect($apiRoutes)->toHaveCount(1)
-        ->and($apiRoutes[0]->uri())->toBe('api/admin/user/users')
-        ->and($apiRoutes[0]->getName())->toBe('api.admin.user.users');
+    expect($apiRoutes)
+        ->toHaveCount(1)
+        ->and($route?->uri())->toBe('api/admin/user/users')
+        ->and($route?->getName())->toBe('api.admin.user.users')
+        ->and($middleware)->toContain('api')
+        ->and($middleware)->toContain('web')
+        ->and($middleware)->toContain('auth')
+        ->and($middleware)->toContain('can:admin');
 });

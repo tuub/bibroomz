@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'can:admin'])->group(function (): void {
+Route::middleware(['web', 'auth', 'can:admin'])->group(function (): void {
     Route::get('/admin/user/users', [AdminUserController::class, 'getFormUsers'])
         ->name('api.admin.user.users');
 });

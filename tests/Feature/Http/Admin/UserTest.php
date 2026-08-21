@@ -439,6 +439,22 @@ test('people admin routes render and mutate roles users and user groups', functi
     $this->assertDatabaseMissing('roles', ['id' => $role->id]);
 });
 
+test('getFormUsers returns users for full admins authenticated through the web session', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $bookableUser = User::factory()->create([
+        'name' => 'calendar.bookable.user',
+        'is_admin' => false,
+    ]);
+
+    $this->actingAs($admin)->getJson('/api/admin/user/users')
+        ->assertOk()
+        ->assertJsonFragment([
+            'id' => $bookableUser->id,
+            'name' => 'calendar.bookable.user',
+            'is_admin' => false,
+        ]);
+});
+
 test('getFormUsers returns 403 for non-admin', function (): void {
     $user = User::factory()->create(['is_admin' => false]);
 
