@@ -1,5 +1,11 @@
 <template>
-    <Breadcrumb v-if="items.length > 0" :home="homeItem" :model="menuItems" class="mb-4 !bg-transparent !p-0">
+    <Breadcrumb
+        v-if="items.length > 0"
+        :home="homeItem"
+        :model="menuItems"
+        class="mb-4 !bg-transparent !p-0"
+        data-testid="admin-breadcrumbs"
+    >
         <template #item="{ item, label, props: itemProps }">
             <Link v-if="item.url" :href="item.url" v-bind="itemProps.action">
                 <span v-if="item.icon" :class="item.icon" v-bind="itemProps.icon"></span>

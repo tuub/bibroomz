@@ -47,6 +47,31 @@ type BreadcrumbContext = {
     routeName?: string;
 };
 
+type AdminBreadcrumbSectionId =
+    | "dashboard"
+    | "happenings"
+    | "institutions"
+    | "resourceGroups"
+    | "resources"
+    | "closings"
+    | "settings"
+    | "appSettings"
+    | "mails"
+    | "userGroups"
+    | "users"
+    | "roles";
+
+export type AdminBreadcrumbRouteContract = {
+    routeName: string;
+    section: AdminBreadcrumbSectionId;
+    contextProps: readonly string[];
+};
+
+type BreadcrumbSection = {
+    section: AdminBreadcrumbSectionId;
+    build: (ctx: BreadcrumbContext) => void;
+};
+
 function pushInstitutionsRoot(ctx: BreadcrumbContext) {
     ctx.push(ctx.t("institutions"), ctx.route("admin.institution.index"));
 }
@@ -210,19 +235,77 @@ function buildRoleCrumbs({ props, push, t, translate, route, isCreate, isEdit }:
     if (isEdit) push(translate(props.role?.name) || t("edit"));
 }
 
-const breadcrumbSections: { prefix: string; build: (ctx: BreadcrumbContext) => void }[] = [
-    { prefix: "admin.happening.", build: buildHappeningCrumbs },
-    { prefix: "admin.institution.", build: buildInstitutionCrumbs },
-    { prefix: "admin.resource_group.", build: buildResourceGroupCrumbs },
-    { prefix: "admin.resource.", build: buildResourceCrumbs },
-    { prefix: "admin.closing.", build: buildClosingCrumbs },
-    { prefix: "admin.setting.", build: buildSettingCrumbs },
-    { prefix: "admin.app_setting.", build: buildAppSettingCrumbs },
-    { prefix: "admin.mail.", build: buildMailCrumbs },
-    { prefix: "admin.user_group.", build: buildUserGroupCrumbs },
-    { prefix: "admin.user.", build: buildUserCrumbs },
-    { prefix: "admin.role.", build: buildRoleCrumbs },
+const contract = (
+    routeName: string,
+    section: AdminBreadcrumbSectionId,
+    contextProps: readonly string[] = [],
+): AdminBreadcrumbRouteContract => ({
+    routeName,
+    section,
+    contextProps,
+});
+
+export const ADMIN_BREADCRUMB_ROUTE_CONTRACTS = [
+    contract("admin.dashboard", "dashboard"),
+    contract("admin.happening.index", "happenings"),
+    contract("admin.happening.create", "happenings"),
+    contract("admin.happening.edit", "happenings", ["happening.label"]),
+    contract("admin.institution.index", "institutions"),
+    contract("admin.institution.create", "institutions"),
+    contract("admin.institution.edit", "institutions", ["institution.title"]),
+    contract("admin.resource_group.index", "resourceGroups", ["institution"]),
+    contract("admin.resource_group.create", "resourceGroups", ["institution"]),
+    contract("admin.resource_group.edit", "resourceGroups", ["resource_group.title", "resource_group.institution"]),
+    contract("admin.resource.index", "resources", ["resourceGroup.institution"]),
+    contract("admin.resource.create", "resources", ["resourceGroup.institution"]),
+    contract("admin.resource.edit", "resources", ["resourceGroup.institution", "resource.title"]),
+    contract("admin.closing.index", "closings", ["closable", "closable_type", "institution", "resource_group"]),
+    contract("admin.closing.create", "closings", ["closable", "closable_type", "institution", "resource_group"]),
+    contract("admin.closing.edit", "closings", ["closable", "closable_type", "institution", "resource_group"]),
+    contract("admin.setting.index", "settings", ["settingable", "settingable_type", "institution"]),
+    contract("admin.setting.edit", "settings", ["settingable", "settingable_type", "institution", "setting.key"]),
+    contract("admin.app_setting.index", "appSettings"),
+    contract("admin.app_setting.edit", "appSettings"),
+    contract("admin.mail.index", "mails", ["institution"]),
+    contract("admin.mail.create", "mails", ["institution", "institution_id"]),
+    contract("admin.mail.edit", "mails", ["institution", "institution_id", "mail.mail_type.key"]),
+    contract("admin.user_group.index", "userGroups"),
+    contract("admin.user_group.create", "userGroups"),
+    contract("admin.user_group.edit", "userGroups", ["user_group.title"]),
+    contract("admin.user_group.import", "userGroups", ["user_group.id", "user_group.title"]),
+    contract("admin.user_group.users", "userGroups", ["user_group.title"]),
+    contract("admin.user.index", "users"),
+    contract("admin.user.create", "users"),
+    contract("admin.user.edit", "users", ["user.name"]),
+    contract("admin.role.index", "roles"),
+    contract("admin.role.create", "roles"),
+    contract("admin.role.edit", "roles", ["role.name"]),
+] as const;
+
+const breadcrumbSections: BreadcrumbSection[] = [
+    { section: "dashboard", build: () => undefined },
+    { section: "happenings", build: buildHappeningCrumbs },
+    { section: "institutions", build: buildInstitutionCrumbs },
+    { section: "resourceGroups", build: buildResourceGroupCrumbs },
+    { section: "resources", build: buildResourceCrumbs },
+    { section: "closings", build: buildClosingCrumbs },
+    { section: "settings", build: buildSettingCrumbs },
+    { section: "appSettings", build: buildAppSettingCrumbs },
+    { section: "mails", build: buildMailCrumbs },
+    { section: "userGroups", build: buildUserGroupCrumbs },
+    { section: "users", build: buildUserCrumbs },
+    { section: "roles", build: buildRoleCrumbs },
 ];
+
+export function getAdminBreadcrumbRouteContract(routeName: string): AdminBreadcrumbRouteContract | undefined {
+    return ADMIN_BREADCRUMB_ROUTE_CONTRACTS.find((contract) => contract.routeName === routeName);
+}
+
+function findBreadcrumbSection(routeName: string): BreadcrumbSection | undefined {
+    const routeContract = getAdminBreadcrumbRouteContract(routeName);
+
+    return breadcrumbSections.find(({ section }) => section === routeContract?.section);
+}
 
 export function useAdminBreadcrumbs() {
     const route = inject<RouteFn>("ziggyRoute");
@@ -247,7 +330,7 @@ export function useAdminBreadcrumbs() {
 
         push(t("dashboard"), route?.("admin.dashboard") ?? null);
 
-        const section = breadcrumbSections.find(({ prefix }) => routeName.startsWith(prefix));
+        const section = findBreadcrumbSection(routeName);
         section?.build({
             props,
             routeName,

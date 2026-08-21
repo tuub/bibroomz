@@ -1,4 +1,8 @@
-import { useAdminBreadcrumbs } from "@/Composables/AdminBreadcrumbs";
+import {
+    ADMIN_BREADCRUMB_ROUTE_CONTRACTS,
+    getAdminBreadcrumbRouteContract,
+    useAdminBreadcrumbs,
+} from "@/Composables/AdminBreadcrumbs";
 
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -73,6 +77,64 @@ beforeEach(() => {
 });
 
 describe("useAdminBreadcrumbs", () => {
+    test("declares an explicit contract for each admin page route", () => {
+        expect(ADMIN_BREADCRUMB_ROUTE_CONTRACTS.map((contract) => contract.routeName).sort()).toEqual([
+            "admin.app_setting.edit",
+            "admin.app_setting.index",
+            "admin.closing.create",
+            "admin.closing.edit",
+            "admin.closing.index",
+            "admin.dashboard",
+            "admin.happening.create",
+            "admin.happening.edit",
+            "admin.happening.index",
+            "admin.institution.create",
+            "admin.institution.edit",
+            "admin.institution.index",
+            "admin.mail.create",
+            "admin.mail.edit",
+            "admin.mail.index",
+            "admin.resource.create",
+            "admin.resource.edit",
+            "admin.resource.index",
+            "admin.resource_group.create",
+            "admin.resource_group.edit",
+            "admin.resource_group.index",
+            "admin.role.create",
+            "admin.role.edit",
+            "admin.role.index",
+            "admin.setting.edit",
+            "admin.setting.index",
+            "admin.user.create",
+            "admin.user.edit",
+            "admin.user.index",
+            "admin.user_group.create",
+            "admin.user_group.edit",
+            "admin.user_group.import",
+            "admin.user_group.index",
+            "admin.user_group.users",
+        ]);
+    });
+
+    test("documents context props for routes that build nested breadcrumbs", () => {
+        expect(getAdminBreadcrumbRouteContract("admin.resource.edit")?.contextProps).toEqual([
+            "resourceGroup.institution",
+            "resource.title",
+        ]);
+        expect(getAdminBreadcrumbRouteContract("admin.mail.index")?.contextProps).toEqual(["institution"]);
+        expect(getAdminBreadcrumbRouteContract("admin.mail.edit")?.contextProps).toEqual([
+            "institution",
+            "institution_id",
+            "mail.mail_type.key",
+        ]);
+        expect(getAdminBreadcrumbRouteContract("admin.closing.index")?.contextProps).toEqual([
+            "closable",
+            "closable_type",
+            "institution",
+            "resource_group",
+        ]);
+    });
+
     test("returns no crumbs for a non-admin route", () => {
         const { items } = setup("start");
         expect(items.value).toEqual([]);
