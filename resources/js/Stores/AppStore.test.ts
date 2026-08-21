@@ -1,11 +1,8 @@
 import { useAppStore } from "@/Stores/AppStore";
 
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-
-dayjs.extend(utc);
 
 vi.mock("@/baseUrl", () => ({
     withBaseUrl: (path: string) => `https://rooms.example.com${path}`,

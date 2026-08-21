@@ -4,13 +4,12 @@ import { withBaseUrl } from "@/baseUrl";
 import dayjs, { type Dayjs } from "dayjs";
 import "dayjs/locale/de";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-// Only needed so dayjs's `utc()` type augmentation is loaded; the plugin itself
-// is registered by Calendar.ts, which is guaranteed to load before this is used.
-import type {} from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc";
 import { I18n, getActiveLanguage, loadLanguageAsync } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 export type TranslatableValue = string | Translatable;
 
