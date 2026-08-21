@@ -31,37 +31,7 @@ dependabot:
   image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
   script:
     - apk add --no-cache curl jq
-    - |
-      TARGET_BRANCH="${CI_DEFAULT_BRANCH}"
-
-      existing="$(curl --silent --show-error \
-        --get \
-        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-        --data-urlencode "state=opened" \
-        --data-urlencode "source_branch=$CI_COMMIT_BRANCH" \
-        --data-urlencode "target_branch=$TARGET_BRANCH" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests")"
-
-      iid="$(echo "$existing" | jq --raw-output '.[0].iid // empty')"
-
-      if [ -z "$iid" ]; then
-        created="$(curl --silent --show-error --fail \
-          --request POST \
-          --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-          --data-urlencode "source_branch=$CI_COMMIT_BRANCH" \
-          --data-urlencode "target_branch=$TARGET_BRANCH" \
-          --data-urlencode "title=chore(deps): $CI_COMMIT_BRANCH" \
-          --data-urlencode "remove_source_branch=true" \
-          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests")"
-        iid="$(echo "$created" | jq --raw-output '.iid')"
-      fi
-
-      curl --silent --show-error --fail \
-        --request PUT \
-        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-        --data-urlencode "auto_merge=true" \
-        --data-urlencode "should_remove_source_branch=true" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$iid/merge"
+    - scripts/dependabot-merge-request.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH =~ /^dependabot\/.*/
 
