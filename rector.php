@@ -31,6 +31,8 @@ return RectorConfig::configure()
         SetList::TYPE_DECLARATION,
     ])
     ->withSkip([
+        __DIR__.'/bootstrap/cache',
+
         ModelCastsPropertyToCastsMethodRector::class,
         // Removing trailing null args is unsafe when null is a meaningful value
         // e.g. Collection::where('key', '!==', null) → where('key', '!==') changes semantics
