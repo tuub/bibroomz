@@ -8,6 +8,19 @@
         <div class="my-2 flex flex-wrap justify-between">
             <!-- BROWSE DATE -->
             <div id="calendar-date-browser" class="mb-2 flex w-full justify-start lg:mb-0 lg:w-1/5">
+                <!-- TODAY -->
+                <div class="flex w-full items-center justify-end lg:w-1/6">
+                    <button
+                        id="calendar-date-today"
+                        :disabled="date?.isToday()"
+                        :class="{ 'opacity-25': date?.isToday() }"
+                        :title="$t('calendar.go_to_today')"
+                        @click="dateToday"
+                    >
+                        <i class="ri-calendar-check-line ri-xl"></i>
+                        <span class="sr-only">{{ $t("calendar.go_to_today") }}</span>
+                    </button>
+                </div>
                 <!-- ARROW LEFT -->
                 <div class="flex w-full items-center justify-end lg:w-1/6">
                     <button
@@ -22,7 +35,7 @@
                     </button>
                 </div>
                 <!-- DATE DISPLAY -->
-                <div id="calendar-date-display" class="flex w-full items-center justify-center text-center lg:w-4/6">
+                <div id="calendar-date-display" class="flex w-full items-center justify-center text-center lg:w-3/6">
                     {{
                         date?.isToday()
                             ? $t("calendar.today")
@@ -224,6 +237,16 @@ function datePrev() {
     }
 
     calendarApi.prev();
+    resetCalendarDate();
+    calendarApi.refetchResources();
+}
+
+function dateToday() {
+    if (!calendarApi) {
+        return;
+    }
+
+    calendarApi.today();
     resetCalendarDate();
     calendarApi.refetchResources();
 }

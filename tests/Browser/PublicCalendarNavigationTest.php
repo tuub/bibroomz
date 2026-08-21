@@ -35,6 +35,24 @@ it('shows the calendar title and lets users browse dates forward and backward', 
         ->assertSeeIn('#calendar-date-display', $initialDate);
 });
 
+it('lets users jump back to today after browsing to a different date', function (): void {
+    [
+        'route' => $route,
+    ] = buildBrowserCalendarFixture();
+
+    $page = visit($route)
+        ->wait(1)
+        ->click('#calendar-date-next')
+        ->wait(0.5)
+        ->click('#calendar-date-next')
+        ->wait(0.5);
+
+    $page
+        ->click('#calendar-date-today')
+        ->wait(0.5)
+        ->assertSeeIn('#calendar-date-display', trans('calendar.today'));
+});
+
 it('lets users browse resource pages when more resources exist than fit on one calendar page', function (): void {
     ['route' => $route] = buildBrowserCalendarFixture(resourceCount: 9);
 

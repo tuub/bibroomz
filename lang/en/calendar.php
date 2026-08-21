@@ -10,5 +10,6 @@ return [
         'en' => 'Info',
     ],
     'today' => 'Today',
+    'go_to_today' => 'Go to today',
     'browse_resources' => 'Rooms',
 ];

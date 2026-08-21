@@ -28,6 +28,7 @@ vi.mock("@fullcalendar/vue3", () => ({
                     getDate: () => new Date("2026-03-05T00:00:00Z"),
                     next: vi.fn(),
                     prev: vi.fn(),
+                    today: vi.fn(),
                     refetchResources: vi.fn(),
                     setOption: vi.fn(),
                 };
