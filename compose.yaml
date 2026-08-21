@@ -45,20 +45,6 @@ services:
       APP_URL: ${APP_URL?}
     ports:
       - ${APP_PORT:-8000}:${APP_PORT:-8000}
-    develop:
-      watch:
-        - action: sync
-          path: ./app
-          target: /var/www/app
-        - action: sync
-          path: ./database
-          target: /var/www/database
-        - action: sync
-          path: ./lang
-          target: /var/www/lang
-        - action: rebuild
-          path: ./resources
-          target: /var/www/resources
   queue-worker:
     <<: *php
     command: ["php", "artisan", "queue:work"]
