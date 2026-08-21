@@ -1,0 +1,18 @@
+[Unit]
+Description=BibRoomz Reverb websocket server
+After=network-online.target mariadb.service mysql.service redis-server.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/git/roomz
+ExecStart=/usr/bin/env php artisan reverb:start --host=127.0.0.1 --port=6001
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=BibRoomz queue worker
+After=network-online.target mariadb.service mysql.service redis-server.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/git/roomz
+ExecStart=/usr/bin/env php artisan queue:work --sleep=3 --tries=3 --timeout=90 --max-time=3600
+ExecReload=/usr/bin/env php artisan queue:restart
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target
