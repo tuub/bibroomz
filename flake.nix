@@ -39,9 +39,11 @@
               php
               php.packages.composer
               pkgs.nodejs_24
+              pkgs.process-compose
             ];
             shellHook = ''
               export PATH="$PWD/vendor/bin:$PWD/node_modules/.bin:$PATH"
+              export PC_CONFIG_FILES="$PWD/process-compose.yaml"
               export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright.browsers}"
               export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; }}"
             '';
