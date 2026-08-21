@@ -121,6 +121,7 @@
 <script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import { requiresAdminHappeningVerification } from "@/Pages/Admin/Happenings/verification";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
@@ -238,25 +239,10 @@ const currentResource = computed(() => {
 });
 
 const isHappeningToVerify = computed(() => {
-    const currentInstitutionId = currentResource.value?.institution_id;
-
-    if (!currentUser.value || !currentResource.value) {
-        return true;
-    }
-
-    if (!currentInstitutionId || !currentUser.value.permissions) {
-        return true;
-    }
-
-    if (currentUser.value.permissions[currentInstitutionId]?.includes("no_verifier")) {
-        return false;
-    }
-
-    if (!currentResource.value.is_verification_required) {
-        return false;
-    }
-
-    return true;
+    return requiresAdminHappeningVerification({
+        resource: currentResource.value,
+        user: currentUser.value,
+    });
 });
 
 // ------------------------------------------------

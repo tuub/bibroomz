@@ -137,6 +137,7 @@ class HappeningAdminService
      *   id: string,
      *   title: array<string, mixed>,
      *   resource_group_id: string,
+     *   institution_id: string,
      *   is_verification_required: bool
      * }>
      */
@@ -152,6 +153,7 @@ class HappeningAdminService
                 'id' => $resource->id,
                 'title' => $this->resourceTranslations($resource, 'title'),
                 'resource_group_id' => $resource->resource_group->id,
+                'institution_id' => $resource->resource_group->institution_id,
                 'is_verification_required' => $resource->is_verification_required,
             ]);
     }

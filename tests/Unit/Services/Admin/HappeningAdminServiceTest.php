@@ -181,7 +181,7 @@ test('getEditFormData happening array contains all required keys', function (): 
         ->toHaveKey('label');
 });
 
-test('getEditFormData resources items contain id title resource_group_id is_verification_required', function (): void {
+test('getEditFormData resources items contain id title resource_group_id institution_id is_verification_required', function (): void {
     Event::fake();
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -198,7 +198,9 @@ test('getEditFormData resources items contain id title resource_group_id is_veri
         ->toHaveKey('id')
         ->toHaveKey('title')
         ->toHaveKey('resource_group_id')
-        ->toHaveKey('is_verification_required');
+        ->toHaveKey('institution_id')
+        ->toHaveKey('is_verification_required')
+        ->and($resourceItem['institution_id'])->toBe($institution->id);
 });
 
 // -------------------------------------------------------------------------

@@ -201,7 +201,12 @@ test('admin happening routes render and mutate happenings', function (): void {
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Happenings/Form')
             ->where('happening.id', $happening->id)
-            ->has('resources')
+            ->has('resources', 1, fn (Assert $resourceOption): AssertableJson => $resourceOption
+                ->where('id', $resource->id)
+                ->where('resource_group_id', $resourceGroup->id)
+                ->where('institution_id', $institution->id)
+                ->where('is_verification_required', false)
+                ->etc())
             ->has('users'));
 
     $this->post(route('admin.happening.update'), [
