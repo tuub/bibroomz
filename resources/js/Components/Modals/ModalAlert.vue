@@ -1,7 +1,7 @@
 <template>
     <div
         id="alert-2"
-        class="mb-4 flex rounded-lg bg-red-50 p-4 text-red-800 dark:bg-gray-800 dark:text-red-400"
+        class="mb-4 flex rounded-lg bg-feedback-danger-soft p-4 text-feedback-danger-text dark:bg-app-surface"
         role="alert"
     >
         <svg
@@ -23,7 +23,7 @@
         </div>
         <button
             type="button"
-            class="-mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 rounded-lg bg-red-50 p-1.5 text-red-500 hover:bg-red-200 focus:ring-2 focus:ring-red-400 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700"
+            class="-mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 rounded-lg bg-feedback-danger-soft p-1.5 text-feedback-danger hover:bg-feedback-danger-soft-hover focus:ring-2 focus:ring-feedback-danger-ring dark:bg-app-surface dark:hover:bg-app-field"
             data-dismiss-target="#alert-2"
             aria-label="Close"
             @click="close"

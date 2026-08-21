@@ -64,11 +64,11 @@ onUnmounted(() => {
 
     <!-- MAIN CONTENT START -->
     <div
-        class="flex flex-wrap items-stretch justify-center bg-gray-100 p-4 transition-transform duration-300 lg:flex-nowrap dark:bg-gray-900"
+        class="flex flex-wrap items-stretch justify-center bg-app-page p-4 transition-transform duration-300 lg:flex-nowrap dark:bg-app-page"
     >
         <main
             id="content"
-            class="m-2 w-full rounded bg-white p-5 shadow-md lg:w-3/5 xl:w-3/4 dark:bg-gray-800 dark:text-gray-100"
+            class="m-2 w-full rounded bg-app-surface p-5 shadow-md lg:w-3/5 xl:w-3/4 dark:bg-app-surface dark:text-app-text"
         >
             <div class="flex justify-center">
                 <Button
@@ -91,7 +91,7 @@ onUnmounted(() => {
         <!-- SIDEBAR CONTENT START -->
         <aside
             id="sidebar"
-            class="order-last m-2 w-full rounded bg-white p-5 shadow-md md:order-none lg:w-2/5 xl:w-1/4 dark:bg-gray-800 dark:text-gray-100"
+            class="order-last m-2 w-full rounded bg-app-surface p-5 shadow-md md:order-none lg:w-2/5 xl:w-1/4 dark:bg-app-surface dark:text-app-text"
         ></aside>
         <!-- SIDEBAR CONTENT END -->
     </div>

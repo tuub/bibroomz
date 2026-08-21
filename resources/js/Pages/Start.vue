@@ -51,19 +51,19 @@ onBeforeMount(() => {
         <SystemNotificationList :notifications="globalNotifications" />
     </div>
 
-    <div class="bg-white px-6 py-6 md:px-12 lg:px-20 dark:bg-black">
-        <div class="flex flex-col items-center gap-4 text-center text-black dark:text-white">
+    <div class="bg-app-surface px-6 py-6 md:px-12 lg:px-20 dark:bg-app-page">
+        <div class="flex flex-col items-center gap-4 text-center text-app-text dark:text-app-text">
             <div class="text-lg font-bold leading-tight text-tub">BibRoomz</div>
-            <div class="text-4xl font-bold leading-tight text-black dark:text-white">
+            <div class="text-4xl font-bold leading-tight text-app-text dark:text-app-text">
                 {{ $t("start.header") }}
             </div>
-            <div class="text-xl leading-normal text-black dark:text-white">
+            <div class="text-xl leading-normal text-app-text dark:text-app-text">
                 {{ $t("start.teaser") }}
             </div>
             <div>
                 <ExternalLink
                     :href="$t('start.help.uri')"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                 >
                     {{ $t("start.help.label") }}
                 </ExternalLink>
@@ -71,7 +71,7 @@ onBeforeMount(() => {
                     v-if="!isAuthenticated"
                     href="#"
                     data-testid="start-login-link"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     aria-haspopup="dialog"
                     @click="loginUser"
                 >

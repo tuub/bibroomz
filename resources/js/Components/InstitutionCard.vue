@@ -53,7 +53,7 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
                     "
                     severity="secondary"
                     outlined
-                    class="text-base text-tub hover:bg-tub hover:text-white md:text-sm"
+                    class="text-base text-tub hover:bg-tub hover:text-brand-contrast md:text-sm"
                     @click="
                         $inertia.get(
                             route('home', {

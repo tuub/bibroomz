@@ -71,7 +71,7 @@
 
         <fieldset :hidden="form.is_admin">
             <legend class="space-y-2">
-                <div class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+                <div class="text-sm font-bold uppercase text-app-text dark:text-app-text">
                     {{ $t("admin.users.form.fields.roles.label") }}
                 </div>
 

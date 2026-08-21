@@ -44,6 +44,6 @@ describe("HappeningQuota", () => {
             setting: 2,
         });
 
-        expect(wrapper.get(".bg-gray-600").text()).toBe("-0:30");
+        expect(wrapper.get(".bg-quota-count").text()).toBe("-0:30");
     });
 });

@@ -1,39 +1,39 @@
 <template>
     <Label
         :text="happeningResource"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-map-pin-fill"
     ></Label>
     <Label
         :text="happeningDate"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-calendar-2-line"
     ></Label>
     <Label
         :text="happeningStartDisplay"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-time-line"
     ></Label>
     <Label
         :text="happeningEndDisplay"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-time-fill"
     ></Label>
     <Label
         :text="happeningLength"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-hourglass-2-fill"
     ></Label>
     <Label
         v-if="authStore.isAdmin && happening.user_01"
         :text="happening.user_01"
-        bg-color-class="bg-gray-200"
-        text-color-class="text-gray-700"
+        bg-color-class="bg-app-field"
+        text-color-class="text-app-muted"
         icon-class="ri-user-fill"
     ></Label>
     <ResourceInfo

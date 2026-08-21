@@ -9,12 +9,14 @@
         <form class="space-y-6" @submit.prevent="$emit('submit')">
             <div>
                 <label class="space-y-2" for="username">
-                    <span class="text-xs font-bold uppercase text-gray-700">{{ $t("login.form.username.label") }}</span>
+                    <span class="text-xs font-bold uppercase text-app-muted">{{
+                        $t("login.form.username.label")
+                    }}</span>
 
                     <input
                         id="username"
                         v-model="payload.username"
-                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                        class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
                         type="text"
                         name="username"
                         autocomplete="username"
@@ -32,12 +34,14 @@
 
             <div>
                 <label class="space-y-2" for="password">
-                    <span class="text-xs font-bold uppercase text-gray-700">{{ $t("login.form.password.label") }}</span>
+                    <span class="text-xs font-bold uppercase text-app-muted">{{
+                        $t("login.form.password.label")
+                    }}</span>
 
                     <input
                         id="password"
                         v-model="payload.password"
-                        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                        class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
                         type="password"
                         name="password"
                         autocomplete="current-password"

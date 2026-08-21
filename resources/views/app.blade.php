@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="api-base-url" content="{{ url('/') }}" />
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <meta name="theme-color" content="#fafafa">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="">
+    @vite('resources/sass/main.scss')
     <script>
         (function () {
             try {
@@ -15,16 +17,25 @@
                 var preference = raw ? (JSON.parse(raw).preference || 'system') : 'system';
                 var isDark = preference === 'dark'
                     || (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (isDark) {
-                    document.documentElement.classList.add('dark');
+                var resolvedTheme = isDark ? 'dark' : 'light';
+                var themeColor = document.querySelector('meta[name="theme-color"]');
+
+                document.documentElement.classList.toggle('dark', isDark);
+                document.documentElement.style.colorScheme = resolvedTheme;
+
+                var appPageColor = window.getComputedStyle(document.documentElement)
+                    .getPropertyValue('--color-app-page')
+                    .trim();
+
+                if (themeColor && appPageColor) {
+                    themeColor.setAttribute('content', 'rgb(' + appPageColor.replace(/\s+/g, ', ') + ')');
                 }
             } catch (e) {}
         })();
     </script>
-    @vite('resources/sass/main.scss')
     @inertiaHead
 </head>
-<body class="bg-gray-100 dark:bg-gray-900">
+<body class="bg-app-page dark:bg-app-page">
     @inertia
 </body>
 @vite('resources/js/app.ts')

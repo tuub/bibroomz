@@ -6,7 +6,7 @@
             striped-rows
             removable-sort
             table-style="min-width: 50rem"
-            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+            class="w-full text-left text-sm text-app-muted dark:text-app-subtle"
         >
             <template #header>
                 <div class="flex flex-wrap items-center justify-between gap-2">

@@ -1,6 +1,6 @@
 <template>
-    <i v-if="isTrue" class="ri-checkbox-circle-line text-green-500"></i>
-    <i v-else class="ri-close-circle-line text-red-500"></i>
+    <i v-if="isTrue" class="ri-checkbox-circle-line text-feedback-success"></i>
+    <i v-else class="ri-close-circle-line text-feedback-danger"></i>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-    <button class="font-medium text-red-600 hover:underline dark:text-red-500" @click="openModal">
+    <button class="font-medium text-feedback-danger hover:underline" @click="openModal">
         <i :class="icons[action]"></i>
         {{ label ?? $t("admin." + model + "s.index.table.actions." + action) }}
     </button>

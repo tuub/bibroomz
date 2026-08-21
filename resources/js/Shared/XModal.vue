@@ -17,7 +17,7 @@
             <button
                 v-for="action in actions"
                 :key="action.label"
-                class="rounded-lg bg-red-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                class="rounded-lg bg-feedback-danger-strong px-5 py-2.5 text-center text-sm font-medium text-feedback-danger-contrast hover:bg-feedback-danger-strong-hover focus:outline-none focus:ring-4 focus:ring-feedback-danger-ring"
                 :data-testid="action.testId ?? null"
                 type="button"
                 @click="action.callback(payload)"

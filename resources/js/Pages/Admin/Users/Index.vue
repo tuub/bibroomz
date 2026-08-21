@@ -61,7 +61,7 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
             show-gridlines
             removable-sort
             table-style="min-width: 50rem"
-            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
+            class="w-full text-left text-sm text-app-muted dark:text-app-subtle"
         >
             <template #header>
                 <div class="flex flex-wrap items-center justify-between gap-2">
@@ -91,7 +91,7 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
             <Column field="name" :sortable="true" :header="$t('admin.users.index.table.header.name')" />
             <Column field="email" :sortable="true" :header="$t('admin.users.index.table.header.email')">
                 <template #body="slotProps">
-                    <a :href="'mailto:' + slotProps.data.email" class="text-blue-600 hover:underline">
+                    <a :href="'mailto:' + slotProps.data.email" class="text-link hover:underline">
                         {{ slotProps.data.email }}
                     </a>
                 </template>

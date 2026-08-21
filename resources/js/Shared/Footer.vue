@@ -9,7 +9,7 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 </script>
 <template>
     <footer
-        class="mt-auto flex items-center justify-center bg-gray-800 p-4 text-center text-white"
+        class="mt-auto flex items-center justify-center border-t border-app-border bg-app-surface p-4 text-center text-tub dark:border-app-border dark:bg-app-surface dark:text-app-text"
         :aria-label="$t('accessibility.aria_label.footer')"
     >
         <div class="">

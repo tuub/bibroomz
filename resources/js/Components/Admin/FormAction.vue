@@ -2,14 +2,18 @@
     <div class="mb-6 space-x-1">
         <button
             type="button"
-            class="rounded bg-green-400 px-4 py-2 text-white hover:bg-green-700"
+            class="rounded bg-feedback-success-soft px-4 py-2 text-feedback-success-contrast hover:bg-feedback-success-hover"
             :disabled="form.processing"
             @click="submitForm"
         >
             {{ $t("admin.general.form.submit") }}
         </button>
 
-        <button type="button" class="rounded bg-gray-400 px-4 py-2 text-black hover:bg-gray-700" @click="cancelForm">
+        <button
+            type="button"
+            class="rounded bg-button-secondary px-4 py-2 text-button-secondary-contrast hover:bg-button-secondary-hover"
+            @click="cancelForm"
+        >
             {{ $t("admin.general.form.cancel") }}
         </button>
     </div>

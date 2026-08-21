@@ -10,7 +10,7 @@
                 id="institution_id"
                 v-model="form.institution_id"
                 name="institution_id"
-                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-red-500 dark:focus:ring-red-500"
+                class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
                 required
             >
                 <option v-for="i in institutions" :key="i.id" :value="i.id">
@@ -99,7 +99,7 @@
 
         <fieldset class="space-y-4">
             <legend class="space-y-2">
-                <div class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+                <div class="text-sm font-bold uppercase text-app-text dark:text-app-text">
                     {{ $t("admin.resource_groups.form.fields.user_groups.label") }}
                 </div>
 

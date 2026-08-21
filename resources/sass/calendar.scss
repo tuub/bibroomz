@@ -1,5 +1,3 @@
-@use "variables";
-
 .fc-timegrid-body {
     cursor: grab;
 }
@@ -10,11 +8,11 @@
 }
 
 .fc-non-business {
-    background-color: #bebebe !important;
+    background-color: rgb(var(--color-app-border)) !important;
 }
 
 div.fc-timegrid-slots tr {
-    background-color: #ffffff;
+    background-color: rgb(var(--color-app-surface));
 }
 
 .fc-timegrid-axis-frame i.ri-time-line {
@@ -43,21 +41,21 @@ div.fc-timegrid-slots tr {
 
 /* Today */
 .fc-unthemed td.fc-today {
-    background-color: #ffffff !important;
+    background-color: rgb(var(--color-app-surface)) !important;
 }
 
 /* Past Days */
 .fc-past {
     cursor: not-allowed;
-    background-color: variables.$status-closing-bg;
-    color: variables.$status-closing-fg;
+    background-color: rgb(var(--color-status-closing-bg));
+    color: rgb(var(--color-status-closing-fg));
 }
 
 /* Closed timeslots */
 .fc-nonbusiness {
     cursor: not-allowed;
-    background-color: variables.$status-closing-bg;
-    color: variables.$status-closing-fg;
+    background-color: rgb(var(--color-status-closing-bg));
+    color: rgb(var(--color-status-closing-fg));
 }
 
 /* Background Events: Closings */
@@ -65,15 +63,15 @@ div.fc-timegrid-slots tr {
 .fc-bg-event {
     opacity: 1 !important;
     cursor: not-allowed;
-    background-color: #ffffff;
+    background-color: rgb(var(--color-app-surface));
     background: repeating-linear-gradient(
         45deg,
-        rgba(245, 245, 245),
-        rgba(245, 245, 245) 10px,
-        rgba(235, 235, 235) 10px,
-        rgba(235, 235, 235) 20px
+        rgb(var(--color-app-field)),
+        rgb(var(--color-app-field)) 10px,
+        rgb(var(--color-app-page)) 10px,
+        rgb(var(--color-app-page)) 20px
     ) !important;
-    color: black;
+    color: rgb(var(--color-app-text));
 }
 
 /* Room header columns */
@@ -98,52 +96,34 @@ a.fc-event {
 
     &.past-event {
         opacity: 0.4;
-        background-color: #cccccc;
+        background-color: rgb(var(--color-app-border));
     }
 
     &.reservation {
         opacity: 0.75;
-        background-color: variables.$status-reservation-bg;
-        color: variables.$status-reservation-fg;
+        background-color: rgb(var(--color-status-reservation-bg));
+        color: rgb(var(--color-status-reservation-fg));
     }
 
     &.booking {
         opacity: 0.75;
-        background-color: variables.$status-booking-bg;
-        color: variables.$status-booking-fg;
+        background-color: rgb(var(--color-status-booking-bg));
+        color: rgb(var(--color-status-booking-fg));
     }
-
-    /*
-    &.user-reservation {
-        background-color: variables.$status-reservation-bg;
-        color: variables.$status-reservation-fg !important;
-    }
-
-    &.user-to-verify {
-        background-color: variables.$status-user-to-verify-bg;
-        color: variables.$status-user-to-verify-fg;
-    }
-
-    &.user-booking {
-        background-color: variables.$status-user-booking-bg;
-        color: variables.$status-user-booking-fg;
-        //background-image: url('../../public/images/1797769.png');
-    }
-    */
 
     &.block {
-        background-color: variables.$status-block-bg;
+        background-color: rgb(var(--color-status-block-bg));
         pointer-events: none;
-        color: variables.$status-block-fg;
+        color: rgb(var(--color-status-block-fg));
     }
 }
 
 .fc-timegrid-slots tr:nth-child(odd) {
-    background-color: #ffffff;
+    background-color: rgb(var(--color-app-surface));
 }
 
 .fc-timegrid-slots tr:nth-child(even) {
-    background-color: #f6f6f6;
+    background-color: rgb(var(--color-app-field));
 }
 
 .fc-direction-ltr .fc-button-group > .fc-button:not(:last-child),
@@ -162,42 +142,48 @@ a.fc-event {
 /* Dark mode overrides */
 .dark {
     .fc {
-        --fc-border-color: #374151; // gray-700
-        --fc-page-bg-color: #1f2937; // gray-800
-        --fc-neutral-bg-color: #374151; // gray-700
-        --fc-neutral-text-color: #d1d5db; // gray-300
-        --fc-non-business-color: rgba(0, 0, 0, 30%);
-        --fc-more-link-bg-color: #374151; // gray-700
-        --fc-today-bg-color: rgba(196, 13, 30, 15%); // tub-tinted
+        --fc-border-color: rgb(var(--color-app-border));
+        --fc-page-bg-color: rgb(var(--color-app-surface));
+        --fc-neutral-bg-color: rgb(var(--color-app-field));
+        --fc-neutral-text-color: rgb(var(--color-app-muted));
+        --fc-non-business-color: rgb(var(--color-calendar-overlay) / 30%);
+        --fc-more-link-bg-color: rgb(var(--color-app-field));
+        --fc-today-bg-color: rgb(var(--color-brand-tub) / 15%);
     }
 
     .fc-non-business {
-        background-color: #374151 !important; // gray-700
+        background-color: rgb(var(--color-app-field)) !important;
     }
 
     div.fc-timegrid-slots tr {
-        background-color: #1f2937; // gray-800
+        background-color: rgb(var(--color-app-surface));
     }
 
     .fc-unthemed td.fc-today {
-        background-color: #374151 !important; // gray-700
+        background-color: rgb(var(--color-app-field)) !important;
     }
 
     .fc-bg-event {
-        background-color: #1f2937; // gray-800
-        background: repeating-linear-gradient(45deg, #374151, #374151 10px, #4b5563 10px, #4b5563 20px) !important;
-        color: #f3f4f6; // gray-100
+        background-color: rgb(var(--color-app-surface));
+        background: repeating-linear-gradient(
+            45deg,
+            rgb(var(--color-app-border)),
+            rgb(var(--color-app-border)) 10px,
+            rgb(var(--color-app-field)) 10px,
+            rgb(var(--color-app-field)) 20px
+        ) !important;
+        color: rgb(var(--color-app-text));
     }
 
     a.fc-event.past-event {
-        background-color: #4b5563; // gray-600
+        background-color: rgb(var(--color-app-field));
     }
 
     .fc-timegrid-slots tr:nth-child(odd) {
-        background-color: #1f2937; // gray-800
+        background-color: rgb(var(--color-app-surface));
     }
 
     .fc-timegrid-slots tr:nth-child(even) {
-        background-color: #374151; // gray-700
+        background-color: rgb(var(--color-app-field));
     }
 }

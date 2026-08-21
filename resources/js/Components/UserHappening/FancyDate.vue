@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-16 w-16 shrink-0 grow-0 items-center justify-center rounded-full pt-2.5 text-center uppercase text-white"
+        class="h-16 w-16 shrink-0 grow-0 items-center justify-center rounded-full pt-2.5 text-center uppercase"
         :class="cssClass"
     >
         <div class="block text-xs">{{ formattedFancyDate.month }}</div>
@@ -42,14 +42,14 @@ const formattedFancyDate = computed(() => {
 
 <style lang="postcss" scoped>
 .booked {
-    @apply bg-green-500;
+    @apply bg-status-booking-bg text-status-booking-fg;
 }
 
 .reserved {
-    @apply bg-yellow-500;
+    @apply bg-status-reservation-bg text-status-reservation-fg;
 }
 
 .over {
-    @apply bg-gray-500;
+    @apply bg-status-closing-bg text-status-closing-fg;
 }
 </style>

@@ -39,7 +39,7 @@ const { loginUser, logoutUser } = useLogin();
                 <InternalLink
                     :href="route('start')"
                     icon="pi pi-home"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     title="Start"
                 >
                     {{ $t("navigation.home") }}
@@ -49,7 +49,7 @@ const { loginUser, logoutUser } = useLogin();
                 <ExternalLink
                     :href="$t('navigation.help.uri')"
                     icon="pi pi-question-circle"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     title="Help"
                 >
                     {{ $t("navigation.help.label") }}
@@ -59,7 +59,7 @@ const { loginUser, logoutUser } = useLogin();
                 <InternalLink
                     :href="route('admin.dashboard')"
                     icon="pi pi-cog"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     title="Admin"
                 >
                     {{ $t("navigation.admin") }}
@@ -70,7 +70,7 @@ const { loginUser, logoutUser } = useLogin();
                     v-if="isAuthenticated"
                     id="auth"
                     href="#"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     title="Logout"
                     @click="logoutUser"
                 >
@@ -82,7 +82,7 @@ const { loginUser, logoutUser } = useLogin();
                     v-else
                     id="auth"
                     href="#"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-white"
+                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
                     title="Login"
                     @click="loginUser"
                 >

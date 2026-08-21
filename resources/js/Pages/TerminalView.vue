@@ -93,13 +93,7 @@ a.fc-event:hover {
     cursor: pointer;
 }
 
-/*
-.fc-non-business {
-    background-color: #BEBEBE !important;
-}
-*/
-
 div.fc-timegrid-slots tr {
-    background-color: #ffffff;
+    background-color: rgb(var(--color-app-surface));
 }
 </style>

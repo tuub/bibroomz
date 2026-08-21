@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label :for="field" class="text-sm font-bold uppercase text-gray-900 dark:text-white">
+        <label :for="field" class="text-sm font-bold uppercase text-app-text dark:text-app-text">
             {{ label }}
 
             <span v-if="language">

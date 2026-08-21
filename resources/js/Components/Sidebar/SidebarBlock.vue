@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="rounded bg-white p-5 shadow-md dark:bg-gray-800">
+    <div class="rounded bg-app-surface p-5 shadow-md dark:bg-app-surface">
         <h3 class="block text-sm font-bold uppercase">
             {{ title }}
         </h3>

@@ -4,28 +4,52 @@ import { storeToRefs } from "pinia";
 import { watch } from "vue";
 
 const PREFERENCE_ORDER: ThemePreference[] = ["system", "light", "dark"];
-const media = window.matchMedia("(prefers-color-scheme: dark)");
+const THEME_COLOR_VARIABLE = "--color-app-page";
 
-function resolveIsDark(preference: ThemePreference) {
-    if (preference === "dark") return true;
-    if (preference === "light") return false;
-    return media.matches;
+type ResolvedTheme = "light" | "dark";
+
+function getDarkModeMedia() {
+    return window.matchMedia("(prefers-color-scheme: dark)");
 }
 
-function applyClass(preference: ThemePreference) {
-    document.documentElement.classList.toggle("dark", resolveIsDark(preference));
+function resolveTheme(preference: ThemePreference): ResolvedTheme {
+    if (preference === "dark") return "dark";
+    if (preference === "light") return "light";
+    return getDarkModeMedia().matches ? "dark" : "light";
+}
+
+function resolveThemeColor() {
+    const appPageColor = getComputedStyle(document.documentElement).getPropertyValue(THEME_COLOR_VARIABLE).trim();
+
+    return appPageColor ? `rgb(${appPageColor.replace(/\s+/g, ", ")})` : null;
+}
+
+function applyTheme(preference: ThemePreference) {
+    const resolvedTheme = resolveTheme(preference);
+    const isDark = resolvedTheme === "dark";
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.style.colorScheme = resolvedTheme;
+
+    const resolvedThemeColor = resolveThemeColor();
+
+    if (themeColor && resolvedThemeColor) {
+        themeColor.setAttribute("content", resolvedThemeColor);
+    }
 }
 
 export function useTheme() {
     const themeStore = useThemeStore();
     const { preference } = storeToRefs(themeStore);
+    const media = getDarkModeMedia();
 
     const init = () => {
-        watch(preference, (value) => applyClass(value), { immediate: true });
+        watch(preference, (value) => applyTheme(value), { immediate: true });
 
         media.addEventListener("change", () => {
             if (preference.value === "system") {
-                applyClass(preference.value);
+                applyTheme(preference.value);
             }
         });
     };

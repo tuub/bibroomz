@@ -3,7 +3,7 @@
         <!--
         <div class="px-1">
             <Chip class="my-1 py-0 pl-0 pr-4 text-xs uppercase">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-black text-primary-contrast">
+                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-app-text text-app-page">
                     {{ happeningsCount }}
                 </span>
                 <span class="ml-0 text-xs font-medium">

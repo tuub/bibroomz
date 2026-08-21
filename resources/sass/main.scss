@@ -1,10 +1,75 @@
-@use "variables";
 @use "calendar";
 @use "primeicons/primeicons.css";
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
     @tailwind base;
+
+    :root {
+        --color-app-page: 243 244 246;
+        --color-app-surface: 255 255 255;
+        --color-app-field: 249 250 251;
+        --color-app-border: 209 213 219;
+        --color-app-text: 3 7 18;
+        --color-app-muted: 75 85 99;
+        --color-app-subtle: 156 163 175;
+        --color-brand-tub: 196 13 30;
+        --color-brand-contrast: 255 255 255;
+        --color-button-secondary: 156 163 175;
+        --color-button-secondary-hover: 55 65 81;
+        --color-button-secondary-contrast: 0 0 0;
+        --color-calendar-overlay: 0 0 0;
+        --color-debug-outline: 51 102 153;
+        --color-feedback-danger: 220 38 38;
+        --color-feedback-danger-contrast: 255 255 255;
+        --color-feedback-danger-ring: 252 165 165;
+        --color-feedback-danger-soft: 254 242 242;
+        --color-feedback-danger-soft-hover: 254 202 202;
+        --color-feedback-danger-strong: 185 28 28;
+        --color-feedback-danger-strong-hover: 153 27 27;
+        --color-feedback-danger-text: 153 27 27;
+        --color-feedback-success: 34 197 94;
+        --color-feedback-success-contrast: 255 255 255;
+        --color-feedback-success-hover: 21 128 61;
+        --color-feedback-success-soft: 74 222 128;
+        --color-feedback-success-strong: 22 163 74;
+        --color-link: 37 99 235;
+        --color-notice-warning-border: 253 230 138;
+        --color-notice-warning-icon: 217 119 6;
+        --color-notice-warning-surface: 255 251 235;
+        --color-notice-warning-text: 69 26 3;
+        --color-quota-contrast: 255 255 255;
+        --color-quota-count: 75 85 99;
+        --color-quota-label: 107 114 128;
+        --color-status-block-bg: 206 30 23;
+        --color-status-block-fg: 0 0 0;
+        --color-status-booking-bg: 22 89 172;
+        --color-status-booking-fg: 255 255 255;
+        --color-status-closing-bg: 82 82 82;
+        --color-status-closing-fg: 255 255 255;
+        --color-status-reservation-bg: 246 211 45;
+        --color-status-reservation-fg: 0 0 0;
+    }
+
+    .dark {
+        --color-app-page: 23 23 23;
+        --color-app-surface: 38 38 38;
+        --color-app-field: 64 64 64;
+        --color-app-border: 82 82 82;
+        --color-app-text: 245 245 245;
+        --color-app-muted: 212 212 212;
+        --color-app-subtle: 163 163 163;
+        --color-feedback-danger: 239 68 68;
+        --color-feedback-danger-ring: 153 27 27;
+        --color-feedback-danger-strong: 220 38 38;
+        --color-feedback-danger-strong-hover: 185 28 28;
+        --color-feedback-danger-text: 248 113 113;
+        --color-link: 96 165 250;
+        --color-notice-warning-border: 146 64 14;
+        --color-notice-warning-icon: 251 191 36;
+        --color-notice-warning-surface: 120 53 15;
+        --color-notice-warning-text: 253 230 138;
+    }
 }
 
 @layer tailwind-utilities {
@@ -19,46 +84,29 @@
 
 // Mainly for debug and development
 * {
-    outline: 0 #336699 dashed;
+    outline: 0 rgb(var(--color-debug-outline)) dashed;
 }
 
 main {
-    @apply text-black;
+    @apply text-app-text;
 }
 
 .status-reservation {
-    background-color: variables.$status-reservation-bg;
-    color: variables.$status-reservation-fg;
+    background-color: rgb(var(--color-status-reservation-bg));
+    color: rgb(var(--color-status-reservation-fg));
 }
 
 .status-booking {
-    background-color: variables.$status-booking-bg;
-    color: variables.$status-booking-fg;
+    background-color: rgb(var(--color-status-booking-bg));
+    color: rgb(var(--color-status-booking-fg));
 }
-
-/*
-.status-user-reservation {
-    background-color: variables.$status-user-reservation-bg;
-    color: variables.$status-user-reservation-fg;
-}
-
-.status-user-to-verify {
-    background-color: variables.$status-user-to-verify-bg;
-    color: variables.$status-user-to-verify-fg;
-}
-
-.status-user-booking {
-    background-color: variables.$status-user-booking-bg;
-    color: variables.$status-user-booking-fg;
-}
-*/
 
 .status-closing {
-    background-color: variables.$status-closing-bg;
-    color: variables.$status-closing-fg;
+    background-color: rgb(var(--color-status-closing-bg));
+    color: rgb(var(--color-status-closing-fg));
 }
 
 .status-block {
-    background-color: variables.$status-block-bg;
-    color: variables.$status-block-fg;
+    background-color: rgb(var(--color-status-block-bg));
+    color: rgb(var(--color-status-block-fg));
 }
