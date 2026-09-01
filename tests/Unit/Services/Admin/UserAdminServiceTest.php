@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Models\Happening;
 use App\Models\Institution;
+use App\Models\Resource;
+use App\Models\ResourceGroup;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGroup;
@@ -56,6 +59,21 @@ test('getIndexData happenings_count reflects user happenings', function (): void
     $data = $service->getIndexData();
 
     expect($data['users']->first()['happenings_count'])->toBe(0);
+});
+
+test('getIndexData happenings_count reflects a nonzero number of happenings', function (): void {
+    $user = User::factory()->create();
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    Happening::factory()->for($resource, 'resource')->count(3)->create(['user_id_01' => $user->id]);
+
+    $service = app(UserAdminService::class);
+    $data = $service->getIndexData();
+
+    $mapped = $data['users']->firstWhere('id', $user->id);
+
+    expect($mapped['happenings_count'])->toBe(3);
 });
 
 test('getIndexData is_privileged is true when user has roles', function (): void {
@@ -294,17 +312,34 @@ test('unban removes ban from user', function (): void {
 // getIndexData – relation loading
 // -------------------------------------------------------------------------
 
-test('getIndexData loads happenings, roles and user_groups relations', function (): void {
+test('getIndexData loads roles and user_groups relations', function (): void {
     User::factory()->create();
 
     $service = app(UserAdminService::class);
     $service->getIndexData();
 
-    $freshUser = User::query()->with(['happenings', 'roles', 'user_groups'])->firstOrFail();
+    $freshUser = User::query()->with(['roles', 'user_groups'])->firstOrFail();
 
-    expect($freshUser->relationLoaded('happenings'))->toBeTrue()
-        ->and($freshUser->relationLoaded('roles'))->toBeTrue()
+    expect($freshUser->relationLoaded('roles'))->toBeTrue()
         ->and($freshUser->relationLoaded('user_groups'))->toBeTrue();
+});
+
+test('getIndexData query count stays constant regardless of the number of users', function (): void {
+    User::factory()->count(3)->create();
+
+    DB::enableQueryLog();
+    app(UserAdminService::class)->getIndexData();
+    $queryCountForThreeUsers = count(DB::getQueryLog());
+    DB::flushQueryLog();
+
+    User::factory()->count(5)->create();
+    DB::flushQueryLog();
+
+    app(UserAdminService::class)->getIndexData();
+    $queryCountForEightUsers = count(DB::getQueryLog());
+    DB::disableQueryLog();
+
+    expect($queryCountForEightUsers)->toBe($queryCountForThreeUsers);
 });
 
 // -------------------------------------------------------------------------
@@ -555,25 +590,6 @@ test('delete logs deleted action via admin channel', function (): void {
     $service = app(UserAdminService::class);
 
     $service->delete($user);
-});
-
-test('getIndexData eager loads happenings, roles and user_groups relations', function (): void {
-    User::factory()->create();
-
-    $service = app(UserAdminService::class);
-    $service->getIndexData();
-
-    $freshUser = User::query()->firstOrFail();
-
-    expect($freshUser->relationLoaded('happenings'))->toBeFalse();
-
-    $service->getIndexData();
-
-    $users = User::query()->with(['happenings', 'roles', 'user_groups'])->get();
-
-    expect($users->first()?->relationLoaded('happenings'))->toBeTrue()
-        ->and($users->first()?->relationLoaded('roles'))->toBeTrue()
-        ->and($users->first()?->relationLoaded('user_groups'))->toBeTrue();
 });
 
 test('getIndexData result has happenings_count that reflects actual loaded happenings', function (): void {

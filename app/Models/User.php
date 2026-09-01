@@ -24,6 +24,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * @property-read EloquentCollection<int, Role> $roles
  * @property-read EloquentCollection<int, UserGroup> $user_groups
+ * @property-read int $happenings_count
  */
 #[Fillable([
     'name',

@@ -23,7 +23,8 @@ class UserAdminService
     {
         return [
             'users' => User::query()
-                ->with(['happenings', 'roles', 'user_groups'])
+                ->with(['roles', 'user_groups'])
+                ->withCount('happenings')
                 ->orderBy('name')
                 ->get()
                 ->map(fn (User $user): array => [
@@ -35,7 +36,7 @@ class UserAdminService
                     'is_logged_in' => $user->isLoggedIn(),
                     'is_privileged' => $user->roles->count() > 0,
                     'is_banned' => $user->isBanned(),
-                    'happenings_count' => $user->happenings->count(),
+                    'happenings_count' => $user->happenings_count,
                     'user_groups' => array_values(array_map(fn (UserGroup $ug): array => ['id' => $ug->id, 'title' => $ug->getTranslations('title')], $user->user_groups->all())),
                 ]),
         ];
