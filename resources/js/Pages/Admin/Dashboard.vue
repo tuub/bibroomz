@@ -20,6 +20,13 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
             icon="ri-calendar-event-fill"
         />
         <DashboardCard
+            v-if="hasPermission('view_happenings')"
+            :title="$t('admin.statistics.index.title')"
+            :description="$t('admin.statistics.index.description')"
+            :link="route('admin.statistics.index')"
+            icon="ri-bar-chart-2-fill"
+        />
+        <DashboardCard
             v-if="canViewInstitutions()"
             :title="$t('admin.institutions.index.title')"
             :description="$t('admin.institutions.index.description')"

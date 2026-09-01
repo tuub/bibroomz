@@ -90,6 +90,20 @@ describe("setTemporalFormats", () => {
     });
 });
 
+describe("primeDateFormat", () => {
+    test("uses PrimeVue's own format tokens for en", () => {
+        const store = useAppStore();
+        store.locale = "en";
+        expect(store.primeDateFormat).toBe("yy/mm/dd");
+    });
+
+    test("falls back to the default PrimeVue format for any other locale", () => {
+        const store = useAppStore();
+        store.locale = "de";
+        expect(store.primeDateFormat).toBe("dd.mm.yy");
+    });
+});
+
 describe("translate", () => {
     test("returns an empty string for a falsy translatable", () => {
         const store = useAppStore();

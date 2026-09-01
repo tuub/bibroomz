@@ -105,6 +105,8 @@ describe("useAdminBreadcrumbs", () => {
             "admin.role.index",
             "admin.setting.edit",
             "admin.setting.index",
+            "admin.statistics.export",
+            "admin.statistics.index",
             "admin.user.create",
             "admin.user.edit",
             "admin.user.index",
@@ -384,6 +386,14 @@ describe("useAdminBreadcrumbs", () => {
                 setting: { key: "timezone" },
             });
             expect(lastLabel(items)).toBe("admin.settings.keys.timezone.label");
+        });
+    });
+
+    describe("statistics", () => {
+        test("index", () => {
+            const { items } = setup("admin.statistics.index");
+            expect(labels(items)).toEqual(["admin.breadcrumbs.dashboard", "admin.breadcrumbs.statistics"]);
+            expect(lastItem(items).url).toBeNull();
         });
     });
 

@@ -196,6 +196,73 @@ export type Mail = {
     is_active?: boolean;
 };
 
+export type InstitutionStatistic = {
+    id: number | string;
+    title: Translatable;
+    count: number;
+    active: number;
+    cancelled: number;
+    cancellationRate: number;
+};
+
+export type ResourceGroupStatistic = {
+    id: number | string;
+    title: Translatable;
+    institution_id: number | string;
+    count: number;
+    active: number;
+    cancelled: number;
+    cancellationRate: number;
+};
+
+export type ResourceStatistic = {
+    id: number | string;
+    title: Translatable;
+    resource_group_id: number | string;
+    count: number;
+    active: number;
+    cancelled: number;
+    cancellationRate: number;
+};
+
+export type TimeSeriesEntry = {
+    label: string;
+    count: number;
+};
+
+export type PeakTimesHeatmapCell = {
+    dayOfWeek: number;
+    hour: number;
+    count: number;
+    percentage: number;
+};
+
+export type PeakTimesHeatmap = {
+    cells: PeakTimesHeatmapCell[];
+    maxCount: number;
+    totalCount: number;
+};
+
+export type StatisticsComparison = {
+    from: string;
+    to: string;
+    currentCount: number;
+    comparisonCount: number;
+    deltaPct: number;
+    timeSeries: TimeSeriesEntry[];
+    institutions: InstitutionStatistic[];
+    resourceGroups: ResourceGroupStatistic[];
+    resources: ResourceStatistic[];
+};
+
+export type CancellationStatistic = {
+    cancelled: number;
+    active: number;
+    rate: number;
+    retentionDays: number;
+    retentionExceeded: boolean;
+};
+
 export type UserGroup = {
     id?: number | string;
     institution_id?: number | string;

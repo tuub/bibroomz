@@ -13,6 +13,7 @@ return [
             'toggle_password' => 'Toggle password',
             'submit' => 'Save',
             'cancel' => 'Cancel',
+            'apply' => 'Apply',
         ],
         'table' => [
             'relations' => 'Relations',
@@ -55,6 +56,7 @@ return [
     ],
     'breadcrumbs' => [
         'dashboard' => 'Admin',
+        'statistics' => 'Statistics',
         'happenings' => 'Happenings',
         'institutions' => 'Institutions',
         'resource_groups' => 'Resource Groups',
@@ -72,6 +74,79 @@ return [
     ],
     'dashboard' => [
         'title' => 'Dashboard',
+    ],
+    'statistics' => [
+        'index' => [
+            'title' => 'Statistics',
+            'description' => 'Bookings per institution, resource group and resource',
+            'bookings' => 'Bookings',
+            'no_data' => 'No booking data available.',
+            'single_entry' => ':title: :count bookings',
+            'cancellations' => [
+                'title' => 'Cancellation status',
+                'subject' => 'Name',
+                'cancelled' => 'Cancelled',
+                'active' => 'Active',
+                'rate' => 'Rate',
+                'retention_notice' => 'Bookings older than :days days may have already been removed by cleanup, so this range can be incomplete.',
+            ],
+            'range' => [
+                'label' => 'Time range',
+                'all' => 'All time',
+                'this_week' => 'This week',
+                'this_month' => 'This month',
+                'this_year' => 'This year',
+                'last_7_days' => 'Last 7 days',
+                'last_30_days' => 'Last 30 days',
+                'last_3_months' => 'Last 3 months',
+                'last_12_months' => 'Last 12 months',
+                'custom' => 'Custom range',
+                'from' => 'From',
+                'to' => 'To',
+            ],
+            'time_series' => [
+                'title' => 'Bookings over time',
+                'week' => 'By week',
+                'month' => 'By month',
+                'year' => 'By year',
+                'institution' => 'Institution',
+                'resource_group' => 'Resource group',
+                'resource' => 'Resource',
+                'all_institutions' => 'All institutions',
+                'all_resource_groups' => 'All resource groups',
+                'all_resources' => 'All resources',
+            ],
+            'heatmap' => [
+                'title' => 'Peak booking times',
+                'day_of_week' => 'Day',
+                'hour_of_day' => 'Hour of day',
+            ],
+            'comparison' => [
+                'toggle_label' => 'Compare with another period',
+                'compare_from' => 'Compare from',
+                'compare_to' => 'Compare to',
+                'title' => 'Comparison period',
+                'period_title' => 'Comparison period',
+                'current_period_title' => 'Current period',
+                'delta' => ':delta vs. comparison',
+                'current_count' => ':count current',
+                'comparison_count' => ':count comparison',
+            ],
+            'institutions' => [
+                'title' => 'Bookings per institution',
+            ],
+            'resource_groups' => [
+                'title' => 'Bookings per resource group',
+                'select_institution' => 'Select an institution to see its resource groups.',
+            ],
+            'resources' => [
+                'title' => 'Bookings per resource',
+                'select_resource_group' => 'Select a resource group to see its resources.',
+            ],
+            'export' => [
+                'button' => 'Export CSV',
+            ],
+        ],
     ],
     'happenings' => [
         'index' => [

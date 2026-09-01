@@ -49,6 +49,7 @@ type BreadcrumbContext = {
 
 type AdminBreadcrumbSectionId =
     | "dashboard"
+    | "statistics"
     | "happenings"
     | "institutions"
     | "resourceGroups"
@@ -90,6 +91,10 @@ function pushResourceGroup(ctx: BreadcrumbContext, resourceGroup?: WithTitle) {
         ctx.translate(resourceGroup.title),
         ctx.route("admin.resource.index", { resource_group_id: resourceGroup.id }),
     );
+}
+
+function buildStatisticsCrumbs({ push, t, route }: BreadcrumbContext) {
+    push(t("statistics"), route("admin.statistics.index"));
 }
 
 function buildHappeningCrumbs({ props, push, t, translate, route, isCreate, isEdit }: BreadcrumbContext) {
@@ -247,6 +252,8 @@ const contract = (
 
 export const ADMIN_BREADCRUMB_ROUTE_CONTRACTS = [
     contract("admin.dashboard", "dashboard"),
+    contract("admin.statistics.index", "statistics"),
+    contract("admin.statistics.export", "statistics"),
     contract("admin.happening.index", "happenings"),
     contract("admin.happening.create", "happenings"),
     contract("admin.happening.edit", "happenings", ["happening.label"]),
@@ -284,6 +291,7 @@ export const ADMIN_BREADCRUMB_ROUTE_CONTRACTS = [
 
 const breadcrumbSections: BreadcrumbSection[] = [
     { section: "dashboard", build: () => undefined },
+    { section: "statistics", build: buildStatisticsCrumbs },
     { section: "happenings", build: buildHappeningCrumbs },
     { section: "institutions", build: buildInstitutionCrumbs },
     { section: "resourceGroups", build: buildResourceGroupCrumbs },

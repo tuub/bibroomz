@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
 use App\Http\Controllers\Admin\ResourceGroupController as AdminResourceGroupController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\StatisticsController as AdminStatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\UserGroupController as AdminUserGroupController;
 use App\Http\Controllers\HappeningController;
@@ -74,6 +75,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
         /* Dashboard */
         Route::get('/admin/dashboard', [AdminController::class, 'getDashboard'])
             ->name('admin.dashboard');
+
+        /* Statistics */
+        Route::get('/admin/statistics', [AdminStatisticsController::class, 'getStatistics'])
+            ->name('admin.statistics.index');
+        Route::get('/admin/statistics/export', [AdminStatisticsController::class, 'exportStatistics'])
+            ->name('admin.statistics.export');
 
         /* Happenings */
         Route::get('/admin/happenings', [AdminHappeningController::class, 'getHappenings'])

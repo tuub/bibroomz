@@ -13,6 +13,7 @@ return [
             'toggle_password' => 'Passwort ein-/ausblenden',
             'submit' => 'Speichern',
             'cancel' => 'Abbrechen',
+            'apply' => 'Anwenden',
         ],
         'table' => [
             'relations' => 'Relationen',
@@ -55,6 +56,7 @@ return [
     ],
     'breadcrumbs' => [
         'dashboard' => 'Admin',
+        'statistics' => 'Statistik',
         'happenings' => 'Events',
         'institutions' => 'Einrichtungen',
         'resource_groups' => 'Ressource-Gruppen',
@@ -72,6 +74,79 @@ return [
     ],
     'dashboard' => [
         'title' => 'Dashboard',
+    ],
+    'statistics' => [
+        'index' => [
+            'title' => 'Statistik',
+            'description' => 'Buchungen pro Einrichtung, Ressourcengruppe und Ressource',
+            'bookings' => 'Buchungen',
+            'no_data' => 'Keine Buchungsdaten verfügbar.',
+            'single_entry' => ':title: :count Buchungen',
+            'cancellations' => [
+                'title' => 'Stornierungsstatus',
+                'subject' => 'Name',
+                'cancelled' => 'Storniert',
+                'active' => 'Aktiv',
+                'rate' => 'Quote',
+                'retention_notice' => 'Buchungen, die älter als :days Tage sind, wurden möglicherweise bereits bereinigt. Dieser Zeitraum kann daher unvollständig sein.',
+            ],
+            'range' => [
+                'label' => 'Zeitraum',
+                'all' => 'Gesamter Zeitraum',
+                'this_week' => 'Diese Woche',
+                'this_month' => 'Dieser Monat',
+                'this_year' => 'Dieses Jahr',
+                'last_7_days' => 'Letzte 7 Tage',
+                'last_30_days' => 'Letzte 30 Tage',
+                'last_3_months' => 'Letzte 3 Monate',
+                'last_12_months' => 'Letzte 12 Monate',
+                'custom' => 'Benutzerdefinierter Zeitraum',
+                'from' => 'Von',
+                'to' => 'Bis',
+            ],
+            'time_series' => [
+                'title' => 'Buchungen im Zeitverlauf',
+                'week' => 'Nach Woche',
+                'month' => 'Nach Monat',
+                'year' => 'Nach Jahr',
+                'institution' => 'Einrichtung',
+                'resource_group' => 'Ressourcengruppe',
+                'resource' => 'Ressource',
+                'all_institutions' => 'Alle Einrichtungen',
+                'all_resource_groups' => 'Alle Ressourcengruppen',
+                'all_resources' => 'Alle Ressourcen',
+            ],
+            'heatmap' => [
+                'title' => 'Stoßzeiten der Buchungen',
+                'day_of_week' => 'Tag',
+                'hour_of_day' => 'Stunde des Tages',
+            ],
+            'comparison' => [
+                'toggle_label' => 'Mit anderem Zeitraum vergleichen',
+                'compare_from' => 'Vergleich von',
+                'compare_to' => 'Vergleich bis',
+                'title' => 'Vergleichszeitraum',
+                'period_title' => 'Vergleichszeitraum',
+                'current_period_title' => 'Aktueller Zeitraum',
+                'delta' => ':delta zum Vergleich',
+                'current_count' => ':count aktuell',
+                'comparison_count' => ':count Vergleich',
+            ],
+            'institutions' => [
+                'title' => 'Buchungen pro Einrichtung',
+            ],
+            'resource_groups' => [
+                'title' => 'Buchungen pro Ressourcengruppe',
+                'select_institution' => 'Wählen Sie eine Einrichtung aus, um deren Ressourcengruppen zu sehen.',
+            ],
+            'resources' => [
+                'title' => 'Buchungen pro Ressource',
+                'select_resource_group' => 'Wählen Sie eine Ressourcengruppe aus, um deren Ressourcen zu sehen.',
+            ],
+            'export' => [
+                'button' => 'CSV exportieren',
+            ],
+        ],
     ],
     'happenings' => [
         'index' => [

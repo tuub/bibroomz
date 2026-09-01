@@ -256,5 +256,8 @@ export const useAppStore = defineStore({
         institution: (state) => state.resourceGroup?.institution,
         globalNotifications: (state): SystemNotification[] =>
             state.globalSystemNotification ? [{ message: state.globalSystemNotification }] : [],
+        // PrimeVue's DatePicker uses its own format tokens (dd/mm/yy), distinct from
+        // the dayjs tokens used by `dateFormat`/`formatDate`.
+        primeDateFormat: (state): string => (state.locale === "en" ? "yy/mm/dd" : "dd.mm.yy"),
     },
 });
