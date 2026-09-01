@@ -109,6 +109,9 @@ function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
             striped-rows
             show-gridlines
             removable-sort
+            paginator
+            :rows="50"
+            :rows-per-page-options="[25, 50, 100]"
             table-style="min-width: 50rem"
             class="w-full text-left text-sm text-app-muted dark:text-app-subtle"
         >
