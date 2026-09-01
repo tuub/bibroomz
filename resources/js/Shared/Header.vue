@@ -4,7 +4,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { inject, ref } from "vue";
 
@@ -14,13 +14,34 @@ const authStore = useAuthStore();
 
 const { appName, institution, isMultiTenancy } = storeToRefs(appStore);
 const isResponsive = ref(false);
-const { isPrivileged } = storeToRefs(authStore);
+const { isPrivileged, isImpersonating, user } = storeToRefs(authStore);
+
+function stopImpersonating() {
+    router.post(
+        route("admin.impersonate.stop"),
+        {},
+        {
+            onSuccess: () => {
+                window.location.reload();
+            },
+        },
+    );
+}
 </script>
 <template>
     <Head>
         <!--<title>{{ title ? `${title} - ${appName}` : `${appName}` }}</title>-->
         <title>{{ appName }}</title>
     </Head>
+    <div
+        v-if="isImpersonating"
+        class="flex items-center justify-center gap-4 bg-feedback-danger-strong p-2 text-center text-sm text-feedback-danger-contrast"
+    >
+        <span>{{ $t("impersonation.banner.message", { name: user?.name ?? "" }) }}</span>
+        <button class="font-medium underline" @click="stopImpersonating">
+            {{ $t("impersonation.banner.stop", { name: user?.name ?? "" }) }}
+        </button>
+    </div>
     <header
         class="flex items-center justify-between bg-app-surface p-4 text-tub dark:bg-app-surface"
         :aria-label="$t('accessibility.aria_label.header')"

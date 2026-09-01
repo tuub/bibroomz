@@ -524,6 +524,7 @@ return [
                     'delete' => 'Löschen',
                     'ban' => 'Sperren',
                     'unban' => 'Entsperren',
+                    'impersonate' => 'Ansehen als',
                 ],
             ],
         ],

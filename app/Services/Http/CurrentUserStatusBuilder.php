@@ -28,6 +28,7 @@ class CurrentUserStatusBuilder
             'user' => $user->only(['id', 'name', 'email']),
             'permissions' => $user->getPermissions(),
             'allowedResourceGroups' => $allowedResourceGroups,
+            'isImpersonating' => session()->has('impersonator_id'),
         ];
     }
 }

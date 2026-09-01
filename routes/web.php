@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AppSettingController as AdminAppSettingController;
 use App\Http\Controllers\Admin\ClosingController as AdminClosingController;
 use App\Http\Controllers\Admin\HappeningController as AdminHappeningController;
+use App\Http\Controllers\Admin\ImpersonationController as AdminImpersonationController;
 use App\Http\Controllers\Admin\InstitutionController as AdminInstitutionController;
 use App\Http\Controllers\Admin\MailController as AdminMailController;
 use App\Http\Controllers\Admin\ResourceController as AdminResourceController;
@@ -63,6 +64,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('happening.update');
     Route::delete('/happening/delete/{id}', [HappeningController::class, 'deleteHappening'])
         ->name('happening.delete');
+
+    Route::post('/admin/impersonate/stop', [AdminImpersonationController::class, 'stop'])
+        ->name('admin.impersonate.stop');
 
     // API calls
     Route::post(
@@ -223,6 +227,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('admin.user.ban');
         Route::post('/admin/user/unban', [AdminUserController::class, 'unbanUser'])
             ->name('admin.user.unban');
+        Route::post('/admin/user/impersonate', [AdminImpersonationController::class, 'start'])
+            ->name('admin.user.impersonate');
 
         /* Roles */
         Route::get('/admin/roles', [AdminRoleController::class, 'getRoles'])

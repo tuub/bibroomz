@@ -51,4 +51,13 @@ class UserPolicy
     {
         return $this->edit($user, $model);
     }
+
+    public function impersonate(User $user, User $model): bool
+    {
+        if ($model->is($user)) {
+            return false;
+        }
+
+        return $user->isAdmin();
+    }
 }

@@ -87,6 +87,7 @@ describe("check", () => {
             data: {
                 user: { id: 1, name: "Alice" },
                 isAdmin: true,
+                isImpersonating: true,
                 permissions: { 1: ["view"] },
                 allowedResourceGroups: [1],
             },
@@ -98,6 +99,7 @@ describe("check", () => {
         expect(store.user).toEqual({ id: 1, name: "Alice" });
         expect(store.isAuthenticated).toBe(true);
         expect(store.isAdmin).toBe(true);
+        expect(store.isImpersonating).toBe(true);
         expect(store.permissions).toEqual({ 1: ["view"] });
         expect(store.allowedResourceGroups).toEqual([1]);
         expect(echoMock.private).toHaveBeenCalledWith("happenings.1");
@@ -107,18 +109,26 @@ describe("check", () => {
         axiosMock.post.mockRejectedValue(new Error("unauthorized"));
         const store = useAuthStore();
         store.isAuthenticated = true;
+        store.isImpersonating = true;
 
         await store.check();
 
         expect(store.isAuthenticated).toBe(false);
         expect(store.user).toBeNull();
+        expect(store.isImpersonating).toBe(false);
     });
 });
 
 describe("login", () => {
     test("authenticates the user and shows a success toast", async () => {
         axiosMock.post.mockResolvedValue({
-            data: { user: { id: 2 }, isAdmin: false, permissions: {}, allowedResourceGroups: [] },
+            data: {
+                user: { id: 2 },
+                isAdmin: false,
+                isImpersonating: false,
+                permissions: {},
+                allowedResourceGroups: [],
+            },
         });
         const store = useAuthStore();
 
@@ -129,6 +139,7 @@ describe("login", () => {
             password: "secret",
         });
         expect(store.isAuthenticated).toBe(true);
+        expect(store.isImpersonating).toBe(false);
         expect(toastStoreMock.addAuthToast).toHaveBeenCalledWith({ summary: "toast.login.success" });
     });
 });
@@ -138,12 +149,14 @@ describe("logout", () => {
         const store = useAuthStore();
         store.isAuthenticated = true;
         store.user = { id: 3 };
+        store.isImpersonating = true;
 
         await store.logout();
 
         expect(axiosMock.post).toHaveBeenCalledWith("https://rooms.example.com/logout");
         expect(routerMock.visit).toHaveBeenCalledWith("/");
         expect(store.isAuthenticated).toBe(false);
+        expect(store.isImpersonating).toBe(false);
         expect(toastStoreMock.addAuthToast).toHaveBeenCalledWith({ summary: "toast.logout.success" });
     });
 

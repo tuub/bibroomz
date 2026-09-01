@@ -17,10 +17,9 @@ stages:
   - deploy
 
 variables:
-  # Route Docker Hub pulls through the GitLab dependency proxy in CI.
-  DOCKERHUB_IMAGE_PREFIX:
-    value: "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/"
-    expand: true
+  # Set this to "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/" in CI variables
+  # to route Docker Hub pulls through the GitLab dependency proxy.
+  DOCKERHUB_IMAGE_PREFIX: ""
 
 default:
   interruptible: true

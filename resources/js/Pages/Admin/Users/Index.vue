@@ -2,6 +2,7 @@
 import ActionLink from "@/Components/Admin/Index/ActionLink.vue";
 import BooleanField from "@/Components/Admin/Index/BooleanField.vue";
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
+import ImpersonateLink from "@/Components/Admin/Index/ImpersonateLink.vue";
 import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
@@ -138,6 +139,10 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
             <Column :header="$t('admin.general.table.actions')">
                 <template #body="slotProps">
                     <LinkGroup>
+                        <ImpersonateLink
+                            v-if="authStore.isAdmin && slotProps.data.id !== authStore.user?.id"
+                            :params="{ id: slotProps.data.id }"
+                        />
                         <PopupLink
                             v-if="hasPermission('edit_users')"
                             :action="slotProps.data.is_banned ? 'unban' : 'ban'"

@@ -148,3 +148,34 @@ test('unban delegates to edit and returns the same result', function (): void {
 
     expect($policy->unban($actor, $target))->toBe($policy->edit($actor, $target));
 });
+
+test('impersonate returns true when actor is admin and target is a different user', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $target = User::factory()->create(['is_admin' => false]);
+    $policy = new UserPolicy;
+
+    expect($policy->impersonate($admin, $target))->toBeTrue();
+});
+
+test('impersonate returns true when actor is admin and target is another admin', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $otherAdmin = User::factory()->create(['is_admin' => true]);
+    $policy = new UserPolicy;
+
+    expect($policy->impersonate($admin, $otherAdmin))->toBeTrue();
+});
+
+test('impersonate returns false when actor is not admin', function (): void {
+    $actor = User::factory()->create(['is_admin' => false]);
+    $target = User::factory()->create(['is_admin' => false]);
+    $policy = new UserPolicy;
+
+    expect($policy->impersonate($actor, $target))->toBeFalse();
+});
+
+test('impersonate returns false when target is the actor themselves', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $policy = new UserPolicy;
+
+    expect($policy->impersonate($admin, $admin))->toBeFalse();
+});

@@ -6,15 +6,21 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+const routerPostMock = vi.fn();
+
 vi.mock("@inertiajs/vue3", () => ({
     Head: {
         name: "Head",
         template: "<slot />",
     },
+    router: {
+        post: (...args: unknown[]) => routerPostMock(...args),
+    },
 }));
 
 beforeEach(() => {
     setActivePinia(createPinia());
+    routerPostMock.mockClear();
 });
 
 function render({
@@ -23,10 +29,12 @@ function render({
     },
     isMultiTenancy = true,
     isPrivileged = true,
+    isImpersonating = false,
 }: {
     institution?: Record<string, unknown> | null;
     isMultiTenancy?: boolean;
     isPrivileged?: boolean;
+    isImpersonating?: boolean;
 } = {}) {
     const appStore = useAppStore();
     appStore.appName = "BibRoomz";
@@ -36,6 +44,8 @@ function render({
     const authStore = useAuthStore();
     authStore.isAdmin = isPrivileged;
     authStore.permissions = isPrivileged ? { "1": ["view_users"] } : {};
+    authStore.isImpersonating = isImpersonating;
+    authStore.user = { id: 1, name: "Alice" };
 
     return mount(Header, {
         global: {
@@ -108,5 +118,25 @@ describe("Header", () => {
         await wrapper.get('[data-test="drawer-button"]').trigger("click");
 
         expect(drawer.props("visible")).toBe(true);
+    });
+
+    test("hides the impersonation banner when not impersonating", () => {
+        const wrapper = render({ isImpersonating: false });
+
+        expect(wrapper.text()).not.toContain("impersonation.banner.message");
+    });
+
+    test("shows the impersonation banner and stops impersonating on click", async () => {
+        const wrapper = render({ isImpersonating: true });
+
+        expect(wrapper.text()).toContain("impersonation.banner.message");
+
+        await wrapper.get("button.underline").trigger("click");
+
+        expect(routerPostMock).toHaveBeenCalledWith(
+            "/admin.impersonate.stop",
+            {},
+            expect.objectContaining({ onSuccess: expect.any(Function) }),
+        );
     });
 });

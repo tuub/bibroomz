@@ -23,6 +23,9 @@ return [
         'unban' => [
             'user' => 'Sind Sie sicher, dass Sie diesen Benutzer entsperren wollen?',
         ],
+        'impersonate' => [
+            'user' => 'Sind Sie sicher, dass Sie die Anwendung als dieser Benutzer ansehen wollen? Sie können bis zur Beendigung Aktionen in seinem Namen durchführen.',
+        ],
         'remove' => [
             'user_group' => [
                 'users' => 'Sind Sie sicher, dass Sie diese Benutzer aus der Gruppe entfernen wollen?',
@@ -38,6 +41,7 @@ return [
         'cancel' => 'Nein, abbrechen',
         'ban' => 'Ja, sperren',
         'unban' => 'Ja, entsperren',
+        'impersonate' => 'Ja, ansehen als',
         'remove' => 'Ja, entfernen',
         'clone' => 'Ja, klonen',
     ],

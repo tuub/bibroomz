@@ -61,3 +61,23 @@ test('build returns permissions as collection', function (): void {
 
     expect($result['permissions'])->toBeInstanceOf(Collection::class);
 });
+
+test('build returns isImpersonating false when no impersonation session is active', function (): void {
+    session()->forget('impersonator_id');
+    $user = User::factory()->create();
+
+    $builder = app(CurrentUserStatusBuilder::class);
+    $result = $builder->build($user);
+
+    expect($result['isImpersonating'])->toBeFalse();
+});
+
+test('build returns isImpersonating true when an impersonation session is active', function (): void {
+    $user = User::factory()->create();
+    session()->put('impersonator_id', (string) User::factory()->create(['is_admin' => true])->id);
+
+    $builder = app(CurrentUserStatusBuilder::class);
+    $result = $builder->build($user);
+
+    expect($result['isImpersonating'])->toBeTrue();
+});

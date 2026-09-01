@@ -23,6 +23,9 @@ return [
         'unban' => [
             'user' => 'Are you sure you want to unban this user?',
         ],
+        'impersonate' => [
+            'user' => 'Are you sure you want to view the application as this user? You will be able to perform actions on their behalf until you stop.',
+        ],
         'remove' => [
             'user_group' => [
                 'users' => 'Are you sure you want to remove these users from the group?',
@@ -38,6 +41,7 @@ return [
         'cancel' => 'No, cancel',
         'ban' => 'Yes, ban',
         'unban' => 'Yes, unban',
+        'impersonate' => 'Yes, view as',
         'remove' => 'Yes, remove',
         'clone' => 'Yes, clone',
     ],

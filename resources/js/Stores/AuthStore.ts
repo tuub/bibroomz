@@ -28,6 +28,7 @@ type AuthStoreState = {
     user: User | null;
     isAuthenticated: boolean;
     isAdmin: boolean;
+    isImpersonating: boolean;
     permissions: Record<string, string[]>;
     userHappenings: Happening[];
     quotas: Quotas;
@@ -44,6 +45,7 @@ export const useAuthStore = defineStore({
         user: null,
         isAuthenticated: false,
         isAdmin: false,
+        isImpersonating: false,
         permissions: {},
         userHappenings: [],
         quotas: {},
@@ -70,6 +72,7 @@ export const useAuthStore = defineStore({
                 this.user = response.data.user;
                 this.isAuthenticated = true;
                 this.isAdmin = response.data.isAdmin;
+                this.isImpersonating = response.data.isImpersonating;
                 this.permissions = response.data.permissions;
                 this.allowedResourceGroups = response.data.allowedResourceGroups;
 
@@ -93,6 +96,7 @@ export const useAuthStore = defineStore({
             this.user = response.data.user;
             this.isAuthenticated = true;
             this.isAdmin = response.data.isAdmin;
+            this.isImpersonating = response.data.isImpersonating;
             this.permissions = response.data.permissions;
             this.allowedResourceGroups = response.data.allowedResourceGroups;
 
