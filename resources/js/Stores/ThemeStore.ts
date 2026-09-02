@@ -6,8 +6,7 @@ type ThemeStoreState = {
     preference: ThemePreference;
 };
 
-export const useThemeStore = defineStore({
-    id: "theme",
+export const useThemeStore = defineStore("theme", {
     persist: true,
 
     state: (): ThemeStoreState => {

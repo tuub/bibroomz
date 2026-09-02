@@ -17,9 +17,7 @@ type ToastStoreState = {
     toast: ToastServiceMethods | null;
 };
 
-export const useToastStore = defineStore({
-    id: "toast",
-
+export const useToastStore = defineStore("toast", {
     state: (): ToastStoreState => ({
         toastMessages: [],
         toast: null,

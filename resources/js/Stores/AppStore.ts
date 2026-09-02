@@ -86,8 +86,7 @@ type AppStoreState = {
     supportedLocales: string[];
 };
 
-export const useAppStore = defineStore({
-    id: "app",
+export const useAppStore = defineStore("app", {
     persist: true,
 
     state: (): AppStoreState => {

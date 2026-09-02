@@ -37,8 +37,7 @@ type AuthStoreState = {
     allowedResourceGroups: (number | string)[];
 };
 
-export const useAuthStore = defineStore({
-    id: "auth",
+export const useAuthStore = defineStore("auth", {
     persist: true,
 
     state: (): AuthStoreState => ({

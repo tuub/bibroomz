@@ -55,8 +55,7 @@ type HappeningStoreState = {
     error: ApiError;
 };
 
-export const useHappeningStore = defineStore({
-    id: "happening",
+export const useHappeningStore = defineStore("happening", {
     persist: true,
 
     state: (): HappeningStoreState => {
