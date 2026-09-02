@@ -1,33 +1,16 @@
 import StatisticsIndex from "@/Pages/Admin/Statistics/Index.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { mount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
-
-const appStoreMock = {
-    translate: vi.fn((value?: string | Record<string, string>) => {
-        if (typeof value === "string") {
-            return value;
-        }
-
-        return value?.en ?? "";
-    }),
-    formatDate: vi.fn((date: string) => date),
-    primeDateFormat: "dd.mm.yy",
-};
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
-
-vi.mock("@/Stores/ThemeStore", () => ({
-    useThemeStore: () => ({ preference: "system" }),
-}));
 
 vi.mock("laravel-vue-i18n", () => ({
     trans: (key: string, replacements: Record<string, string> = {}) =>
         [key, ...Object.values(replacements)].filter(Boolean).join(" "),
+    getActiveLanguage: () => "en",
 }));
 
 const routerGetMock = vi.fn();
@@ -40,9 +23,15 @@ vi.mock("@inertiajs/vue3", () => ({
 
 const routeMock = vi.fn((name: string) => name);
 
+let appStore: ReturnType<typeof useAppStore>;
+
 beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
+
+    setActivePinia(createPinia());
+    appStore = useAppStore();
+    vi.spyOn(appStore, "formatDate").mockImplementation((date) => date as string);
 });
 
 function buildHeatmapCells(overrides: { dayOfWeek: number; hour: number; count: number }[] = []) {

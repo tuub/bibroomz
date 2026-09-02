@@ -1,12 +1,8 @@
 import { useSortFilterTable } from "@/Composables/SortFilterTable";
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
+import { beforeEach, describe, expect, test } from "vitest";
 import { nextTick, ref } from "vue";
-
-const appStoreMock = vi.hoisted(() => ({ locale: "en" }));
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
 
 async function flush() {
     await nextTick();
@@ -14,7 +10,7 @@ async function flush() {
 }
 
 beforeEach(() => {
-    appStoreMock.locale = "en";
+    setActivePinia(createPinia());
 });
 
 describe("sorting", () => {

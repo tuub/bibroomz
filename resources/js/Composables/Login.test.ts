@@ -1,23 +1,16 @@
 import { useLogin } from "@/Composables/Login";
-import type { ModalAction } from "@/Stores/Modal";
+import { useAuthStore } from "@/Stores/AuthStore";
+import useModal from "@/Stores/Modal";
 
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-
-const authStoreMock = vi.hoisted(() => ({ logout: vi.fn() }));
-vi.mock("@/Stores/AuthStore", () => ({
-    useAuthStore: () => authStoreMock,
-}));
-
-const modalMock = vi.hoisted(() => ({ open: vi.fn() }));
-vi.mock("@/Stores/Modal", () => ({
-    default: () => modalMock,
-}));
+import type { Mock } from "vitest";
 
 type LoginModalMock = {
     view: { name: string };
     content: { title: string };
     payload: { happeningCallback: (() => void) | undefined };
-    actions: ModalAction[];
+    actions: { label: string; callback: ReturnType<typeof vi.fn> }[];
 };
 
 const loginModalMock = vi.hoisted((): LoginModalMock => ({
@@ -30,7 +23,17 @@ vi.mock("@/Composables/ModalActions", () => ({
     useLoginModal: vi.fn(() => loginModalMock),
 }));
 
+let modal: ReturnType<typeof useModal>;
+let authStore: ReturnType<typeof useAuthStore>;
+let openSpy: Mock<typeof modal.open>;
+let logoutSpy: Mock<typeof authStore.logout>;
+
 beforeEach(() => {
+    setActivePinia(createPinia());
+    modal = useModal();
+    authStore = useAuthStore();
+    openSpy = vi.spyOn(modal, "open");
+    logoutSpy = vi.spyOn(authStore, "logout");
     vi.clearAllMocks();
 });
 
@@ -40,7 +43,7 @@ describe("loginUser", () => {
 
         await loginUser();
 
-        expect(modalMock.open).toHaveBeenCalledWith(
+        expect(openSpy).toHaveBeenCalledWith(
             loginModalMock.view,
             loginModalMock.content,
             loginModalMock.payload,
@@ -51,18 +54,18 @@ describe("loginUser", () => {
 
 describe("logoutUser", () => {
     test("delegates to authStore.logout and returns its result", async () => {
-        authStoreMock.logout.mockResolvedValue("logged-out");
+        logoutSpy.mockResolvedValue("logged-out" as never);
         const { logoutUser } = useLogin();
 
         const result = await logoutUser();
 
-        expect(authStoreMock.logout).toHaveBeenCalled();
+        expect(logoutSpy).toHaveBeenCalled();
         expect(result).toBe("logged-out");
     });
 
     test("catches and logs an error from authStore.logout", async () => {
         const error = new Error("network error");
-        authStoreMock.logout.mockRejectedValue(error);
+        logoutSpy.mockRejectedValue(error);
         const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
         const { logoutUser } = useLogin();
 

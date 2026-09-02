@@ -1,35 +1,46 @@
 import MainLayout from "@/Layouts/MainLayout.vue";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+import { useToastStore } from "@/Stores/ToastStore";
 
 import { mount } from "@vue/test-utils";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-const appStoreMock = {
-    appName: "BibRoomz",
-    setGlobalSystemNotification: vi.fn(),
-};
-const authStoreMock = {
-    check: vi.fn(),
-    unsubscribe: vi.fn(),
-};
-const toastStoreMock = {
-    initToast: vi.fn(),
-    removeToastMessage: vi.fn(),
-};
-
-vi.mock("@/Stores/AppStore", () => ({ useAppStore: () => appStoreMock }));
-vi.mock("@/Stores/AuthStore", () => ({ useAuthStore: () => authStoreMock }));
-vi.mock("@/Stores/ToastStore", () => ({ useToastStore: () => toastStoreMock }));
+import { createPinia, setActivePinia } from "pinia";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import type { Mock } from "vitest";
 
 vi.mock("@inertiajs/vue3", () => ({
     usePage: () => ({ props: { systemNotification: "Maintenance tonight" } }),
-    Head: { name: "Head", template: "<slot />" },
 }));
+
+let appStore: ReturnType<typeof useAppStore>;
+let authStore: ReturnType<typeof useAuthStore>;
+let toastStore: ReturnType<typeof useToastStore>;
+
+let setGlobalSystemNotificationSpy: Mock<typeof appStore.setGlobalSystemNotification>;
+let checkSpy: Mock<typeof authStore.check>;
+let unsubscribeSpy: Mock<typeof authStore.unsubscribe>;
+let initToastSpy: Mock<typeof toastStore.initToast>;
+let removeToastMessageSpy: Mock<typeof toastStore.removeToastMessage>;
+
+beforeEach(() => {
+    setActivePinia(createPinia());
+    appStore = useAppStore();
+    authStore = useAuthStore();
+    toastStore = useToastStore();
+
+    setGlobalSystemNotificationSpy = vi.spyOn(appStore, "setGlobalSystemNotification");
+    checkSpy = vi.spyOn(authStore, "check").mockResolvedValue(undefined);
+    unsubscribeSpy = vi.spyOn(authStore, "unsubscribe").mockImplementation(() => undefined);
+    initToastSpy = vi.spyOn(toastStore, "initToast").mockImplementation(() => undefined);
+    removeToastMessageSpy = vi.spyOn(toastStore, "removeToastMessage");
+});
 
 function render(slots: Record<string, string> = { default: '<div data-test="page-content">Page</div>' }) {
     return mount(MainLayout, {
         shallow: true,
         global: {
             mocks: { $t: (key: string) => key },
+            stubs: { Head: true },
         },
         slots,
     });
@@ -43,14 +54,14 @@ describe("MainLayout", () => {
     test("checks auth and forwards the system notification to the app store on mount", () => {
         render();
 
-        expect(authStoreMock.check).toHaveBeenCalledOnce();
-        expect(appStoreMock.setGlobalSystemNotification).toHaveBeenCalledWith("Maintenance tonight");
+        expect(checkSpy).toHaveBeenCalledOnce();
+        expect(setGlobalSystemNotificationSpy).toHaveBeenCalledWith("Maintenance tonight");
     });
 
     test("initializes the toast store once mounted", () => {
         render();
 
-        expect(toastStoreMock.initToast).toHaveBeenCalledOnce();
+        expect(initToastSpy).toHaveBeenCalledOnce();
     });
 
     test("unsubscribes from the auth store on unmount", () => {
@@ -58,7 +69,7 @@ describe("MainLayout", () => {
 
         wrapper.unmount();
 
-        expect(authStoreMock.unsubscribe).toHaveBeenCalledOnce();
+        expect(unsubscribeSpy).toHaveBeenCalledOnce();
     });
 
     test("renders the breadcrumbs slot above the page content", () => {
@@ -93,7 +104,7 @@ describe("MainLayout", () => {
         await toast.vm.$emit("close", { message });
         await toast.vm.$emit("life-end", { message });
 
-        expect(toastStoreMock.removeToastMessage).toHaveBeenCalledTimes(2);
-        expect(toastStoreMock.removeToastMessage).toHaveBeenCalledWith({ message });
+        expect(removeToastMessageSpy).toHaveBeenCalledTimes(2);
+        expect(removeToastMessageSpy).toHaveBeenCalledWith({ message });
     });
 });

@@ -1,28 +1,17 @@
 import UserGroupImport from "@/Pages/Admin/UserGroups/Import.vue";
 
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
 
-const appStoreMock = {
-    translate: vi.fn((value?: string | Record<string, string>) => {
-        if (typeof value === "string") {
-            return value;
-        }
-
-        return value?.en ?? "";
-    }),
-};
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
-
 vi.mock("laravel-vue-i18n", () => ({
     trans: (key: string) => key,
+    getActiveLanguage: () => "en",
 }));
 
 beforeEach(() => {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
 });
 

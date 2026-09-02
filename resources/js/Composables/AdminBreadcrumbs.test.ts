@@ -5,6 +5,7 @@ import {
 } from "@/Composables/AdminBreadcrumbs";
 
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 
@@ -24,12 +25,7 @@ vi.mock("@inertiajs/vue3", () => ({
 
 vi.mock("laravel-vue-i18n", () => ({
     trans: (key: string) => key,
-}));
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => ({
-        translate: (value?: { en?: string; de?: string } | null) => (value ? (value.en ?? value.de ?? "") : ""),
-    }),
+    getActiveLanguage: () => "en",
 }));
 
 const route = vi.fn((name: string, params?: Record<string, unknown>) =>
@@ -73,6 +69,7 @@ function lastLabel(items: BreadcrumbItems): string {
 }
 
 beforeEach(() => {
+    setActivePinia(createPinia());
     route.mockClear();
 });
 

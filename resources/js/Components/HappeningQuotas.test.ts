@@ -1,27 +1,11 @@
 import HappeningQuotas from "@/Components/HappeningQuotas.vue";
-import type { ResourceGroupSetting } from "@/Stores/AppStore";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
 
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent } from "vue";
-
-const appStoreMock = {
-    resourceGroup: {
-        settings: [] as ResourceGroupSetting[],
-    },
-};
-
-const authStoreMock = {
-    quotas: {},
-};
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
-
-vi.mock("@/Stores/AuthStore", () => ({
-    useAuthStore: () => authStoreMock,
-}));
 
 const HappeningQuotaStub = defineComponent({
     name: "HappeningQuota",
@@ -34,24 +18,28 @@ const HappeningQuotaStub = defineComponent({
 });
 
 beforeEach(() => {
-    appStoreMock.resourceGroup.settings = [];
-    authStoreMock.quotas = {};
+    setActivePinia(createPinia());
     vi.clearAllMocks();
 });
 
 describe("HappeningQuotas", () => {
     test("renders only quotas with numeric values and a positive configured limit", () => {
-        appStoreMock.resourceGroup.settings = [
-            { key: "quota_daily_hours", value: "2" },
-            { key: "quota_weekly_happenings", value: 0 },
-            { key: "quota_weekly_hours", value: "0" },
-        ];
-        authStoreMock.quotas = {
+        const appStore = useAppStore();
+        const authStore = useAuthStore();
+
+        appStore.resourceGroup = {
+            settings: [
+                { key: "quota_daily_hours", value: "2" },
+                { key: "quota_weekly_happenings", value: 0 },
+                { key: "quota_weekly_hours", value: "0" },
+            ],
+        };
+        authStore.quotas = {
             daily_hours: 1.5,
             weekly_happenings: 3,
             weekly_hours: 4,
             invalid: "oops",
-        };
+        } as unknown as typeof authStore.quotas;
 
         const wrapper = mount(HappeningQuotas, {
             global: {

@@ -2,22 +2,9 @@
 import UserHappening from "@/Components/UserHappening.vue";
 
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent } from "vue";
-
-const appStoreMock = {
-    translate: (value?: string | Record<string, string>) => {
-        if (typeof value === "string") {
-            return value;
-        }
-
-        return value?.en ?? "";
-    },
-};
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
 
 const UserHappeningDataStub = defineComponent({
     name: "UserHappeningData",
@@ -80,6 +67,7 @@ function render(happening: Record<string, unknown>) {
 }
 
 beforeEach(() => {
+    setActivePinia(createPinia());
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-05T10:30:00Z"));
 });

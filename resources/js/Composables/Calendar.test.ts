@@ -1,5 +1,6 @@
 import { useCalendar } from "@/Composables/Calendar";
 import type { CalendarPagination } from "@/Composables/Calendar";
+import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { Happening } from "@/Stores/HappeningStore";
 
@@ -16,49 +17,11 @@ vi.mock("@/baseUrl", () => ({
 
 vi.mock("laravel-vue-i18n", () => ({
     trans: (key: string) => key,
+    getActiveLanguage: () => "en",
 }));
 
 vi.mock("@inertiajs/vue3", () => ({
     router: { visit: vi.fn() },
-}));
-
-vi.mock("@/Stores/ToastStore", () => ({
-    useToastStore: () => ({
-        addAuthToast: vi.fn(),
-        addHappeningToast: vi.fn(),
-        addQuotaToast: vi.fn(),
-        addUserGroupToast: vi.fn(),
-    }),
-}));
-
-const appStoreMock = vi.hoisted(() => {
-    const settings: {
-        resource_group?: {
-            weeks_in_advance: string;
-            time_slot_length: string;
-            start_time_slot: string;
-            end_time_slot: string;
-        };
-    } = {
-        resource_group: {
-            weeks_in_advance: "4",
-            time_slot_length: "01:00",
-            start_time_slot: "08:00:00",
-            end_time_slot: "20:00:00",
-        },
-    };
-
-    return {
-        institution: { id: 1, slug: "tu-berlin" },
-        resourceGroup: { id: 2, slug: "library" },
-        settings,
-        hiddenDays: [0, 6] as number[] | null,
-        locale: "en",
-        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
-    };
-});
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
 }));
 
 const modalActionsMock = vi.hoisted(() => ({
@@ -85,13 +48,19 @@ function makeCalendar(overrides: Partial<Parameters<typeof useCalendar>[0]> = {}
     return { ...calendar, emit, pagination };
 }
 
+let appStore: ReturnType<typeof useAppStore>;
+
 beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
 
-    appStoreMock.institution = { id: 1, slug: "tu-berlin" };
-    appStoreMock.resourceGroup = { id: 2, slug: "library" };
-    appStoreMock.settings = {
+    appStore = useAppStore();
+    appStore.resourceGroup = {
+        id: 2,
+        slug: "library",
+        institution: { id: 1, slug: "tu-berlin" },
+    };
+    appStore.settings = {
         resource_group: {
             weeks_in_advance: "4",
             time_slot_length: "01:00",
@@ -99,7 +68,8 @@ beforeEach(() => {
             end_time_slot: "20:00:00",
         },
     };
-    appStoreMock.hiddenDays = [0, 6];
+    appStore.hiddenDays = [0, 6];
+    appStore.locale = "en";
 
     axiosMock.mockResolvedValue({ data: {} });
     globalThis.axios = axiosMock as unknown as typeof axios;
@@ -448,7 +418,7 @@ describe("calendarOptions", () => {
     });
 
     test("leaves slot duration unset so FullCalendar's default applies when resource group settings are missing", () => {
-        appStoreMock.settings = {};
+        appStore.settings = {};
 
         const { calendarOptions } = makeCalendar();
 

@@ -1,27 +1,14 @@
 import TerminalView from "@/Pages/TerminalView.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-
-const appStoreMock = {
-    setCurrent: vi.fn(),
-    translate: vi.fn((value?: string | Record<string, string>) => {
-        if (typeof value === "string") {
-            return value;
-        }
-
-        return value?.en ?? "";
-    }),
-};
 
 const refetchHappeningsMock = vi.fn();
 const useCalendarMock = vi.fn((args: unknown) => ({
     calendarOptions: { mocked: true, args },
     refetchHappenings: refetchHappeningsMock,
-}));
-
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
 }));
 
 vi.mock("@/Composables/Calendar", () => ({
@@ -37,6 +24,7 @@ vi.mock("@fullcalendar/vue3", () => ({
 }));
 
 beforeEach(() => {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
     globalThis.Echo = {
         channel: vi.fn(() => ({
@@ -65,9 +53,12 @@ function render() {
 
 describe("TerminalView", () => {
     test("initializes the app store and calendar composable from typed props", () => {
+        const appStore = useAppStore();
+        const setCurrentSpy = vi.spyOn(appStore, "setCurrent");
+
         const wrapper = render();
 
-        expect(appStoreMock.setCurrent).toHaveBeenCalledWith(
+        expect(setCurrentSpy).toHaveBeenCalledWith(
             {
                 slug: "rooms",
                 institution: {
@@ -98,7 +89,7 @@ describe("TerminalView", () => {
                 nextPage: null,
                 previousPage: null,
             },
-            translate: appStoreMock.translate,
+            translate: appStore.translate,
         });
 
         expect(wrapper.find('[data-test="full-calendar"]').exists()).toBe(true);

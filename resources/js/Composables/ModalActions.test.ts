@@ -9,10 +9,14 @@ import {
     useResourceGroupInfoModal,
     useResourceInfoModal,
 } from "@/Composables/ModalActions";
-import type { ResourceGroup } from "@/Stores/AppStore";
-import type { ApiError } from "@/Types/Api";
+import { useAppStore } from "@/Stores/AppStore";
+import { useAuthStore } from "@/Stores/AuthStore";
+import { useHappeningStore } from "@/Stores/HappeningStore";
+import useModal from "@/Stores/Modal";
 
+import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import type { Mock } from "vitest";
 
 vi.mock("@/Components/Modals/HappeningModal.vue", () => ({ default: { name: "HappeningModal" } }));
 vi.mock("@/Components/Modals/LoginModal.vue", () => ({ default: { name: "LoginModal" } }));
@@ -21,71 +25,39 @@ vi.mock("@/Components/Modals/ResourceInfoModal.vue", () => ({ default: { name: "
 
 vi.mock("laravel-vue-i18n", () => ({
     trans: (key: string, params?: Record<string, string>) => (params ? `${key}:${JSON.stringify(params)}` : key),
+    getActiveLanguage: () => "en",
 }));
 
-const modalMock = vi.hoisted(() => ({ close: vi.fn() }));
-vi.mock("@/Stores/Modal", () => ({
-    default: () => modalMock,
-}));
+let modal: ReturnType<typeof useModal>;
+let happeningStore: ReturnType<typeof useHappeningStore>;
+let authStore: ReturnType<typeof useAuthStore>;
+let appStore: ReturnType<typeof useAppStore>;
 
-type HappeningStoreMock = {
-    error: ApiError;
-    verifyHappening: ReturnType<typeof vi.fn>;
-    editHappening: ReturnType<typeof vi.fn>;
-    deleteHappening: ReturnType<typeof vi.fn>;
-    addHappening: ReturnType<typeof vi.fn>;
-};
-
-const happeningStoreMock = vi.hoisted((): HappeningStoreMock => ({
-    error: null,
-    verifyHappening: vi.fn(),
-    editHappening: vi.fn(),
-    deleteHappening: vi.fn(),
-    addHappening: vi.fn(),
-}));
-vi.mock("@/Stores/HappeningStore", () => ({
-    useHappeningStore: () => happeningStoreMock,
-}));
-
-type AuthStoreMock = {
-    error: ApiError;
-    isProcessingLogin: boolean;
-    login: ReturnType<typeof vi.fn>;
-};
-
-const authStoreMock = vi.hoisted((): AuthStoreMock => ({
-    error: null,
-    isProcessingLogin: false,
-    login: vi.fn(),
-}));
-vi.mock("@/Stores/AuthStore", () => ({
-    useAuthStore: () => authStoreMock,
-}));
-
-type AppStoreMock = {
-    translate: (value?: Record<string, string>) => string;
-    resourceGroup: ResourceGroup | null;
-};
-
-const appStoreMock = vi.hoisted((): AppStoreMock => ({
-    translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
-    resourceGroup: null,
-}));
-vi.mock("@/Stores/AppStore", () => ({
-    useAppStore: () => appStoreMock,
-}));
+let closeSpy: Mock<typeof modal.close>;
+let verifyHappeningSpy: Mock<typeof happeningStore.verifyHappening>;
+let editHappeningSpy: Mock<typeof happeningStore.editHappening>;
+let deleteHappeningSpy: Mock<typeof happeningStore.deleteHappening>;
+let addHappeningSpy: Mock<typeof happeningStore.addHappening>;
+let loginSpy: Mock<typeof authStore.login>;
 
 beforeEach(() => {
-    vi.clearAllMocks();
-    happeningStoreMock.error = null;
-    authStoreMock.error = null;
-    authStoreMock.isProcessingLogin = false;
-    appStoreMock.resourceGroup = null;
+    setActivePinia(createPinia());
+    modal = useModal();
+    happeningStore = useHappeningStore();
+    authStore = useAuthStore();
+    appStore = useAppStore();
+
+    closeSpy = vi.spyOn(modal, "close");
+    verifyHappeningSpy = vi.spyOn(happeningStore, "verifyHappening").mockResolvedValue({} as never);
+    editHappeningSpy = vi.spyOn(happeningStore, "editHappening").mockResolvedValue({} as never);
+    deleteHappeningSpy = vi.spyOn(happeningStore, "deleteHappening").mockResolvedValue({} as never);
+    addHappeningSpy = vi.spyOn(happeningStore, "addHappening").mockResolvedValue({} as never);
+    loginSpy = vi.spyOn(authStore, "login").mockResolvedValue(undefined);
 });
 
 describe("useHappeningModal", () => {
     test("pushes a verify action when can.verify and editable", async () => {
-        happeningStoreMock.verifyHappening.mockResolvedValue({});
+        verifyHappeningSpy.mockResolvedValue({} as never);
         const happening = { id: 1, can: { verify: true } };
 
         const { actions } = useHappeningModal({ happening, editable: true });
@@ -94,12 +66,12 @@ describe("useHappeningModal", () => {
 
         await actions[0]!.callback(happening);
 
-        expect(happeningStoreMock.verifyHappening).toHaveBeenCalledWith(happening);
-        expect(modalMock.close).toHaveBeenCalled();
+        expect(verifyHappeningSpy).toHaveBeenCalledWith(happening);
+        expect(closeSpy).toHaveBeenCalled();
     });
 
     test("pushes an edit action when can.edit and editable", async () => {
-        happeningStoreMock.editHappening.mockResolvedValue({});
+        editHappeningSpy.mockResolvedValue({} as never);
         const happening = { id: 1, can: { edit: true } };
 
         const { actions } = useHappeningModal({ happening, editable: true });
@@ -108,7 +80,7 @@ describe("useHappeningModal", () => {
 
         await actions[0]!.callback(happening);
 
-        expect(happeningStoreMock.editHappening).toHaveBeenCalledWith(happening);
+        expect(editHappeningSpy).toHaveBeenCalledWith(happening);
     });
 
     test("does not push verify/edit actions when not editable", () => {
@@ -120,7 +92,7 @@ describe("useHappeningModal", () => {
     });
 
     test("pushes a delete action when can.delete, regardless of editable", async () => {
-        happeningStoreMock.deleteHappening.mockResolvedValue({});
+        deleteHappeningSpy.mockResolvedValue({} as never);
         const happening = { id: 7, can: { delete: true } };
 
         const { actions } = useHappeningModal({ happening, editable: false });
@@ -129,7 +101,7 @@ describe("useHappeningModal", () => {
 
         await actions[0]!.callback(happening);
 
-        expect(happeningStoreMock.deleteHappening).toHaveBeenCalledWith(7);
+        expect(deleteHappeningSpy).toHaveBeenCalledWith(7);
     });
 
     test("falls back to ok when delete is allowed but the happening has no id", () => {
@@ -138,11 +110,11 @@ describe("useHappeningModal", () => {
         const { actions } = useHappeningModal({ happening, editable: false });
 
         expect(actions.map((a) => a.testId)).toEqual(["modal-action-ok"]);
-        expect(happeningStoreMock.deleteHappening).not.toHaveBeenCalled();
+        expect(deleteHappeningSpy).not.toHaveBeenCalled();
     });
 
     test("pushes a create action when there is no can and editable is true", async () => {
-        happeningStoreMock.addHappening.mockResolvedValue({});
+        addHappeningSpy.mockResolvedValue({} as never);
         const happening = { id: 1 };
 
         const { actions } = useHappeningModal({ happening, editable: true });
@@ -151,7 +123,7 @@ describe("useHappeningModal", () => {
 
         await actions[0]!.callback(happening);
 
-        expect(happeningStoreMock.addHappening).toHaveBeenCalledWith(happening);
+        expect(addHappeningSpy).toHaveBeenCalledWith(happening);
     });
 
     test("falls back to a single ok action that just closes the modal", async () => {
@@ -163,19 +135,19 @@ describe("useHappeningModal", () => {
 
         await actions[0]!.callback(happening);
 
-        expect(modalMock.close).toHaveBeenCalled();
-        expect(happeningStoreMock.addHappening).not.toHaveBeenCalled();
+        expect(closeSpy).toHaveBeenCalled();
+        expect(addHappeningSpy).not.toHaveBeenCalled();
     });
 
     test("records the error response and does not close the modal on failure", async () => {
-        happeningStoreMock.verifyHappening.mockRejectedValue({ response: { status: 422 } });
+        verifyHappeningSpy.mockRejectedValue({ response: { status: 422 } });
         const happening = { id: 1, can: { verify: true } };
 
         const { actions } = useHappeningModal({ happening, editable: true });
         await actions[0]!.callback(happening);
 
-        expect(happeningStoreMock.error).toEqual({ status: 422 });
-        expect(modalMock.close).not.toHaveBeenCalled();
+        expect(happeningStore.error).toEqual({ status: 422 });
+        expect(closeSpy).not.toHaveBeenCalled();
     });
 
     test("builds content and payload from the given title/description/editable", () => {
@@ -241,13 +213,13 @@ describe("useResourceGroupInfoModal", () => {
 
         await actions[0]!.callback();
 
-        expect(modalMock.close).toHaveBeenCalled();
+        expect(closeSpy).toHaveBeenCalled();
     });
 });
 
 describe("useResourceInfoModal", () => {
     test("builds a translated title from the resource group term and resource title", () => {
-        appStoreMock.resourceGroup = { term_singular: { en: "Room" } };
+        appStore.resourceGroup = { term_singular: { en: "Room" } };
 
         const { content, payload } = useResourceInfoModal({ title: "Room 101" });
 
@@ -264,44 +236,44 @@ describe("useResourceInfoModal", () => {
 
 describe("useLoginModal", () => {
     test("does nothing while a login is already processing", async () => {
-        authStoreMock.isProcessingLogin = true;
+        authStore.isProcessingLogin = true;
         const { actions } = useLoginModal();
 
         await actions[0]!.callback({ username: "alice", password: "secret" });
 
-        expect(authStoreMock.login).not.toHaveBeenCalled();
+        expect(loginSpy).not.toHaveBeenCalled();
     });
 
     test("logs in and closes the modal when there is no happening callback", async () => {
-        authStoreMock.login.mockResolvedValue({});
+        loginSpy.mockResolvedValue(undefined);
         const { actions } = useLoginModal();
 
         await actions[0]!.callback({ username: "alice", password: "secret" });
 
-        expect(authStoreMock.login).toHaveBeenCalledWith("alice", "secret");
-        expect(modalMock.close).toHaveBeenCalled();
-        expect(authStoreMock.isProcessingLogin).toBe(false);
+        expect(loginSpy).toHaveBeenCalledWith("alice", "secret");
+        expect(closeSpy).toHaveBeenCalled();
+        expect(authStore.isProcessingLogin).toBe(false);
     });
 
     test("invokes the happening callback instead of closing when one is given", async () => {
-        authStoreMock.login.mockResolvedValue({});
+        loginSpy.mockResolvedValue(undefined);
         const happeningModalCallback = vi.fn();
         const { actions } = useLoginModal(happeningModalCallback);
 
         await actions[0]!.callback({ username: "alice", password: "secret" });
 
         expect(happeningModalCallback).toHaveBeenCalled();
-        expect(modalMock.close).not.toHaveBeenCalled();
+        expect(closeSpy).not.toHaveBeenCalled();
     });
 
     test("records the error response and resets isProcessingLogin on failure", async () => {
-        authStoreMock.login.mockRejectedValue({ response: { status: 401 } });
+        loginSpy.mockRejectedValue({ response: { status: 401 } });
         const { actions } = useLoginModal();
 
         await actions[0]!.callback({ username: "alice", password: "wrong" });
 
-        expect(authStoreMock.error).toEqual({ status: 401 });
-        expect(authStoreMock.isProcessingLogin).toBe(false);
-        expect(modalMock.close).not.toHaveBeenCalled();
+        expect(authStore.error).toEqual({ status: 401 });
+        expect(authStore.isProcessingLogin).toBe(false);
+        expect(closeSpy).not.toHaveBeenCalled();
     });
 });
