@@ -18,6 +18,6 @@ class UserActivityRecorder
         $lifetime = config('session.lifetime');
         $ttl = now()->addMinutes(is_int($lifetime) ? $lifetime : 0);
 
-        cache()->put($key, now(), $ttl);
+        cache()->put($key, true, $ttl);
     }
 }
