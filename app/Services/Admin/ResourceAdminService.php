@@ -168,7 +168,7 @@ class ResourceAdminService
         );
 
         $resource->business_hours->each(function (BusinessHour $businessHour) use ($resourceCopy): void {
-            $copiedBusinessHour = new BusinessHour($businessHour->toArray());
+            $copiedBusinessHour = new BusinessHour($businessHour->getAttributes());
             $resourceCopy->business_hours()->save($copiedBusinessHour);
             $copiedBusinessHour->week_days()->sync($businessHour->week_days->pluck('id'));
         });
