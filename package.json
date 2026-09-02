@@ -34,7 +34,7 @@
         "happy-dom": "^20.10.6",
         "husky": "^9.1.7",
         "laravel-echo": "^1.16.1",
-        "lint-staged": "^15.2.10",
+        "lint-staged": "^17.4.1",
         "lodash": "^4.17.21",
         "playwright": "^1.59.1",
         "postcss": "^8.4.16",
