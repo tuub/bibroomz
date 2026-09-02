@@ -22,7 +22,7 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Middleware\SetCacheHeaders;
@@ -63,7 +63,7 @@ class Kernel extends HttpKernel
             AddQueuedCookiesToResponse::class,
             StartSession::class,
             ShareErrorsFromSession::class,
-            ValidateCsrfToken::class,
+            PreventRequestForgery::class,
             SubstituteBindings::class,
             HandleInertiaRequests::class,
             CacheUserActivity::class,
