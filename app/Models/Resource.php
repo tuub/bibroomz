@@ -6,6 +6,7 @@ use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
 use Bkwld\Cloner\Cloneable;
 use Database\Factories\ResourceFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -117,7 +118,8 @@ class Resource extends Model implements ClosingSubject
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeActive(Builder $query): Builder
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }

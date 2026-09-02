@@ -6,6 +6,7 @@ use App\Contracts\ClosingSubject;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Database\Factories\InstitutionFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -135,7 +136,8 @@ class Institution extends Model implements ClosingSubject, SettingSubject
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeActive(Builder $query): Builder
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }

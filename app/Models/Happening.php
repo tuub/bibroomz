@@ -11,6 +11,7 @@ use App\Services\Resources\ResourceAvailabilityService;
 use App\Traits\HasTranslations;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -104,7 +105,8 @@ class Happening extends Model
      *
      * @throws InvalidArgumentException
      */
-    public function scopeWeekly(Builder $query): Builder
+    #[Scope]
+    protected function weekly(Builder $query): Builder
     {
         return $query->where('start', '>=', Carbon::now()->startOfWeek());
     }
@@ -115,7 +117,8 @@ class Happening extends Model
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeUser(Builder $query, User $user): Builder
+    #[Scope]
+    protected function user(Builder $query, User $user): Builder
     {
         return $query->where(fn (Builder $query) => $query->where('user_id_01', $user->id)
             ->orWhere('user_id_02', $user->id)
@@ -128,7 +131,8 @@ class Happening extends Model
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeResourceGroup(Builder $query, ResourceGroup $resourceGroup): Builder
+    #[Scope]
+    protected function resourceGroup(Builder $query, ResourceGroup $resourceGroup): Builder
     {
         return $query->whereHas('resource', fn (Builder $query) => $query->where('resource_group_id', $resourceGroup->id));
     }
@@ -139,7 +143,8 @@ class Happening extends Model
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeActive(Builder $query): Builder
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
         return $query->whereHas('resource', fn (Builder $query) => $query->where('is_active', true));
     }

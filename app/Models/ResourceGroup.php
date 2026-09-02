@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Database\Factories\ResourceGroupFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -103,7 +104,8 @@ class ResourceGroup extends Model implements SettingSubject
      * @param  Builder<self>  $query
      * @return Builder<self>
      */
-    public function scopeActive(Builder $query): Builder
+    #[Scope]
+    protected function active(Builder $query): Builder
     {
         return $query
             ->where('is_active', true)
