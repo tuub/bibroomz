@@ -27,17 +27,15 @@ type AppStoreMock = {
     formatTime: ReturnType<typeof vi.fn>;
 };
 
-const appStoreMock = vi.hoisted(
-    (): AppStoreMock => ({
-        resourceGroup: null,
-        institution: null,
-        settings: null,
-        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
-        getDateTimeFromString: vi.fn((value?: string) => value),
-        formatDate: vi.fn(() => "05.03.2026"),
-        formatTime: vi.fn(() => "14:30"),
-    }),
-);
+const appStoreMock = vi.hoisted((): AppStoreMock => ({
+    resourceGroup: null,
+    institution: null,
+    settings: null,
+    translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
+    getDateTimeFromString: vi.fn((value?: string) => value),
+    formatDate: vi.fn(() => "05.03.2026"),
+    formatTime: vi.fn(() => "14:30"),
+}));
 vi.mock("@/Stores/AppStore", () => ({
     useAppStore: () => appStoreMock,
 }));

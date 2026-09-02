@@ -20,14 +20,12 @@ type LoginModalMock = {
     actions: ModalAction[];
 };
 
-const loginModalMock = vi.hoisted(
-    (): LoginModalMock => ({
-        view: { name: "LoginModal" },
-        content: { title: "Login" },
-        payload: { happeningCallback: undefined },
-        actions: [{ label: "Cancel", callback: vi.fn() }],
-    }),
-);
+const loginModalMock = vi.hoisted((): LoginModalMock => ({
+    view: { name: "LoginModal" },
+    content: { title: "Login" },
+    payload: { happeningCallback: undefined },
+    actions: [{ label: "Cancel", callback: vi.fn() }],
+}));
 vi.mock("@/Composables/ModalActions", () => ({
     useLoginModal: vi.fn(() => loginModalMock),
 }));

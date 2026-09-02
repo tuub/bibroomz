@@ -36,15 +36,13 @@ type HappeningStoreMock = {
     addHappening: ReturnType<typeof vi.fn>;
 };
 
-const happeningStoreMock = vi.hoisted(
-    (): HappeningStoreMock => ({
-        error: null,
-        verifyHappening: vi.fn(),
-        editHappening: vi.fn(),
-        deleteHappening: vi.fn(),
-        addHappening: vi.fn(),
-    }),
-);
+const happeningStoreMock = vi.hoisted((): HappeningStoreMock => ({
+    error: null,
+    verifyHappening: vi.fn(),
+    editHappening: vi.fn(),
+    deleteHappening: vi.fn(),
+    addHappening: vi.fn(),
+}));
 vi.mock("@/Stores/HappeningStore", () => ({
     useHappeningStore: () => happeningStoreMock,
 }));
@@ -55,13 +53,11 @@ type AuthStoreMock = {
     login: ReturnType<typeof vi.fn>;
 };
 
-const authStoreMock = vi.hoisted(
-    (): AuthStoreMock => ({
-        error: null,
-        isProcessingLogin: false,
-        login: vi.fn(),
-    }),
-);
+const authStoreMock = vi.hoisted((): AuthStoreMock => ({
+    error: null,
+    isProcessingLogin: false,
+    login: vi.fn(),
+}));
 vi.mock("@/Stores/AuthStore", () => ({
     useAuthStore: () => authStoreMock,
 }));
@@ -71,12 +67,10 @@ type AppStoreMock = {
     resourceGroup: ResourceGroup | null;
 };
 
-const appStoreMock = vi.hoisted(
-    (): AppStoreMock => ({
-        translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
-        resourceGroup: null,
-    }),
-);
+const appStoreMock = vi.hoisted((): AppStoreMock => ({
+    translate: vi.fn((value?: Record<string, string>) => value?.en ?? ""),
+    resourceGroup: null,
+}));
 vi.mock("@/Stores/AppStore", () => ({
     useAppStore: () => appStoreMock,
 }));
