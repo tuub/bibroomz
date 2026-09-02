@@ -4,7 +4,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
-import { Head, router } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { inject, ref } from "vue";
 

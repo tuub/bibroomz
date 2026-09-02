@@ -7,7 +7,6 @@ import { useAppStore } from "@/Stores/AppStore";
 import type { Institution } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
-import { Head } from "@inertiajs/vue3";
 import { storeToRefs } from "pinia";
 import { onBeforeMount } from "vue";
 

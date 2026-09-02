@@ -14,10 +14,6 @@ vi.mock("@/Composables/Login", () => ({
     }),
 }));
 
-vi.mock("@inertiajs/vue3", () => ({
-    Head: { name: "Head", template: "<slot />" },
-}));
-
 beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
@@ -34,6 +30,7 @@ function render() {
                 $t: (key: string) => key,
             },
             stubs: {
+                Head: true,
                 InstitutionCard: true,
                 SystemNotificationList: true,
                 ExternalLink: true,

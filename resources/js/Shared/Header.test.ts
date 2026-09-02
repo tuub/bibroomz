@@ -9,10 +9,6 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const routerPostMock = vi.fn();
 
 vi.mock("@inertiajs/vue3", () => ({
-    Head: {
-        name: "Head",
-        template: "<slot />",
-    },
     router: {
         post: (...args: unknown[]) => routerPostMock(...args),
     },
@@ -56,6 +52,7 @@ function render({
                 $t: (key: string) => key,
             },
             stubs: {
+                Head: true,
                 Button: {
                     props: ["ariaLabel"],
                     emits: ["click"],
