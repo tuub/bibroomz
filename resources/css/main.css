@@ -1,5 +1,6 @@
-@use "calendar";
-@use "primeicons/primeicons.css";
+@import "./calendar.css";
+@import "primeicons/primeicons.css";
+
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
@@ -77,12 +78,12 @@
     @tailwind utilities;
 }
 
-// Important: Apply formerly body classes to Inertia container
+/* Important: Apply formerly body classes to Inertia container */
 #app {
     @apply flex min-h-screen flex-col font-sans;
 }
 
-// Mainly for debug and development
+/* Mainly for debug and development */
 * {
     outline: 0 rgb(var(--color-debug-outline)) dashed;
 }

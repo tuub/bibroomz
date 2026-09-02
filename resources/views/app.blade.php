@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="">
-    @vite('resources/sass/main.scss')
+    @vite('resources/css/main.css')
     <script>
         (function () {
             try {

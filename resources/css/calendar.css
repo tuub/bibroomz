@@ -59,7 +59,8 @@ div.fc-timegrid-slots tr {
 }
 
 /* Background Events: Closings */
-// https://css-tricks.com/stripes-css/
+
+/* https://css-tricks.com/stripes-css/ */
 .fc-bg-event {
     opacity: 1 !important;
     cursor: not-allowed;

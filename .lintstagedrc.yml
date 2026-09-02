@@ -1,10 +1,10 @@
-"*.{css,js,scss,ts,vue}":
+"*.{css,js,ts,vue}":
   - "prettier --check"
 
 "*.{js,ts,vue}":
   - "eslint"
 
-"*.{css,scss,vue}":
+"*.{css,vue}":
   - "stylelint"
 
 "*.php":
