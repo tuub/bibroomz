@@ -4,6 +4,10 @@ namespace App\Models;
 
 use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,6 +23,17 @@ use InvalidArgumentException;
 /**
  * @property-read Institution|\App\Models\Resource|null $closable
  */
+#[Fillable([
+    'closable_id',
+    'closable_type',
+    'start',
+    'end',
+    'description',
+    'notify_users',
+])]
+#[Table(name: 'closings')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class Closing extends Model
 {
     /** @use HasFactory<Factory<self>> */
@@ -26,29 +41,11 @@ class Closing extends Model
 
     use HasTranslations, HasUuids, Prunable, SoftDeletes;
 
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'closings';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
     /**
      * @var array<string, mixed>
      */
     protected $attributes = [
         'notify_users' => true,
-    ];
-
-    protected $fillable = [
-        'closable_id',
-        'closable_type',
-        'start',
-        'end',
-        'description',
-        'notify_users',
     ];
 
     /**

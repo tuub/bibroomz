@@ -2,21 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+#[Fillable([
+    'valid_from',
+    'valid_until',
+])]
 class UserGroupUser extends Pivot
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'valid_from',
-        'valid_until',
-    ];
-
     /**
      * @return BelongsTo<User, $this>
      */

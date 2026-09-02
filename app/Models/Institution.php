@@ -6,7 +6,11 @@ use App\Contracts\ClosingSubject;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Database\Factories\InstitutionFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
@@ -26,34 +30,27 @@ use Illuminate\Support\Collection;
  * @property-read EloquentCollection<int, Setting> $settings
  * @property-read EloquentCollection<int, WeekDay> $week_days
  */
+#[Fillable([
+    'title',
+    'short_title',
+    'slug',
+    'location',
+    'home_uri',
+    'logo_uri',
+    'teaser_uri',
+    'email',
+    'is_active',
+    'order',
+])]
+#[Table(name: 'institutions')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class Institution extends Model implements ClosingSubject, SettingSubject
 {
     /** @use HasFactory<InstitutionFactory> */
     use HasFactory;
 
     use HasTranslations, HasUuids;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'institutions';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
-    protected $fillable = [
-        'title',
-        'short_title',
-        'slug',
-        'location',
-        'home_uri',
-        'logo_uri',
-        'teaser_uri',
-        'email',
-        'is_active',
-        'order',
-    ];
 
     protected string $morphClass = 'institution';
 

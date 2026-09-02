@@ -8,32 +8,22 @@ use App\Services\Console\CleanupIntervalResolver;
 use App\Services\Console\RemoveUnverifiedHappeningsAction;
 use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
 use Carbon\Carbon;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Eloquent\Builder;
 
-class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:remove-unverified-happenings
+#[Description('Remove unverified happenings')]
+#[Signature('roomz:remove-unverified-happenings
                             {--M|minutes= : Remove unverified happenings older than this many minutes}
                             {--H|hours= : Remove unverified happenings older than this many hours}
                             {--D|days= : Remove unverified happenings older than this many days}
                             {--institution= : Remove unverified happenings from this institution}
                             {--settings=true : Get time interval from institution settings}
-                            {--force : Do not ask for confirmation}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Remove unverified happenings';
-
+                            {--force : Do not ask for confirmation}')]
+class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
+{
     public function __construct(
         private readonly CleanupIntervalResolver $cleanupIntervalResolver,
         private readonly RemoveUnverifiedHappeningsQueryBuilder $queryBuilder,

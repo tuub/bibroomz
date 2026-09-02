@@ -5,7 +5,11 @@ namespace App\Models;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Database\Factories\ResourceGroupFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
@@ -23,33 +27,26 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, Setting> $settings
  * @property-read Collection<int, UserGroup> $user_groups
  */
+#[Fillable([
+    'institution_id',
+    'title',
+    'slug',
+    'term_singular',
+    'term_plural',
+    'description',
+    'is_active',
+    'order',
+    'help_uri',
+])]
+#[Table(name: 'resource_groups')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class ResourceGroup extends Model implements SettingSubject
 {
     /** @use HasFactory<ResourceGroupFactory> */
     use HasFactory;
 
     use HasTranslations, HasUuids;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'resource_groups';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
-    protected $fillable = [
-        'institution_id',
-        'title',
-        'slug',
-        'term_singular',
-        'term_plural',
-        'description',
-        'is_active',
-        'order',
-        'help_uri',
-    ];
 
     /**
      * @var list<string>

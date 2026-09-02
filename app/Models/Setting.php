@@ -2,29 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+#[Fillable(['key', 'value', 'settingable_type', 'settingable_id', 'institution_id'])]
+#[Table(name: 'settings')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class Setting extends Model
 {
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     use HasUuids;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'settings';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
-    protected $fillable = ['key', 'value', 'settingable_type', 'settingable_id', 'institution_id'];
 
     /*****************************************************************
      * RELATIONS

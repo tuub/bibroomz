@@ -3,25 +3,25 @@
 namespace App\Models;
 
 use App\Traits\HasTranslations;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable([
+    'name',
+    'description',
+])]
+#[WithoutIncrementing]
 class PermissionGroup extends Model
 {
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
     use HasTranslations, HasUuids;
-
-    public $incrementing = false;
-
-    protected $fillable = [
-        'name',
-        'description',
-    ];
 
     /**
      * @var list<string>

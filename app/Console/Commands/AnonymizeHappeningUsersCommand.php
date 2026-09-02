@@ -4,29 +4,19 @@ namespace App\Console\Commands;
 
 use App\Models\Happening;
 use App\Services\Console\AnonymizeHappeningUsersAction;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Database\Eloquent\Builder;
 
-class AnonymizeHappeningUsersCommand extends Command implements Isolatable
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:anonymize-happening-users
+#[Description('Anonymize past happenings')]
+#[Signature('roomz:anonymize-happening-users
         {--D|days= : Anonymize happenings older than this many days}
         {--dry-run : Do not remove users}
-        {--force : Do not ask for confirmation}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Anonymize past happenings';
-
+        {--force : Do not ask for confirmation}')]
+class AnonymizeHappeningUsersCommand extends Command implements Isolatable
+{
     public function __construct(private readonly AnonymizeHappeningUsersAction $anonymizeHappeningUsersAction)
     {
         parent::__construct();

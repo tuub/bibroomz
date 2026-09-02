@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+#[Fillable([
+    'day_of_week',
+    'name',
+])]
+#[Hidden(['pivot'])]
+#[Table(name: 'week_days')]
 class WeekDay extends Model
 {
-    protected $table = 'week_days';
-
-    protected $fillable = [
-        'day_of_week',
-        'name',
-    ];
-
-    protected $hidden = ['pivot'];
-
     /**
      * @return BelongsToMany<BusinessHour, $this>
      */

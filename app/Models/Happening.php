@@ -11,7 +11,10 @@ use App\Services\Resources\ResourceAvailabilityService;
 use App\Traits\HasTranslations;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,6 +31,20 @@ use InvalidArgumentException;
  * @property-read User|null $user1
  * @property-read User|null $user2
  */
+#[Fillable([
+    'user_id_01',
+    'user_id_02',
+    'resource_id',
+    'is_verified',
+    'verifier',
+    'start',
+    'end',
+    'reserved_at',
+    'verified_at',
+    'label',
+])]
+#[Table(name: 'happenings')]
+#[WithoutIncrementing]
 class Happening extends Model
 {
     /*****************************************************************
@@ -37,26 +54,6 @@ class Happening extends Model
     use HasFactory;
 
     use HasTranslations, HasUuids, MassPrunable, SoftDeletes;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'happenings';
-
-    public $incrementing = false;
-
-    protected $fillable = [
-        'user_id_01',
-        'user_id_02',
-        'resource_id',
-        'is_verified',
-        'verifier',
-        'start',
-        'end',
-        'reserved_at',
-        'verified_at',
-        'label',
-    ];
 
     /**
      * @var list<string>

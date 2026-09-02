@@ -3,12 +3,30 @@
 namespace App\Models;
 
 use App\Traits\HasTranslations;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable([
+    'institution_id',
+    'mail_type_id',
+    'subject',
+    'title',
+    'salutation',
+    'intro',
+    'outro',
+    'action_uri',
+    'action_uri_label',
+    'farewell',
+    'is_active',
+])]
+#[Table(name: 'mail_contents')]
+#[WithoutIncrementing]
 class MailContent extends Model
 {
     /** @use HasFactory<Factory<self>> */
@@ -16,28 +34,7 @@ class MailContent extends Model
 
     use HasTranslations, HasUuids;
 
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'mail_contents';
-
-    public $incrementing = false;
-
     public $timestamps = true;
-
-    protected $fillable = [
-        'institution_id',
-        'mail_type_id',
-        'subject',
-        'title',
-        'salutation',
-        'intro',
-        'outro',
-        'action_uri',
-        'action_uri_label',
-        'farewell',
-        'is_active',
-    ];
 
     /**
      * @var list<string>

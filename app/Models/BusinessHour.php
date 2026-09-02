@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Bkwld\Cloner\Cloneable;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -15,6 +18,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 /**
  * @property-read Collection<int, WeekDay> $week_days
  */
+#[Fillable([
+    'resource_id',
+    'start',
+    'end',
+    'start_date',
+    'end_date',
+])]
+#[Table(name: 'business_hours')]
+#[WithoutIncrementing]
 class BusinessHour extends Model
 {
     use Cloneable, HasUuids;
@@ -25,22 +37,7 @@ class BusinessHour extends Model
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'business_hours';
-
-    public $incrementing = false;
-
     public $timestamps = true;
-
-    protected $fillable = [
-        'resource_id',
-        'start',
-        'end',
-        'start_date',
-        'end_date',
-    ];
 
     /**
      * @var list<string>

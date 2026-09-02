@@ -4,28 +4,18 @@ namespace App\Console\Commands;
 
 use App\Services\Console\CreateUserGroupAction;
 use App\Services\Console\UserGroupInputCollector;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
 
+#[Description('Create a user group')]
+#[Signature('roomz:create-user-group')]
 class CreateUserGroup extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:create-user-group';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Create a user group';
-
     public function __construct(
         private readonly UserGroupInputCollector $inputCollector,
         private readonly CreateUserGroupAction $createUserGroupAction,

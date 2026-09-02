@@ -5,28 +5,18 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Services\Console\RemoveUsersAction;
 use App\Services\Console\RemoveUsersQueryBuilder;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 
-class RemoveUsersCommand extends Command implements Isolatable
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:remove-users
+#[Description('Remove users with no recent happenings')]
+#[Signature('roomz:remove-users
         {--D|days= : Remove users with no happenings more recent than this many days}
         {--dry-run : Do not remove users}
-        {--force : Do not ask for confirmation}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Remove users with no recent happenings';
-
+        {--force : Do not ask for confirmation}')]
+class RemoveUsersCommand extends Command implements Isolatable
+{
     public function __construct(
         private readonly RemoveUsersQueryBuilder $queryBuilder,
         private readonly RemoveUsersAction $removeUsersAction,

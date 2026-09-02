@@ -7,6 +7,8 @@ use App\Services\Console\ImportUsersColumnsResolver;
 use App\Services\Console\ImportUsersCsvReader;
 use App\Services\Console\ImportUsersDefaultsParser;
 use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
@@ -14,22 +16,10 @@ use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\text;
 
+#[Description('Import users from a file and add them to a user group')]
+#[Signature('roomz:import-users {path?} {--from=} {--until=} {--columns=} {--header=} {--group=}')]
 class ImportUsers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:import-users {path?} {--from=} {--until=} {--columns=} {--header=} {--group=}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Import users from a file and add them to a user group';
-
     /**
      * @var list<string>
      */

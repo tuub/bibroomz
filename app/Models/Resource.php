@@ -6,7 +6,11 @@ use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
 use Bkwld\Cloner\Cloneable;
 use Database\Factories\ResourceFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -25,33 +29,26 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read Collection<int, Happening> $happenings
  * @property-read ResourceGroup $resource_group
  */
+#[Fillable([
+    'resource_group_id',
+    'title',
+    'location',
+    'location_uri',
+    'description',
+    'capacity',
+    'is_active',
+    'order',
+    'is_verification_required',
+])]
+#[Table(name: 'resources')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class Resource extends Model implements ClosingSubject
 {
     use Cloneable, HasTranslations, HasUuids;
 
     /** @use HasFactory<ResourceFactory> */
     use HasFactory;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'resources';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
-    protected $fillable = [
-        'resource_group_id',
-        'title',
-        'location',
-        'location_uri',
-        'description',
-        'capacity',
-        'is_active',
-        'order',
-        'is_verification_required',
-    ];
 
     protected $with = ['closings'];
 

@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use App\Traits\HasTranslations;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 /**
  * @property-read UserGroupUser|null $pivot
  */
+#[Fillable([
+    'title',
+    'institution_id',
+])]
+#[Table(name: 'user_groups')]
+#[WithoutIncrementing]
+#[WithoutTimestamps]
 class UserGroup extends Model
 {
     /*****************************************************************
@@ -22,25 +33,6 @@ class UserGroup extends Model
     use HasFactory;
 
     use HasTranslations, HasUuids;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'user_groups';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'title',
-        'institution_id',
-    ];
 
     /**
      * @var list<string>

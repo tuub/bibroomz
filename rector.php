@@ -23,7 +23,7 @@ return RectorConfig::configure()
     ])
     ->withPhpSets()
     ->withSets([
-        LaravelLevelSetList::UP_TO_LARAVEL_120,
+        LaravelLevelSetList::UP_TO_LARAVEL_130,
 
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,

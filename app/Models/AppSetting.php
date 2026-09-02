@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Model;
 
+#[Fillable(['key', 'value'])]
+#[Table(name: 'app_settings', key: 'key', keyType: 'string')]
+#[WithoutIncrementing]
 class AppSetting extends Model
 {
-    protected $table = 'app_settings';
-
-    protected $primaryKey = 'key';
-
-    protected $keyType = 'string';
-
-    public $incrementing = false;
-
-    protected $fillable = ['key', 'value'];
-
     /**
      * @return array<string, array{default: mixed, rules: array<int, mixed>, input_type: string}>
      */

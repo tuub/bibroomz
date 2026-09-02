@@ -9,6 +9,8 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,12 +100,8 @@ test('validatedString returns empty string when the validated value is not a str
 });
 
 test('findModel returns null without creating a query when the identifier is missing', function (): void {
-    $modelClass = (new class extends Model
+    $modelClass = (new #[Table(name: 'users')] #[WithoutTimestamps] class extends Model
     {
-        protected $table = 'users';
-
-        public $timestamps = false;
-
         public function newQuery(): never
         {
             throw new RuntimeException('newQuery should not be called without an identifier.');

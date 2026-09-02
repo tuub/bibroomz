@@ -4,26 +4,16 @@ namespace App\Console\Commands;
 
 use App\Services\Console\ResourceGroupRestrictionInputCollector;
 use App\Services\Console\RestrictResourceGroupAction;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 use function Laravel\Prompts\error;
 
+#[Description('Restrict a resource group to users of one or more user groups')]
+#[Signature('roomz:restrict-resource-group')]
 class RestrictResourceGroup extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'roomz:restrict-resource-group';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Restrict a resource group to users of one or more user groups';
-
     public function __construct(
         private readonly ResourceGroupRestrictionInputCollector $inputCollector,
         private readonly RestrictResourceGroupAction $restrictResourceGroupAction,

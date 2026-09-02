@@ -6,6 +6,10 @@ use Carbon\CarbonImmutable;
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids;
@@ -21,6 +25,22 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read EloquentCollection<int, Role> $roles
  * @property-read EloquentCollection<int, UserGroup> $user_groups
  */
+#[Fillable([
+    'name',
+    'email',
+    'is_admin',
+    'is_system_user',
+    'banned_at',
+    'password',
+    'last_login',
+    'is_logged_in',
+])]
+#[Hidden([
+    'password',
+    'remember_token',
+])]
+#[Table(name: 'users')]
+#[WithoutIncrementing]
 class User extends Authenticatable implements BannableInterface
 {
     use Bannable;
@@ -31,39 +51,6 @@ class User extends Authenticatable implements BannableInterface
      ****************************************************************/
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
-    /*****************************************************************
-     * OPTIONS
-     ****************************************************************/
-    protected $table = 'users';
-
-    public $incrementing = false;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'is_admin',
-        'is_system_user',
-        'banned_at',
-        'password',
-        'last_login',
-        'is_logged_in',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     /*****************************************************************
      * RELATIONS
