@@ -135,6 +135,8 @@ install:nix:
 commitlint:
   extends: .nix
   stage: lint
+  variables:
+    GIT_DEPTH: "0"
   script:
     - nix develop --command node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
