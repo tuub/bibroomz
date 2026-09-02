@@ -1,6 +1,5 @@
 import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
-import tailwindcssPrimeui from "tailwindcss-primeui";
 
 const colorVar = (name: string) => `rgb(var(${name}) / <alpha-value>)`;
 
@@ -90,5 +89,5 @@ export default {
             },
         },
     },
-    plugins: [typography, tailwindcssPrimeui],
+    plugins: [typography],
 } satisfies Config;
