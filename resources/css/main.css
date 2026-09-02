@@ -1,7 +1,28 @@
-@import "./calendar.css";
-@import "primeicons/primeicons.css";
-
+/*
+  Declared here, before any @import, so this order wins the "first reference
+  wins" rule CSS uses to fix layer order across the whole cascade - including
+  PrimeVue's own stylesheet, which is injected into a `primevue` layer at
+  runtime (see the matching `cssLayer.order` option in app.ts). This keeps
+  PrimeVue's component styles layered between Tailwind's base/preflight and
+  Tailwind's utilities, so utilities can still override PrimeVue defaults.
+*/
 @layer tailwind-base, primevue, tailwind-utilities;
+
+/*
+  Imported separately, instead of the single `@import "tailwindcss"`, so
+  they can be pinned to the `tailwind-base` layer explicitly rather than
+  landing in Tailwind's own unnamed layer.
+*/
+@import "tailwindcss/theme.css" layer(tailwind-base);
+@import "tailwindcss/preflight.css" layer(tailwind-base);
+
+/*
+  Left unlayered on purpose: unlayered CSS always beats layered CSS in the
+  cascade, regardless of the layer order above, so these always apply.
+*/
+@import "./calendar.css";
+@import "@fontsource-variable/noto-sans";
+@import "primeicons/primeicons.css";
 
 @plugin "@tailwindcss/typography";
 
@@ -11,6 +32,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+    --font-sans: "Noto Sans Variable", sans-serif;
+
     --color-app-page: rgb(var(--app-page-rgb));
     --color-app-surface: rgb(var(--app-surface-rgb));
     --color-app-field: rgb(var(--app-field-rgb));
@@ -77,7 +100,7 @@
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
 */
-@layer base {
+@layer tailwind-base {
     *,
     ::after,
     ::before,
@@ -88,8 +111,6 @@
 }
 
 @layer tailwind-base {
-    @import "tailwindcss";
-
     :root {
         --app-page-rgb: 243 244 246;
         --app-surface-rgb: 255 255 255;
@@ -155,6 +176,10 @@
         --notice-warning-surface-rgb: 120 53 15;
         --notice-warning-text-rgb: 253 230 138;
     }
+}
+
+@layer tailwind-utilities {
+    @tailwind utilities;
 }
 
 /* Important: Apply formerly body classes to Inertia container */
