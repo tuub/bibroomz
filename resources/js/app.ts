@@ -6,8 +6,8 @@ import { stripEmpty } from "@/stripEmpty";
 import { Ziggy } from "@/ziggy";
 
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
-//import { definePreset } from "@primevue/themes";
-import Material from "@primevue/themes/material";
+//import { definePreset } from "@primeuix/themes";
+import Material from "@primeuix/themes/material";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
 import { createPinia } from "pinia";
