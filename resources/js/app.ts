@@ -12,7 +12,6 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-import BadgeDirective from "primevue/badgedirective";
 import PrimeVue from "primevue/config";
 import Ripple from "primevue/ripple";
 import StyleClass from "primevue/styleclass";
@@ -84,7 +83,6 @@ void createInertiaApp({
             })
             .use(ToastService)
             .directive("tooltip", Tooltip)
-            .directive("badge", BadgeDirective)
             .directive("ripple", Ripple)
             .directive("styleclass", StyleClass)
             // Pinia
