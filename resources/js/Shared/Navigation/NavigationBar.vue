@@ -39,7 +39,7 @@ const { loginUser, logoutUser } = useLogin();
                 <InternalLink
                     :href="route('start')"
                     icon="pi pi-home"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
                     title="Start"
                 >
                     {{ $t("navigation.home") }}
@@ -49,7 +49,7 @@ const { loginUser, logoutUser } = useLogin();
                 <ExternalLink
                     :href="$t('navigation.help.uri')"
                     icon="pi pi-question-circle"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
                     title="Help"
                 >
                     {{ $t("navigation.help.label") }}
@@ -59,7 +59,7 @@ const { loginUser, logoutUser } = useLogin();
                 <InternalLink
                     :href="route('admin.dashboard')"
                     icon="pi pi-cog"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
                     title="Admin"
                 >
                     {{ $t("navigation.admin") }}
@@ -70,7 +70,7 @@ const { loginUser, logoutUser } = useLogin();
                     v-if="isAuthenticated"
                     id="auth"
                     href="#"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
                     title="Logout"
                     @click="logoutUser"
                 >
@@ -82,7 +82,7 @@ const { loginUser, logoutUser } = useLogin();
                     v-else
                     id="auth"
                     href="#"
-                    class="block rounded px-3 py-2 text-tub hover:bg-tub hover:text-brand-contrast"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
                     title="Login"
                     @click="loginUser"
                 >
@@ -91,12 +91,12 @@ const { loginUser, logoutUser } = useLogin();
                 </a>
             </li>
             <li :class="isResponsive ? 'block' : 'inline-block'">
-                <div id="i18n" class="block px-3 py-2 text-tub">
+                <div id="i18n" class="text-tub block px-3 py-2">
                     <LanguageSwitch />
                 </div>
             </li>
             <li :class="isResponsive ? 'block' : 'inline-block'">
-                <div id="theme" class="block px-3 py-2 text-tub">
+                <div id="theme" class="text-tub block px-3 py-2">
                     <ThemeSwitch />
                 </div>
             </li>

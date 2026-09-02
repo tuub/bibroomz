@@ -1,5 +1,5 @@
 <template>
-    <button class="font-medium text-feedback-danger hover:underline" @click="openModal">
+    <button class="text-feedback-danger font-medium hover:underline" @click="openModal">
         <i class="ri-user-shared-line"></i>
         {{ $t("admin.users.index.table.actions.impersonate") }}
     </button>

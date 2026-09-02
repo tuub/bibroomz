@@ -2,7 +2,7 @@ import type postcssrc from "postcss-load-config";
 
 export default {
     plugins: {
-        tailwindcss: {},
+        "@tailwindcss/postcss": {},
         autoprefixer: {},
     },
 } satisfies postcssrc.Config;

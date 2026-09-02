@@ -113,7 +113,7 @@ function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
             :rows="50"
             :rows-per-page-options="[25, 50, 100]"
             table-style="min-width: 50rem"
-            class="w-full text-left text-sm text-app-muted dark:text-app-subtle"
+            class="text-app-muted dark:text-app-subtle w-full text-left text-sm"
         >
             <template #header>
                 <div class="flex flex-wrap items-center justify-between gap-2">

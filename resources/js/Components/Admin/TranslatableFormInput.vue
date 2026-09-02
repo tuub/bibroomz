@@ -9,7 +9,7 @@
                 :required="required"
                 :name="field"
                 :rows="rows"
-                class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                 @change="$emit('update:model-value', input)"
             />
             <input
@@ -20,7 +20,7 @@
                 :required="required"
                 :name="field"
                 type="text"
-                class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                 @change="$emit('update:model-value', input)"
             />
         </template>

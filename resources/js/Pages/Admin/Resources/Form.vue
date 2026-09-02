@@ -50,7 +50,7 @@
                         v-model="form.capacity"
                         type="range"
                         name="capacity"
-                        class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-app-field dark:bg-app-field"
+                        class="bg-app-field dark:bg-app-field h-2 w-full cursor-pointer appearance-none rounded-lg"
                     />
                 </div>
                 <div class="w-2/12 text-center">
@@ -100,11 +100,11 @@
                 @update-business-hour-field="updateBusinessHourField"
             ></BusinessHourField>
 
-            <div class="mb-4 mt-4 flex flex-wrap">
+            <div class="mt-4 mb-4 flex flex-wrap">
                 <div class="w-full text-center">
                     <a
                         href="#"
-                        class="my-13 bg-feedback-success-strong p-3 text-feedback-success-contrast"
+                        class="bg-feedback-success-strong text-feedback-success-contrast my-13 p-3"
                         @click.prevent="addBusinessHourField"
                     >
                         {{ $t("admin.resources.form.actions.add_business_hours") }}

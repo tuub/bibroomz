@@ -40,7 +40,7 @@ defineEmits<{
 </script>
 
 <template>
-    <div class="border border-app-border bg-app-surface p-4 shadow dark:border-app-border dark:bg-app-surface">
+    <div class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div class="text-lg font-semibold">{{ $t("admin.statistics.index.time_series.title") }}</div>
             <div class="flex items-center gap-2">
@@ -105,7 +105,7 @@ defineEmits<{
                 />
             </div>
         </div>
-        <p v-if="retentionExceeded" class="mb-3 text-sm italic text-app-muted" data-test="retention-notice">
+        <p v-if="retentionExceeded" class="text-app-muted mb-3 text-sm italic" data-test="retention-notice">
             {{
                 $t("admin.statistics.index.cancellations.retention_notice", {
                     days: String(retentionDays),
@@ -119,19 +119,19 @@ defineEmits<{
                         <div class="text-sm font-semibold">
                             {{ $t("admin.statistics.index.comparison.current_period_title") }}
                         </div>
-                        <div class="text-xs text-app-muted">
+                        <div class="text-app-muted text-xs">
                             {{ currentPeriodRangeLabel }}
                         </div>
                     </div>
                 </div>
                 <div
                     v-if="hasComparison && comparison"
-                    class="mb-2 text-xs text-app-muted"
+                    class="text-app-muted mb-2 text-xs"
                     data-test="current-period-counts"
                 >
                     {{ currentPeriodCountLabel }}
                 </div>
-                <p v-if="timeSeries.length === 0" class="italic text-app-muted">
+                <p v-if="timeSeries.length === 0" class="text-app-muted italic">
                     {{ $t("admin.statistics.index.no_data") }}
                 </p>
                 <div v-else class="h-80">
@@ -151,22 +151,22 @@ defineEmits<{
                         <div class="text-sm font-semibold">
                             {{ $t("admin.statistics.index.comparison.title") }}
                         </div>
-                        <div class="text-xs text-app-muted">
+                        <div class="text-app-muted text-xs">
                             {{ comparisonDateRangeLabel }}
                         </div>
                     </div>
                     <div
-                        class="whitespace-nowrap text-sm font-semibold"
+                        class="text-sm font-semibold whitespace-nowrap"
                         :class="comparisonDeltaClass"
                         data-test="comparison-delta"
                     >
                         {{ comparisonDeltaLabel }}
                     </div>
                 </div>
-                <div class="mb-2 text-xs text-app-muted" data-test="comparison-counts">
+                <div class="text-app-muted mb-2 text-xs" data-test="comparison-counts">
                     {{ comparisonCountLabel }}
                 </div>
-                <p v-if="comparison.timeSeries.length === 0" class="italic text-app-muted">
+                <p v-if="comparison.timeSeries.length === 0" class="text-app-muted italic">
                     {{ $t("admin.statistics.index.no_data") }}
                 </p>
                 <div v-else class="h-80">

@@ -3,79 +3,158 @@
 
 @layer tailwind-base, primevue, tailwind-utilities;
 
-@layer tailwind-base {
-    @tailwind base;
+@plugin "@tailwindcss/typography";
 
-    :root {
-        --color-app-page: 243 244 246;
-        --color-app-surface: 255 255 255;
-        --color-app-field: 249 250 251;
-        --color-app-border: 209 213 219;
-        --color-app-text: 3 7 18;
-        --color-app-muted: 75 85 99;
-        --color-app-subtle: 156 163 175;
-        --color-brand-tub: 196 13 30;
-        --color-brand-contrast: 255 255 255;
-        --color-button-secondary: 156 163 175;
-        --color-button-secondary-hover: 55 65 81;
-        --color-button-secondary-contrast: 0 0 0;
-        --color-calendar-overlay: 0 0 0;
-        --color-debug-outline: 51 102 153;
-        --color-feedback-danger: 220 38 38;
-        --color-feedback-danger-contrast: 255 255 255;
-        --color-feedback-danger-ring: 252 165 165;
-        --color-feedback-danger-soft: 254 242 242;
-        --color-feedback-danger-soft-hover: 254 202 202;
-        --color-feedback-danger-strong: 185 28 28;
-        --color-feedback-danger-strong-hover: 153 27 27;
-        --color-feedback-danger-text: 153 27 27;
-        --color-feedback-success: 34 197 94;
-        --color-feedback-success-contrast: 255 255 255;
-        --color-feedback-success-hover: 21 128 61;
-        --color-feedback-success-soft: 74 222 128;
-        --color-feedback-success-strong: 22 163 74;
-        --color-link: 37 99 235;
-        --color-notice-warning-border: 253 230 138;
-        --color-notice-warning-icon: 217 119 6;
-        --color-notice-warning-surface: 255 251 235;
-        --color-notice-warning-text: 69 26 3;
-        --color-quota-contrast: 255 255 255;
-        --color-quota-count: 75 85 99;
-        --color-quota-label: 107 114 128;
-        --color-status-block-bg: 206 30 23;
-        --color-status-block-fg: 0 0 0;
-        --color-status-booking-bg: 22 89 172;
-        --color-status-booking-fg: 255 255 255;
-        --color-status-closing-bg: 82 82 82;
-        --color-status-closing-fg: 255 255 255;
-        --color-status-reservation-bg: 246 211 45;
-        --color-status-reservation-fg: 0 0 0;
-    }
+@source "../**/*.{vue,js,ts,jsx,tsx}";
+@source "../../node_modules/primevue/**/*.{vue,js,ts,jsx,tsx}";
 
-    .dark {
-        --color-app-page: 23 23 23;
-        --color-app-surface: 38 38 38;
-        --color-app-field: 64 64 64;
-        --color-app-border: 82 82 82;
-        --color-app-text: 245 245 245;
-        --color-app-muted: 212 212 212;
-        --color-app-subtle: 163 163 163;
-        --color-feedback-danger: 239 68 68;
-        --color-feedback-danger-ring: 153 27 27;
-        --color-feedback-danger-strong: 220 38 38;
-        --color-feedback-danger-strong-hover: 185 28 28;
-        --color-feedback-danger-text: 248 113 113;
-        --color-link: 96 165 250;
-        --color-notice-warning-border: 146 64 14;
-        --color-notice-warning-icon: 251 191 36;
-        --color-notice-warning-surface: 120 53 15;
-        --color-notice-warning-text: 253 230 138;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-app-page: rgb(var(--app-page-rgb));
+    --color-app-surface: rgb(var(--app-surface-rgb));
+    --color-app-field: rgb(var(--app-field-rgb));
+    --color-app-border: rgb(var(--app-border-rgb));
+    --color-app-text: rgb(var(--app-text-rgb));
+    --color-app-muted: rgb(var(--app-muted-rgb));
+    --color-app-subtle: rgb(var(--app-subtle-rgb));
+
+    --color-button-secondary: rgb(var(--button-secondary-rgb));
+    --color-button-secondary-hover: rgb(var(--button-secondary-hover-rgb));
+    --color-button-secondary-contrast: rgb(var(--button-secondary-contrast-rgb));
+
+    --color-brand-tub: rgb(var(--brand-tub-rgb));
+    --color-brand-contrast: rgb(var(--brand-contrast-rgb));
+
+    --color-feedback-danger: rgb(var(--feedback-danger-rgb));
+    --color-feedback-danger-contrast: rgb(var(--feedback-danger-contrast-rgb));
+    --color-feedback-danger-ring: rgb(var(--feedback-danger-ring-rgb));
+    --color-feedback-danger-soft: rgb(var(--feedback-danger-soft-rgb));
+    --color-feedback-danger-soft-hover: rgb(var(--feedback-danger-soft-hover-rgb));
+    --color-feedback-danger-strong: rgb(var(--feedback-danger-strong-rgb));
+    --color-feedback-danger-strong-hover: rgb(var(--feedback-danger-strong-hover-rgb));
+    --color-feedback-danger-text: rgb(var(--feedback-danger-text-rgb));
+
+    --color-feedback-success: rgb(var(--feedback-success-rgb));
+    --color-feedback-success-contrast: rgb(var(--feedback-success-contrast-rgb));
+    --color-feedback-success-hover: rgb(var(--feedback-success-hover-rgb));
+    --color-feedback-success-soft: rgb(var(--feedback-success-soft-rgb));
+    --color-feedback-success-strong: rgb(var(--feedback-success-strong-rgb));
+
+    --color-link: rgb(var(--link-rgb));
+
+    --color-notice-warning-border: rgb(var(--notice-warning-border-rgb));
+    --color-notice-warning-icon: rgb(var(--notice-warning-icon-rgb));
+    --color-notice-warning-surface: rgb(var(--notice-warning-surface-rgb));
+    --color-notice-warning-text: rgb(var(--notice-warning-text-rgb));
+
+    --color-quota-contrast: rgb(var(--quota-contrast-rgb));
+    --color-quota-count: rgb(var(--quota-count-rgb));
+    --color-quota-label: rgb(var(--quota-label-rgb));
+
+    --color-status-block-bg: rgb(var(--status-block-bg-rgb));
+    --color-status-block-fg: rgb(var(--status-block-fg-rgb));
+
+    --color-status-booking-bg: rgb(var(--status-booking-bg-rgb));
+    --color-status-booking-fg: rgb(var(--status-booking-fg-rgb));
+
+    --color-status-closing-bg: rgb(var(--status-closing-bg-rgb));
+    --color-status-closing-fg: rgb(var(--status-closing-fg-rgb));
+
+    --color-status-reservation-bg: rgb(var(--status-reservation-bg-rgb));
+    --color-status-reservation-fg: rgb(var(--status-reservation-fg-rgb));
+
+    --color-tub: rgb(var(--brand-tub-rgb));
+
+    --text-tiny: 0.55rem;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
     }
 }
 
-@layer tailwind-utilities {
-    @tailwind components;
-    @tailwind utilities;
+@layer tailwind-base {
+    @import "tailwindcss";
+
+    :root {
+        --app-page-rgb: 243 244 246;
+        --app-surface-rgb: 255 255 255;
+        --app-field-rgb: 249 250 251;
+        --app-border-rgb: 209 213 219;
+        --app-text-rgb: 3 7 18;
+        --app-muted-rgb: 75 85 99;
+        --app-subtle-rgb: 156 163 175;
+        --brand-tub-rgb: 196 13 30;
+        --brand-contrast-rgb: 255 255 255;
+        --button-secondary-rgb: 156 163 175;
+        --button-secondary-hover-rgb: 55 65 81;
+        --button-secondary-contrast-rgb: 0 0 0;
+        --calendar-overlay: 0 0 0;
+        --debug-outline: 51 102 153;
+        --feedback-danger-rgb: 220 38 38;
+        --feedback-danger-contrast-rgb: 255 255 255;
+        --feedback-danger-ring-rgb: 252 165 165;
+        --feedback-danger-soft-rgb: 254 242 242;
+        --feedback-danger-soft-hover-rgb: 254 202 202;
+        --feedback-danger-strong-rgb: 185 28 28;
+        --feedback-danger-strong-hover-rgb: 153 27 27;
+        --feedback-danger-text-rgb: 153 27 27;
+        --feedback-success-rgb: 34 197 94;
+        --feedback-success-contrast-rgb: 255 255 255;
+        --feedback-success-hover-rgb: 21 128 61;
+        --feedback-success-soft-rgb: 74 222 128;
+        --feedback-success-strong-rgb: 22 163 74;
+        --link-rgb: 37 99 235;
+        --notice-warning-border-rgb: 253 230 138;
+        --notice-warning-icon-rgb: 217 119 6;
+        --notice-warning-surface-rgb: 255 251 235;
+        --notice-warning-text-rgb: 69 26 3;
+        --quota-contrast-rgb: 255 255 255;
+        --quota-count-rgb: 75 85 99;
+        --quota-label-rgb: 107 114 128;
+        --status-block-bg-rgb: 206 30 23;
+        --status-block-fg-rgb: 0 0 0;
+        --status-booking-bg-rgb: 22 89 172;
+        --status-booking-fg-rgb: 255 255 255;
+        --status-closing-bg-rgb: 82 82 82;
+        --status-closing-fg-rgb: 255 255 255;
+        --status-reservation-bg-rgb: 246 211 45;
+        --status-reservation-fg-rgb: 0 0 0;
+    }
+
+    .dark {
+        --app-page-rgb: 23 23 23;
+        --app-surface-rgb: 38 38 38;
+        --app-field-rgb: 64 64 64;
+        --app-border-rgb: 82 82 82;
+        --app-text-rgb: 245 245 245;
+        --app-muted-rgb: 212 212 212;
+        --app-subtle-rgb: 163 163 163;
+        --feedback-danger-rgb: 239 68 68;
+        --feedback-danger-ring-rgb: 153 27 27;
+        --feedback-danger-strong-rgb: 220 38 38;
+        --feedback-danger-strong-hover-rgb: 185 28 28;
+        --feedback-danger-text-rgb: 248 113 113;
+        --link-rgb: 96 165 250;
+        --notice-warning-border-rgb: 146 64 14;
+        --notice-warning-icon-rgb: 251 191 36;
+        --notice-warning-surface-rgb: 120 53 15;
+        --notice-warning-text-rgb: 253 230 138;
+    }
 }
 
 /* Important: Apply formerly body classes to Inertia container */
@@ -85,7 +164,7 @@
 
 /* Mainly for debug and development */
 * {
-    outline: 0 rgb(var(--color-debug-outline)) dashed;
+    outline: 0 rgb(var(--debug-outline)) dashed;
 }
 
 main {
@@ -93,21 +172,21 @@ main {
 }
 
 .status-reservation {
-    background-color: rgb(var(--color-status-reservation-bg));
-    color: rgb(var(--color-status-reservation-fg));
+    background-color: rgb(var(--status-reservation-bg-rgb));
+    color: rgb(var(--status-reservation-fg-rgb));
 }
 
 .status-booking {
-    background-color: rgb(var(--color-status-booking-bg));
-    color: rgb(var(--color-status-booking-fg));
+    background-color: rgb(var(--status-booking-bg-rgb));
+    color: rgb(var(--status-booking-fg-rgb));
 }
 
 .status-closing {
-    background-color: rgb(var(--color-status-closing-bg));
-    color: rgb(var(--color-status-closing-fg));
+    background-color: rgb(var(--status-closing-bg-rgb));
+    color: rgb(var(--status-closing-fg-rgb));
 }
 
 .status-block {
-    background-color: rgb(var(--color-status-block-bg));
-    color: rgb(var(--color-status-block-fg));
+    background-color: rgb(var(--status-block-bg-rgb));
+    color: rgb(var(--status-block-fg-rgb));
 }

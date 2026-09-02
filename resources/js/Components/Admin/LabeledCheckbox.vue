@@ -8,7 +8,7 @@
                 :value="value"
                 :checked="checked"
                 :aria-describedby="`${name}-checkbox-text-${value}`"
-                class="h-4 w-4 rounded border-app-border bg-app-page text-feedback-danger focus:ring-2 focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub"
+                class="border-app-border bg-app-page text-feedback-danger focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub h-4 w-4 rounded-sm focus:ring-2"
                 @change="
                     $emit('update-checked', {
                         value: props.value,
@@ -18,10 +18,10 @@
             />
         </div>
         <div class="ml-2 text-sm">
-            <label :for="`${name}-checkbox-${value}`" class="font-medium text-app-text dark:text-app-muted">
+            <label :for="`${name}-checkbox-${value}`" class="text-app-text dark:text-app-muted font-medium">
                 {{ label }}
             </label>
-            <p :id="`${name}-checkbox-text-${value}`" class="text-xs font-normal text-app-muted dark:text-app-muted">
+            <p :id="`${name}-checkbox-text-${value}`" class="text-app-muted dark:text-app-muted text-xs font-normal">
                 {{ description }}
             </p>
         </div>

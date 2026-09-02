@@ -15,7 +15,7 @@
             <div>
                 <span class="font-bold">{{ $t("modal.resource_info.resource_title") }}</span>
                 <div v-if="resource.location_uri">
-                    <a class="cursor-pointer text-tub hover:underline" :href="resource.location_uri" target="_blank">
+                    <a class="text-tub cursor-pointer hover:underline" :href="resource.location_uri" target="_blank">
                         {{ resource.resourceGroup }}
                         {{ resource.title }}
                         <i class="ri-map-pin-2-line"></i>

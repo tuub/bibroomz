@@ -34,7 +34,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="border border-app-border bg-app-surface p-4 shadow dark:border-app-border dark:bg-app-surface">
+    <div class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm">
         <div class="mb-3 flex flex-col items-start gap-2">
             <div class="flex w-full items-center justify-between gap-2">
                 <div class="text-lg font-semibold">{{ $t(titleKey) }}</div>
@@ -51,8 +51,8 @@ defineProps<{
             <slot name="filter" />
         </div>
 
-        <p v-if="unselectedMessageKey" class="italic text-app-muted">{{ $t(unselectedMessageKey) }}</p>
-        <p v-else-if="entryCount === 0" class="italic text-app-muted">
+        <p v-if="unselectedMessageKey" class="text-app-muted italic">{{ $t(unselectedMessageKey) }}</p>
+        <p v-else-if="entryCount === 0" class="text-app-muted italic">
             {{ $t("admin.statistics.index.no_data") }}
         </p>
         <p v-else-if="entryCount === 1" class="text-lg">
@@ -73,7 +73,7 @@ defineProps<{
                     @loaded="onChartLoaded"
                 />
             </div>
-            <ul class="flex w-56 flex-shrink-0 flex-col gap-1 overflow-y-auto text-sm">
+            <ul class="flex w-56 shrink-0 flex-col gap-1 overflow-y-auto text-sm">
                 <li
                     v-for="(item, index) in legendItems"
                     :key="item.label"
@@ -81,18 +81,18 @@ defineProps<{
                     :class="{ 'text-app-muted line-through': item.hidden }"
                     @click="onLegendToggle(index)"
                 >
-                    <span class="mt-1 h-3 w-3 flex-shrink-0 rounded-sm" :style="{ backgroundColor: item.color }" />
+                    <span class="mt-1 h-3 w-3 shrink-0 rounded-xs" :style="{ backgroundColor: item.color }" />
                     <span>{{ item.label }}</span>
                 </li>
             </ul>
         </div>
 
-        <div v-if="comparisonVisible" class="mt-4 border-t border-app-border pt-3" :data-test="comparisonTestId">
+        <div v-if="comparisonVisible" class="border-app-border mt-4 border-t pt-3" :data-test="comparisonTestId">
             <div class="mb-2 text-sm font-semibold">
                 {{ $t("admin.statistics.index.comparison.period_title") }}
             </div>
-            <p v-if="unselectedMessageKey" class="italic text-app-muted">{{ $t(unselectedMessageKey) }}</p>
-            <p v-else-if="comparisonEntryCount === 0" class="italic text-app-muted">
+            <p v-if="unselectedMessageKey" class="text-app-muted italic">{{ $t(unselectedMessageKey) }}</p>
+            <p v-else-if="comparisonEntryCount === 0" class="text-app-muted italic">
                 {{ $t("admin.statistics.index.no_data") }}
             </p>
             <p v-else-if="comparisonEntryCount === 1" class="text-lg">
@@ -114,7 +114,7 @@ defineProps<{
                         @loaded="onComparisonChartLoaded"
                     />
                 </div>
-                <ul class="flex w-56 flex-shrink-0 flex-col gap-1 overflow-y-auto text-sm">
+                <ul class="flex w-56 shrink-0 flex-col gap-1 overflow-y-auto text-sm">
                     <li
                         v-for="(item, index) in comparisonLegendItems"
                         :key="item.label"
@@ -122,7 +122,7 @@ defineProps<{
                         :class="{ 'text-app-muted line-through': item.hidden }"
                         @click="onComparisonLegendToggle(index)"
                     >
-                        <span class="mt-1 h-3 w-3 flex-shrink-0 rounded-sm" :style="{ backgroundColor: item.color }" />
+                        <span class="mt-1 h-3 w-3 shrink-0 rounded-xs" :style="{ backgroundColor: item.color }" />
                         <span>{{ item.label }}</span>
                     </li>
                 </ul>
@@ -131,15 +131,15 @@ defineProps<{
 
         <div
             v-if="cancellationEntries.length > 0"
-            class="mt-4 border-t border-app-border pt-3"
+            class="border-app-border mt-4 border-t pt-3"
             :data-test="cancellationsTestId"
         >
             <div class="mb-2 text-sm font-semibold">
                 {{ $t("admin.statistics.index.cancellations.title") }}
             </div>
             <div class="max-h-64 overflow-auto">
-                <table class="w-full min-w-[28rem] text-left text-sm">
-                    <thead class="text-xs text-app-muted">
+                <table class="w-full min-w-md text-left text-sm">
+                    <thead class="text-app-muted text-xs">
                         <tr>
                             <th class="w-2/5 py-1 pr-2 font-medium">
                                 {{ $t("admin.statistics.index.cancellations.subject") }}
@@ -159,13 +159,13 @@ defineProps<{
                         <tr
                             v-for="entry in cancellationEntries"
                             :key="entry.id"
-                            class="border-t border-app-border"
+                            class="border-app-border border-t"
                             :data-test="cancellationRowTestId"
                         >
                             <td class="truncate py-1 pr-2">{{ entry.label }}</td>
-                            <td class="whitespace-nowrap px-2 py-1 text-right">{{ entry.active }}</td>
-                            <td class="whitespace-nowrap px-2 py-1 text-right">{{ entry.cancelled }}</td>
-                            <td class="whitespace-nowrap py-1 pl-2 text-right">{{ entry.rate }}</td>
+                            <td class="px-2 py-1 text-right whitespace-nowrap">{{ entry.active }}</td>
+                            <td class="px-2 py-1 text-right whitespace-nowrap">{{ entry.cancelled }}</td>
+                            <td class="py-1 pl-2 text-right whitespace-nowrap">{{ entry.rate }}</td>
                         </tr>
                     </tbody>
                 </table>

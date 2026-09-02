@@ -8,11 +8,11 @@
 }
 
 .fc-non-business {
-    background-color: rgb(var(--color-app-border)) !important;
+    background-color: rgb(var(--app-border-rgb)) !important;
 }
 
 div.fc-timegrid-slots tr {
-    background-color: rgb(var(--color-app-surface));
+    background-color: rgb(var(--app-surface-rgb));
 }
 
 .fc-timegrid-axis-frame i.ri-time-line {
@@ -41,21 +41,21 @@ div.fc-timegrid-slots tr {
 
 /* Today */
 .fc-unthemed td.fc-today {
-    background-color: rgb(var(--color-app-surface)) !important;
+    background-color: rgb(var(--app-surface-rgb)) !important;
 }
 
 /* Past Days */
 .fc-past {
     cursor: not-allowed;
-    background-color: rgb(var(--color-status-closing-bg));
-    color: rgb(var(--color-status-closing-fg));
+    background-color: rgb(var(--status-closing-bg-rgb));
+    color: rgb(var(--status-closing-fg-rgb));
 }
 
 /* Closed timeslots */
 .fc-nonbusiness {
     cursor: not-allowed;
-    background-color: rgb(var(--color-status-closing-bg));
-    color: rgb(var(--color-status-closing-fg));
+    background-color: rgb(var(--status-closing-bg-rgb));
+    color: rgb(var(--status-closing-fg-rgb));
 }
 
 /* Background Events: Closings */
@@ -64,15 +64,15 @@ div.fc-timegrid-slots tr {
 .fc-bg-event {
     opacity: 1 !important;
     cursor: not-allowed;
-    background-color: rgb(var(--color-app-surface));
+    background-color: rgb(var(--app-surface-rgb));
     background: repeating-linear-gradient(
         45deg,
-        rgb(var(--color-app-field)),
-        rgb(var(--color-app-field)) 10px,
-        rgb(var(--color-app-page)) 10px,
-        rgb(var(--color-app-page)) 20px
+        rgb(var(--app-field-rgb)),
+        rgb(var(--app-field-rgb)) 10px,
+        rgb(var(--app-page-rgb)) 10px,
+        rgb(var(--app-page-rgb)) 20px
     ) !important;
-    color: rgb(var(--color-app-text));
+    color: rgb(var(--app-text-rgb));
 }
 
 /* Room header columns */
@@ -97,34 +97,34 @@ a.fc-event {
 
     &.past-event {
         opacity: 0.4;
-        background-color: rgb(var(--color-app-border));
+        background-color: rgb(var(--app-border-rgb));
     }
 
     &.reservation {
         opacity: 0.75;
-        background-color: rgb(var(--color-status-reservation-bg));
-        color: rgb(var(--color-status-reservation-fg));
+        background-color: rgb(var(--status-reservation-bg-rgb));
+        color: rgb(var(--status-reservation-fg-rgb));
     }
 
     &.booking {
         opacity: 0.75;
-        background-color: rgb(var(--color-status-booking-bg));
-        color: rgb(var(--color-status-booking-fg));
+        background-color: rgb(var(--status-booking-bg-rgb));
+        color: rgb(var(--status-booking-fg-rgb));
     }
 
     &.block {
-        background-color: rgb(var(--color-status-block-bg));
+        background-color: rgb(var(--status-block-bg-rgb));
         pointer-events: none;
-        color: rgb(var(--color-status-block-fg));
+        color: rgb(var(--status-block-fg-rgb));
     }
 }
 
 .fc-timegrid-slots tr:nth-child(odd) {
-    background-color: rgb(var(--color-app-surface));
+    background-color: rgb(var(--app-surface-rgb));
 }
 
 .fc-timegrid-slots tr:nth-child(even) {
-    background-color: rgb(var(--color-app-field));
+    background-color: rgb(var(--app-field-rgb));
 }
 
 .fc-direction-ltr .fc-button-group > .fc-button:not(:last-child),
@@ -143,48 +143,48 @@ a.fc-event {
 /* Dark mode overrides */
 .dark {
     .fc {
-        --fc-border-color: rgb(var(--color-app-border));
-        --fc-page-bg-color: rgb(var(--color-app-surface));
-        --fc-neutral-bg-color: rgb(var(--color-app-field));
-        --fc-neutral-text-color: rgb(var(--color-app-muted));
-        --fc-non-business-color: rgb(var(--color-calendar-overlay) / 30%);
-        --fc-more-link-bg-color: rgb(var(--color-app-field));
-        --fc-today-bg-color: rgb(var(--color-brand-tub) / 15%);
+        --fc-border-color: rgb(var(--app-border-rgb));
+        --fc-page-bg-color: rgb(var(--app-surface-rgb));
+        --fc-neutral-bg-color: rgb(var(--app-field-rgb));
+        --fc-neutral-text-color: rgb(var(--app-muted-rgb));
+        --fc-non-business-color: rgb(var(--calendar-overlay) / 30%);
+        --fc-more-link-bg-color: rgb(var(--app-field-rgb));
+        --fc-today-bg-color: rgb(var(--brand-tub-rgb) / 15%);
     }
 
     .fc-non-business {
-        background-color: rgb(var(--color-app-field)) !important;
+        background-color: rgb(var(--app-field-rgb)) !important;
     }
 
     div.fc-timegrid-slots tr {
-        background-color: rgb(var(--color-app-surface));
+        background-color: rgb(var(--app-surface-rgb));
     }
 
     .fc-unthemed td.fc-today {
-        background-color: rgb(var(--color-app-field)) !important;
+        background-color: rgb(var(--app-field-rgb)) !important;
     }
 
     .fc-bg-event {
-        background-color: rgb(var(--color-app-surface));
+        background-color: rgb(var(--app-surface-rgb));
         background: repeating-linear-gradient(
             45deg,
-            rgb(var(--color-app-border)),
-            rgb(var(--color-app-border)) 10px,
-            rgb(var(--color-app-field)) 10px,
-            rgb(var(--color-app-field)) 20px
+            rgb(var(--app-border-rgb)),
+            rgb(var(--app-border-rgb)) 10px,
+            rgb(var(--app-field-rgb)) 10px,
+            rgb(var(--app-field-rgb)) 20px
         ) !important;
-        color: rgb(var(--color-app-text));
+        color: rgb(var(--app-text-rgb));
     }
 
     a.fc-event.past-event {
-        background-color: rgb(var(--color-app-field));
+        background-color: rgb(var(--app-field-rgb));
     }
 
     .fc-timegrid-slots tr:nth-child(odd) {
-        background-color: rgb(var(--color-app-surface));
+        background-color: rgb(var(--app-surface-rgb));
     }
 
     .fc-timegrid-slots tr:nth-child(even) {
-        background-color: rgb(var(--color-app-field));
+        background-color: rgb(var(--app-field-rgb));
     }
 }

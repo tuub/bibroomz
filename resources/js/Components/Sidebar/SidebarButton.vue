@@ -21,7 +21,7 @@ defineProps({
 
 <template>
     <button
-        class="flex items-center justify-center rounded border border-app-text p-1 hover:bg-tub hover:text-brand-contrast dark:border-app-border"
+        class="border-app-text hover:bg-tub hover:text-brand-contrast dark:border-app-border flex items-center justify-center rounded-sm border p-1"
     >
         <i v-if="icon" class="text-xs" :class="icon" :title="label"></i>
         <span class="ml-1 text-xs">{{ label }}</span>

@@ -77,7 +77,7 @@ const canAccessSettings = (institutionId?: number | string) => {
             show-gridlines
             removable-sort
             table-style="min-width: 50rem"
-            class="w-full text-left text-sm text-app-muted dark:text-app-subtle"
+            class="text-app-muted dark:text-app-subtle w-full text-left text-sm"
             @row-reorder="reorderRows"
         >
             <template #header>

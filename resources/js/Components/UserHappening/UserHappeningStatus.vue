@@ -16,5 +16,5 @@ defineProps({
 </script>
 
 <template>
-    <Tag :value="label" class="no-wrap px-2 text-xs uppercase tracking-wider"></Tag>
+    <Tag :value="label" class="no-wrap px-2 text-xs tracking-wider uppercase"></Tag>
 </template>

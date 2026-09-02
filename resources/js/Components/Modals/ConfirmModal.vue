@@ -1,7 +1,7 @@
 <template>
     <div class="text-center">
         <svg
-            class="mx-auto mb-4 h-12 w-12 text-app-subtle dark:text-app-text"
+            class="text-app-subtle dark:text-app-text mx-auto mb-4 h-12 w-12"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -16,7 +16,7 @@
             />
         </svg>
 
-        <h3 class="text-lg font-normal text-app-muted dark:text-app-subtle">
+        <h3 class="text-app-muted dark:text-app-subtle text-lg font-normal">
             {{ modal.content?.message }}
         </h3>
     </div>

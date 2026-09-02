@@ -12,7 +12,7 @@
             <span>
                 <input
                     inputmode="numeric"
-                    class="bg-transparent text-center outline-none"
+                    class="bg-transparent text-center outline-hidden"
                     :style="{ width: inputWidth }"
                     :value="currentPage"
                     :placeholder="currentPage.toString()"

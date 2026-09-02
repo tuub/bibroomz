@@ -55,7 +55,7 @@ const isPastHappening = (happening: Happening) => {
         <label
             for="toggle-past-happenings"
             data-testid="toggle-past-happenings-label"
-            class="ml-3 text-sm font-medium text-app-text dark:text-app-muted"
+            class="text-app-text dark:text-app-muted ml-3 text-sm font-medium"
         >
             {{ $t("user_happenings.hide_past_happenings") }}
         </label>

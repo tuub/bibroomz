@@ -14,10 +14,10 @@
         </div>
 
         <div v-if="isFilterVisible" class="mt-1">
-            <span class="mb-1 mr-1 normal-case">Filter:</span>
+            <span class="mr-1 mb-1 normal-case">Filter:</span>
             <input
                 ref="filterInput"
-                class="rounded p-1 outline-none"
+                class="rounded-sm p-1 outline-hidden"
                 :value="filter"
                 @input="$emit('update:filter', ($event.target as HTMLInputElement).value)"
                 @keyup.escape="toggleFilter"

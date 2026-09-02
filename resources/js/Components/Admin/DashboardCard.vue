@@ -26,7 +26,7 @@ defineProps({
 <template>
     <Link :href="link">
         <div
-            class="m-4 w-64 border border-app-border bg-app-surface p-4 text-center shadow hover:shadow-lg dark:border-app-border dark:bg-app-surface"
+            class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface m-4 w-64 border p-4 text-center shadow-sm hover:shadow-lg"
         >
             <div class="2xl font-bold">
                 <i :class="icon" class="text-2xl"></i>
@@ -42,7 +42,7 @@ defineProps({
     <!--
     <Link :href="link">
         <div
-            class="dashboard-card m-4 max-w-sm border border-app-border bg-app-surface p-4 text-center shadow dark:border-app-border dark:bg-app-surface"
+            class="dashboard-card m-4 max-w-sm border border-app-border bg-app-surface p-4 text-center shadow-sm dark:border-app-border dark:bg-app-surface"
         >
             <i :class="icon" class="text-2xl"></i>
             <h5 class="mb-2 mt-2 text-xl font-semibold uppercase tracking-tight text-app-text dark:text-app-text">

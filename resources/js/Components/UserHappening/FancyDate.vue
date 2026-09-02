@@ -41,6 +41,8 @@ const formattedFancyDate = computed(() => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../../../css/main.css";
+
 .booked {
     @apply bg-status-booking-bg text-status-booking-fg;
 }

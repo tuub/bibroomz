@@ -35,7 +35,7 @@ function stopImpersonating() {
     </Head>
     <div
         v-if="isImpersonating"
-        class="flex items-center justify-center gap-4 bg-feedback-danger-strong p-2 text-center text-sm text-feedback-danger-contrast"
+        class="bg-feedback-danger-strong text-feedback-danger-contrast flex items-center justify-center gap-4 p-2 text-center text-sm"
     >
         <span>{{ $t("impersonation.banner.message", { name: user?.name ?? "" }) }}</span>
         <button class="font-medium underline" @click="stopImpersonating">
@@ -43,7 +43,7 @@ function stopImpersonating() {
         </button>
     </div>
     <header
-        class="flex items-center justify-between bg-app-surface p-4 text-tub dark:bg-app-surface"
+        class="bg-app-surface text-tub dark:bg-app-surface flex items-center justify-between p-4"
         :aria-label="$t('accessibility.aria_label.header')"
     >
         <a class="sr-only" href="#content">{{ $t("accessibility.skip_to_main_content") }}</a>
@@ -64,7 +64,7 @@ function stopImpersonating() {
         <!-- BRAND END -->
         <!-- NAVIGATION START -->
         <!-- RESPONSIVE START -->
-        <div class="block text-tub focus:outline-none lg:hidden">
+        <div class="text-tub block focus:outline-hidden lg:hidden">
             <nav id="menu" role="navigation" :aria-label="$t('accessibility.aria_label.navigation.responsive')">
                 <Drawer v-model:visible="isResponsive" header="Navigation" position="full">
                     <template #header> BLA </template>
@@ -79,7 +79,7 @@ function stopImpersonating() {
                     </template>
                 </Drawer>
                 <Button
-                    class="border-0 bg-app-surface text-tub hover:bg-tub hover:text-brand-contrast dark:bg-app-surface"
+                    class="bg-app-surface text-tub hover:bg-tub hover:text-brand-contrast dark:bg-app-surface border-0"
                     size="small"
                     aria-label="Open Navigation"
                     @click="isResponsive = true"
@@ -92,7 +92,7 @@ function stopImpersonating() {
         <!-- RESPONSIVE END -->
         <!-- DESKTOP START -->
         <div
-            class="absolute left-0 top-16 hidden w-full gap-4 bg-app-page p-4 shadow-md md:relative md:top-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none lg:flex dark:bg-app-page"
+            class="bg-app-page dark:bg-app-page absolute top-16 left-0 hidden w-full gap-4 p-4 shadow-md md:relative md:top-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none lg:flex"
         >
             <NavigationBar
                 :is-responsive="isResponsive"

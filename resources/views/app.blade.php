@@ -24,7 +24,7 @@
                 document.documentElement.style.colorScheme = resolvedTheme;
 
                 var appPageColor = window.getComputedStyle(document.documentElement)
-                    .getPropertyValue('--color-app-page')
+                    .getPropertyValue('--app-page-rgb')
                     .trim();
 
                 if (themeColor && appPageColor) {

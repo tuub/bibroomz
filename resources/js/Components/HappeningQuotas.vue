@@ -16,7 +16,7 @@
         <HappeningQuota
             v-for="(value, type) in quotas"
             :key="type"
-            class="mb-2 mr-2"
+            class="mr-2 mb-2"
             :type="type"
             :value="value"
             :setting="getQuotaSetting(type)"

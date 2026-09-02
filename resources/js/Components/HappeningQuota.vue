@@ -1,9 +1,9 @@
 <template>
-    <div class="flex rounded text-xs uppercase">
-        <div class="flex bg-quota-count px-2 py-1 font-bold text-quota-contrast">
+    <div class="flex rounded-sm text-xs uppercase">
+        <div class="bg-quota-count text-quota-contrast flex px-2 py-1 font-bold">
             {{ remaining }}
         </div>
-        <div class="flex bg-quota-label px-2 py-1 text-quota-contrast">
+        <div class="bg-quota-label text-quota-contrast flex px-2 py-1">
             {{ $tChoice("quota." + type + ".label", remainingValue) }}
         </div>
     </div>

@@ -71,7 +71,7 @@ const helpURI = computed(() => {
                     size="small"
                     icon="pi pi-user"
                     :label="$t('sidebar.login.label')"
-                    class="rounded bg-tub px-3 text-brand-contrast"
+                    class="bg-tub text-brand-contrast rounded-sm px-3"
                     @click="loginUser"
                 />
             </div>

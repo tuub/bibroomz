@@ -1,12 +1,12 @@
 <template>
     <div
         id="alert-2"
-        class="mb-4 flex rounded-lg bg-feedback-danger-soft p-4 text-feedback-danger-text dark:bg-app-surface"
+        class="bg-feedback-danger-soft text-feedback-danger-text dark:bg-app-surface mb-4 flex rounded-lg p-4"
         role="alert"
     >
         <svg
             aria-hidden="true"
-            class="h-5 w-5 flex-shrink-0"
+            class="h-5 w-5 shrink-0"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +23,7 @@
         </div>
         <button
             type="button"
-            class="-mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 rounded-lg bg-feedback-danger-soft p-1.5 text-feedback-danger hover:bg-feedback-danger-soft-hover focus:ring-2 focus:ring-feedback-danger-ring dark:bg-app-surface dark:hover:bg-app-field"
+            class="bg-feedback-danger-soft text-feedback-danger hover:bg-feedback-danger-soft-hover focus:ring-feedback-danger-ring dark:bg-app-surface dark:hover:bg-app-field -mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 rounded-lg p-1.5 focus:ring-2"
             data-dismiss-target="#alert-2"
             aria-label="Close"
             @click="close"

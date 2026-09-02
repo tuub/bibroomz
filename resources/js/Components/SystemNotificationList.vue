@@ -3,13 +3,13 @@
         <section
             v-for="(notification, index) in notifications"
             :key="`${notification.title ?? 'system-notification'}-${index}`"
-            class="rounded-lg border border-notice-warning-border bg-notice-warning-surface px-4 py-3 text-notice-warning-text dark:bg-notice-warning-surface/40"
+            class="border-notice-warning-border bg-notice-warning-surface text-notice-warning-text dark:bg-notice-warning-surface/40 rounded-lg border px-4 py-3"
             role="status"
         >
             <div class="flex items-start gap-3">
-                <i class="pi pi-exclamation-triangle mt-1 text-notice-warning-icon" aria-hidden="true"></i>
+                <i class="pi pi-exclamation-triangle text-notice-warning-icon mt-1" aria-hidden="true"></i>
                 <div class="space-y-1">
-                    <p class="whitespace-pre-line text-sm">
+                    <p class="text-sm whitespace-pre-line">
                         {{ notification.message }}
                     </p>
                 </div>

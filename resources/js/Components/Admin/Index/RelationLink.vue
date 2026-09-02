@@ -1,5 +1,5 @@
 <template>
-    <Link :href="href" class="font-medium text-feedback-danger hover:underline">
+    <Link :href="href" class="text-feedback-danger font-medium hover:underline">
         <i :class="icons[relation]" />
         {{ $t("admin." + current + "s.index.table.actions." + relation + "s") }}
     </Link>

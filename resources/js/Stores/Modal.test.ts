@@ -26,28 +26,28 @@ describe("open", () => {
         expect(store.payload).toEqual({ id: 42 });
         expect(store.actions).toEqual(actions);
         expect(store.isOpen).toBe(true);
-        expect(document.querySelector("header")?.classList.contains("blur-sm")).toBe(true);
-        expect(document.querySelector("main")?.classList.contains("blur-sm")).toBe(true);
-        expect(document.querySelector("footer")?.classList.contains("blur-sm")).toBe(true);
+        expect(document.querySelector("header")?.classList.contains("blur-xs")).toBe(true);
+        expect(document.querySelector("main")?.classList.contains("blur-xs")).toBe(true);
+        expect(document.querySelector("footer")?.classList.contains("blur-xs")).toBe(true);
     });
 });
 
 describe("close", () => {
-    test("closes the modal and removes the background blur", () => {
+    test("closes the modal and removes the background blur-sm", () => {
         const store = useModal();
 
         store.open(TestView, { title: "Inspect" }, { id: 42 }, null);
         store.close();
 
         expect(store.isOpen).toBe(false);
-        expect(document.querySelector("header")?.classList.contains("blur-sm")).toBe(false);
-        expect(document.querySelector("main")?.classList.contains("blur-sm")).toBe(false);
-        expect(document.querySelector("footer")?.classList.contains("blur-sm")).toBe(false);
+        expect(document.querySelector("header")?.classList.contains("blur-xs")).toBe(false);
+        expect(document.querySelector("main")?.classList.contains("blur-xs")).toBe(false);
+        expect(document.querySelector("footer")?.classList.contains("blur-xs")).toBe(false);
     });
 });
 
 describe("cleanup", () => {
-    test("clears the modal state and removes the background blur", () => {
+    test("clears the modal state and removes the background blur-sm", () => {
         const store = useModal();
 
         store.open(TestView, { title: "Inspect" }, { id: 42 }, [{ label: "Save", callback: vi.fn() }]);
@@ -57,9 +57,9 @@ describe("cleanup", () => {
         expect(store.content).toBeNull();
         expect(store.payload).toBeNull();
         expect(store.actions).toBeNull();
-        expect(document.querySelector("header")?.classList.contains("blur-sm")).toBe(false);
-        expect(document.querySelector("main")?.classList.contains("blur-sm")).toBe(false);
-        expect(document.querySelector("footer")?.classList.contains("blur-sm")).toBe(false);
+        expect(document.querySelector("header")?.classList.contains("blur-xs")).toBe(false);
+        expect(document.querySelector("main")?.classList.contains("blur-xs")).toBe(false);
+        expect(document.querySelector("footer")?.classList.contains("blur-xs")).toBe(false);
     });
 });
 

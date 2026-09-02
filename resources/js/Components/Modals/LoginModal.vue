@@ -9,14 +9,14 @@
         <form class="space-y-6" @submit.prevent="$emit('submit')">
             <div>
                 <label class="space-y-2" for="username">
-                    <span class="text-xs font-bold uppercase text-app-muted">{{
+                    <span class="text-app-muted text-xs font-bold uppercase">{{
                         $t("login.form.username.label")
                     }}</span>
 
                     <input
                         id="username"
                         v-model="payload.username"
-                        class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                        class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                         type="text"
                         name="username"
                         autocomplete="username"
@@ -34,14 +34,14 @@
 
             <div>
                 <label class="space-y-2" for="password">
-                    <span class="text-xs font-bold uppercase text-app-muted">{{
+                    <span class="text-app-muted text-xs font-bold uppercase">{{
                         $t("login.form.password.label")
                     }}</span>
 
                     <input
                         id="password"
                         v-model="payload.password"
-                        class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                        class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                         type="password"
                         name="password"
                         autocomplete="current-password"

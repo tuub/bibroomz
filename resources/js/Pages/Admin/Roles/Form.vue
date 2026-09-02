@@ -21,7 +21,7 @@
         <!-- Checkbox: Permissions -->
         <fieldset>
             <legend class="space-y-2">
-                <div class="text-sm font-bold uppercase text-app-text dark:text-app-text">
+                <div class="text-app-text dark:text-app-text text-sm font-bold uppercase">
                     {{ $t("admin.roles.form.fields.permissions.label") }}
                 </div>
 
@@ -37,13 +37,13 @@
                 <div>
                     <input
                         :id="`group-checkbox-${group.id}`"
-                        class="h-4 w-4 rounded border-app-border bg-app-page text-feedback-danger focus:ring-2 focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub"
+                        class="border-app-border bg-app-page text-feedback-danger focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub h-4 w-4 rounded-sm focus:ring-2"
                         type="checkbox"
                         :checked="isGroupChecked(group.id)"
                         :indeterminate="isGroupIndeterminate(group.id)"
                         @change="updateCheckedPermissions(group.id)"
                     />
-                    <span class="pl-2 text-app-muted">{{ translate(group.name) }}</span>
+                    <span class="text-app-muted pl-2">{{ translate(group.name) }}</span>
                 </div>
 
                 <ul class="mb-2 ml-6">
@@ -64,13 +64,13 @@
                 <div>
                     <input
                         id="no-group-checkbox"
-                        class="h-4 w-4 rounded border-app-border bg-app-page text-feedback-danger focus:ring-2 focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub"
+                        class="border-app-border bg-app-page text-feedback-danger focus:ring-tub dark:border-app-border dark:bg-app-field dark:ring-offset-app-surface dark:focus:ring-tub h-4 w-4 rounded-sm focus:ring-2"
                         type="checkbox"
                         :checked="isGroupChecked()"
                         :indeterminate="isGroupIndeterminate()"
                         @change="updateCheckedPermissions()"
                     />
-                    <span class="pl-2 text-app-muted">{{ $t("admin.roles.form.no_group") }}</span>
+                    <span class="text-app-muted pl-2">{{ $t("admin.roles.form.no_group") }}</span>
                 </div>
 
                 <ul class="mb-2 ml-6">

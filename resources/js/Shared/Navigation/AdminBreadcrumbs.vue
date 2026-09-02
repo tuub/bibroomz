@@ -3,7 +3,7 @@
         v-if="items.length > 0"
         :home="homeItem"
         :model="menuItems"
-        class="mb-4 !bg-transparent !p-0"
+        class="mb-4 bg-transparent! p-0!"
         data-testid="admin-breadcrumbs"
     >
         <template #item="{ item, label, props: itemProps }">
@@ -11,7 +11,7 @@
                 <span v-if="item.icon" :class="item.icon" v-bind="itemProps.icon"></span>
                 <span v-if="label" v-bind="itemProps.label">{{ label }}</span>
             </Link>
-            <span v-else class="font-semibold text-tub" aria-current="page">
+            <span v-else class="text-tub font-semibold" aria-current="page">
                 <span v-if="item.icon" :class="item.icon"></span>
                 <span v-if="label">{{ label }}</span>
             </span>

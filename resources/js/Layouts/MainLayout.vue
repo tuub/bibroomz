@@ -51,12 +51,12 @@ onUnmounted(() => {
 
     <!-- MAIN CONTENT START -->
     <main
-        class="flex flex-1 items-stretch justify-center bg-app-page p-4 transition-transform duration-300 dark:bg-app-page"
+        class="bg-app-page dark:bg-app-page flex flex-1 items-stretch justify-center p-4 transition-transform duration-300"
         :aria-label="$t('accessibility.aria_label.main')"
     >
         <section
             id="content"
-            class="w-3/4 flex-grow rounded bg-app-surface p-6 shadow-md dark:bg-app-surface dark:text-app-text"
+            class="bg-app-surface dark:bg-app-surface dark:text-app-text w-3/4 grow rounded-sm p-6 shadow-md"
         >
             <slot name="breadcrumbs" />
             <slot />

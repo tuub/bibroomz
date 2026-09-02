@@ -5,8 +5,8 @@
         <CreateLink v-if="addCreateButton" :model="model" :params="createParams" />
 
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-left text-sm text-app-muted dark:text-app-subtle">
-                <thead class="bg-app-field text-xs uppercase text-app-muted dark:bg-app-field dark:text-app-subtle">
+            <table class="text-app-muted dark:text-app-subtle w-full text-left text-sm">
+                <thead class="bg-app-field text-app-muted dark:bg-app-field dark:text-app-subtle text-xs uppercase">
                     <tr>
                         <slot name="header" />
                     </tr>

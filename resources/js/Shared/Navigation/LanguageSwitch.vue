@@ -42,6 +42,8 @@ onBeforeMount(() => {
 </script>
 
 <style lang="postcss" scoped>
+@reference "../../../css/main.css";
+
 .i18n-active {
     @apply font-extrabold;
 }

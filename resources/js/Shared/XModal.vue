@@ -5,7 +5,7 @@
         dismissable-mask
         :header="modal.content?.title"
         modal
-        class="w-[46rem] max-w-[95%]"
+        class="w-184 max-w-[95%]"
         aria-modal="true"
         @hide="modal.cleanup"
     >
@@ -17,7 +17,7 @@
             <button
                 v-for="action in actions"
                 :key="action.label"
-                class="rounded-lg bg-feedback-danger-strong px-5 py-2.5 text-center text-sm font-medium text-feedback-danger-contrast hover:bg-feedback-danger-strong-hover focus:outline-none focus:ring-4 focus:ring-feedback-danger-ring"
+                class="bg-feedback-danger-strong text-feedback-danger-contrast hover:bg-feedback-danger-strong-hover focus:ring-feedback-danger-ring rounded-lg px-5 py-2.5 text-center text-sm font-medium focus:ring-4 focus:outline-hidden"
                 :data-testid="action.testId ?? null"
                 type="button"
                 @click="action.callback(payload)"

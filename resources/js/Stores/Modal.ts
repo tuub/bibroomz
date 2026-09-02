@@ -36,13 +36,13 @@ const getBackgroundElements = () => {
 
 const blurBackgroundElements = () => {
     getBackgroundElements().forEach((element) => {
-        element.classList.add("blur-sm");
+        element.classList.add("blur-xs");
     });
 };
 
 const unblurBackgroundElements = () => {
     getBackgroundElements().forEach((element) => {
-        element.classList.remove("blur-sm");
+        element.classList.remove("blur-xs");
     });
 };
 

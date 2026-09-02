@@ -1,6 +1,6 @@
 <template>
     <div class="-mx-3 flex flex-wrap">
-        <div class="mx-3 w-full font-bold text-app-text">
+        <div class="text-app-text mx-3 w-full font-bold">
             {{ $t("admin.resources.form.fields.business_hours.label", { index: (index + 1).toString() }) }}
             <a v-if="!isOnly" href="#" class="p5" @click.prevent="removeBusinessHourField">
                 <i class="ri-delete-bin-line"></i>
@@ -32,7 +32,7 @@
                 :id="`businessHourStart-${index}`"
                 v-model="start"
                 name="businessHourStart"
-                class="mb-3 block w-full appearance-none rounded border bg-app-field px-4 py-3 leading-tight text-app-muted focus:bg-app-surface focus:outline-none"
+                class="bg-app-field text-app-muted focus:bg-app-surface mb-3 block w-full appearance-none rounded-sm border px-4 py-3 leading-tight focus:outline-hidden"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.start.placeholder')"
                 @change="updateBusinessHourField"
@@ -48,7 +48,7 @@
                 :id="`businessHourEnd-${index}`"
                 v-model="end"
                 name="businessHourEnd"
-                class="mb-3 block w-full appearance-none rounded border bg-app-field px-4 py-3 leading-tight text-app-muted focus:bg-app-surface focus:outline-none"
+                class="bg-app-field text-app-muted focus:bg-app-surface mb-3 block w-full appearance-none rounded-sm border px-4 py-3 leading-tight focus:outline-hidden"
                 type="text"
                 :placeholder="$t('admin.resources.form.fields.business_hours.subfields.end.placeholder')"
                 @change="updateBusinessHourField"
@@ -66,7 +66,7 @@
                     v-model="startDate"
                     type="text"
                     name="start_date"
-                    class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                     :placeholder="$t('admin.resources.form.fields.business_hours.subfields.start_date.placeholder')"
                     @change="updateBusinessHourField"
                 />
@@ -82,7 +82,7 @@
                     v-model="endDate"
                     type="text"
                     name="end_date"
-                    class="block w-full rounded-lg border border-app-border bg-app-field p-2.5 text-sm text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub"
+                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
                     :placeholder="$t('admin.resources.form.fields.business_hours.subfields.end_date.placeholder')"
                     @change="updateBusinessHourField"
                 />
