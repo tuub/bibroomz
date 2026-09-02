@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Http\Middleware\CacheUserActivity;
 use App\Models\User;
 use App\Services\Http\UserActivityRecorder;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 covers(CacheUserActivity::class);
 
@@ -22,7 +24,7 @@ test('CacheUserActivity handle processes request without error', function (): vo
     $middleware = app(CacheUserActivity::class);
     $request = Request::create('/');
 
-    $response = $middleware->handle($request, fn () => response('ok'));
+    $response = $middleware->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getStatusCode())->toBe(200);
 });
@@ -32,7 +34,7 @@ test('CacheUserActivity passes request through when not authenticated', function
     $request = Request::create('/');
 
     $passed = false;
-    $middleware->handle($request, function ($req) use (&$passed) {
+    $middleware->handle($request, function ($req) use (&$passed): ResponseFactory|Response {
         $passed = true;
 
         return response('ok');
@@ -45,7 +47,7 @@ test('CacheUserActivity passes request through when authenticated user is null o
     $middleware = app(CacheUserActivity::class);
     $request = Request::create('/');
 
-    $response = $middleware->handle($request, fn ($req) => response('pass'));
+    $response = $middleware->handle($request, fn ($req): ResponseFactory|Response => response('pass'));
 
     expect($response->getContent())->toBe('pass');
 });
@@ -67,7 +69,7 @@ test('CacheUserActivity records user activity when authenticated', function (): 
     $request = Request::create('/');
     $request->setUserResolver(fn () => $user);
 
-    $middleware->handle($request, fn () => response('ok'));
+    $middleware->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($recorded)->toBeTrue();
 });
@@ -83,7 +85,7 @@ test('CacheUserActivity does not record activity and returns early when not auth
     $request = Request::create('/');
     // No user authenticated → auth()->check() = false → should return early
 
-    $response = $middleware->handle($request, fn () => response('early_return'));
+    $response = $middleware->handle($request, fn (): ResponseFactory|Response => response('early_return'));
 
     expect($response->getContent())->toBe('early_return');
 });

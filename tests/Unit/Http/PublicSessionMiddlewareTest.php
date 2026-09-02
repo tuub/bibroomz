@@ -9,8 +9,10 @@ use App\Models\User;
 use App\Services\Http\InertiaSharedDataBuilder;
 use App\Services\Http\LocalePreferenceManager;
 use App\Services\Http\UserActivityRecorder;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 covers(
     Localization::class,
@@ -28,7 +30,7 @@ test('localization middleware applies the locale from the cookie and queues the 
     app()->setLocale('en');
 
     $request = Request::create('/', 'GET', [], ['locale' => 'de']);
-    $response = (new Localization)->handle($request, fn () => response('ok'));
+    $response = (new Localization)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getStatusCode())->toBe(200)
         ->and(app()->getLocale())->toBe('de');
@@ -37,7 +39,7 @@ test('localization middleware applies the locale from the cookie and queues the 
     app()->setLocale('en');
 
     $request = Request::create('/', 'GET');
-    (new Localization)->handle($request, fn () => response('ok'));
+    (new Localization)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect(app('cookie')->queued('locale')?->getValue())->toBe('en');
 });
@@ -50,7 +52,7 @@ test('cache user activity middleware stores the current user activity timestamp'
     $request->setUserResolver(fn () => $user);
     cache()->forget('user_activity_'.$user->id);
 
-    $response = (new CacheUserActivity)->handle($request, fn () => response('ok'));
+    $response = (new CacheUserActivity)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getStatusCode())->toBe(200)
         ->and(cache()->has('user_activity_'.$user->id))->toBeTrue();
@@ -74,7 +76,7 @@ test('redirect if authenticated sends signed in users to the home path', functio
     $this->actingAs($user);
 
     $request = Request::create('/', 'GET');
-    $response = (new RedirectIfAuthenticated)->handle($request, fn () => response('ok'));
+    $response = (new RedirectIfAuthenticated)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->isRedirect())->toBeTrue()
         ->and($response->getTargetUrl())->toContain('/home');
@@ -82,7 +84,7 @@ test('redirect if authenticated sends signed in users to the home path', functio
 
 test('redirect if authenticated passes guests through unchanged', function (): void {
     $request = Request::create('/', 'GET');
-    $response = (new RedirectIfAuthenticated)->handle($request, fn () => response('ok'));
+    $response = (new RedirectIfAuthenticated)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getContent())->toBe('ok');
 });
@@ -90,7 +92,7 @@ test('redirect if authenticated passes guests through unchanged', function (): v
 test('cache user activity middleware passes guest requests unchanged', function (): void {
     $request = Request::create('/', 'GET');
 
-    $response = (new CacheUserActivity)->handle($request, fn () => response('ok'));
+    $response = (new CacheUserActivity)->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getContent())->toBe('ok');
 });

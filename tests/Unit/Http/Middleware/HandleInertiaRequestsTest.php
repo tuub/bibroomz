@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 covers(HandleInertiaRequests::class);
 
@@ -20,7 +22,7 @@ test('HandleInertiaRequests handle processes request without error', function ()
     $middleware = app(HandleInertiaRequests::class);
     $request = Request::create('/');
 
-    $response = $middleware->handle($request, fn () => response('ok'));
+    $response = $middleware->handle($request, fn (): ResponseFactory|Response => response('ok'));
 
     expect($response->getStatusCode())->toBe(200);
 });
