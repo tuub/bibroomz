@@ -5,6 +5,7 @@ import "@/bootstrap";
 import { stripEmpty } from "@/stripEmpty";
 import { Ziggy } from "@/ziggy";
 
+import "@fontsource-variable/noto-sans";
 import { Head, Link, createInertiaApp } from "@inertiajs/vue3";
 //import { definePreset } from "@primeuix/themes";
 import Material from "@primeuix/themes/material";
@@ -12,6 +13,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { i18nVue } from "laravel-vue-i18n";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import "primeicons/primeicons.css";
 import PrimeVue from "primevue/config";
 import Ripple from "primevue/ripple";
 import StyleClass from "primevue/styleclass";

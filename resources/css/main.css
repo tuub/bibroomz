@@ -21,8 +21,6 @@
   cascade, regardless of the layer order above, so these always apply.
 */
 @import "./calendar.css";
-@import "@fontsource-variable/noto-sans";
-@import "primeicons/primeicons.css";
 
 @plugin "@tailwindcss/typography";
 
