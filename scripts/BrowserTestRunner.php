@@ -700,9 +700,6 @@ final class BrowserTestRunner
             '--testsuite=Browser',
             '--configuration',
             'phpunit.browser.xml',
-            '--coverage',
-            '--coverage-cobertura',
-            'build/coverage/cobertura-browser.xml',
         ], $browserArguments);
     }
 
