@@ -52,6 +52,8 @@ COPY --from=php-build /var/www/vendor /var/www/vendor
 COPY --from=php-build /var/www/resources/js/ziggy.js /var/www/resources/js/ziggy.js
 
 ARG CACHEBUST
+ARG VITE_REVERB_PORT
+ENV VITE_REVERB_PORT=${VITE_REVERB_PORT}
 RUN --mount=type=secret,required=true,id=.env,target=/var/www/.env npm run build
 
 ###

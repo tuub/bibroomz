@@ -19,6 +19,7 @@ x-php: &php
     target: frankenphp
     args:
       DOCKERHUB_IMAGE_PREFIX: ${DOCKERHUB_IMAGE_PREFIX:-}
+      VITE_REVERB_PORT: ${APP_PORT:-8000}
     secrets:
       - .env
   secrets:
