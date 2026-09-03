@@ -74,8 +74,10 @@ test('admin statistics page presents cancellation status by institution, resourc
             ->where('resourceGroups.0.cancelled', 1)
             ->where('resources.0.active', 2)
             ->where('resources.0.cancelled', 1)
-            ->where('cancellations.active', 2)
-            ->where('cancellations.cancelled', 1));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->where('cancellations.active', 2)
+                ->where('cancellations.cancelled', 1)
+                ->etc()));
 });
 
 test('admin statistics page presents peak-times heatmap data', function (): void {
@@ -96,13 +98,15 @@ test('admin statistics page presents peak-times heatmap data', function (): void
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
-            ->has('heatmap.cells', 168)
-            ->where('heatmap.maxCount', 1)
-            ->where('heatmap.totalCount', 1)
-            ->where('heatmap.cells.10.dayOfWeek', 1)
-            ->where('heatmap.cells.10.hour', 10)
-            ->where('heatmap.cells.10.count', 1)
-            ->where('heatmap.cells.10.percentage', 100));
+            ->loadDeferredProps('heatmap', fn (Assert $page): AssertableJson => $page
+                ->has('heatmap.cells', 168)
+                ->where('heatmap.maxCount', 1)
+                ->where('heatmap.totalCount', 1)
+                ->where('heatmap.cells.10.dayOfWeek', 1)
+                ->where('heatmap.cells.10.hour', 10)
+                ->where('heatmap.cells.10.count', 1)
+                ->where('heatmap.cells.10.percentage', 100)
+                ->etc()));
 });
 
 test('admin statistics page presents period comparison data', function (): void {
@@ -137,15 +141,17 @@ test('admin statistics page presents period comparison data', function (): void 
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
-            ->where('comparison.from', '2026-01-01')
-            ->where('comparison.to', '2026-01-31')
-            ->where('comparison.currentCount', 2)
-            ->where('comparison.comparisonCount', 1)
-            ->where('comparison.deltaPct', 100)
-            ->where('comparison.resources.0.count', 1)
-            ->has('comparison.timeSeries', 1)
-            ->where('comparison.timeSeries.0.label', '2026-01')
-            ->where('comparison.timeSeries.0.count', 1));
+            ->loadDeferredProps('comparison', fn (Assert $page): AssertableJson => $page
+                ->where('comparison.from', '2026-01-01')
+                ->where('comparison.to', '2026-01-31')
+                ->where('comparison.currentCount', 2)
+                ->where('comparison.comparisonCount', 1)
+                ->where('comparison.deltaPct', 100)
+                ->where('comparison.resources.0.count', 1)
+                ->has('comparison.timeSeries', 1)
+                ->where('comparison.timeSeries.0.label', '2026-01')
+                ->where('comparison.timeSeries.0.count', 1)
+                ->etc()));
 });
 
 test('admin statistics page redirects unauthenticated guest', function (): void {
@@ -233,7 +239,9 @@ test('admin statistics page defaults to a monthly time series with 12 buckets', 
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
             ->where('granularity', 'month')
-            ->has('timeSeries', 12));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->has('timeSeries', 12)
+                ->etc()));
 });
 
 test('admin statistics page returns a weekly time series with 12 buckets', function (): void {
@@ -245,7 +253,9 @@ test('admin statistics page returns a weekly time series with 12 buckets', funct
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
             ->where('granularity', 'week')
-            ->has('timeSeries', 12));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->has('timeSeries', 12)
+                ->etc()));
 });
 
 test('admin statistics page returns a yearly time series with 5 buckets', function (): void {
@@ -257,7 +267,9 @@ test('admin statistics page returns a yearly time series with 5 buckets', functi
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
             ->where('granularity', 'year')
-            ->has('timeSeries', 5));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->has('timeSeries', 5)
+                ->etc()));
 });
 
 test('admin statistics page counts bookings into the correct monthly bucket', function (): void {
@@ -275,10 +287,11 @@ test('admin statistics page counts bookings into the correct monthly bucket', fu
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
-            ->has('timeSeries', 12)
-            ->where('timeSeries.11.label', now()->format('Y-m'))
-            ->where('timeSeries.11.count', 1)
-            ->etc());
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->has('timeSeries', 12)
+                ->where('timeSeries.11.label', now()->format('Y-m'))
+                ->where('timeSeries.11.count', 1)
+                ->etc()));
 });
 
 test('admin statistics page infers a split for time series buckets', function (): void {
@@ -297,8 +310,10 @@ test('admin statistics page infers a split for time series buckets', function ()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
             ->where('timeSeriesSplit', 'resource')
-            ->where('timeSeries.11.segments.0.id', (string) $resource->id)
-            ->where('timeSeries.11.segments.0.count', 1));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->where('timeSeries.11.segments.0.id', (string) $resource->id)
+                ->where('timeSeries.11.segments.0.count', 1)
+                ->etc()));
 });
 
 test('admin statistics page rejects an unknown granularity value', function (): void {
@@ -325,8 +340,10 @@ test('admin statistics page shrinks the time series window to match the selected
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
-            ->has('timeSeries', 1)
-            ->where('timeSeries.0.label', now()->format('Y-m')));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->has('timeSeries', 1)
+                ->where('timeSeries.0.label', now()->format('Y-m'))
+                ->etc()));
 });
 
 test('admin statistics page scopes the time series to the selected resource', function (): void {
@@ -350,5 +367,7 @@ test('admin statistics page scopes the time series to the selected resource', fu
             ->component('Admin/Statistics/Index')
             ->where('timeSeriesResourceIds', [(string) $resource->id, (string) $secondResource->id])
             ->where('timeSeriesResourceId', (string) $resource->id)
-            ->where('timeSeries.11.count', 2));
+            ->loadDeferredProps('timeSeries', fn (Assert $page): AssertableJson => $page
+                ->where('timeSeries.11.count', 2)
+                ->etc()));
 });

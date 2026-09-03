@@ -83,6 +83,7 @@ return [
             'description' => 'Bookings per institution, resource group and resource',
             'bookings' => 'Bookings',
             'no_data' => 'No booking data available.',
+            'loading' => 'Loading…',
             'single_entry' => ':title: :count bookings',
             'cancellations' => [
                 'title' => 'Cancellation status',

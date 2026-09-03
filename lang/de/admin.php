@@ -83,6 +83,7 @@ return [
             'description' => 'Buchungen pro Einrichtung, Ressourcengruppe und Ressource',
             'bookings' => 'Buchungen',
             'no_data' => 'Keine Buchungsdaten verfügbar.',
+            'loading' => 'Wird geladen …',
             'single_entry' => ':title: :count Buchungen',
             'cancellations' => [
                 'title' => 'Stornierungsstatus',

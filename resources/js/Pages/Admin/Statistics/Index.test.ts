@@ -19,6 +19,13 @@ vi.mock("@inertiajs/vue3", () => ({
     router: {
         get: (...args: unknown[]) => routerGetMock(...args),
     },
+    Deferred: {
+        name: "DeferredStub",
+        props: ["data"],
+        setup(_props: unknown, { slots }: { slots: { default?: () => unknown } }) {
+            return () => slots.default?.();
+        },
+    },
 }));
 
 const routeMock = vi.fn((name: string) => name);

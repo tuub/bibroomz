@@ -28,6 +28,7 @@ import PeakTimesHeatmapCard from "./Components/PeakTimesHeatmapCard.vue";
 import PieChartCard from "./Components/PieChartCard.vue";
 import TimeSeriesCard from "./Components/TimeSeriesCard.vue";
 
+import { Deferred } from "@inertiajs/vue3";
 import type { ChartData, ChartOptions } from "chart.js";
 import { trans } from "laravel-vue-i18n";
 import { computed, inject, ref } from "vue";
@@ -378,43 +379,69 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
             @apply="applyFilters"
         />
 
-        <TimeSeriesCard
-            v-model:granularity="selectedGranularity"
-            v-model:chart-mode="timeSeriesChartMode"
-            :time-series-is-split="timeSeriesIsSplit"
-            :granularity-options="granularityOptions"
-            :time-series-institution-options="timeSeriesInstitutionOptions"
-            :time-series-resource-group-options="timeSeriesResourceGroupOptions"
-            :time-series-resource-options="timeSeriesResourceOptions"
-            :selected-time-series-institution-ids="selectedTimeSeriesInstitutionIds"
-            :selected-time-series-resource-group-ids="selectedTimeSeriesResourceGroupIds"
-            :selected-time-series-resource-ids="selectedTimeSeriesResourceIds"
-            :retention-exceeded="cancellations.retentionExceeded"
-            :retention-days="cancellations.retentionDays"
-            :has-comparison="hasComparison"
-            :comparison="comparison"
-            :time-series="timeSeries"
-            :time-series-chart-data="timeSeriesChartData"
-            :comparison-time-series-chart-data="comparisonTimeSeriesChartData"
-            :time-series-chart-options="timeSeriesChartOptions"
-            :current-period-range-label="currentPeriodRangeLabel"
-            :current-period-count-label="currentPeriodCountLabel"
-            :comparison-date-range-label="comparisonDateRangeLabel"
-            :comparison-delta-label="comparisonDeltaLabel"
-            :comparison-delta-class="comparisonDeltaClassValue"
-            :comparison-count-label="comparisonCountLabel"
-            :export-url="exportUrl('time_series')"
-            @institution-change="onTimeSeriesInstitutionChange"
-            @resource-group-change="onTimeSeriesResourceGroupChange"
-            @resource-change="onTimeSeriesResourceChange"
-        />
+        <Deferred :data="['timeSeries', 'cancellations']">
+            <template #fallback>
+                <div
+                    class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
+                >
+                    <div class="text-lg font-semibold">{{ $t("admin.statistics.index.time_series.title") }}</div>
+                    <p class="text-app-muted mt-3 italic" data-test="time-series-loading">
+                        {{ $t("admin.statistics.index.loading") }}
+                    </p>
+                </div>
+            </template>
 
-        <PeakTimesHeatmapCard
-            :rows="heatmapRows"
-            :hours="heatmapHours"
-            :grid-style="heatmapGridStyle"
-            :export-url="exportUrl('heatmap')"
-        />
+            <TimeSeriesCard
+                v-model:granularity="selectedGranularity"
+                v-model:chart-mode="timeSeriesChartMode"
+                :time-series-is-split="timeSeriesIsSplit"
+                :granularity-options="granularityOptions"
+                :time-series-institution-options="timeSeriesInstitutionOptions"
+                :time-series-resource-group-options="timeSeriesResourceGroupOptions"
+                :time-series-resource-options="timeSeriesResourceOptions"
+                :selected-time-series-institution-ids="selectedTimeSeriesInstitutionIds"
+                :selected-time-series-resource-group-ids="selectedTimeSeriesResourceGroupIds"
+                :selected-time-series-resource-ids="selectedTimeSeriesResourceIds"
+                :retention-exceeded="cancellations.retentionExceeded"
+                :retention-days="cancellations.retentionDays"
+                :has-comparison="hasComparison"
+                :comparison="comparison"
+                :time-series="timeSeries"
+                :time-series-chart-data="timeSeriesChartData"
+                :comparison-time-series-chart-data="comparisonTimeSeriesChartData"
+                :time-series-chart-options="timeSeriesChartOptions"
+                :current-period-range-label="currentPeriodRangeLabel"
+                :current-period-count-label="currentPeriodCountLabel"
+                :comparison-date-range-label="comparisonDateRangeLabel"
+                :comparison-delta-label="comparisonDeltaLabel"
+                :comparison-delta-class="comparisonDeltaClassValue"
+                :comparison-count-label="comparisonCountLabel"
+                :export-url="exportUrl('time_series')"
+                @institution-change="onTimeSeriesInstitutionChange"
+                @resource-group-change="onTimeSeriesResourceGroupChange"
+                @resource-change="onTimeSeriesResourceChange"
+            />
+        </Deferred>
+
+        <Deferred data="heatmap">
+            <template #fallback>
+                <div
+                    class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
+                >
+                    <div class="text-lg font-semibold">{{ $t("admin.statistics.index.heatmap.title") }}</div>
+                    <p class="text-app-muted mt-3 italic" data-test="heatmap-loading">
+                        {{ $t("admin.statistics.index.loading") }}
+                    </p>
+                </div>
+            </template>
+
+            <PeakTimesHeatmapCard
+                :rows="heatmapRows"
+                :hours="heatmapHours"
+                :grid-style="heatmapGridStyle"
+                :export-url="exportUrl('heatmap')"
+            />
+        </Deferred>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <PieChartCard

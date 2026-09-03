@@ -70,29 +70,15 @@ class StatisticsAdminService
         $resourceGroupIds = $this->normalizedIds($resourceGroupId);
         $resourceIds = $this->normalizedIds($resourceId);
 
-        $institutions = Institution::query()
-            ->with('resource_groups.resources')
-            ->orderBy('order')
-            ->get()
-            ->filter(fn (Institution $institution): bool => $user->can('view_happenings', $institution))
-            ->values();
-
-        $resourceGroups = $institutions->flatMap(fn (Institution $institution): Collection => $institution->resource_groups)
-            ->values();
-
-        $resources = $resourceGroups->flatMap(fn (ResourceGroup $resourceGroup): Collection => $resourceGroup->resources)
-            ->values();
-
-        $bookingCounts = $this->buildBookingCounts($institutions, $resourceGroups, $resources, $rangeFrom, $rangeTo);
-
-        $timeSeriesResources = $this->scopeResourcesForTimeSeries(
-            $resources,
-            $resourceGroups,
+        [$institutions, $resourceGroups, $resources, $timeSeriesResources, $timeSeriesSplit] = $this->resolveScope(
+            $user,
             $institutionIds,
             $resourceGroupIds,
             $resourceIds,
         );
-        $timeSeriesSplit = $this->inferTimeSeriesSplit($timeSeriesResources, $resourceGroups);
+
+        $bookingCounts = $this->buildBookingCounts($institutions, $resourceGroups, $resources, $rangeFrom, $rangeTo);
+
         $timeSeries = $this->buildTimeSeries(
             $timeSeriesResources,
             $resourceGroups,
@@ -134,6 +120,239 @@ class StatisticsAdminService
                 $compareTo,
             ),
         ];
+    }
+
+    /**
+     * The eager portion of {@see getIndexData()}'s data: cheap to compute and
+     * needed to render the page's filters and booking-count sections
+     * immediately, on both the initial load and any filter-change visit.
+     *
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
+     * @return array{
+     *     institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     *     resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     *     resources: Collection<int, array{id: string, title: array<string, string>, resource_group_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     *     range: string,
+     *     from: ?string,
+     *     to: ?string,
+     *     granularity: string,
+     *     timeSeriesSplit: string,
+     *     timeSeriesInstitutionIds: list<string>,
+     *     timeSeriesResourceGroupIds: list<string>,
+     *     timeSeriesResourceIds: list<string>,
+     *     timeSeriesInstitutionId: ?string,
+     *     timeSeriesResourceGroupId: ?string,
+     *     timeSeriesResourceId: ?string,
+     * }
+     */
+    public function getBookingCountsAndFilterState(
+        User $user,
+        string $range,
+        ?string $from,
+        ?string $to,
+        string $granularity,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
+    ): array {
+        [$rangeFrom, $rangeTo] = $this->resolveRange($range, $from, $to);
+        [$institutions, $resourceGroups, $resources, , $timeSeriesSplit] = $this->resolveScope(
+            $user,
+            $institutionIds,
+            $resourceGroupIds,
+            $resourceIds,
+        );
+
+        $bookingCounts = $this->buildBookingCounts($institutions, $resourceGroups, $resources, $rangeFrom, $rangeTo);
+
+        return [
+            'institutions' => $bookingCounts['institutions'],
+            'resourceGroups' => $bookingCounts['resourceGroups'],
+            'resources' => $bookingCounts['resources'],
+            'range' => $range,
+            'from' => $rangeFrom?->toDateString(),
+            'to' => $rangeTo?->toDateString(),
+            'granularity' => $granularity,
+            'timeSeriesSplit' => $timeSeriesSplit,
+            'timeSeriesInstitutionIds' => $institutionIds,
+            'timeSeriesResourceGroupIds' => $resourceGroupIds,
+            'timeSeriesResourceIds' => $resourceIds,
+            'timeSeriesInstitutionId' => $institutionIds[0] ?? null,
+            'timeSeriesResourceGroupId' => $resourceGroupIds[0] ?? null,
+            'timeSeriesResourceId' => $resourceIds[0] ?? null,
+        ];
+    }
+
+    /**
+     * The `'timeSeries'` deferred prop group: the time series chart and the
+     * cancellation summary it's paired with, both scoped to the same
+     * resources so they can share one round trip.
+     *
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
+     * @return array{
+     *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
+     *     cancellations: array{cancelled: int, active: int, rate: float, retentionDays: int, retentionExceeded: bool},
+     * }
+     */
+    public function getTimeSeriesGroupData(
+        User $user,
+        string $range,
+        ?string $from,
+        ?string $to,
+        string $granularity,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
+    ): array {
+        [$rangeFrom, $rangeTo] = $this->resolveRange($range, $from, $to);
+        [$institutions, $resourceGroups, , $timeSeriesResources, $timeSeriesSplit] = $this->resolveScope(
+            $user,
+            $institutionIds,
+            $resourceGroupIds,
+            $resourceIds,
+        );
+
+        return [
+            'timeSeries' => $this->buildTimeSeries(
+                $timeSeriesResources,
+                $resourceGroups,
+                $institutions,
+                $granularity,
+                $rangeFrom,
+                $rangeTo,
+                $timeSeriesSplit,
+            ),
+            'cancellations' => $this->buildCancellationStatistics($timeSeriesResources, $rangeFrom, $rangeTo),
+        ];
+    }
+
+    /**
+     * The `'heatmap'` deferred prop group.
+     *
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
+     * @return array{heatmap: array{cells: array<int, array{dayOfWeek: int, hour: int, count: int, percentage: float}>, maxCount: int, totalCount: int}}
+     */
+    public function getHeatmapData(
+        User $user,
+        string $range,
+        ?string $from,
+        ?string $to,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
+    ): array {
+        [$rangeFrom, $rangeTo] = $this->resolveRange($range, $from, $to);
+        [, , , $timeSeriesResources] = $this->resolveScope($user, $institutionIds, $resourceGroupIds, $resourceIds);
+
+        return [
+            'heatmap' => $this->buildPeakTimesHeatmap($timeSeriesResources, $rangeFrom, $rangeTo),
+        ];
+    }
+
+    /**
+     * The `'comparison'` deferred prop group.
+     *
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
+     * @return array{comparison: ?array{
+     *     from: string,
+     *     to: string,
+     *     currentCount: int,
+     *     comparisonCount: int,
+     *     deltaPct: float,
+     *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
+     *     institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     *     resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     *     resources: Collection<int, array{id: string, title: array<string, string>, resource_group_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
+     * }}
+     */
+    public function getComparisonGroupData(
+        User $user,
+        string $range,
+        ?string $from,
+        ?string $to,
+        string $granularity,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
+        ?string $compareFrom,
+        ?string $compareTo,
+    ): array {
+        [$rangeFrom, $rangeTo] = $this->resolveRange($range, $from, $to);
+        [$institutions, $resourceGroups, $resources, $timeSeriesResources, $timeSeriesSplit] = $this->resolveScope(
+            $user,
+            $institutionIds,
+            $resourceGroupIds,
+            $resourceIds,
+        );
+        $timeSeriesBookingCount = $this->happeningQueryForResources($timeSeriesResources, $rangeFrom, $rangeTo)->count();
+
+        return [
+            'comparison' => $this->buildComparisonData(
+                $institutions,
+                $resourceGroups,
+                $resources,
+                $timeSeriesResources,
+                $granularity,
+                $timeSeriesBookingCount,
+                $timeSeriesSplit,
+                $compareFrom,
+                $compareTo,
+            ),
+        ];
+    }
+
+    /**
+     * Resolves the institutions the user may view, and the resource groups,
+     * resources, and time-series-scoped resource subset within them.
+     *
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
+     * @return array{
+     *     0: Collection<int, Institution>,
+     *     1: Collection<int, ResourceGroup>,
+     *     2: Collection<int, Resource>,
+     *     3: Collection<int, Resource>,
+     *     4: string,
+     * }
+     */
+    private function resolveScope(
+        User $user,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
+    ): array {
+        $institutions = Institution::query()
+            ->with('resource_groups.resources')
+            ->orderBy('order')
+            ->get()
+            ->filter(fn (Institution $institution): bool => $user->can('view_happenings', $institution))
+            ->values();
+
+        $resourceGroups = $institutions->flatMap(fn (Institution $institution): Collection => $institution->resource_groups)
+            ->values();
+
+        $resources = $resourceGroups->flatMap(fn (ResourceGroup $resourceGroup): Collection => $resourceGroup->resources)
+            ->values();
+
+        $timeSeriesResources = $this->scopeResourcesForTimeSeries(
+            $resources,
+            $resourceGroups,
+            $institutionIds,
+            $resourceGroupIds,
+            $resourceIds,
+        );
+        $timeSeriesSplit = $this->inferTimeSeriesSplit($timeSeriesResources, $resourceGroups);
+
+        return [$institutions, $resourceGroups, $resources, $timeSeriesResources, $timeSeriesSplit];
     }
 
     /**
@@ -522,7 +741,7 @@ class StatisticsAdminService
     ): ?array {
         [$comparisonFrom, $comparisonTo] = $this->resolveComparisonRange($compareFrom, $compareTo);
 
-        if ($comparisonFrom === null || $comparisonTo === null) {
+        if (! $comparisonFrom instanceof CarbonInterface || ! $comparisonTo instanceof CarbonInterface) {
             return null;
         }
 
@@ -567,10 +786,11 @@ class StatisticsAdminService
     ): array {
         [$bucketStarts, $windowStart, $format] = $this->buildTimeSeriesBuckets($granularity, $rangeFrom, $rangeTo);
 
-        $happenings = $this->happeningQueryForResources($resources, $windowStart, $rangeTo)
+        $rows = $this->happeningQueryForResources($resources, $windowStart, $rangeTo)
+            ->toBase()
             ->get(['start', 'resource_id']);
 
-        $countsByBucket = $this->countByTimeSeriesBucket($happenings, $format);
+        [$countsByBucket, $countsByBucketAndResource] = $this->summarizeTimeSeriesRows($rows, $format);
 
         if ($split === 'none') {
             return collect($bucketStarts)
@@ -584,7 +804,7 @@ class StatisticsAdminService
 
         $subjects = $this->timeSeriesSplitSubjects($resources, $resourceGroups, $institutions, $split);
         $segmentIdByResourceId = $this->timeSeriesSegmentIdByResourceId($resources, $resourceGroups, $split);
-        $countsByBucketAndSegment = $this->countByTimeSeriesBucketAndSegment($happenings, $segmentIdByResourceId, $format);
+        $countsByBucketAndSegment = $this->segmentTimeSeriesCounts($countsByBucketAndResource, $segmentIdByResourceId);
 
         return collect($bucketStarts)
             ->map(function (CarbonImmutable $bucketStart) use ($countsByBucket, $countsByBucketAndSegment, $format, $subjects): array {
@@ -636,16 +856,16 @@ class StatisticsAdminService
      */
     private function buildPeakTimesHeatmap(Collection $resources, ?CarbonInterface $rangeFrom, ?CarbonInterface $rangeTo): array
     {
-        $happenings = $this->happeningQueryForResources($resources, $rangeFrom, $rangeTo)
+        $rows = $this->happeningQueryForResources($resources, $rangeFrom, $rangeTo)
+            ->toBase()
             ->get(['start']);
-        $totalCount = $happenings->count();
+        $totalCount = $rows->count();
 
-        $counts = $happenings
-            ->countBy(function (Happening $happening): string {
-                $start = CarbonImmutable::parse($happening->start);
+        $counts = $rows->countBy(function (\stdClass $row): string {
+            $start = CarbonImmutable::parse($this->toStringValue($row->start));
 
-                return $start->dayOfWeekIso.'-'.$start->hour;
-            });
+            return $start->dayOfWeekIso.'-'.$start->hour;
+        });
 
         $cells = [];
 
@@ -726,34 +946,50 @@ class StatisticsAdminService
     }
 
     /**
-     * @param  Collection<int, Happening>  $happenings
-     * @return Collection<string, int>
+     * Groups raw `{start, resource_id}` rows into per-bucket and
+     * per-bucket-per-resource counts in a single pass, parsing each row's
+     * `start` exactly once (instead of once to hydrate an Eloquent
+     * `datetime` cast and again via `CarbonImmutable::parse()` on top of
+     * that, which is what made this loop expensive at real data volumes).
+     *
+     * @param  Collection<int, \stdClass>  $rows  Rows carry raw `start` and `resource_id` columns.
+     * @return array{0: array<string, int>, 1: array<string, array<string, int>>}
      */
-    private function countByTimeSeriesBucket(Collection $happenings, string $format): Collection
+    private function summarizeTimeSeriesRows(Collection $rows, string $format): array
     {
-        return $happenings->countBy(
-            fn (Happening $happening): string => CarbonImmutable::parse($happening->start)->format($format),
-        );
+        $countsByBucket = [];
+        $countsByBucketAndResource = [];
+
+        foreach ($rows as $row) {
+            $bucket = CarbonImmutable::parse($this->toStringValue($row->start))->format($format);
+            $resourceId = $this->toStringValue($row->resource_id);
+
+            $countsByBucket[$bucket] = ($countsByBucket[$bucket] ?? 0) + 1;
+            $countsByBucketAndResource[$bucket][$resourceId] = ($countsByBucketAndResource[$bucket][$resourceId] ?? 0) + 1;
+        }
+
+        return [$countsByBucket, $countsByBucketAndResource];
     }
 
     /**
-     * @param  Collection<int, Happening>  $happenings
+     * @param  array<string, array<string, int>>  $countsByBucketAndResource
      * @param  array<string, string>  $segmentIdByResourceId
      * @return array<string, array<string, int>>
      */
-    private function countByTimeSeriesBucketAndSegment(Collection $happenings, array $segmentIdByResourceId, string $format): array
+    private function segmentTimeSeriesCounts(array $countsByBucketAndResource, array $segmentIdByResourceId): array
     {
         $counts = [];
 
-        foreach ($happenings as $happening) {
-            $segmentId = $segmentIdByResourceId[(string) $happening->resource_id] ?? null;
+        foreach ($countsByBucketAndResource as $bucket => $byResource) {
+            foreach ($byResource as $resourceId => $aggregate) {
+                $segmentId = $segmentIdByResourceId[$resourceId] ?? null;
 
-            if ($segmentId === null) {
-                continue;
+                if ($segmentId === null) {
+                    continue;
+                }
+
+                $counts[$bucket][$segmentId] = ($counts[$bucket][$segmentId] ?? 0) + $aggregate;
             }
-
-            $bucket = CarbonImmutable::parse($happening->start)->format($format);
-            $counts[$bucket][$segmentId] = ($counts[$bucket][$segmentId] ?? 0) + 1;
         }
 
         return $counts;
@@ -949,6 +1185,11 @@ class StatisticsAdminService
     private function toInt(mixed $value): int
     {
         return is_numeric($value) ? (int) $value : 0;
+    }
+
+    private function toStringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
     }
 
     private function percentage(int $part, int $total): float
