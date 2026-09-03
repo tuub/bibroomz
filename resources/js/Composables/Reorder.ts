@@ -8,5 +8,5 @@ export function postReorderedRows<T extends { order?: number | string }>(url: st
         item.order = index + 1;
     }
 
-    router.post(url, items as unknown as RequestPayload);
+    router.post(url, items as unknown as RequestPayload, { preserveScroll: true });
 }
