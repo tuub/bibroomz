@@ -204,6 +204,18 @@ function render(props: Record<string, unknown> = {}) {
                     emits: ["update:modelValue"],
                     template: "<div :data-test=\"$attrs['data-test'] ?? 'select'\" />",
                 },
+                MultiSelect: {
+                    name: "MultiSelectStub",
+                    props: ["modelValue", "options", "optionLabel", "optionValue", "disabled"],
+                    emits: ["update:modelValue"],
+                    template: "<div :data-test=\"$attrs['data-test'] ?? 'multi-select'\" />",
+                },
+                SelectButton: {
+                    name: "SelectButtonStub",
+                    props: ["modelValue", "options", "optionLabel", "optionValue", "allowEmpty"],
+                    emits: ["update:modelValue"],
+                    template: "<div :data-test=\"$attrs['data-test'] ?? 'select-button'\" />",
+                },
                 DatePicker: {
                     name: "DatePickerStub",
                     props: ["modelValue"],
@@ -279,12 +291,12 @@ describe("Admin/Statistics/Index", () => {
         const wrapper = render();
 
         const timeSeriesInstitutionSelect = getStub(wrapper, "time-series-institution-select");
-        timeSeriesInstitutionSelect.vm.$emit("update:modelValue", 2);
+        timeSeriesInstitutionSelect.vm.$emit("update:modelValue", [1, 2]);
         await nextTick();
 
         expect(routerGetMock).toHaveBeenCalledWith(
             "admin.statistics.index",
-            { range: "all", granularity: "month", institution_id: 2 },
+            { range: "all", granularity: "month", institution_id: [1, 2] },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     });
@@ -293,12 +305,12 @@ describe("Admin/Statistics/Index", () => {
         const wrapper = render();
 
         const timeSeriesResourceGroupSelect = getStub(wrapper, "time-series-resource-group-select");
-        timeSeriesResourceGroupSelect.vm.$emit("update:modelValue", 10);
+        timeSeriesResourceGroupSelect.vm.$emit("update:modelValue", [10, 11]);
         await nextTick();
 
         expect(routerGetMock).toHaveBeenCalledWith(
             "admin.statistics.index",
-            { range: "all", granularity: "month", resource_group_id: 10 },
+            { range: "all", granularity: "month", resource_group_id: [10, 11] },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     });
@@ -307,30 +319,30 @@ describe("Admin/Statistics/Index", () => {
         const wrapper = render();
 
         const timeSeriesResourceSelect = getStub(wrapper, "time-series-resource-select");
-        timeSeriesResourceSelect.vm.$emit("update:modelValue", 100);
+        timeSeriesResourceSelect.vm.$emit("update:modelValue", [100, 101]);
         await nextTick();
 
         expect(routerGetMock).toHaveBeenCalledWith(
             "admin.statistics.index",
-            { range: "all", granularity: "month", resource_id: 100 },
+            { range: "all", granularity: "month", resource_id: [100, 101] },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     });
 
     test("changing the time series institution filter resets the resource group and resource selections", async () => {
         const wrapper = render({
-            timeSeriesInstitutionId: 1,
-            timeSeriesResourceGroupId: 10,
-            timeSeriesResourceId: 100,
+            timeSeriesInstitutionIds: [1],
+            timeSeriesResourceGroupIds: [10],
+            timeSeriesResourceIds: [100],
         });
 
         const timeSeriesInstitutionSelect = getStub(wrapper, "time-series-institution-select");
-        timeSeriesInstitutionSelect.vm.$emit("update:modelValue", 2);
+        timeSeriesInstitutionSelect.vm.$emit("update:modelValue", [2]);
         await nextTick();
 
         expect(routerGetMock).toHaveBeenCalledWith(
             "admin.statistics.index",
-            { range: "all", granularity: "month", institution_id: 2 },
+            { range: "all", granularity: "month", institution_id: [2] },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     });
@@ -586,6 +598,79 @@ describe("Admin/Statistics/Index", () => {
         expect(wrapper.find('[data-test="time-series-institution-select"]').exists()).toBe(false);
         expect(wrapper.find('[data-test="time-series-resource-group-select"]').exists()).toBe(false);
         expect(wrapper.find('[data-test="time-series-resource-select"]').exists()).toBe(false);
+    });
+
+    test("renders split bookings over time as stacked datasets", () => {
+        const wrapper = render({
+            timeSeriesSplit: "institution",
+            timeSeries: [
+                {
+                    label: "2026-06",
+                    count: 3,
+                    segments: [
+                        { id: 1, title: { en: "Institution A" }, count: 2 },
+                        { id: 2, title: { en: "Institution B" }, count: 1 },
+                    ],
+                },
+                {
+                    label: "2026-07",
+                    count: 4,
+                    segments: [
+                        { id: 1, title: { en: "Institution A" }, count: 1 },
+                        { id: 2, title: { en: "Institution B" }, count: 3 },
+                    ],
+                },
+            ],
+        });
+
+        const timeSeriesChart = wrapper.findAllComponents({ name: "ChartStub" })[0]!;
+        const chartData = timeSeriesChart.props("data") as { datasets: { label: string; data: number[] }[] };
+        const chartOptions = timeSeriesChart.props("options") as {
+            plugins: { legend: { display: boolean } };
+            scales: { x: { stacked: boolean }; y: { stacked: boolean } };
+        };
+
+        expect(chartData.datasets.map((dataset) => dataset.label)).toEqual(["Institution A", "Institution B"]);
+        expect(chartData.datasets.map((dataset) => dataset.data)).toEqual([
+            [2, 1],
+            [1, 3],
+        ]);
+        expect(chartData.datasets.every((dataset) => (dataset as { stack?: string }).stack === "bookings")).toBe(true);
+        expect(chartOptions.plugins.legend.display).toBe(true);
+        expect(chartOptions.scales.x.stacked).toBe(true);
+        expect(chartOptions.scales.y.stacked).toBe(true);
+    });
+
+    test("switches split bookings over time to separate (non-stacked) columns", async () => {
+        const wrapper = render({
+            timeSeriesSplit: "institution",
+            timeSeries: [
+                {
+                    label: "2026-06",
+                    count: 3,
+                    segments: [
+                        { id: 1, title: { en: "Institution A" }, count: 2 },
+                        { id: 2, title: { en: "Institution B" }, count: 1 },
+                    ],
+                },
+            ],
+        });
+
+        const chartModeSelect = getStub(wrapper, "time-series-chart-mode");
+        chartModeSelect.vm.$emit("update:modelValue", "grouped");
+        await nextTick();
+
+        const timeSeriesChart = wrapper.findAllComponents({ name: "ChartStub" })[0]!;
+        const chartData = timeSeriesChart.props("data") as { datasets: { label: string; data: number[] }[] };
+        const chartOptions = timeSeriesChart.props("options") as {
+            plugins: { legend: { display: boolean } };
+            scales: { x: { stacked: boolean }; y: { stacked: boolean } };
+        };
+
+        expect(chartData.datasets.every((dataset) => !("stack" in dataset))).toBe(true);
+        expect(chartOptions.plugins.legend.display).toBe(true);
+        expect(chartOptions.scales.x.stacked).toBe(false);
+        expect(chartOptions.scales.y.stacked).toBe(false);
     });
 
     test("renders a separate CSV export link for each statistic", () => {

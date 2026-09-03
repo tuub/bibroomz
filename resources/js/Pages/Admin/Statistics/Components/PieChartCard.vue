@@ -34,10 +34,12 @@ defineProps<{
 </script>
 
 <template>
-    <div class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm">
+    <div
+        class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
+    >
         <div class="mb-3 flex flex-col items-start gap-2">
-            <div class="flex w-full items-center justify-between gap-2">
-                <div class="text-lg font-semibold">{{ $t(titleKey) }}</div>
+            <div class="flex w-full flex-wrap items-center justify-between gap-2">
+                <div class="min-w-0 text-lg font-semibold">{{ $t(titleKey) }}</div>
                 <a :href="exportUrl" download>
                     <Button
                         :label="$t('admin.statistics.index.export.button')"

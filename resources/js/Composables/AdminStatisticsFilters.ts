@@ -11,15 +11,17 @@ import { router } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
 import { computed, ref, watch } from "vue";
 
+type SelectionId = number | string;
+
 interface StatisticsFilterProps {
     range: string;
     from: string | null;
     to: string | null;
     granularity: string;
     comparison: StatisticsComparison | null;
-    timeSeriesInstitutionId: number | string | null;
-    timeSeriesResourceGroupId: number | string | null;
-    timeSeriesResourceId: number | string | null;
+    timeSeriesInstitutionIds: SelectionId[];
+    timeSeriesResourceGroupIds: SelectionId[];
+    timeSeriesResourceIds: SelectionId[];
     institutions: InstitutionStatistic[];
     resourceGroups: ResourceGroupStatistic[];
     resources: ResourceStatistic[];
@@ -33,6 +35,21 @@ function toDateString(date: Date | null): string | null {
     const day = String(date.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
+}
+
+function includesId(values: SelectionId[], id: SelectionId | null | undefined): boolean {
+    return values.some((value) => sameId(value, id));
+}
+
+function withParentQualifiedLabels(
+    options: { id: SelectionId; label: string; parentId: SelectionId; parentLabel: string }[],
+): { id: SelectionId; label: string }[] {
+    const hasMultipleParents = new Set(options.map((option) => String(option.parentId))).size > 1;
+
+    return options.map((option) => ({
+        id: option.id,
+        label: hasMultipleParents ? `${option.label} — ${option.parentLabel}` : option.label,
+    }));
 }
 
 export function useStatisticsFilters(
@@ -77,35 +94,40 @@ export function useStatisticsFilters(
     // ------------------------------------------------
     // Time series scope filter (institution / resource group / resource)
     // ------------------------------------------------
-    const selectedTimeSeriesInstitutionId = ref<number | string | null>(props.timeSeriesInstitutionId);
-    const selectedTimeSeriesResourceGroupId = ref<number | string | null>(props.timeSeriesResourceGroupId);
-    const selectedTimeSeriesResourceId = ref<number | string | null>(props.timeSeriesResourceId);
+    const selectedTimeSeriesInstitutionIds = ref<SelectionId[]>([...props.timeSeriesInstitutionIds]);
+    const selectedTimeSeriesResourceGroupIds = ref<SelectionId[]>([...props.timeSeriesResourceGroupIds]);
+    const selectedTimeSeriesResourceIds = ref<SelectionId[]>([...props.timeSeriesResourceIds]);
 
-    const timeSeriesInstitutionOptions = computed(() => [
-        { id: null, label: trans("admin.statistics.index.time_series.all_institutions") },
-        ...props.institutions.map((institution) => ({ id: institution.id, label: translate(institution.title) })),
-    ]);
+    const timeSeriesInstitutionOptions = computed(() =>
+        props.institutions.map((institution) => ({ id: institution.id, label: translate(institution.title) })),
+    );
 
     const timeSeriesResourceGroupsForInstitution = computed(() =>
-        selectedTimeSeriesInstitutionId.value
+        selectedTimeSeriesInstitutionIds.value.length > 0
             ? props.resourceGroups.filter((resourceGroup) =>
-                  sameId(resourceGroup.institution_id, selectedTimeSeriesInstitutionId.value),
+                  includesId(selectedTimeSeriesInstitutionIds.value, resourceGroup.institution_id),
               )
             : props.resourceGroups,
     );
 
-    const timeSeriesResourceGroupOptions = computed(() => [
-        { id: null, label: trans("admin.statistics.index.time_series.all_resource_groups") },
-        ...timeSeriesResourceGroupsForInstitution.value.map((resourceGroup) => ({
-            id: resourceGroup.id,
-            label: translate(resourceGroup.title),
-        })),
-    ]);
+    const timeSeriesResourceGroupOptions = computed(() =>
+        withParentQualifiedLabels(
+            timeSeriesResourceGroupsForInstitution.value.map((resourceGroup) => ({
+                id: resourceGroup.id,
+                label: translate(resourceGroup.title),
+                parentId: resourceGroup.institution_id,
+                parentLabel: translate(
+                    props.institutions.find((institution) => sameId(institution.id, resourceGroup.institution_id))
+                        ?.title ?? {},
+                ),
+            })),
+        ),
+    );
 
     const timeSeriesResourcesForGroup = computed(() => {
-        if (selectedTimeSeriesResourceGroupId.value) {
+        if (selectedTimeSeriesResourceGroupIds.value.length > 0) {
             return props.resources.filter((resource) =>
-                sameId(resource.resource_group_id, selectedTimeSeriesResourceGroupId.value),
+                includesId(selectedTimeSeriesResourceGroupIds.value, resource.resource_group_id),
             );
         }
 
@@ -114,10 +136,19 @@ export function useStatisticsFilters(
         return props.resources.filter((resource) => groupIds.some((id) => sameId(id, resource.resource_group_id)));
     });
 
-    const timeSeriesResourceOptions = computed(() => [
-        { id: null, label: trans("admin.statistics.index.time_series.all_resources") },
-        ...timeSeriesResourcesForGroup.value.map((resource) => ({ id: resource.id, label: translate(resource.title) })),
-    ]);
+    const timeSeriesResourceOptions = computed(() =>
+        withParentQualifiedLabels(
+            timeSeriesResourcesForGroup.value.map((resource) => ({
+                id: resource.id,
+                label: translate(resource.title),
+                parentId: resource.resource_group_id,
+                parentLabel: translate(
+                    props.resourceGroups.find((resourceGroup) => sameId(resourceGroup.id, resource.resource_group_id))
+                        ?.title ?? {},
+                ),
+            })),
+        ),
+    );
 
     function toDateStringOrParams() {
         const compareFromString = toDateString(compareFrom.value);
@@ -129,11 +160,15 @@ export function useStatisticsFilters(
                 ? { from: toDateString(customFrom.value), to: toDateString(customTo.value) }
                 : {}),
             granularity: selectedGranularity.value,
-            ...(selectedTimeSeriesInstitutionId.value ? { institution_id: selectedTimeSeriesInstitutionId.value } : {}),
-            ...(selectedTimeSeriesResourceGroupId.value
-                ? { resource_group_id: selectedTimeSeriesResourceGroupId.value }
+            ...(selectedTimeSeriesInstitutionIds.value.length > 0
+                ? { institution_id: selectedTimeSeriesInstitutionIds.value }
                 : {}),
-            ...(selectedTimeSeriesResourceId.value ? { resource_id: selectedTimeSeriesResourceId.value } : {}),
+            ...(selectedTimeSeriesResourceGroupIds.value.length > 0
+                ? { resource_group_id: selectedTimeSeriesResourceGroupIds.value }
+                : {}),
+            ...(selectedTimeSeriesResourceIds.value.length > 0
+                ? { resource_id: selectedTimeSeriesResourceIds.value }
+                : {}),
             ...(comparisonEnabled.value && compareFromString && compareToString
                 ? { compare_from: compareFromString, compare_to: compareToString }
                 : {}),
@@ -152,21 +187,21 @@ export function useStatisticsFilters(
         return route("admin.statistics.export", { ...toDateStringOrParams(), type });
     }
 
-    function onTimeSeriesInstitutionChange(value: number | string | null) {
-        selectedTimeSeriesInstitutionId.value = value;
-        selectedTimeSeriesResourceGroupId.value = null;
-        selectedTimeSeriesResourceId.value = null;
+    function onTimeSeriesInstitutionChange(value: SelectionId[]) {
+        selectedTimeSeriesInstitutionIds.value = value;
+        selectedTimeSeriesResourceGroupIds.value = [];
+        selectedTimeSeriesResourceIds.value = [];
         applyFilters();
     }
 
-    function onTimeSeriesResourceGroupChange(value: number | string | null) {
-        selectedTimeSeriesResourceGroupId.value = value;
-        selectedTimeSeriesResourceId.value = null;
+    function onTimeSeriesResourceGroupChange(value: SelectionId[]) {
+        selectedTimeSeriesResourceGroupIds.value = value;
+        selectedTimeSeriesResourceIds.value = [];
         applyFilters();
     }
 
-    function onTimeSeriesResourceChange(value: number | string | null) {
-        selectedTimeSeriesResourceId.value = value;
+    function onTimeSeriesResourceChange(value: SelectionId[]) {
+        selectedTimeSeriesResourceIds.value = value;
         applyFilters();
     }
 
@@ -194,9 +229,9 @@ export function useStatisticsFilters(
         hasComparison,
         granularityOptions,
         selectedGranularity,
-        selectedTimeSeriesInstitutionId,
-        selectedTimeSeriesResourceGroupId,
-        selectedTimeSeriesResourceId,
+        selectedTimeSeriesInstitutionIds,
+        selectedTimeSeriesResourceGroupIds,
+        selectedTimeSeriesResourceIds,
         timeSeriesInstitutionOptions,
         timeSeriesResourceGroupOptions,
         timeSeriesResourceOptions,

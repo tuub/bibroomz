@@ -213,3 +213,22 @@ main {
     background-color: rgb(var(--status-block-bg-rgb));
     color: rgb(var(--status-block-fg-rgb));
 }
+
+/*
+  PrimeVue's MultiSelect overlay is teleported to <body> by default,
+  outside any component's DOM subtree, so a component's own scoped style
+  block can't reach it even with the :deep() selector - the teleported
+  node is no longer a descendant of the scoped root in the actual DOM.
+  Kept global (and unlayered, see above) instead. Options default to
+  `white-space: nowrap`, which combined with an unbounded overlay width
+  forces long labels (e.g. qualified statistics filter options) into a
+  single wide line instead of wrapping.
+*/
+.p-multiselect-overlay {
+    max-width: min(40rem, 90vw);
+}
+
+.p-multiselect-option {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}

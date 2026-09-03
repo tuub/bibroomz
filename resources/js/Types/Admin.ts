@@ -225,9 +225,16 @@ export type ResourceStatistic = {
     cancellationRate: number;
 };
 
+export type TimeSeriesSegment = {
+    id: number | string;
+    title: Translatable;
+    count: number;
+};
+
 export type TimeSeriesEntry = {
     label: string;
     count: number;
+    segments?: TimeSeriesSegment[];
 };
 
 export type PeakTimesHeatmapCell = {

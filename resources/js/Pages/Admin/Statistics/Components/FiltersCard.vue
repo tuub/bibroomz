@@ -20,7 +20,9 @@ defineEmits<{
 </script>
 
 <template>
-    <div class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm">
+    <div
+        class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
+    >
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <div class="text-xl font-bold">{{ $t("admin.statistics.index.title") }}</div>

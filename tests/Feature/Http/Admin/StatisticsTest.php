@@ -281,12 +281,40 @@ test('admin statistics page counts bookings into the correct monthly bucket', fu
             ->etc());
 });
 
+test('admin statistics page infers a split for time series buckets', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+
+    Happening::factory()->for($resource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
+
+    $admin = User::factory()->create();
+    grantAdminPermission($admin, $institution, 'view_happenings');
+
+    $this->actingAs($admin)
+        ->get(route('admin.statistics.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/Statistics/Index')
+            ->where('timeSeriesSplit', 'resource')
+            ->where('timeSeries.11.segments.0.id', (string) $resource->id)
+            ->where('timeSeries.11.segments.0.count', 1));
+});
+
 test('admin statistics page rejects an unknown granularity value', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
     $this->actingAs($admin)
         ->get(route('admin.statistics.index', ['granularity' => 'not-a-real-granularity']))
         ->assertInvalid('granularity');
+});
+
+test('admin statistics page rejects an invalid multi-select id value', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.statistics.index', ['institution_id' => ['not-a-uuid']]))
+        ->assertInvalid('institution_id');
 });
 
 test('admin statistics page shrinks the time series window to match the selected range', function (): void {
@@ -305,19 +333,22 @@ test('admin statistics page scopes the time series to the selected resource', fu
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $secondResource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
     $otherResource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
 
     Happening::factory()->for($resource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
+    Happening::factory()->for($secondResource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
     Happening::factory()->count(3)->for($otherResource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
 
     $admin = User::factory()->create();
     grantAdminPermission($admin, $institution, 'view_happenings');
 
     $this->actingAs($admin)
-        ->get(route('admin.statistics.index', ['resource_id' => $resource->id]))
+        ->get(route('admin.statistics.index', ['resource_id' => [$resource->id, $secondResource->id]]))
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/Statistics/Index')
+            ->where('timeSeriesResourceIds', [(string) $resource->id, (string) $secondResource->id])
             ->where('timeSeriesResourceId', (string) $resource->id)
-            ->where('timeSeries.11.count', 1));
+            ->where('timeSeries.11.count', 2));
 });

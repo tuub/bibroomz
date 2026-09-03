@@ -33,12 +33,28 @@ test('admin statistics export returns a CSV for each export type for a user perm
 
     expect($response->streamedContent())->toContain($expectedHeader);
 })->with([
-    ['time_series', 'Label,Count'],
     ['institutions', 'Title,Active,Cancelled,"Cancellation Rate"'],
     ['resource_groups', 'Title,Institution,Active,Cancelled,"Cancellation Rate"'],
     ['resources', 'Title,"Resource Group",Active,Cancelled,"Cancellation Rate"'],
     ['heatmap', '"Day of Week",Hour,Count,Percentage'],
 ]);
+
+test('admin statistics export returns a time series CSV split by the sole resource in scope', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create(['title' => ['en' => 'Resource A']]);
+    Happening::factory()->count(2)->for($resource, 'resource')->create();
+
+    $admin = User::factory()->create();
+    grantAdminPermission($admin, $institution, 'view_happenings');
+
+    $response = $this->actingAs($admin)->get(route('admin.statistics.export', ['type' => 'time_series']));
+
+    $response->assertOk();
+    $response->assertHeader('content-type', 'text/csv; charset=utf-8');
+
+    expect($response->streamedContent())->toContain('Label,Total,"Resource A"');
+});
 
 test('admin statistics export resolves parent institution and resource group names instead of raw IDs', function (): void {
     $institution = Institution::factory()->create();
@@ -61,6 +77,33 @@ test('admin statistics export resolves parent institution and resource group nam
 
     expect($resourcesCsv)->toContain($resourceGroup->getTranslation('title', 'en'))
         ->not->toContain($resourceGroup->id);
+});
+
+test('admin statistics export includes split time series columns when a split is inferred', function (): void {
+    $institution = Institution::factory()->create(['title' => ['en' => 'Institution A'], 'order' => 1]);
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    Happening::factory()->for($resource, 'resource')->create(['start' => '2026-01-15 10:00:00', 'end' => '2026-01-15 11:00:00']);
+
+    $otherInstitution = Institution::factory()->create(['title' => ['en' => 'Institution B'], 'order' => 2]);
+    $otherResourceGroup = ResourceGroup::factory()->for($otherInstitution, 'institution')->create();
+    Resource::factory()->for($otherResourceGroup, 'resource_group')->create();
+
+    $admin = User::factory()->create();
+    grantAdminPermission($admin, $institution, 'view_happenings');
+    grantAdminPermission($admin, $otherInstitution, 'view_happenings');
+
+    $csv = $this->actingAs($admin)
+        ->get(route('admin.statistics.export', [
+            'type' => 'time_series',
+            'range' => 'custom',
+            'from' => '2026-01-01',
+            'to' => '2026-01-31',
+        ]))
+        ->streamedContent();
+
+    expect($csv)->toContain('Label,Total,"Institution A","Institution B"')
+        ->and($csv)->toContain('2026-01,1,1,0');
 });
 
 test('admin statistics export rejects an invalid type', function (): void {

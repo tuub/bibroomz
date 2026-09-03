@@ -25,7 +25,7 @@ defineProps<{
 
 <template>
     <div
-        class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm"
+        class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
         data-test="peak-times-heatmap"
     >
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -57,7 +57,7 @@ defineProps<{
                     <div
                         v-for="cell in row.cells"
                         :key="`${cell.dayOfWeek}-${cell.hour}`"
-                        class="border-app-border flex h-8 items-center justify-center rounded-xs border px-1 text-center text-[0.625rem] leading-none font-semibold text-slate-900 dark:text-white"
+                        class="border-app-border relative flex h-8 items-center justify-center rounded-xs border px-1 text-center text-[0.625rem] leading-none font-semibold text-slate-900 dark:text-white"
                         :style="cell.style"
                         :title="cell.title"
                         :aria-label="cell.title"

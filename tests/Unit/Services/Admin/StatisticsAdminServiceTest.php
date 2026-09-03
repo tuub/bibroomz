@@ -60,7 +60,15 @@ test('getIndexData returns institutions, resourceGroups and resources keys', fun
     $service = app(StatisticsAdminService::class);
     $data = $service->getIndexData($admin);
 
-    expect($data)->toHaveKeys(['institutions', 'resourceGroups', 'resources', 'cancellations', 'heatmap', 'comparison'])
+    expect($data)->toHaveKeys([
+        'institutions',
+        'resourceGroups',
+        'resources',
+        'timeSeriesSplit',
+        'cancellations',
+        'heatmap',
+        'comparison',
+    ])
         ->and($data['comparison'])->toBeNull();
 });
 
@@ -412,6 +420,7 @@ test('getIndexData defaults to a monthly time series of 12 buckets', function ()
     $data = $service->getIndexData($admin);
 
     expect($data['granularity'])->toBe('month')
+        ->and($data['timeSeriesSplit'])->toBe('none')
         ->and($data['timeSeries'])->toHaveCount(12)
         ->and($data['timeSeries'][11]['label'])->toBe(now()->format('Y-m'));
 });
@@ -551,6 +560,89 @@ test('getIndexData time series only counts bookings for the selected institution
     expect($data['timeSeries'][11]['count'])->toBe(1);
 });
 
+test('getIndexData time series can scope to multiple selected resources', function (): void {
+    $fixture = buildStatisticsFixture();
+    $secondResource = Resource::factory()->for($fixture['resourceGroup'], 'resource_group')->create();
+    $thirdResource = Resource::factory()->for($fixture['resourceGroup'], 'resource_group')->create();
+
+    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
+    Happening::factory()->count(2)->for($secondResource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
+    Happening::factory()->count(4)->for($thirdResource, 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
+
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $service = app(StatisticsAdminService::class);
+    $data = $service->getIndexData(
+        $admin,
+        resourceId: [(string) $fixture['resource']->id, (string) $secondResource->id],
+    );
+
+    expect($data['timeSeriesResourceIds'])->toBe([(string) $fixture['resource']->id, (string) $secondResource->id])
+        ->and($data['timeSeriesResourceId'])->toBe((string) $fixture['resource']->id)
+        ->and($data['timeSeries'][11]['count'])->toBe(3);
+});
+
+test('getIndexData infers the time series split from the scoped resources', function (): void {
+    $firstInstitution = Institution::factory()->create(['title' => ['en' => 'Institution A'], 'order' => 1]);
+    $firstResourceGroup = ResourceGroup::factory()->for($firstInstitution, 'institution')->create(['title' => ['en' => 'Group A1']]);
+    $firstResource = Resource::factory()->for($firstResourceGroup, 'resource_group')->create(['title' => ['en' => 'Resource A1a']]);
+    $secondResourceGroup = ResourceGroup::factory()->for($firstInstitution, 'institution')->create(['title' => ['en' => 'Group A2']]);
+    $secondResource = Resource::factory()->for($secondResourceGroup, 'resource_group')->create(['title' => ['en' => 'Resource A2a']]);
+
+    $secondInstitution = Institution::factory()->create(['title' => ['en' => 'Institution B'], 'order' => 2]);
+    $thirdResourceGroup = ResourceGroup::factory()->for($secondInstitution, 'institution')->create(['title' => ['en' => 'Group B1']]);
+    $thirdResource = Resource::factory()->for($thirdResourceGroup, 'resource_group')->create(['title' => ['en' => 'Resource B1a']]);
+
+    Happening::factory()->for($firstResource, 'resource')->create(['start' => '2026-01-05 10:00:00', 'end' => '2026-01-05 11:00:00']);
+    Happening::factory()->count(2)->for($secondResource, 'resource')->create(['start' => '2026-01-06 10:00:00', 'end' => '2026-01-06 11:00:00']);
+    Happening::factory()->count(3)->for($thirdResource, 'resource')->create(['start' => '2026-01-07 10:00:00', 'end' => '2026-01-07 11:00:00']);
+
+    $admin = User::factory()->create(['is_admin' => true]);
+    $service = app(StatisticsAdminService::class);
+
+    // Multiple institutions in scope -> split by institution.
+    $data = $service->getIndexData($admin, 'custom', '2026-01-01', '2026-01-31');
+    $segments = $data['timeSeries'][0]['segments'] ?? [];
+
+    expect($data['timeSeriesSplit'])->toBe('institution')
+        ->and($data['timeSeries'][0]['count'])->toBe(6)
+        ->and(array_column($segments, 'id'))->toBe([(string) $firstInstitution->id, (string) $secondInstitution->id])
+        ->and(array_map(fn (array $segment): string => $segment['title']['en'], $segments))->toBe(['Institution A', 'Institution B'])
+        ->and(array_column($segments, 'count'))->toBe([3, 3]);
+
+    // Scoped to a single institution with multiple resource groups -> split by resource group.
+    $data = $service->getIndexData(
+        $admin,
+        'custom',
+        '2026-01-01',
+        '2026-01-31',
+        institutionId: (string) $firstInstitution->id,
+    );
+    $segments = $data['timeSeries'][0]['segments'] ?? [];
+
+    expect($data['timeSeriesSplit'])->toBe('resource_group')
+        ->and($data['timeSeries'][0]['count'])->toBe(3)
+        ->and(array_column($segments, 'id'))->toBe([(string) $firstResourceGroup->id, (string) $secondResourceGroup->id])
+        ->and(array_map(fn (array $segment): string => $segment['title']['en'], $segments))->toBe(['Group A1', 'Group A2'])
+        ->and(array_column($segments, 'count'))->toBe([1, 2]);
+
+    // Scoped to a single resource group -> split by resource.
+    $data = $service->getIndexData(
+        $admin,
+        'custom',
+        '2026-01-01',
+        '2026-01-31',
+        resourceGroupId: (string) $firstResourceGroup->id,
+    );
+    $segments = $data['timeSeries'][0]['segments'] ?? [];
+
+    expect($data['timeSeriesSplit'])->toBe('resource')
+        ->and($data['timeSeries'][0]['count'])->toBe(1)
+        ->and(array_column($segments, 'id'))->toBe([(string) $firstResource->id])
+        ->and(array_map(fn (array $segment): string => $segment['title']['en'], $segments))->toBe(['Resource A1a'])
+        ->and(array_column($segments, 'count'))->toBe([1]);
+});
+
 test('getIndexData this_year range excludes bookings before the start of the year', function (): void {
     $fixture = buildStatisticsFixture();
 
@@ -632,6 +724,27 @@ test('toCsvRows builds a time series CSV with a label and count column', functio
     expect($rows[0])->toBe(['Label', 'Count'])
         ->and($rows)->toHaveCount(13)
         ->and($rows[1])->toBe([$data['timeSeries'][0]['label'], (string) $data['timeSeries'][0]['count']]);
+});
+
+test('toCsvRows builds a split time series CSV with total and segment columns', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $service = app(StatisticsAdminService::class);
+    $data = $service->getIndexData($admin);
+    $data['timeSeries'] = [
+        [
+            'label' => '2026-01',
+            'count' => 3,
+            'segments' => [
+                ['id' => 'a', 'title' => ['en' => 'Institution A'], 'count' => 1],
+                ['id' => 'b', 'title' => ['en' => 'Institution B'], 'count' => 2],
+            ],
+        ],
+    ];
+
+    $rows = $service->toCsvRows($data, 'time_series');
+
+    expect($rows[0])->toBe(['Label', 'Total', 'Institution A', 'Institution B'])
+        ->and($rows[1])->toBe(['2026-01', '3', '1', '2']);
 });
 
 test('toCsvRows builds a heatmap CSV with one row per cell', function (): void {

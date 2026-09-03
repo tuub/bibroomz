@@ -56,7 +56,7 @@ onUnmounted(() => {
     >
         <section
             id="content"
-            class="bg-app-surface dark:bg-app-surface dark:text-app-text w-3/4 grow rounded-sm p-6 shadow-md"
+            class="bg-app-surface dark:bg-app-surface dark:text-app-text w-3/4 min-w-0 grow rounded-sm p-6 shadow-md"
         >
             <slot name="breadcrumbs" />
             <slot />

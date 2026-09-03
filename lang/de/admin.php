@@ -115,6 +115,10 @@ return [
                 'all_institutions' => 'Alle Einrichtungen',
                 'all_resource_groups' => 'Alle Ressourcengruppen',
                 'all_resources' => 'Alle Ressourcen',
+                'chart_mode' => [
+                    'stacked' => 'Gestapelt',
+                    'grouped' => 'Separate Spalten',
+                ],
             ],
             'heatmap' => [
                 'title' => 'Stoßzeiten der Buchungen',

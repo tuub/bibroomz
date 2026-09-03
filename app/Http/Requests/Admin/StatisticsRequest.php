@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use Closure;
+use Illuminate\Support\Str;
+
 class StatisticsRequest extends AdminRouteRequest
 {
     public const RANGES = [
@@ -39,9 +42,9 @@ class StatisticsRequest extends AdminRouteRequest
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
             'granularity' => ['nullable', 'string', 'in:'.implode(',', self::GRANULARITIES)],
-            'institution_id' => ['nullable', 'string', 'uuid'],
-            'resource_group_id' => ['nullable', 'string', 'uuid'],
-            'resource_id' => ['nullable', 'string', 'uuid'],
+            'institution_id' => ['nullable', $this->uuidOrUuidListRule()],
+            'resource_group_id' => ['nullable', $this->uuidOrUuidListRule()],
+            'resource_id' => ['nullable', $this->uuidOrUuidListRule()],
             'compare_from' => ['nullable', 'date'],
             'compare_to' => ['nullable', 'date', 'after_or_equal:compare_from'],
         ];
@@ -77,17 +80,41 @@ class StatisticsRequest extends AdminRouteRequest
 
     public function institutionId(): ?string
     {
-        return $this->validatedId('institution_id');
+        return $this->institutionIds()[0] ?? null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function institutionIds(): array
+    {
+        return $this->validatedIds('institution_id');
     }
 
     public function resourceGroupId(): ?string
     {
-        return $this->validatedId('resource_group_id');
+        return $this->resourceGroupIds()[0] ?? null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resourceGroupIds(): array
+    {
+        return $this->validatedIds('resource_group_id');
     }
 
     public function resourceId(): ?string
     {
-        return $this->validatedId('resource_id');
+        return $this->resourceIds()[0] ?? null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resourceIds(): array
+    {
+        return $this->validatedIds('resource_id');
     }
 
     public function compareFrom(): ?string
@@ -104,10 +131,47 @@ class StatisticsRequest extends AdminRouteRequest
         return is_string($value) && $value !== '' ? $value : null;
     }
 
-    private function validatedId(string $key): ?string
+    /**
+     * @return Closure(string, mixed, Closure(string): void): void
+     */
+    private function uuidOrUuidListRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            $values = is_array($value) ? $value : [$value];
+
+            foreach ($values as $candidate) {
+                if (! is_string($candidate) || $candidate === '' || ! Str::isUuid($candidate)) {
+                    $fail(__('validation.uuid', ['attribute' => $attribute]));
+
+                    return;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validatedIds(string $key): array
     {
         $value = $this->validated($key);
 
-        return is_string($value) && $value !== '' ? $value : null;
+        if (is_string($value) && $value !== '') {
+            return [$value];
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $ids = [];
+
+        foreach ($value as $candidate) {
+            if (is_string($candidate) && $candidate !== '') {
+                $ids[] = $candidate;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 }

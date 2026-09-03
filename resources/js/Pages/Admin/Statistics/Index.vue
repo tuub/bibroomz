@@ -8,7 +8,7 @@ import {
     formatSignedPercent,
 } from "@/Composables/AdminStatisticsFormat";
 import { heatmapGridStyle, heatmapHours, usePeakTimesHeatmap } from "@/Composables/AdminStatisticsHeatmap";
-import { pieChartOptions, usePieChartSection } from "@/Composables/AdminStatisticsPieChart";
+import { pieChartOptions, slicePalette, usePieChartSection } from "@/Composables/AdminStatisticsPieChart";
 import { sameId, useDrilldownSelection } from "@/Composables/AdminStatisticsSelection";
 import { useChartThemeColors } from "@/Composables/AdminStatisticsTheme";
 import { useAppStore } from "@/Stores/AppStore";
@@ -30,7 +30,9 @@ import TimeSeriesCard from "./Components/TimeSeriesCard.vue";
 
 import type { ChartData, ChartOptions } from "chart.js";
 import { trans } from "laravel-vue-i18n";
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
+
+type TimeSeriesChartMode = "stacked" | "grouped";
 
 const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 
@@ -47,9 +49,10 @@ const props = withDefaults(
         to?: string | null;
         timeSeries?: TimeSeriesEntry[];
         granularity?: string;
-        timeSeriesInstitutionId?: number | string | null;
-        timeSeriesResourceGroupId?: number | string | null;
-        timeSeriesResourceId?: number | string | null;
+        timeSeriesSplit?: string;
+        timeSeriesInstitutionIds?: (number | string)[];
+        timeSeriesResourceGroupIds?: (number | string)[];
+        timeSeriesResourceIds?: (number | string)[];
         cancellations?: CancellationStatistic;
         heatmap?: PeakTimesHeatmap;
         comparison?: StatisticsComparison | null;
@@ -63,9 +66,10 @@ const props = withDefaults(
         to: null,
         timeSeries: () => [],
         granularity: "month",
-        timeSeriesInstitutionId: null,
-        timeSeriesResourceGroupId: null,
-        timeSeriesResourceId: null,
+        timeSeriesSplit: "none",
+        timeSeriesInstitutionIds: () => [],
+        timeSeriesResourceGroupIds: () => [],
+        timeSeriesResourceIds: () => [],
         cancellations: () => ({
             cancelled: 0,
             active: 0,
@@ -99,9 +103,9 @@ const {
     hasComparison,
     granularityOptions,
     selectedGranularity,
-    selectedTimeSeriesInstitutionId,
-    selectedTimeSeriesResourceGroupId,
-    selectedTimeSeriesResourceId,
+    selectedTimeSeriesInstitutionIds,
+    selectedTimeSeriesResourceGroupIds,
+    selectedTimeSeriesResourceIds,
     timeSeriesInstitutionOptions,
     timeSeriesResourceGroupOptions,
     timeSeriesResourceOptions,
@@ -235,7 +239,33 @@ const resourceUnselectedMessageKey = computed(() =>
 // ------------------------------------------------
 // Time series chart
 // ------------------------------------------------
-function buildTimeSeriesChartData(entries: TimeSeriesEntry[], backgroundColor: string): ChartData<"bar"> {
+function hasTimeSeriesSegments(entries: TimeSeriesEntry[]): boolean {
+    return entries.some((entry) => (entry.segments?.length ?? 0) > 0);
+}
+
+function buildTimeSeriesChartData(
+    entries: TimeSeriesEntry[],
+    backgroundColor: string,
+    mode: TimeSeriesChartMode,
+): ChartData<"bar"> {
+    const firstSegments = entries.find((entry) => (entry.segments?.length ?? 0) > 0)?.segments ?? [];
+
+    if (firstSegments.length > 0) {
+        const colors = slicePalette(firstSegments.length);
+
+        return {
+            labels: entries.map((entry) => entry.label),
+            datasets: firstSegments.map((segment, index) => ({
+                label: translate(segment.title),
+                backgroundColor: colors[index]!,
+                data: entries.map(
+                    (entry) => entry.segments?.find((candidate) => sameId(candidate.id, segment.id))?.count ?? 0,
+                ),
+                ...(mode === "stacked" ? { stack: "bookings" } : {}),
+            })),
+        };
+    }
+
     return {
         labels: entries.map((entry) => entry.label),
         datasets: [
@@ -248,10 +278,18 @@ function buildTimeSeriesChartData(entries: TimeSeriesEntry[], backgroundColor: s
     };
 }
 
-const timeSeriesChartData = computed<ChartData<"bar">>(() => buildTimeSeriesChartData(props.timeSeries, "#3b82f6"));
+const timeSeriesChartMode = ref<TimeSeriesChartMode>("stacked");
+
+const timeSeriesIsSplit = computed(
+    () => hasTimeSeriesSegments(props.timeSeries) || hasTimeSeriesSegments(props.comparison?.timeSeries ?? []),
+);
+
+const timeSeriesChartData = computed<ChartData<"bar">>(() =>
+    buildTimeSeriesChartData(props.timeSeries, "#3b82f6", timeSeriesChartMode.value),
+);
 
 const comparisonTimeSeriesChartData = computed<ChartData<"bar">>(() =>
-    buildTimeSeriesChartData(props.comparison?.timeSeries ?? [], "#14b8a6"),
+    buildTimeSeriesChartData(props.comparison?.timeSeries ?? [], "#14b8a6", timeSeriesChartMode.value),
 );
 
 const comparisonDeltaLabel = computed(() =>
@@ -294,15 +332,30 @@ const comparisonDeltaClassValue = computed(() =>
     props.comparison ? comparisonDeltaClass(props.comparison.deltaPct) : "text-app-muted",
 );
 
+const timeSeriesIsStacked = computed(() => timeSeriesIsSplit.value && timeSeriesChartMode.value === "stacked");
+
 const timeSeriesChartOptions = computed<ChartOptions<"bar">>(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-        legend: { display: false },
+        legend: {
+            display: timeSeriesIsSplit.value,
+            position: "bottom",
+            labels: { color: textColor.value },
+        },
     },
     scales: {
-        x: { ticks: { color: textColor.value }, grid: { color: borderColor.value } },
-        y: { beginAtZero: true, ticks: { color: textColor.value }, grid: { color: borderColor.value } },
+        x: {
+            stacked: timeSeriesIsStacked.value,
+            ticks: { color: textColor.value },
+            grid: { color: borderColor.value },
+        },
+        y: {
+            stacked: timeSeriesIsStacked.value,
+            beginAtZero: true,
+            ticks: { color: textColor.value },
+            grid: { color: borderColor.value },
+        },
     },
 }));
 
@@ -327,13 +380,15 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
 
         <TimeSeriesCard
             v-model:granularity="selectedGranularity"
+            v-model:chart-mode="timeSeriesChartMode"
+            :time-series-is-split="timeSeriesIsSplit"
             :granularity-options="granularityOptions"
             :time-series-institution-options="timeSeriesInstitutionOptions"
             :time-series-resource-group-options="timeSeriesResourceGroupOptions"
             :time-series-resource-options="timeSeriesResourceOptions"
-            :selected-time-series-institution-id="selectedTimeSeriesInstitutionId"
-            :selected-time-series-resource-group-id="selectedTimeSeriesResourceGroupId"
-            :selected-time-series-resource-id="selectedTimeSeriesResourceId"
+            :selected-time-series-institution-ids="selectedTimeSeriesInstitutionIds"
+            :selected-time-series-resource-group-ids="selectedTimeSeriesResourceGroupIds"
+            :selected-time-series-resource-ids="selectedTimeSeriesResourceIds"
             :retention-exceeded="cancellations.retentionExceeded"
             :retention-days="cancellations.retentionDays"
             :has-comparison="hasComparison"
@@ -425,6 +480,7 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
                         option-label="label"
                         option-value="id"
                         :placeholder="$t('admin.general.form.choose')"
+                        class="w-full max-w-56"
                         data-test="pie-institution-select"
                     />
                 </template>
@@ -465,6 +521,7 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
                         option-label="label"
                         option-value="id"
                         :placeholder="$t('admin.general.form.choose')"
+                        class="w-full max-w-56"
                         data-test="pie-resource-group-select"
                     />
                 </template>

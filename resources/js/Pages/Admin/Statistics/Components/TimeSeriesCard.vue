@@ -2,17 +2,21 @@
 import type { StatisticsComparison, TimeSeriesEntry } from "@/Types/Admin";
 
 import type { ChartData, ChartOptions } from "chart.js";
+import { trans } from "laravel-vue-i18n";
+import { computed } from "vue";
 
-type SelectOption = { id: number | string | null; label: string };
+type SelectionId = number | string;
+type SelectOption = { id: SelectionId; label: string };
 
 defineProps<{
     granularityOptions: { id: string; label: string }[];
     timeSeriesInstitutionOptions: SelectOption[];
     timeSeriesResourceGroupOptions: SelectOption[];
     timeSeriesResourceOptions: SelectOption[];
-    selectedTimeSeriesInstitutionId: number | string | null;
-    selectedTimeSeriesResourceGroupId: number | string | null;
-    selectedTimeSeriesResourceId: number | string | null;
+    selectedTimeSeriesInstitutionIds: SelectionId[];
+    selectedTimeSeriesResourceGroupIds: SelectionId[];
+    selectedTimeSeriesResourceIds: SelectionId[];
+    timeSeriesIsSplit: boolean;
     retentionExceeded: boolean;
     retentionDays: number;
     hasComparison: boolean;
@@ -31,19 +35,44 @@ defineProps<{
 }>();
 
 const selectedGranularity = defineModel<string>("granularity", { required: true });
+const selectedChartMode = defineModel<"stacked" | "grouped">("chartMode", { required: true });
 
-defineEmits<{
-    "institution-change": [value: number | string | null];
-    "resource-group-change": [value: number | string | null];
-    "resource-change": [value: number | string | null];
+const chartModeOptions = computed(() => [
+    { id: "stacked" as const, label: trans("admin.statistics.index.time_series.chart_mode.stacked") },
+    { id: "grouped" as const, label: trans("admin.statistics.index.time_series.chart_mode.grouped") },
+]);
+
+const emit = defineEmits<{
+    "institution-change": [value: SelectionId[]];
+    "resource-group-change": [value: SelectionId[]];
+    "resource-change": [value: SelectionId[]];
 }>();
+
+function toSelectionIds(value: unknown): SelectionId[] {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return value.filter((id): id is SelectionId => typeof id === "string" || typeof id === "number");
+}
 </script>
 
 <template>
-    <div class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface border p-4 shadow-sm">
+    <div
+        class="border-app-border bg-app-surface dark:border-app-border dark:bg-app-surface min-w-0 border p-4 shadow-sm"
+    >
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div class="text-lg font-semibold">{{ $t("admin.statistics.index.time_series.title") }}</div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <SelectButton
+                    v-if="timeSeriesIsSplit"
+                    v-model="selectedChartMode"
+                    :options="chartModeOptions"
+                    option-label="label"
+                    option-value="id"
+                    :allow-empty="false"
+                    data-test="time-series-chart-mode"
+                />
                 <Select
                     v-model="selectedGranularity"
                     :options="granularityOptions"
@@ -63,45 +92,53 @@ defineEmits<{
                 </a>
             </div>
         </div>
-        <!-- options[0] is the synthetic "All ..." entry, so ">2" means more than one real entry exists -->
         <div class="mb-3 flex flex-wrap items-end gap-3">
-            <div v-if="timeSeriesInstitutionOptions.length > 2" class="flex flex-col gap-1">
+            <div v-if="timeSeriesInstitutionOptions.length > 1" class="flex flex-col gap-1">
                 <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.institution") }}</label>
-                <Select
-                    :model-value="selectedTimeSeriesInstitutionId"
+                <MultiSelect
+                    :model-value="selectedTimeSeriesInstitutionIds"
                     :options="timeSeriesInstitutionOptions"
                     option-label="label"
                     option-value="id"
-                    :placeholder="timeSeriesInstitutionOptions[0]!.label"
+                    :placeholder="$t('admin.statistics.index.time_series.all_institutions')"
+                    :show-toggle-all="false"
+                    :max-selected-labels="2"
+                    display="chip"
                     class="w-56"
                     data-test="time-series-institution-select"
-                    @update:model-value="$emit('institution-change', $event)"
+                    @update:model-value="emit('institution-change', toSelectionIds($event))"
                 />
             </div>
-            <div v-if="timeSeriesResourceGroupOptions.length > 2" class="flex flex-col gap-1">
+            <div v-if="timeSeriesResourceGroupOptions.length > 1" class="flex flex-col gap-1">
                 <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource_group") }}</label>
-                <Select
-                    :model-value="selectedTimeSeriesResourceGroupId"
+                <MultiSelect
+                    :model-value="selectedTimeSeriesResourceGroupIds"
                     :options="timeSeriesResourceGroupOptions"
                     option-label="label"
                     option-value="id"
-                    :placeholder="timeSeriesResourceGroupOptions[0]!.label"
+                    :placeholder="$t('admin.statistics.index.time_series.all_resource_groups')"
+                    :show-toggle-all="false"
+                    :max-selected-labels="2"
+                    display="chip"
                     class="w-56"
                     data-test="time-series-resource-group-select"
-                    @update:model-value="$emit('resource-group-change', $event)"
+                    @update:model-value="emit('resource-group-change', toSelectionIds($event))"
                 />
             </div>
-            <div v-if="timeSeriesResourceOptions.length > 2" class="flex flex-col gap-1">
+            <div v-if="timeSeriesResourceOptions.length > 1" class="flex flex-col gap-1">
                 <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource") }}</label>
-                <Select
-                    :model-value="selectedTimeSeriesResourceId"
+                <MultiSelect
+                    :model-value="selectedTimeSeriesResourceIds"
                     :options="timeSeriesResourceOptions"
                     option-label="label"
                     option-value="id"
-                    :placeholder="timeSeriesResourceOptions[0]!.label"
+                    :placeholder="$t('admin.statistics.index.time_series.all_resources')"
+                    :show-toggle-all="false"
+                    :max-selected-labels="2"
+                    display="chip"
                     class="w-56"
                     data-test="time-series-resource-select"
-                    @update:model-value="$emit('resource-change', $event)"
+                    @update:model-value="emit('resource-change', toSelectionIds($event))"
                 />
             </div>
         </div>

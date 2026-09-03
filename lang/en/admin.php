@@ -115,6 +115,10 @@ return [
                 'all_institutions' => 'All institutions',
                 'all_resource_groups' => 'All resource groups',
                 'all_resources' => 'All resources',
+                'chart_mode' => [
+                    'stacked' => 'Stacked',
+                    'grouped' => 'Separate columns',
+                ],
             ],
             'heatmap' => [
                 'title' => 'Peak booking times',

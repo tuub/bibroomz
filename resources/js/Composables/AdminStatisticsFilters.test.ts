@@ -59,9 +59,9 @@ function buildFilters(overrides: Partial<Parameters<typeof useStatisticsFilters>
             to: null,
             granularity: "month",
             comparison: null,
-            timeSeriesInstitutionId: null,
-            timeSeriesResourceGroupId: null,
-            timeSeriesResourceId: null,
+            timeSeriesInstitutionIds: [],
+            timeSeriesResourceGroupIds: [],
+            timeSeriesResourceIds: [],
             institutions: [institution(1), institution(2)],
             resourceGroups: [resourceGroup(10, 1), resourceGroup(20, 2)],
             resources: [resource(100, 10), resource(200, 20)],
@@ -73,56 +73,106 @@ function buildFilters(overrides: Partial<Parameters<typeof useStatisticsFilters>
 }
 
 describe("useStatisticsFilters", () => {
-    test("scopes time series resource group options to the selected institution", () => {
-        const filters = buildFilters({ timeSeriesInstitutionId: 1 });
+    test("scopes time series resource group options to the selected institutions", () => {
+        const filters = buildFilters({ timeSeriesInstitutionIds: [1, 2] });
 
-        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.id)).toEqual([null, 10]);
+        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.id)).toEqual([10, 20]);
     });
 
-    test("lists every resource group when no institution is selected", () => {
+    test("lists every resource group when no institution is selected, qualified by institution title", () => {
         const filters = buildFilters();
 
-        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.id)).toEqual([null, 10, 20]);
+        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.id)).toEqual([10, 20]);
+        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.label)).toEqual([
+            "Group 10 — Institution 1",
+            "Group 20 — Institution 2",
+        ]);
     });
 
-    test("scopes time series resource options to the selected resource group", () => {
-        const filters = buildFilters({ timeSeriesResourceGroupId: 10 });
+    test("does not qualify resource group labels when only one institution is selected", () => {
+        const filters = buildFilters({ timeSeriesInstitutionIds: [1] });
 
-        expect(filters.timeSeriesResourceOptions.value.map((option) => option.id)).toEqual([null, 100]);
+        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.label)).toEqual(["Group 10"]);
+    });
+
+    test("always qualifies resource group labels with the institution title when multiple institutions are in scope, even without a name collision", () => {
+        const filters = buildFilters({
+            timeSeriesInstitutionIds: [1, 2],
+            resourceGroups: [resourceGroup(10, 1), resourceGroup(20, 2), resourceGroup(30, 2)],
+        });
+
+        expect(filters.timeSeriesResourceGroupOptions.value.map((option) => option.label)).toEqual([
+            "Group 10 — Institution 1",
+            "Group 20 — Institution 2",
+            "Group 30 — Institution 2",
+        ]);
+    });
+
+    test("scopes time series resource options to the selected resource groups", () => {
+        const filters = buildFilters({ timeSeriesResourceGroupIds: [10, 20] });
+
+        expect(filters.timeSeriesResourceOptions.value.map((option) => option.id)).toEqual([100, 200]);
     });
 
     test("falls back to resources across the institution's groups when no group is selected", () => {
-        const filters = buildFilters({ timeSeriesInstitutionId: 1 });
+        const filters = buildFilters({ timeSeriesInstitutionIds: [1] });
 
-        expect(filters.timeSeriesResourceOptions.value.map((option) => option.id)).toEqual([null, 100]);
+        expect(filters.timeSeriesResourceOptions.value.map((option) => option.id)).toEqual([100]);
+    });
+
+    test("does not qualify resource labels when only one resource group is selected", () => {
+        const filters = buildFilters({ timeSeriesResourceGroupIds: [10] });
+
+        expect(filters.timeSeriesResourceOptions.value.map((option) => option.label)).toEqual(["Resource 100"]);
+    });
+
+    test("always qualifies resource labels with the resource group title when multiple resource groups are in scope, even without a name collision", () => {
+        const filters = buildFilters({
+            timeSeriesResourceGroupIds: [10, 20],
+            resources: [
+                { ...resource(100, 10), title: { en: "Room 101" } },
+                { ...resource(200, 20), title: { en: "Room 101" } },
+                resource(300, 20),
+            ],
+        });
+
+        expect(filters.timeSeriesResourceOptions.value.map((option) => option.label)).toEqual([
+            "Room 101 — Group 10",
+            "Room 101 — Group 20",
+            "Resource 300 — Group 20",
+        ]);
     });
 
     test("resets the resource group and resource selection when the institution filter changes", async () => {
         const filters = buildFilters({
-            timeSeriesInstitutionId: 1,
-            timeSeriesResourceGroupId: 10,
-            timeSeriesResourceId: 100,
+            timeSeriesInstitutionIds: [1],
+            timeSeriesResourceGroupIds: [10],
+            timeSeriesResourceIds: [100],
         });
 
-        filters.onTimeSeriesInstitutionChange(2);
+        filters.onTimeSeriesInstitutionChange([2]);
         await nextTick();
 
-        expect(filters.selectedTimeSeriesResourceGroupId.value).toBeNull();
-        expect(filters.selectedTimeSeriesResourceId.value).toBeNull();
-        expect(routerGetMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ institution_id: 2 }), {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+        expect(filters.selectedTimeSeriesResourceGroupIds.value).toEqual([]);
+        expect(filters.selectedTimeSeriesResourceIds.value).toEqual([]);
+        expect(routerGetMock).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({ institution_id: [2] }),
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
     });
 
     test("resets the resource selection when the resource group filter changes", async () => {
-        const filters = buildFilters({ timeSeriesResourceGroupId: 10, timeSeriesResourceId: 100 });
+        const filters = buildFilters({ timeSeriesResourceGroupIds: [10], timeSeriesResourceIds: [100] });
 
-        filters.onTimeSeriesResourceGroupChange(20);
+        filters.onTimeSeriesResourceGroupChange([20]);
         await nextTick();
 
-        expect(filters.selectedTimeSeriesResourceId.value).toBeNull();
+        expect(filters.selectedTimeSeriesResourceIds.value).toEqual([]);
     });
 
     test("reloads immediately when a preset range is selected", async () => {
@@ -237,13 +287,13 @@ describe("useStatisticsFilters", () => {
     });
 
     test("builds an export url with the current filters and export type", () => {
-        const filters = buildFilters({ timeSeriesInstitutionId: 1 });
+        const filters = buildFilters({ timeSeriesInstitutionIds: [1, 2] });
 
         const url = filters.exportUrl("heatmap");
 
         expect(route).toHaveBeenCalledWith(
             "admin.statistics.export",
-            expect.objectContaining({ type: "heatmap", institution_id: 1 }),
+            expect.objectContaining({ type: "heatmap", institution_id: [1, 2] }),
         );
         expect(url).toContain("admin.statistics.export");
     });

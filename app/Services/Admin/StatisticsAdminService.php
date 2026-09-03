@@ -19,6 +19,9 @@ class StatisticsAdminService
     private const int MAX_TIME_SERIES_BUCKETS = 104;
 
     /**
+     * @param  array<int, mixed>|string|null  $institutionId
+     * @param  array<int, mixed>|string|null  $resourceGroupId
+     * @param  array<int, mixed>|string|null  $resourceId
      * @return array{
      *     institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *     resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
@@ -26,8 +29,12 @@ class StatisticsAdminService
      *     range: string,
      *     from: ?string,
      *     to: ?string,
-     *     timeSeries: array<int, array{label: string, count: int}>,
+     *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
      *     granularity: string,
+     *     timeSeriesSplit: string,
+     *     timeSeriesInstitutionIds: list<string>,
+     *     timeSeriesResourceGroupIds: list<string>,
+     *     timeSeriesResourceIds: list<string>,
      *     timeSeriesInstitutionId: ?string,
      *     timeSeriesResourceGroupId: ?string,
      *     timeSeriesResourceId: ?string,
@@ -39,7 +46,7 @@ class StatisticsAdminService
      *         currentCount: int,
      *         comparisonCount: int,
      *         deltaPct: float,
-     *         timeSeries: array<int, array{label: string, count: int}>,
+     *         timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
      *         institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *         resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *         resources: Collection<int, array{id: string, title: array<string, string>, resource_group_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>
@@ -52,13 +59,16 @@ class StatisticsAdminService
         ?string $from = null,
         ?string $to = null,
         string $granularity = 'month',
-        ?string $institutionId = null,
-        ?string $resourceGroupId = null,
-        ?string $resourceId = null,
+        string|array|null $institutionId = null,
+        string|array|null $resourceGroupId = null,
+        string|array|null $resourceId = null,
         ?string $compareFrom = null,
         ?string $compareTo = null,
     ): array {
         [$rangeFrom, $rangeTo] = $this->resolveRange($range, $from, $to);
+        $institutionIds = $this->normalizedIds($institutionId);
+        $resourceGroupIds = $this->normalizedIds($resourceGroupId);
+        $resourceIds = $this->normalizedIds($resourceId);
 
         $institutions = Institution::query()
             ->with('resource_groups.resources')
@@ -78,11 +88,20 @@ class StatisticsAdminService
         $timeSeriesResources = $this->scopeResourcesForTimeSeries(
             $resources,
             $resourceGroups,
-            $institutionId,
-            $resourceGroupId,
-            $resourceId,
+            $institutionIds,
+            $resourceGroupIds,
+            $resourceIds,
         );
-        $timeSeries = $this->buildTimeSeries($timeSeriesResources, $granularity, $rangeFrom, $rangeTo);
+        $timeSeriesSplit = $this->inferTimeSeriesSplit($timeSeriesResources, $resourceGroups);
+        $timeSeries = $this->buildTimeSeries(
+            $timeSeriesResources,
+            $resourceGroups,
+            $institutions,
+            $granularity,
+            $rangeFrom,
+            $rangeTo,
+            $timeSeriesSplit,
+        );
         $timeSeriesBookingCount = $this->happeningQueryForResources($timeSeriesResources, $rangeFrom, $rangeTo)->count();
 
         return [
@@ -94,9 +113,13 @@ class StatisticsAdminService
             'to' => $rangeTo?->toDateString(),
             'timeSeries' => $timeSeries,
             'granularity' => $granularity,
-            'timeSeriesInstitutionId' => $institutionId,
-            'timeSeriesResourceGroupId' => $resourceGroupId,
-            'timeSeriesResourceId' => $resourceId,
+            'timeSeriesSplit' => $timeSeriesSplit,
+            'timeSeriesInstitutionIds' => $institutionIds,
+            'timeSeriesResourceGroupIds' => $resourceGroupIds,
+            'timeSeriesResourceIds' => $resourceIds,
+            'timeSeriesInstitutionId' => $institutionIds[0] ?? null,
+            'timeSeriesResourceGroupId' => $resourceGroupIds[0] ?? null,
+            'timeSeriesResourceId' => $resourceIds[0] ?? null,
             'cancellations' => $this->buildCancellationStatistics($timeSeriesResources, $rangeFrom, $rangeTo),
             'heatmap' => $this->buildPeakTimesHeatmap($timeSeriesResources, $rangeFrom, $rangeTo),
             'comparison' => $this->buildComparisonData(
@@ -106,6 +129,7 @@ class StatisticsAdminService
                 $timeSeriesResources,
                 $granularity,
                 $timeSeriesBookingCount,
+                $timeSeriesSplit,
                 $compareFrom,
                 $compareTo,
             ),
@@ -117,7 +141,7 @@ class StatisticsAdminService
      *     institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *     resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *     resources: Collection<int, array{id: string, title: array<string, string>, resource_group_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
-     *     timeSeries: array<int, array{label: string, count: int}>,
+     *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
      *     heatmap: array{cells: array<int, array{dayOfWeek: int, hour: int, count: int, percentage: float}>, maxCount: int, totalCount: int},
      *     comparison?: ?array<string, mixed>,
      * }  $data
@@ -136,11 +160,15 @@ class StatisticsAdminService
     }
 
     /**
-     * @param  array<int, array{label: string, count: int}>  $timeSeries
+     * @param  array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>  $timeSeries
      * @return array<int, array<int, string>>
      */
     private function timeSeriesCsvRows(array $timeSeries): array
     {
+        if ($this->timeSeriesHasSegments($timeSeries)) {
+            return $this->splitTimeSeriesCsvRows($timeSeries);
+        }
+
         $rows = [['Label', 'Count']];
 
         foreach ($timeSeries as $entry) {
@@ -148,6 +176,64 @@ class StatisticsAdminService
         }
 
         return $rows;
+    }
+
+    /**
+     * @param  array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>  $timeSeries
+     * @return array<int, array<int, string>>
+     */
+    private function splitTimeSeriesCsvRows(array $timeSeries): array
+    {
+        $rows = [['Label', 'Total', ...$this->timeSeriesSegmentHeaders($timeSeries)]];
+
+        foreach ($timeSeries as $entry) {
+            $row = [$entry['label'], (string) $entry['count']];
+
+            foreach ($entry['segments'] ?? [] as $segment) {
+                $row[] = (string) $segment['count'];
+            }
+
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param  array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>  $timeSeries
+     */
+    private function timeSeriesHasSegments(array $timeSeries): bool
+    {
+        foreach ($timeSeries as $entry) {
+            if (array_key_exists('segments', $entry)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>  $timeSeries
+     * @return array<int, string>
+     */
+    private function timeSeriesSegmentHeaders(array $timeSeries): array
+    {
+        foreach ($timeSeries as $entry) {
+            if (! array_key_exists('segments', $entry)) {
+                continue;
+            }
+
+            $headers = [];
+
+            foreach ($entry['segments'] as $segment) {
+                $headers[] = $this->csvTitle($segment['title']);
+            }
+
+            return $headers;
+        }
+
+        return [];
     }
 
     /**
@@ -285,26 +371,33 @@ class StatisticsAdminService
     /**
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @param  list<string>  $institutionIds
+     * @param  list<string>  $resourceGroupIds
+     * @param  list<string>  $resourceIds
      * @return Collection<int, Resource>
      */
     private function scopeResourcesForTimeSeries(
         Collection $resources,
         Collection $resourceGroups,
-        ?string $institutionId,
-        ?string $resourceGroupId,
-        ?string $resourceId,
+        array $institutionIds,
+        array $resourceGroupIds,
+        array $resourceIds,
     ): Collection {
-        if ($resourceId !== null) {
-            return $resources->filter(fn (Resource $resource): bool => (string) $resource->id === $resourceId)->values();
+        if ($resourceIds !== []) {
+            return $resources
+                ->filter(fn (Resource $resource): bool => in_array((string) $resource->id, $resourceIds, true))
+                ->values();
         }
 
-        if ($resourceGroupId !== null) {
-            return $resources->filter(fn (Resource $resource): bool => (string) $resource->resource_group_id === $resourceGroupId)->values();
+        if ($resourceGroupIds !== []) {
+            return $resources
+                ->filter(fn (Resource $resource): bool => in_array((string) $resource->resource_group_id, $resourceGroupIds, true))
+                ->values();
         }
 
-        if ($institutionId !== null) {
+        if ($institutionIds !== []) {
             $groupIds = $resourceGroups
-                ->filter(fn (ResourceGroup $resourceGroup): bool => (string) $resourceGroup->institution_id === $institutionId)
+                ->filter(fn (ResourceGroup $resourceGroup): bool => in_array((string) $resourceGroup->institution_id, $institutionIds, true))
                 ->pluck('id');
 
             return $resources->filter(fn (Resource $resource): bool => $groupIds->contains($resource->resource_group_id))->values();
@@ -410,7 +503,7 @@ class StatisticsAdminService
      *     currentCount: int,
      *     comparisonCount: int,
      *     deltaPct: float,
-     *     timeSeries: array<int, array{label: string, count: int}>,
+     *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
      *     institutions: Collection<int, array{id: string, title: array<string, string>, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *     resourceGroups: Collection<int, array{id: string, title: array<string, string>, institution_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
      *     resources: Collection<int, array{id: string, title: array<string, string>, resource_group_id: string, count: int, active: int, cancelled: int, cancellationRate: float}>,
@@ -423,6 +516,7 @@ class StatisticsAdminService
         Collection $timeSeriesResources,
         string $granularity,
         int $currentCount,
+        string $timeSeriesSplit,
         ?string $compareFrom,
         ?string $compareTo,
     ): ?array {
@@ -441,7 +535,15 @@ class StatisticsAdminService
             'currentCount' => $currentCount,
             'comparisonCount' => $comparisonCount,
             'deltaPct' => $this->deltaPercentage($currentCount, $comparisonCount),
-            'timeSeries' => $this->buildTimeSeries($timeSeriesResources, $granularity, $comparisonFrom, $comparisonTo),
+            'timeSeries' => $this->buildTimeSeries(
+                $timeSeriesResources,
+                $resourceGroups,
+                $institutions,
+                $granularity,
+                $comparisonFrom,
+                $comparisonTo,
+                $timeSeriesSplit,
+            ),
             'institutions' => $comparisonCounts['institutions'],
             'resourceGroups' => $comparisonCounts['resourceGroups'],
             'resources' => $comparisonCounts['resources'],
@@ -450,22 +552,57 @@ class StatisticsAdminService
 
     /**
      * @param  Collection<int, Resource>  $resources
-     * @return array<int, array{label: string, count: int}>
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @param  Collection<int, Institution>  $institutions
+     * @return array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>
      */
-    private function buildTimeSeries(Collection $resources, string $granularity, ?CarbonInterface $rangeFrom, ?CarbonInterface $rangeTo): array
-    {
+    private function buildTimeSeries(
+        Collection $resources,
+        Collection $resourceGroups,
+        Collection $institutions,
+        string $granularity,
+        ?CarbonInterface $rangeFrom,
+        ?CarbonInterface $rangeTo,
+        string $split,
+    ): array {
         [$bucketStarts, $windowStart, $format] = $this->buildTimeSeriesBuckets($granularity, $rangeFrom, $rangeTo);
 
         $happenings = $this->happeningQueryForResources($resources, $windowStart, $rangeTo)
-            ->get(['start']);
+            ->get(['start', 'resource_id']);
 
         $countsByBucket = $this->countByTimeSeriesBucket($happenings, $format);
 
+        if ($split === 'none') {
+            return collect($bucketStarts)
+                ->map(fn (CarbonImmutable $bucketStart): array => [
+                    'label' => $bucketStart->format($format),
+                    'count' => $this->toInt($countsByBucket[$bucketStart->format($format)] ?? 0),
+                ])
+                ->values()
+                ->all();
+        }
+
+        $subjects = $this->timeSeriesSplitSubjects($resources, $resourceGroups, $institutions, $split);
+        $segmentIdByResourceId = $this->timeSeriesSegmentIdByResourceId($resources, $resourceGroups, $split);
+        $countsByBucketAndSegment = $this->countByTimeSeriesBucketAndSegment($happenings, $segmentIdByResourceId, $format);
+
         return collect($bucketStarts)
-            ->map(fn (CarbonImmutable $bucketStart): array => [
-                'label' => $bucketStart->format($format),
-                'count' => $this->toInt($countsByBucket[$bucketStart->format($format)] ?? 0),
-            ])
+            ->map(function (CarbonImmutable $bucketStart) use ($countsByBucket, $countsByBucketAndSegment, $format, $subjects): array {
+                $bucket = $bucketStart->format($format);
+
+                return [
+                    'label' => $bucket,
+                    'count' => $this->toInt($countsByBucket[$bucket] ?? 0),
+                    'segments' => $subjects
+                        ->map(fn (array $subject): array => [
+                            'id' => $subject['id'],
+                            'title' => $subject['title'],
+                            'count' => $this->toInt($countsByBucketAndSegment[$bucket][$subject['id']] ?? 0),
+                        ])
+                        ->values()
+                        ->all(),
+                ];
+            })
             ->values()
             ->all();
     }
@@ -600,6 +737,151 @@ class StatisticsAdminService
     }
 
     /**
+     * @param  Collection<int, Happening>  $happenings
+     * @param  array<string, string>  $segmentIdByResourceId
+     * @return array<string, array<string, int>>
+     */
+    private function countByTimeSeriesBucketAndSegment(Collection $happenings, array $segmentIdByResourceId, string $format): array
+    {
+        $counts = [];
+
+        foreach ($happenings as $happening) {
+            $segmentId = $segmentIdByResourceId[(string) $happening->resource_id] ?? null;
+
+            if ($segmentId === null) {
+                continue;
+            }
+
+            $bucket = CarbonImmutable::parse($happening->start)->format($format);
+            $counts[$bucket][$segmentId] = ($counts[$bucket][$segmentId] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @param  Collection<int, Institution>  $institutions
+     * @return Collection<int, array{id: string, title: array<string, string>}>
+     */
+    private function timeSeriesSplitSubjects(
+        Collection $resources,
+        Collection $resourceGroups,
+        Collection $institutions,
+        string $split,
+    ): Collection {
+        return match ($split) {
+            'institution' => $this->timeSeriesInstitutionSubjects($resources, $resourceGroups, $institutions),
+            'resource_group' => $this->timeSeriesResourceGroupSubjects($resources, $resourceGroups),
+            'resource' => $resources
+                ->map(fn (Resource $resource): array => [
+                    'id' => (string) $resource->id,
+                    'title' => $this->stringTranslations($resource->getTranslations('title')),
+                ])
+                ->values(),
+            default => collect(),
+        };
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @param  Collection<int, Institution>  $institutions
+     * @return Collection<int, array{id: string, title: array<string, string>}>
+     */
+    private function timeSeriesInstitutionSubjects(Collection $resources, Collection $resourceGroups, Collection $institutions): Collection
+    {
+        $resourceGroupIds = $resources
+            ->map(fn (Resource $resource): string => (string) $resource->resource_group_id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $institutionIds = $resourceGroups
+            ->filter(fn (ResourceGroup $resourceGroup): bool => in_array((string) $resourceGroup->id, $resourceGroupIds, true))
+            ->map(fn (ResourceGroup $resourceGroup): string => (string) $resourceGroup->institution_id)
+            ->unique()
+            ->values()
+            ->all();
+
+        return $institutions
+            ->filter(fn (Institution $institution): bool => in_array((string) $institution->id, $institutionIds, true))
+            ->map(fn (Institution $institution): array => [
+                'id' => (string) $institution->id,
+                'title' => $this->stringTranslations($institution->getTranslations('title')),
+            ])
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @return Collection<int, array{id: string, title: array<string, string>}>
+     */
+    private function timeSeriesResourceGroupSubjects(Collection $resources, Collection $resourceGroups): Collection
+    {
+        $resourceGroupIds = $resources
+            ->map(fn (Resource $resource): string => (string) $resource->resource_group_id)
+            ->unique()
+            ->values()
+            ->all();
+
+        return $resourceGroups
+            ->filter(fn (ResourceGroup $resourceGroup): bool => in_array((string) $resourceGroup->id, $resourceGroupIds, true))
+            ->map(fn (ResourceGroup $resourceGroup): array => [
+                'id' => (string) $resourceGroup->id,
+                'title' => $this->stringTranslations($resourceGroup->getTranslations('title')),
+            ])
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @return array<string, string>
+     */
+    private function timeSeriesSegmentIdByResourceId(Collection $resources, Collection $resourceGroups, string $split): array
+    {
+        return match ($split) {
+            'institution' => $this->timeSeriesInstitutionIdByResourceId($resources, $resourceGroups),
+            'resource_group' => $resources
+                ->mapWithKeys(fn (Resource $resource): array => [(string) $resource->id => (string) $resource->resource_group_id])
+                ->all(),
+            'resource' => $resources
+                ->mapWithKeys(fn (Resource $resource): array => [(string) $resource->id => (string) $resource->id])
+                ->all(),
+            default => [],
+        };
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @return array<string, string>
+     */
+    private function timeSeriesInstitutionIdByResourceId(Collection $resources, Collection $resourceGroups): array
+    {
+        $institutionIdByResourceGroupId = $resourceGroups
+            ->mapWithKeys(fn (ResourceGroup $resourceGroup): array => [(string) $resourceGroup->id => (string) $resourceGroup->institution_id])
+            ->all();
+
+        $institutionIdByResourceId = [];
+
+        foreach ($resources as $resource) {
+            $institutionId = $institutionIdByResourceGroupId[(string) $resource->resource_group_id] ?? null;
+
+            if ($institutionId === null) {
+                continue;
+            }
+
+            $institutionIdByResourceId[(string) $resource->id] = $institutionId;
+        }
+
+        return $institutionIdByResourceId;
+    }
+
+    /**
      * @param  Collection<int, Resource>  $resources
      * @return Builder<Happening>
      */
@@ -685,6 +967,64 @@ class StatisticsAdminService
         }
 
         return round((($current - $comparison) / $comparison) * 100, 1);
+    }
+
+    /**
+     * @param  Collection<int, Resource>  $resources
+     * @param  Collection<int, ResourceGroup>  $resourceGroups
+     */
+    private function inferTimeSeriesSplit(Collection $resources, Collection $resourceGroups): string
+    {
+        $resourceGroupIds = $resources
+            ->map(fn (Resource $resource): string => (string) $resource->resource_group_id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($resourceGroupIds === []) {
+            return 'none';
+        }
+
+        $institutionIds = $resourceGroups
+            ->filter(fn (ResourceGroup $resourceGroup): bool => in_array((string) $resourceGroup->id, $resourceGroupIds, true))
+            ->map(fn (ResourceGroup $resourceGroup): string => (string) $resourceGroup->institution_id)
+            ->unique()
+            ->values();
+
+        if ($institutionIds->count() > 1) {
+            return 'institution';
+        }
+
+        if (count($resourceGroupIds) > 1) {
+            return 'resource_group';
+        }
+
+        return 'resource';
+    }
+
+    /**
+     * @param  array<int, mixed>|string|null  $value
+     * @return list<string>
+     */
+    private function normalizedIds(string|array|null $value): array
+    {
+        if (is_string($value) && $value !== '') {
+            return [$value];
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $ids = [];
+
+        foreach ($value as $candidate) {
+            if (is_string($candidate) && $candidate !== '') {
+                $ids[] = $candidate;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     private function happeningRetentionDays(): int
