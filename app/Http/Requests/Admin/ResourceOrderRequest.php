@@ -38,8 +38,8 @@ class ResourceOrderRequest extends AdminRouteRequest
     public function rules(): array
     {
         return [
-            '*.id' => ['required', 'uuid', 'exists:resources,id'],
-            '*.order' => ['required', 'integer'],
+            'rows.*.id' => ['required', 'uuid', 'exists:resources,id'],
+            'rows.*.order' => ['required', 'integer'],
         ];
     }
 
@@ -48,7 +48,9 @@ class ResourceOrderRequest extends AdminRouteRequest
      */
     public function rows(): Collection
     {
-        return collect($this->all())
+        $rows = $this->input('rows');
+
+        return collect(is_array($rows) ? $rows : [])
             ->filter(fn (mixed $value): bool => is_array($value) && isset($value['id'], $value['order']))
             ->map(fn (array $value): array => [
                 'id' => is_string($value['id']) ? $value['id'] : '',

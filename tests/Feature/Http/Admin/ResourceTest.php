@@ -341,7 +341,7 @@ test('orderResources returns ok on success', function (): void {
     $this->actingAs($actor);
 
     $this->post(route('admin.resource.order'), [
-        ['id' => $resource->id, 'order' => 7],
+        'rows' => [['id' => $resource->id, 'order' => 7]],
     ])->assertOk();
 
     expect($resource->fresh()?->order)->toBe(7);
@@ -372,7 +372,7 @@ test('orderResources returns 403 for user without edit_resources permission', fu
 
     $this->actingAs($actor)
         ->post(route('admin.resource.order'), [
-            ['id' => $resource->id, 'order' => 1],
+            'rows' => [['id' => $resource->id, 'order' => 1]],
         ])
         ->assertForbidden();
 });

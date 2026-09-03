@@ -595,7 +595,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
     expect($institution->fresh()?->slug)->toBe('updated-feature-institution');
 
     $this->post(route('admin.institution.order'), [
-        ['id' => $institution->id, 'order' => 7],
+        'rows' => [['id' => $institution->id, 'order' => 7]],
     ])->assertOk();
 
     expect($institution->fresh()?->order)->toBe(7);
@@ -651,7 +651,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
     expect($resourceGroup->fresh()?->slug)->toBe('study-rooms');
 
     $this->post(route('admin.resource_group.order'), [
-        ['id' => $resourceGroup->id, 'order' => 4],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 4]],
     ])->assertOk();
 
     expect($resourceGroup->fresh()?->order)->toBe(4);
@@ -730,7 +730,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         ->and($updatedResource?->business_hours->first()?->end)->toBe('17:00');
 
     $this->post(route('admin.resource.order'), [
-        ['id' => $resource->id, 'order' => 9],
+        'rows' => [['id' => $resource->id, 'order' => 9]],
     ])->assertOk();
 
     expect($resource->fresh()?->order)->toBe(9);

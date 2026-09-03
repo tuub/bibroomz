@@ -172,7 +172,7 @@ test('orderResourceGroups returns ok on success', function (): void {
     $this->actingAs($actor);
 
     $this->post(route('admin.resource_group.order'), [
-        ['id' => $resourceGroup->id, 'order' => 5],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 5]],
     ])->assertOk();
 
     expect($resourceGroup->fresh()?->order)->toBe(5);

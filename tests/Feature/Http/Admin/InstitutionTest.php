@@ -183,7 +183,7 @@ test('orderInstitutions returns ok on success', function (): void {
     $this->actingAs($actor);
 
     $this->post(route('admin.institution.order'), [
-        ['id' => $institution->id, 'order' => 3],
+        'rows' => [['id' => $institution->id, 'order' => 3]],
     ])->assertOk();
 
     expect($institution->fresh()?->order)->toBe(3);

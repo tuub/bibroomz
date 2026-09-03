@@ -32,14 +32,14 @@ test('rules contains all expected keys', function (): void {
     $rules = (new ResourceGroupOrderRequest)->rules();
 
     expect($rules)
-        ->toHaveKey('*.id')
-        ->toHaveKey('*.order');
+        ->toHaveKey('rows.*.id')
+        ->toHaveKey('rows.*.order');
 });
 
 test('star id field rules contain required uuid exists resource_groups', function (): void {
     $rules = (new ResourceGroupOrderRequest)->rules();
 
-    expect($rules['*.id'])
+    expect($rules['rows.*.id'])
         ->toContain('required')
         ->toContain('uuid')
         ->toContain('exists:resource_groups,id');
@@ -48,7 +48,7 @@ test('star id field rules contain required uuid exists resource_groups', functio
 test('star order field rules contain required and integer', function (): void {
     $rules = (new ResourceGroupOrderRequest)->rules();
 
-    expect($rules['*.order'])
+    expect($rules['rows.*.order'])
         ->toContain('required')
         ->toContain('integer');
 });
@@ -56,10 +56,10 @@ test('star order field rules contain required and integer', function (): void {
 test('star id rejects non-uuid', function (): void {
     $rules = (new ResourceGroupOrderRequest)->rules();
 
-    $v = Validator::make([['id' => 'not-a-uuid', 'order' => 1]], $rules);
+    $v = Validator::make(['rows' => [['id' => 'not-a-uuid', 'order' => 1]]], $rules);
 
     expect($v->fails())->toBeTrue()
-        ->and($v->errors()->has('0.id'))->toBeTrue();
+        ->and($v->errors()->has('rows.0.id'))->toBeTrue();
 });
 
 test('star order rejects non-integer', function (): void {
@@ -67,19 +67,19 @@ test('star order rejects non-integer', function (): void {
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $rules = (new ResourceGroupOrderRequest)->rules();
 
-    $v = Validator::make([['id' => $resourceGroup->id, 'order' => 'bad']], $rules);
+    $v = Validator::make(['rows' => [['id' => $resourceGroup->id, 'order' => 'bad']]], $rules);
 
     expect($v->fails())->toBeTrue()
-        ->and($v->errors()->has('0.order'))->toBeTrue();
+        ->and($v->errors()->has('rows.0.order'))->toBeTrue();
 });
 
 test('star id rejects non-existent resource group uuid', function (): void {
     $rules = (new ResourceGroupOrderRequest)->rules();
 
-    $v = Validator::make([['id' => (string) Str::uuid(), 'order' => 1]], $rules);
+    $v = Validator::make(['rows' => [['id' => (string) Str::uuid(), 'order' => 1]]], $rules);
 
     expect($v->fails())->toBeTrue()
-        ->and($v->errors()->has('0.id'))->toBeTrue();
+        ->and($v->errors()->has('rows.0.id'))->toBeTrue();
 });
 
 test('rows returns parsed id-order pairs', function (): void {
@@ -87,7 +87,7 @@ test('rows returns parsed id-order pairs', function (): void {
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 2],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 2]],
     ]);
 
     $rows = $request->rows();
@@ -101,14 +101,14 @@ test('rows handles numeric string order', function (): void {
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => '5'],
+        'rows' => [['id' => $resourceGroup->id, 'order' => '5']],
     ]);
 
     expect($request->rows()->first()['order'])->toBe(5);
 });
 
 test('rows filters out non-array entries', function (): void {
-    $request = buildFormRequest(ResourceGroupOrderRequest::class, ['not-an-array']);
+    $request = buildFormRequest(ResourceGroupOrderRequest::class, ['rows' => ['not-an-array']]);
 
     expect($request->rows()->count())->toBe(0);
 });
@@ -118,7 +118,7 @@ test('authorize returns false when no user', function (): void {
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 1],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 1]],
     ]);
 
     expect($request->authorize())->toBeFalse();
@@ -130,7 +130,7 @@ test('authorize returns true when admin user can update all resource groups', fu
     $admin = User::factory()->create(['is_admin' => true]);
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 1],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeTrue();
@@ -140,7 +140,7 @@ test('authorize returns false when resource group not found', function (): void 
     $admin = User::factory()->create(['is_admin' => true]);
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => (string) Str::uuid(), 'order' => 1],
+        'rows' => [['id' => (string) Str::uuid(), 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeFalse();
@@ -148,7 +148,7 @@ test('authorize returns false when resource group not found', function (): void 
 
 test('rows filters out array entries without id key', function (): void {
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['order' => 1],
+        'rows' => [['order' => 1]],
     ]);
 
     expect($request->rows()->count())->toBe(0);
@@ -156,7 +156,7 @@ test('rows filters out array entries without id key', function (): void {
 
 test('rows maps non-string id to empty string', function (): void {
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => 99, 'order' => 1],
+        'rows' => [['id' => 99, 'order' => 1]],
     ]);
 
     $rows = $request->rows();
@@ -166,7 +166,7 @@ test('rows maps non-string id to empty string', function (): void {
 
 test('rows maps non-numeric string order to 0', function (): void {
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => 'some-id', 'order' => 'nope'],
+        'rows' => [['id' => 'some-id', 'order' => 'nope']],
     ]);
 
     $rows = $request->rows();

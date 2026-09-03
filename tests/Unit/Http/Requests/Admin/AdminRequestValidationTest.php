@@ -354,24 +354,24 @@ test('role request rejects non-uuid id when provided', function (): void {
 // ── Order requests ────────────────────────────────────────────────────────────
 
 test('institution order request requires uuid for each row id', function (): void {
-    $rules = makeRules(InstitutionOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
-    assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
+    $rules = makeRules(InstitutionOrderRequest::class, ['rows' => [['id' => 'bad', 'order' => 1]]]);
+    assertFails($rules, ['rows' => [['id' => 'bad', 'order' => 1]]], 'rows.0.id');
 });
 
 test('institution order request requires integer for each row order', function (): void {
     $institution = Institution::factory()->create();
-    $rules = makeRules(InstitutionOrderRequest::class, [['id' => $institution->id, 'order' => 'bad']]);
-    assertFails($rules, [['id' => $institution->id, 'order' => 'bad']], '0.order');
+    $rules = makeRules(InstitutionOrderRequest::class, ['rows' => [['id' => $institution->id, 'order' => 'bad']]]);
+    assertFails($rules, ['rows' => [['id' => $institution->id, 'order' => 'bad']]], 'rows.0.order');
 });
 
 test('resource order request requires uuid for each row id', function (): void {
-    $rules = makeRules(ResourceOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
-    assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
+    $rules = makeRules(ResourceOrderRequest::class, ['rows' => [['id' => 'bad', 'order' => 1]]]);
+    assertFails($rules, ['rows' => [['id' => 'bad', 'order' => 1]]], 'rows.0.id');
 });
 
 test('resource group order request requires uuid for each row id', function (): void {
-    $rules = makeRules(ResourceGroupOrderRequest::class, [['id' => 'bad', 'order' => 1]]);
-    assertFails($rules, [['id' => 'bad', 'order' => 1]], '0.id');
+    $rules = makeRules(ResourceGroupOrderRequest::class, ['rows' => [['id' => 'bad', 'order' => 1]]]);
+    assertFails($rules, ['rows' => [['id' => 'bad', 'order' => 1]]], 'rows.0.id');
 });
 
 // ── HappeningRequest (via StoreHappeningRequest) ──────────────────────────────
@@ -1123,7 +1123,7 @@ test('update user group request userGroup returns the model for valid id', funct
 test('institution order request rows returns parsed id-order pairs', function (): void {
     $institution = Institution::factory()->create();
     $request = buildFormRequest(InstitutionOrderRequest::class, [
-        ['id' => $institution->id, 'order' => 3],
+        'rows' => [['id' => $institution->id, 'order' => 3]],
     ]);
 
     $rows = $request->rows();
@@ -1136,7 +1136,7 @@ test('institution order request rows returns parsed id-order pairs', function ()
 test('institution order request rows handles numeric string order', function (): void {
     $institution = Institution::factory()->create();
     $request = buildFormRequest(InstitutionOrderRequest::class, [
-        ['id' => $institution->id, 'order' => '2'],
+        'rows' => [['id' => $institution->id, 'order' => '2']],
     ]);
 
     $rows = $request->rows();
@@ -1145,7 +1145,7 @@ test('institution order request rows handles numeric string order', function ():
 });
 
 test('institution order request rows filters out non-array entries', function (): void {
-    $request = buildFormRequest(InstitutionOrderRequest::class, ['not-an-array']);
+    $request = buildFormRequest(InstitutionOrderRequest::class, ['rows' => ['not-an-array']]);
 
     expect($request->rows()->count())->toBe(0);
 });
@@ -1153,7 +1153,7 @@ test('institution order request rows filters out non-array entries', function ()
 test('institution order request authorize returns false when user is missing', function (): void {
     $institution = Institution::factory()->create();
     $request = buildFormRequest(InstitutionOrderRequest::class, [
-        ['id' => $institution->id, 'order' => 1],
+        'rows' => [['id' => $institution->id, 'order' => 1]],
     ]);
 
     expect($request->authorize())->toBeFalse();
@@ -1165,7 +1165,7 @@ test('resource order request rows returns parsed id-order pairs', function (): v
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
 
     $request = buildFormRequest(ResourceOrderRequest::class, [
-        ['id' => $resource->id, 'order' => 1],
+        'rows' => [['id' => $resource->id, 'order' => 1]],
     ]);
 
     $rows = $request->rows();
@@ -1180,7 +1180,7 @@ test('resource order request authorize returns false when user is missing', func
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
 
     $request = buildFormRequest(ResourceOrderRequest::class, [
-        ['id' => $resource->id, 'order' => 1],
+        'rows' => [['id' => $resource->id, 'order' => 1]],
     ]);
 
     expect($request->authorize())->toBeFalse();
@@ -1191,7 +1191,7 @@ test('resource group order request rows returns parsed id-order pairs', function
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 2],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 2]],
     ]);
 
     $rows = $request->rows();
@@ -1205,7 +1205,7 @@ test('resource group order request authorize returns false when user is missing'
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
 
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 1],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 1]],
     ]);
 
     expect($request->authorize())->toBeFalse();
@@ -1501,7 +1501,7 @@ test('institution order request authorize returns true when admin user can updat
     $institution = Institution::factory()->create();
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(InstitutionOrderRequest::class, [
-        ['id' => $institution->id, 'order' => 1],
+        'rows' => [['id' => $institution->id, 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeTrue();
@@ -1510,7 +1510,7 @@ test('institution order request authorize returns true when admin user can updat
 test('institution order request authorize returns false when institution is not found', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(InstitutionOrderRequest::class, [
-        ['id' => (string) Str::uuid(), 'order' => 1],
+        'rows' => [['id' => (string) Str::uuid(), 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeFalse();
@@ -1522,7 +1522,7 @@ test('resource order request authorize returns true when admin user can update a
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(ResourceOrderRequest::class, [
-        ['id' => $resource->id, 'order' => 1],
+        'rows' => [['id' => $resource->id, 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeTrue();
@@ -1531,7 +1531,7 @@ test('resource order request authorize returns true when admin user can update a
 test('resource order request authorize returns false when resource is not found', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(ResourceOrderRequest::class, [
-        ['id' => (string) Str::uuid(), 'order' => 1],
+        'rows' => [['id' => (string) Str::uuid(), 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeFalse();
@@ -1542,7 +1542,7 @@ test('resource group order request authorize returns true when admin user can up
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => $resourceGroup->id, 'order' => 1],
+        'rows' => [['id' => $resourceGroup->id, 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeTrue();
@@ -1551,7 +1551,7 @@ test('resource group order request authorize returns true when admin user can up
 test('resource group order request authorize returns false when resource group is not found', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $request = buildFormRequest(ResourceGroupOrderRequest::class, [
-        ['id' => (string) Str::uuid(), 'order' => 1],
+        'rows' => [['id' => (string) Str::uuid(), 'order' => 1]],
     ], $admin);
 
     expect($request->authorize())->toBeFalse();
