@@ -35,7 +35,11 @@ final class BrowserTestRunner
 
     private readonly string $phpBinary;
 
+    private readonly string $pidRegistryDir;
+
     private ?string $browserStorageDir = null;
+
+    private ?bool $hasSetsid = null;
 
     /** @var list<array{process: resource, pid:int, log:string}> */
     private array $backgroundProcesses = [];
@@ -62,6 +66,26 @@ final class BrowserTestRunner
         $this->serverLog = sys_get_temp_dir().'/roomz-serve.log';
         $this->nullDevice = DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/null';
         $this->phpBinary = PHP_BINARY;
+        $this->pidRegistryDir = $this->stableTempDir().'/roomz-browser-test-pids';
+    }
+
+    /**
+     * sys_get_temp_dir() resolves to a different, per-invocation directory
+     * under `nix develop` (it honours $TMPDIR, which nix sets to a fresh
+     * shell-scoped path every time), so anything written there by one run is
+     * invisible to the next. The pid registry needs to survive across
+     * separate runs to do its job, so it deliberately bypasses that and uses
+     * the real, stable system temp directory instead.
+     */
+    private function stableTempDir(): string
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            return sys_get_temp_dir();
+        }
+
+        $uid = function_exists('posix_getuid') ? posix_getuid() : get_current_user();
+
+        return '/tmp/roomz-'.$uid;
     }
 
     public function run(mixed $argv): int
@@ -86,6 +110,9 @@ final class BrowserTestRunner
         }
 
         $this->ok('playwright: '.trim($playwrightVersion['stdout']));
+
+        $this->step('Reaping processes left by previous runs');
+        $this->reapStaleProcesses();
 
         $playwrightBrowsersPath = getenv('PLAYWRIGHT_BROWSERS_PATH');
 
@@ -210,6 +237,111 @@ final class BrowserTestRunner
         pcntl_signal(SIGTERM, static function (): never {
             exit(143);
         });
+
+        pcntl_signal(SIGHUP, static function (): never {
+            exit(129);
+        });
+    }
+
+    /**
+     * Kill process groups left behind by a run that never reached cleanup()
+     * (e.g. it was force-killed rather than signalled). Each background
+     * process is recorded in its own process group under its own pid file
+     * when started, and the file is removed once it is stopped normally, so
+     * any pid file still present here is evidence of an orphan.
+     */
+    private function reapStaleProcesses(): void
+    {
+        $this->ensureDirectory($this->pidRegistryDir);
+
+        foreach (glob($this->pidRegistryDir.'/*.pid') ?: [] as $pidFile) {
+            $pid = (int) trim((string) file_get_contents($pidFile));
+
+            if ($pid > 0 && $this->looksLikeOrphanedTestProcess($pid)) {
+                posix_kill(-$pid, SIGKILL);
+                $this->ok(sprintf('reaped orphaned process group %d left by a previous run', $pid));
+            }
+
+            @unlink($pidFile);
+        }
+
+        $this->reapOrphanedPlaywrightServers();
+    }
+
+    /**
+     * Pest's browser driver starts its own `playwright run-server` per run,
+     * outside of startBackgroundProcess()/the pid registry above, and does
+     * not reliably clean it up if a run is interrupted. Sweep for any such
+     * server still running from a previous, abnormally-terminated run.
+     */
+    private function reapOrphanedPlaywrightServers(): void
+    {
+        if (! function_exists('posix_kill')) {
+            return;
+        }
+
+        foreach (glob('/proc/[0-9]*') ?: [] as $procDir) {
+            $pid = (int) basename($procDir);
+
+            $cmdline = @file_get_contents($procDir.'/cmdline');
+            if (! is_string($cmdline)) {
+                continue;
+            }
+            if ($cmdline === '') {
+                continue;
+            }
+
+            $cmdline = str_replace("\0", ' ', $cmdline);
+            if (! str_contains($cmdline, 'playwright')) {
+                continue;
+            }
+            if (! str_contains($cmdline, 'run-server')) {
+                continue;
+            }
+
+            // Only reap servers started from this project's checkout, never
+            // an unrelated playwright process elsewhere on the machine.
+            if (@readlink($procDir.'/cwd') !== $this->rootDir) {
+                continue;
+            }
+
+            // If this process is its own process-group leader, kill the
+            // whole group: playwright run-server sometimes forks further
+            // helper processes that would otherwise survive a direct kill
+            // of just this pid. Only do this once verified own-group-leader
+            // to avoid ever signalling an unrelated group elsewhere on the
+            // machine that happens to share this numeric id.
+            $pgid = @posix_getpgid($pid);
+
+            if ($pgid !== false && $pgid === $pid) {
+                posix_kill(-$pid, SIGKILL);
+            } else {
+                posix_kill($pid, SIGKILL);
+            }
+
+            $this->ok(sprintf('reaped orphaned playwright server %d left by a previous run', $pid));
+        }
+    }
+
+    /**
+     * Guards against killing an unrelated process that happens to reuse a
+     * recycled pid from a stale pid file.
+     */
+    private function looksLikeOrphanedTestProcess(int $pid): bool
+    {
+        if (! function_exists('posix_kill') || ! posix_kill($pid, 0)) {
+            return false;
+        }
+
+        $cmdlinePath = sprintf('/proc/%d/cmdline', $pid);
+
+        if (! is_file($cmdlinePath)) {
+            return false;
+        }
+
+        $cmdline = str_replace("\0", ' ', (string) file_get_contents($cmdlinePath));
+
+        return str_contains($cmdline, 'artisan') || str_contains($cmdline, 'playwright') || str_contains($cmdline, $this->rootDir);
     }
 
     private function step(string $message): void
@@ -355,8 +487,23 @@ final class BrowserTestRunner
      */
     private function startBackgroundProcess(array $command, string $logPath): array
     {
+        // Wrapping with setsid puts the process in a new session/process
+        // group *before* it execs, so stopBackgroundProcess() can reliably
+        // signal its whole subtree later. Doing this from the parent side
+        // (e.g. posix_setpgid() after proc_open() returns) loses the race:
+        // the child has typically already exec'd by the time control
+        // returns here, and Linux refuses to change the process group of a
+        // child that has already called execve(). Passing the command as
+        // an array (rather than a shell string) also skips an intermediate
+        // /bin/sh, which on this system does not reliably exec-optimize
+        // itself away, so the pid we get back would otherwise sometimes be
+        // that shell rather than setsid/the real process.
+        $fullCommand = $this->hasSetsid()
+            ? array_merge(['setsid', '--'], $command)
+            : $command;
+
         $process = proc_open(
-            implode(' ', array_map(escapeshellarg(...), $command)),
+            $fullCommand,
             [
                 0 => ['file', $this->nullDevice, 'r'],
                 1 => ['file', $logPath, 'a'],
@@ -371,12 +518,23 @@ final class BrowserTestRunner
         }
 
         $status = proc_get_status($process);
+        $pid = $status['pid'];
+
+        $this->ensureDirectory($this->pidRegistryDir);
+        file_put_contents($this->pidRegistryDir.'/'.$pid.'.pid', (string) $pid);
 
         return [
             'process' => $process,
-            'pid' => $status['pid'],
+            'pid' => $pid,
             'log' => $logPath,
         ];
+    }
+
+    private function hasSetsid(): bool
+    {
+        $this->hasSetsid ??= $this->captureCommand(['which', 'setsid'])['exitCode'] === 0;
+
+        return $this->hasSetsid;
     }
 
     /**
@@ -385,31 +543,48 @@ final class BrowserTestRunner
     private function stopBackgroundProcess(array $processData): void
     {
         $process = $processData['process'];
+        $pid = $processData['pid'];
 
-        if (! is_resource($process)) {
-            return;
-        }
+        if (is_resource($process)) {
+            $status = proc_get_status($process);
 
-        $status = proc_get_status($process);
+            if ($status['running']) {
+                $this->terminateProcessGroup($process, $pid, SIGTERM);
 
-        if ($status['running']) {
-            proc_terminate($process);
+                for ($attempt = 0; $attempt < 10; $attempt++) {
+                    usleep(100000);
+                    $status = proc_get_status($process);
 
-            for ($attempt = 0; $attempt < 10; $attempt++) {
-                usleep(100000);
-                $status = proc_get_status($process);
+                    if (! $status['running']) {
+                        break;
+                    }
+                }
 
-                if (! $status['running']) {
-                    break;
+                if ($status['running']) {
+                    $this->terminateProcessGroup($process, $pid, SIGKILL);
                 }
             }
 
-            if ($status['running']) {
-                proc_terminate($process, 9);
-            }
+            proc_close($process);
         }
 
-        proc_close($process);
+        @unlink($this->pidRegistryDir.'/'.$pid.'.pid');
+    }
+
+    /**
+     * @param  resource  $process
+     */
+    private function terminateProcessGroup($process, int $pid, int $signal): void
+    {
+        if (function_exists('posix_kill')) {
+            @posix_kill(-$pid, $signal);
+
+            return;
+        }
+
+        // Without posix we can only reach the immediate child, not the
+        // group; this is the pre-existing best-effort behaviour.
+        proc_terminate($process, $signal);
     }
 
     /**
