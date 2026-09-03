@@ -24,6 +24,14 @@ const typeAwareRules: Linter.Config["rules"] = {
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/no-unnecessary-type-assertion": "error",
     "@typescript-eslint/require-await": "off",
+    "no-restricted-syntax": [
+        "error",
+        {
+            selector: "TSAsExpression[typeAnnotation.type='TSUnknownKeyword']",
+            message:
+                "Casting to `unknown` bypasses the type checker instead of fixing the underlying type mismatch. If this is a genuine, reviewed exception, disable this rule inline with a comment explaining why.",
+        },
+    ],
 };
 
 export default [
@@ -57,6 +65,12 @@ export default [
         files: ["**/*.d.ts"],
         rules: {
             "@typescript-eslint/consistent-type-imports": "off",
+        },
+    },
+    {
+        files: ["**/*.test.ts"],
+        rules: {
+            "no-restricted-syntax": "off",
         },
     },
     {

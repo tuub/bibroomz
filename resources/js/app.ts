@@ -32,6 +32,7 @@ void createInertiaApp({
     // https://laracasts.com/series/build-modern-laravel-apps-using-inertia-js/episodes/14?reply=22692
     // Cast needed because @inertiajs/vue3's ComponentResolver type doesn't account for
     // async resolvers returning the Vite module namespace object ({ default: Component }).
+    // eslint-disable-next-line no-restricted-syntax -- reviewed exception, see comment above
     resolve: (async (name: string) => {
         const page = await resolvePageComponent(
             `./Pages/${name}.vue`,
