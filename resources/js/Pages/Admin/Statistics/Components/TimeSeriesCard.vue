@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { StatisticsComparison, TimeSeriesEntry } from "@/Types/Admin";
 
+import MultiSelectToggleAllLabel from "@/Components/MultiSelectToggleAllLabel.vue";
 import type { ChartData, ChartOptions } from "chart.js";
 import { trans } from "laravel-vue-i18n";
 import { computed } from "vue";
@@ -101,13 +102,16 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     option-label="label"
                     option-value="id"
                     :placeholder="$t('admin.statistics.index.time_series.all_institutions')"
-                    :show-toggle-all="false"
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
                     data-test="time-series-institution-select"
                     @update:model-value="emit('institution-change', toSelectionIds($event))"
-                />
+                >
+                    <template #header="{ value, options }">
+                        <MultiSelectToggleAllLabel :value="value" :options="options" />
+                    </template>
+                </MultiSelect>
             </div>
             <div v-if="timeSeriesResourceGroupOptions.length > 1" class="flex flex-col gap-1">
                 <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource_group") }}</label>
@@ -117,13 +121,16 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     option-label="label"
                     option-value="id"
                     :placeholder="$t('admin.statistics.index.time_series.all_resource_groups')"
-                    :show-toggle-all="false"
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
                     data-test="time-series-resource-group-select"
                     @update:model-value="emit('resource-group-change', toSelectionIds($event))"
-                />
+                >
+                    <template #header="{ value, options }">
+                        <MultiSelectToggleAllLabel :value="value" :options="options" />
+                    </template>
+                </MultiSelect>
             </div>
             <div v-if="timeSeriesResourceOptions.length > 1" class="flex flex-col gap-1">
                 <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource") }}</label>
@@ -133,13 +140,16 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     option-label="label"
                     option-value="id"
                     :placeholder="$t('admin.statistics.index.time_series.all_resources')"
-                    :show-toggle-all="false"
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
                     data-test="time-series-resource-select"
                     @update:model-value="emit('resource-change', toSelectionIds($event))"
-                />
+                >
+                    <template #header="{ value, options }">
+                        <MultiSelectToggleAllLabel :value="value" :options="options" />
+                    </template>
+                </MultiSelect>
             </div>
         </div>
         <p v-if="retentionExceeded" class="text-app-muted mb-3 text-sm italic" data-test="retention-notice">

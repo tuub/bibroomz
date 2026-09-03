@@ -88,11 +88,14 @@
                     :options="rolesWithIds"
                     :option-label="(role) => translate(role.name)"
                     :option-value="(role) => role.id"
-                    :show-toggle-all="false"
                     :max-selected-labels="2"
                     :invalid="!!form.errors.roles"
                     display="chip"
-                />
+                >
+                    <template #header="{ value, options }">
+                        <MultiSelectToggleAllLabel :value="value" :options="options" />
+                    </template>
+                </MultiSelect>
             </div>
 
             <FormValidationError :message="form.errors.roles"></FormValidationError>
@@ -103,6 +106,7 @@
 </template>
 <script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
+import MultiSelectToggleAllLabel from "@/Components/MultiSelectToggleAllLabel.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";

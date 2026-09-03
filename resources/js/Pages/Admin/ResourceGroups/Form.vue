@@ -113,13 +113,16 @@
                 :options="selectedInstitution?.user_groups ?? []"
                 :option-label="(userGroup) => translate(userGroup.title)"
                 :option-value="(userGroup) => userGroup.id"
-                :show-toggle-all="false"
                 :invalid="!!form.errors.user_groups"
                 :placeholder="$t('admin.resource_groups.form.fields.user_groups.placeholder')"
                 display="chip"
                 input-id="user-groups"
                 class="w-full"
-            />
+            >
+                <template #header="{ value, options }">
+                    <MultiSelectToggleAllLabel :value="value" :options="options" />
+                </template>
+            </MultiSelect>
 
             <FormValidationError :message="form.errors.user_groups"></FormValidationError>
         </fieldset>
@@ -135,6 +138,7 @@
 <script setup lang="ts">
 import FormAction from "@/Components/Admin/FormAction.vue";
 import TranslatableFormInput from "@/Components/Admin/TranslatableFormInput.vue";
+import MultiSelectToggleAllLabel from "@/Components/MultiSelectToggleAllLabel.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";

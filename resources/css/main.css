@@ -232,3 +232,13 @@ main {
     white-space: normal;
     overflow-wrap: anywhere;
 }
+
+/*
+  Separates the select-all/none row (MultiSelectToggleAllLabel.vue's header
+  slot content, immediately followed by PrimeVue's own checkbox header) from
+  the option list below it with a divider. Scoped to that adjacent-sibling
+  pairing so plain MultiSelects without the toggle-all label are unaffected.
+*/
+[data-test="multiselect-toggle-all-label"] + .p-multiselect-header {
+    border-bottom: 1px solid rgb(var(--app-border-rgb));
+}

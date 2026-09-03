@@ -10,6 +10,8 @@ return [
         ],
         'form' => [
             'choose' => 'Bitte auswählen',
+            'select_all' => 'Alle auswählen',
+            'deselect_all' => 'Alle abwählen',
             'toggle_password' => 'Passwort ein-/ausblenden',
             'submit' => 'Speichern',
             'cancel' => 'Abbrechen',

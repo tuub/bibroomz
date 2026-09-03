@@ -10,6 +10,8 @@ return [
         ],
         'form' => [
             'choose' => 'Please choose',
+            'select_all' => 'Select all',
+            'deselect_all' => 'Deselect all',
             'toggle_password' => 'Toggle password',
             'submit' => 'Save',
             'cancel' => 'Cancel',
