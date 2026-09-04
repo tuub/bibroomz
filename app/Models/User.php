@@ -145,7 +145,9 @@ class User extends Authenticatable implements BannableInterface
      */
     public function getOtherUserHappeningsForResourceGroup(
         ?ResourceGroup $resource_group = null,
-        ?Happening $happening = null
+        ?Happening $happening = null,
+        ?CarbonImmutable $windowStart = null,
+        ?CarbonImmutable $windowEnd = null,
     ): EloquentCollection {
         return Happening::whereHas(
             'resource',
@@ -154,6 +156,10 @@ class User extends Authenticatable implements BannableInterface
             ->whereNot('id', $happening?->id)
             ->where(fn (Builder $query) => $query->where('user_id_01', $this->getKey())
                 ->orWhere('user_id_02', $this->getKey()))
+            ->when(
+                $windowStart instanceof CarbonImmutable && $windowEnd instanceof CarbonImmutable,
+                fn (Builder $query) => $query->where('start', '<', $windowEnd)->where('end', '>', $windowStart),
+            )
             ->get();
     }
 

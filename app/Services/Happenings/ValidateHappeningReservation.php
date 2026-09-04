@@ -55,7 +55,12 @@ class ValidateHappeningReservation
             throw new HappeningValidationException('happening.errors.quotas');
         }
 
-        $hasConcurrentHappening = $user->getOtherUserHappeningsForResourceGroup($resource->resource_group, $happening)
+        $hasConcurrentHappening = $user->getOtherUserHappeningsForResourceGroup(
+            $resource->resource_group,
+            $happening,
+            $start,
+            $end,
+        )
             ->filter
             ->isConcurrent($start, $end)
             ->isNotEmpty();

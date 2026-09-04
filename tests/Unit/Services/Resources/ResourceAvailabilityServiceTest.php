@@ -430,6 +430,34 @@ test('hasReservationConflict ignores the provided happening when checking overla
     expect($result)->toBeFalse();
 });
 
+test('hasReservationConflict ignores a happening outside the checked interval', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    Event::fake();
+
+    Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-12-17 09:00:00',
+        'end' => '2026-12-17 11:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $resource->load('happenings');
+
+    $result = app(ResourceAvailabilityService::class)->hasReservationConflict(
+        $resource,
+        CarbonImmutable::parse('2026-12-17 12:00:00'),
+        CarbonImmutable::parse('2026-12-17 13:00:00'),
+    );
+
+    expect($result)->toBeFalse();
+});
+
 test('findClosed trims end when slot end equals closing end', function (): void {
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();

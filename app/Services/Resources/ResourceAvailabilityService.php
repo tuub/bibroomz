@@ -82,9 +82,12 @@ class ResourceAvailabilityService
         CarbonImmutable $end,
         ?Happening $happening = null,
     ): bool {
-        foreach ($this->reservationCandidates($resource, $happening) as $candidate) {
-            $candidateStart = $candidate['start'];
-            $candidateEnd = $candidate['end'];
+        // Queried directly (bounded to the checked interval) instead of going through the
+        // resource-wide reservationCandidates() cache, which would otherwise pull the
+        // resource's entire happening history just to check a single interval.
+        foreach ($this->overlappingHappenings($resource, $start, $end, $happening) as $existingHappening) {
+            $candidateStart = CarbonImmutable::parse($existingHappening->start);
+            $candidateEnd = CarbonImmutable::parse($existingHappening->end);
 
             if (($candidateStart >= $start && $candidateStart < $end) || ($candidateStart < $start && $candidateEnd > $start)) {
                 return true;
@@ -175,6 +178,27 @@ class ResourceAvailabilityService
         return $this->closingsCache[$cacheKey] ??= $resource->closings
             ->concat($resource->resource_group->institution->closings)
             ->values();
+    }
+
+    /**
+     * Happenings on this resource that overlap [$start, $end), pre-filtered in SQL. The
+     * bound is a safe superset of hasReservationConflict()'s exact overlap condition, so
+     * PHP-side filtering there still applies the precise check afterward.
+     *
+     * @return Collection<int, Happening>
+     */
+    private function overlappingHappenings(
+        Resource $resource,
+        CarbonImmutable $start,
+        CarbonImmutable $end,
+        ?Happening $happening,
+    ): Collection {
+        return Happening::query()
+            ->where('resource_id', $resource->id)
+            ->where('start', '<', $end)
+            ->where('end', '>', $start)
+            ->whereNot('id', $happening?->id)
+            ->get();
     }
 
     /**

@@ -121,6 +121,48 @@ test('user finds concurrent happenings in the same resource group while excludin
         ))->toBeFalse();
 });
 
+test('getOtherUserHappeningsForResourceGroup bounds results to the given window', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $insideWindow = Happening::create([
+        'user_id_01' => $user->id,
+        'user_id_02' => null,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'verifier' => null,
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+        'reserved_at' => '2026-06-10 08:00:00',
+        'verified_at' => null,
+        'label' => ['en' => 'Inside window'],
+    ]);
+
+    Happening::create([
+        'user_id_01' => $user->id,
+        'user_id_02' => null,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'verifier' => null,
+        'start' => '2026-06-17 09:00:00',
+        'end' => '2026-06-17 10:00:00',
+        'reserved_at' => '2026-06-17 08:00:00',
+        'verified_at' => null,
+        'label' => ['en' => 'Outside window'],
+    ]);
+
+    $otherHappenings = $user->getOtherUserHappeningsForResourceGroup(
+        $resourceGroup,
+        null,
+        CarbonImmutable::parse('2026-06-08 00:00:00'),
+        CarbonImmutable::parse('2026-06-14 23:59:59'),
+    );
+
+    expect($otherHappenings->modelKeys())->toBe([$insideWindow->id]);
+});
+
 test('non admin user permissions are collected from attached institution roles', function (): void {
     $institution = Institution::factory()->create();
     $user = User::factory()->create(['is_admin' => false]);

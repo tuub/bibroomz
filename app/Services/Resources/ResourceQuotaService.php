@@ -62,7 +62,7 @@ class ResourceQuotaService
         $weeklyHours = $happeningBlockHours;
         $dailyHours = $happeningBlockHours;
 
-        $happenings = $this->otherHappenings($user, $resource, $happening);
+        $happenings = $this->otherHappenings($user, $resource, $happening, $start);
 
         foreach ($happenings as $candidate) {
             $originalOtherStart = $candidate['start'];
@@ -117,7 +117,7 @@ class ResourceQuotaService
             return false;
         }
 
-        $happenings = $this->otherHappenings($user, $resource, $happening);
+        $happenings = $this->otherHappenings($user, $resource, $happening, $timeSlot);
 
         foreach ($happenings as $candidate) {
             if ($isEnd) {
@@ -138,15 +138,26 @@ class ResourceQuotaService
     }
 
     /**
+     * Bounded to the calendar week containing $referenceDate: isExceedingQuotas() only ever
+     * compares candidates against that week (isSameWeek/isSameDay against $start), and
+     * isConcurrentUserTimeSlot()'s $timeSlot always falls within that same week (time slots
+     * are generated for a single day at a time), so this is a safe bound for both callers.
+     *
      * @return list<array{happening: Happening, start: CarbonImmutable, end: CarbonImmutable}>
      */
-    private function otherHappenings(User $user, Resource $resource, ?Happening $happening): array
-    {
-        $cacheKey = $user->id.'|'.$resource->resource_group->id.'|'.($happening->id ?? '');
+    private function otherHappenings(
+        User $user,
+        Resource $resource,
+        ?Happening $happening,
+        CarbonImmutable $referenceDate,
+    ): array {
+        $cacheKey = $user->id.'|'.$resource->resource_group->id.'|'.($happening->id ?? '').'|'.$referenceDate->startOfWeek()->toDateString();
 
         return $this->otherHappeningsCache[$cacheKey] ??= array_values($user->getOtherUserHappeningsForResourceGroup(
             $resource->resource_group,
             $happening,
+            $referenceDate->startOfWeek(),
+            $referenceDate->endOfWeek(),
         )
             ->map(fn (Happening $otherHappening): array => [
                 'happening' => $otherHappening,

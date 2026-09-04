@@ -128,6 +128,36 @@ test('isExceedingQuotas exceeds the weekly happening quota when another same-wee
     expect($result)->toBeTrue();
 });
 
+test('isExceedingQuotas ignores a happening from a different week when checking the weekly quota', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $rg->settings()->where('key', 'quota_happening_block_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_weekly_happenings')->update(['value' => '1']);
+    $rg->settings()->where('key', 'quota_weekly_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_daily_hours')->update(['value' => '0']);
+
+    // Friday of the week before 2026-06-12 (which falls in the Mon 2026-06-08 - Sun 2026-06-14 week)
+    $resource->happenings()->create([
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-05 09:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-05 10:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $result = app(ResourceQuotaService::class)->isExceedingQuotas(
+        $resource,
+        $user,
+        CarbonImmutable::parse('2026-06-12 09:00:00'),
+        CarbonImmutable::parse('2026-06-12 10:00:00'),
+    );
+
+    expect($result)->toBeFalse();
+});
+
 test('isExceedingQuotas treats a zero happening block quota as unlimited', function (): void {
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
