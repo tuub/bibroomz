@@ -499,15 +499,18 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
                 cancellations-test-id="resource-group-cancellations"
                 cancellation-row-test-id="resource-group-cancellation-row"
             >
-                <template #filter>
+                <template v-if="institutionOptions.length > 1" #filter>
+                    <label for="statistics-pie-institution-select" class="sr-only">
+                        {{ $t("admin.statistics.index.resource_groups.select_institution") }}
+                    </label>
                     <Select
-                        v-if="institutionOptions.length > 1"
                         v-model="selectedInstitutionId"
                         :options="institutionOptions"
                         option-label="label"
                         option-value="id"
                         :placeholder="$t('admin.general.form.choose')"
                         class="w-full max-w-56"
+                        input-id="statistics-pie-institution-select"
                         data-test="pie-institution-select"
                     />
                 </template>
@@ -540,15 +543,18 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
                 cancellations-test-id="resource-cancellations"
                 cancellation-row-test-id="resource-cancellation-row"
             >
-                <template #filter>
+                <template v-if="resourceGroupOptions.length > 1" #filter>
+                    <label for="statistics-pie-resource-group-select" class="sr-only">
+                        {{ $t("admin.statistics.index.resources.select_resource_group") }}
+                    </label>
                     <Select
-                        v-if="resourceGroupOptions.length > 1"
                         v-model="selectedResourceGroupId"
                         :options="resourceGroupOptions"
                         option-label="label"
                         option-value="id"
                         :placeholder="$t('admin.general.form.choose')"
                         class="w-full max-w-56"
+                        input-id="statistics-pie-resource-group-select"
                         data-test="pie-resource-group-select"
                     />
                 </template>

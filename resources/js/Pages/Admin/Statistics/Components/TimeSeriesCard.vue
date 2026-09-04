@@ -72,14 +72,19 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     option-label="label"
                     option-value="id"
                     :allow-empty="false"
+                    :aria-label="$t('admin.statistics.index.time_series.chart_mode.label')"
                     data-test="time-series-chart-mode"
                 />
+                <label for="statistics-granularity-select" class="sr-only">
+                    {{ $t("admin.statistics.index.time_series.granularity") }}
+                </label>
                 <Select
                     v-model="selectedGranularity"
                     :options="granularityOptions"
                     option-label="label"
                     option-value="id"
                     class="w-48"
+                    input-id="statistics-granularity-select"
                     data-test="granularity-select"
                 />
                 <a :href="exportUrl" download>
@@ -95,7 +100,9 @@ function toSelectionIds(value: unknown): SelectionId[] {
         </div>
         <div class="mb-3 flex flex-wrap items-end gap-3">
             <div v-if="timeSeriesInstitutionOptions.length > 1" class="flex flex-col gap-1">
-                <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.institution") }}</label>
+                <label for="statistics-time-series-institution" class="text-sm font-medium">{{
+                    $t("admin.statistics.index.time_series.institution")
+                }}</label>
                 <MultiSelect
                     :model-value="selectedTimeSeriesInstitutionIds"
                     :options="timeSeriesInstitutionOptions"
@@ -105,6 +112,7 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
+                    input-id="statistics-time-series-institution"
                     data-test="time-series-institution-select"
                     @update:model-value="emit('institution-change', toSelectionIds($event))"
                 >
@@ -114,7 +122,9 @@ function toSelectionIds(value: unknown): SelectionId[] {
                 </MultiSelect>
             </div>
             <div v-if="timeSeriesResourceGroupOptions.length > 1" class="flex flex-col gap-1">
-                <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource_group") }}</label>
+                <label for="statistics-time-series-resource-group" class="text-sm font-medium">{{
+                    $t("admin.statistics.index.time_series.resource_group")
+                }}</label>
                 <MultiSelect
                     :model-value="selectedTimeSeriesResourceGroupIds"
                     :options="timeSeriesResourceGroupOptions"
@@ -124,6 +134,7 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
+                    input-id="statistics-time-series-resource-group"
                     data-test="time-series-resource-group-select"
                     @update:model-value="emit('resource-group-change', toSelectionIds($event))"
                 >
@@ -133,7 +144,9 @@ function toSelectionIds(value: unknown): SelectionId[] {
                 </MultiSelect>
             </div>
             <div v-if="timeSeriesResourceOptions.length > 1" class="flex flex-col gap-1">
-                <label class="text-sm font-medium">{{ $t("admin.statistics.index.time_series.resource") }}</label>
+                <label for="statistics-time-series-resource" class="text-sm font-medium">{{
+                    $t("admin.statistics.index.time_series.resource")
+                }}</label>
                 <MultiSelect
                     :model-value="selectedTimeSeriesResourceIds"
                     :options="timeSeriesResourceOptions"
@@ -143,6 +156,7 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     :max-selected-labels="2"
                     display="chip"
                     class="w-56"
+                    input-id="statistics-time-series-resource"
                     data-test="time-series-resource-select"
                     @update:model-value="emit('resource-change', toSelectionIds($event))"
                 >

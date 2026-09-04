@@ -118,7 +118,9 @@ return [
                 'all_institutions' => 'Alle Einrichtungen',
                 'all_resource_groups' => 'Alle Ressourcengruppen',
                 'all_resources' => 'Alle Ressourcen',
+                'granularity' => 'Granularität',
                 'chart_mode' => [
+                    'label' => 'Diagrammanzeige',
                     'stacked' => 'Gestapelt',
                     'grouped' => 'Separate Spalten',
                 ],

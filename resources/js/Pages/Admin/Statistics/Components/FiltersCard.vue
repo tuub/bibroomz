@@ -30,11 +30,15 @@ defineEmits<{
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
+                <label for="statistics-range-select" class="sr-only">
+                    {{ $t("admin.statistics.index.range.label") }}
+                </label>
                 <Select
                     v-model="selectedRange"
                     :options="rangeOptions"
                     option-label="label"
                     option-value="id"
+                    input-id="statistics-range-select"
                     data-test="range-select"
                 />
                 <div class="flex items-center gap-2">
@@ -53,31 +57,37 @@ defineEmits<{
         <div v-if="selectedRange === 'custom' || comparisonEnabled" class="mt-3 flex flex-wrap items-end gap-3">
             <template v-if="selectedRange === 'custom'">
                 <div class="flex flex-col gap-1">
-                    <label class="text-sm font-medium">{{ $t("admin.statistics.index.range.from") }}</label>
+                    <label for="statistics-range-from" class="text-sm font-medium">{{
+                        $t("admin.statistics.index.range.from")
+                    }}</label>
                     <DatePicker
                         v-model="customFrom"
                         show-icon
                         :date-format="appStore.primeDateFormat"
                         show-button-bar
                         class="w-full"
+                        input-id="statistics-range-from"
                         data-test="range-from-date-picker"
                     />
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label class="text-sm font-medium">{{ $t("admin.statistics.index.range.to") }}</label>
+                    <label for="statistics-range-to" class="text-sm font-medium">{{
+                        $t("admin.statistics.index.range.to")
+                    }}</label>
                     <DatePicker
                         v-model="customTo"
                         show-icon
                         :date-format="appStore.primeDateFormat"
                         show-button-bar
                         class="w-full"
+                        input-id="statistics-range-to"
                         data-test="range-to-date-picker"
                     />
                 </div>
             </template>
             <div v-if="comparisonEnabled" class="contents" data-test="comparison-fields">
                 <div class="flex flex-col gap-1">
-                    <label class="text-sm font-medium">{{
+                    <label for="statistics-compare-from" class="text-sm font-medium">{{
                         $t("admin.statistics.index.comparison.compare_from")
                     }}</label>
                     <DatePicker
@@ -86,17 +96,21 @@ defineEmits<{
                         :date-format="appStore.primeDateFormat"
                         show-button-bar
                         class="w-full"
+                        input-id="statistics-compare-from"
                         data-test="compare-from-date-picker"
                     />
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label class="text-sm font-medium">{{ $t("admin.statistics.index.comparison.compare_to") }}</label>
+                    <label for="statistics-compare-to" class="text-sm font-medium">{{
+                        $t("admin.statistics.index.comparison.compare_to")
+                    }}</label>
                     <DatePicker
                         v-model="compareTo"
                         show-icon
                         :date-format="appStore.primeDateFormat"
                         show-button-bar
                         class="w-full"
+                        input-id="statistics-compare-to"
                         data-test="compare-to-date-picker"
                     />
                 </div>
