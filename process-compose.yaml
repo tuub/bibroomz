@@ -1,41 +1,40 @@
 version: "0.5"
 
 processes:
-  services:
-    command: "docker compose up --detach --wait mailpit mariadb redis"
+  app:reload:
+    disabled: true
+    command: "php artisan serve"
+  app:workers:
+    command: "php artisan serve --no-reload"
+    environment:
+      - "PHP_CLI_SERVER_WORKERS=8"
 
   routes:
     command: "php artisan ziggy:generate"
-    depends_on:
-      services:
-        condition: process_completed_successfully
-
-  app:
-    command: "php artisan serve"
-    depends_on:
-      routes:
-        condition: process_completed_successfully
-
-  vite:
-    command: "npm run dev"
-    depends_on:
-      routes:
-        condition: process_completed_successfully
+  services:
+    command: "docker compose up --detach --wait mailpit mariadb redis"
 
   reverb:
     command: "php artisan reverb:start"
-    depends_on:
+    depends_on: &depends_on_services
       services:
         condition: process_completed_successfully
 
-  queue:
+  vite:build:
+    command: "npm run build"
+    depends_on: &depends_on_routes
+      routes:
+        condition: process_completed_successfully
+  vite:dev:
+    disabled: true
+    command: "npm run dev"
+    depends_on: *depends_on_routes
+
+  queue:work:
+    disabled: true
     command: "php artisan queue:work"
-    depends_on:
-      services:
-        condition: process_completed_successfully
-
-  scheduler:
+    depends_on: *depends_on_services
+  schedule:work:
+    disabled: true
     command: "php artisan schedule:work"
-    depends_on:
-      services:
-        condition: process_completed_successfully
+    depends_on: *depends_on_services
