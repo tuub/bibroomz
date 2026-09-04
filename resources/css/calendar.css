@@ -2,6 +2,16 @@
     cursor: grab;
 }
 
+/* Clamp event content to the number of lines the slot can fit, breaking
+   long unbroken strings (e.g. usernames) instead of letting them overflow. */
+.truncate-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: var(--truncate-lines, 1);
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
 /* Firefox fix for now-indicator */
 .fc .fc-timegrid-now-indicator-container {
     overflow: visible;
