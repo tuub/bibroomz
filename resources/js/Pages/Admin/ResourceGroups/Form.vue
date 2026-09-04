@@ -99,9 +99,9 @@
 
         <fieldset class="space-y-4">
             <legend class="space-y-2">
-                <div class="text-app-text dark:text-app-text text-sm font-bold uppercase">
+                <label for="user-groups" class="text-app-text dark:text-app-text text-sm font-bold uppercase">
                     {{ $t("admin.resource_groups.form.fields.user_groups.label") }}
-                </div>
+                </label>
 
                 <div class="text-xs">
                     {{ $t("admin.resource_groups.form.fields.user_groups.hint") }}

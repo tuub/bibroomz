@@ -53,41 +53,38 @@
 
         <!-- Select: User 2 / Verifier -->
         <div>
-            <div>
-                <FormLabel
-                    v-if="form.is_verified"
-                    field="user_02"
-                    field-key="admin.happenings.form.fields.user_02"
-                ></FormLabel>
-                <FormLabel v-else field="verifier" field-key="admin.happenings.form.fields.verifier"></FormLabel>
-            </div>
             <div v-if="isHappeningToVerify" class="grid gap-6 md:grid-cols-2">
-                <select
-                    id="user_id_02"
-                    v-model="form.user_id_02"
-                    name="user_id_02"
-                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                    @change="updateVerifier($event)"
-                >
-                    <option value="">Choose</option>
-                    <option
-                        v-for="user in users.filter((user) => user.id !== form.user_id_01)"
-                        :key="user.id"
-                        :value="user.id"
+                <div>
+                    <FormLabel field="user_id_02" field-key="admin.happenings.form.fields.user_02"></FormLabel>
+                    <select
+                        id="user_id_02"
+                        v-model="form.user_id_02"
+                        name="user_id_02"
+                        class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
+                        @change="updateVerifier($event)"
                     >
-                        {{ user.name }}
-                    </option>
-                </select>
-                <input
-                    v-if="!form.is_verified"
-                    id="verifier"
-                    v-model="form.verifier"
-                    type="text"
-                    name="verifier"
-                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                    :placeholder="$t('admin.happenings.form.fields.verifier.placeholder')"
-                    @change="updateUser2($event)"
-                />
+                        <option value="">Choose</option>
+                        <option
+                            v-for="user in users.filter((user) => user.id !== form.user_id_01)"
+                            :key="user.id"
+                            :value="user.id"
+                        >
+                            {{ user.name }}
+                        </option>
+                    </select>
+                </div>
+                <div v-if="!form.is_verified">
+                    <FormLabel field="verifier" field-key="admin.happenings.form.fields.verifier"></FormLabel>
+                    <input
+                        id="verifier"
+                        v-model="form.verifier"
+                        type="text"
+                        name="verifier"
+                        class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
+                        :placeholder="$t('admin.happenings.form.fields.verifier.placeholder')"
+                        @change="updateUser2($event)"
+                    />
+                </div>
             </div>
             <div v-else class="italic">
                 {{ $t("admin.happenings.form.general.not_required") }}

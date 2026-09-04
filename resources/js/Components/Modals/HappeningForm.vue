@@ -51,10 +51,11 @@
         </div>
 
         <div v-if="isAdminCreateMode">
-            <FormLabel field="user_id_01" field-key="modal.form.fields.user_id_01"></FormLabel>
+            <FormLabel field="user_id_01" field-key="modal.form.fields.user_id_01" as-labelledby></FormLabel>
             <Select
                 v-model="happening.user_id_01"
                 input-id="user_id_01"
+                aria-labelledby="user_id_01-label"
                 :options="formUsers"
                 option-label="name"
                 option-value="id"

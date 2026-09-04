@@ -78,11 +78,15 @@ const recordsCount = computed(() => {
                         <div class="italic">{{ $t("admin.user_groups.index.description") }}</div>
                     </div>
                     <div class="flex flex-wrap justify-between gap-2">
+                        <label for="user-groups-global-search" class="sr-only">
+                            {{ $t("admin.general.table.keyword_search") }}
+                        </label>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
                             <InputText
+                                id="user-groups-global-search"
                                 v-model="filters['global'].value"
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />

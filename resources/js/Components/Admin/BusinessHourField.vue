@@ -6,12 +6,11 @@
                 <i class="ri-delete-bin-line"></i>
             </a>
         </div>
-        <div class="mb-6 w-full px-3 md:mb-0">
-            <FormLabel
-                field="weekDays"
-                field-key="admin.resources.form.fields.business_hours.subfields.week_days"
-            ></FormLabel>
-            <span v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
+        <fieldset class="mb-6 w-full px-3 md:mb-0">
+            <legend class="text-app-text dark:text-app-text text-sm font-bold uppercase">
+                {{ $t("admin.resources.form.fields.business_hours.subfields.week_days.label") }}
+            </legend>
+            <label v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
                 <input
                     v-model="checkedWeekDays"
                     name="weekDays"
@@ -20,9 +19,9 @@
                     @change="updateBusinessHourField"
                 />
                 {{ $t("admin.general.week_days." + dayOfWeek.key + ".short_label") }}
-            </span>
+            </label>
             <FormValidationError v-if="errors?.weekDays" :message="errors.weekDays"></FormValidationError>
-        </div>
+        </fieldset>
         <div class="my-3 w-full px-3 md:w-2/4">
             <FormLabel
                 :field="`businessHourStart-${index}`"
@@ -58,11 +57,11 @@
         <div class="my-3 mb-6 grid w-full gap-6 px-3 md:grid-cols-2">
             <div>
                 <FormLabel
-                    field="start_date"
+                    :field="`start_date-${index}`"
                     field-key="admin.resources.form.fields.business_hours.subfields.start_date"
                 ></FormLabel>
                 <input
-                    id="start_date"
+                    :id="`start_date-${index}`"
                     v-model="startDate"
                     type="text"
                     name="start_date"
@@ -74,11 +73,11 @@
             </div>
             <div>
                 <FormLabel
-                    field="end_date"
+                    :field="`end_date-${index}`"
                     field-key="admin.resources.form.fields.business_hours.subfields.end_date"
                 ></FormLabel>
                 <input
-                    id="end_date"
+                    :id="`end_date-${index}`"
                     v-model="endDate"
                     type="text"
                     name="end_date"

@@ -997,10 +997,13 @@ return [
                 'valid_from' => [
                     'label' => 'Valid from',
                     'hint' => ' ',
+                    'text_label' => 'Valid from (as text)',
                 ],
                 'valid_until' => [
                     'label' => 'Valid until',
                     'hint' => ' ',
+                    'number_label' => 'Valid until (amount)',
+                    'unit_label' => 'Valid until (unit)',
                 ],
                 'units' => [
                     'days' => 'Day(s)',

@@ -37,14 +37,16 @@
         />
 
         <!-- Checkbox: Week Days -->
-        <div>
-            <FormLabel field="week_days" field-key="admin.institutions.form.fields.week_days"></FormLabel>
-            <span v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
+        <fieldset>
+            <legend class="text-app-text dark:text-app-text text-sm font-bold uppercase">
+                {{ $t("admin.institutions.form.fields.week_days.label") }}
+            </legend>
+            <label v-for="dayOfWeek in daysOfWeek" :key="dayOfWeek.id" class="mr-2">
                 <input v-model="form.week_days" type="checkbox" name="week_days[]" :value="dayOfWeek.id" />
                 {{ $t("admin.general.week_days." + dayOfWeek.key + ".short_label") }}
-            </span>
+            </label>
             <FormValidationError :message="form.errors.week_days"></FormValidationError>
-        </div>
+        </fieldset>
 
         <!-- Input: Home URI -->
         <FormInput

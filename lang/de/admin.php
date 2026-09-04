@@ -997,10 +997,13 @@ return [
                 'valid_from' => [
                     'label' => 'Gültig ab',
                     'hint' => ' ',
+                    'text_label' => 'Gültig ab (als Text)',
                 ],
                 'valid_until' => [
                     'label' => 'Gültig bis',
                     'hint' => ' ',
+                    'number_label' => 'Gültig bis (Menge)',
+                    'unit_label' => 'Gültig bis (Einheit)',
                 ],
                 'units' => [
                     'days' => 'Tag(e)',

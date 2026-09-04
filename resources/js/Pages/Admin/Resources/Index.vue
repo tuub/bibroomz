@@ -125,11 +125,15 @@ const reorderRows = (event: { value: AdminResource[] }) => {
                         <div class="italic">{{ $t("admin.resources.index.description") }}</div>
                     </div>
                     <div class="flex flex-wrap justify-between gap-2">
+                        <label for="resources-global-search" class="sr-only">
+                            {{ $t("admin.general.table.keyword_search") }}
+                        </label>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
                             <InputText
+                                id="resources-global-search"
                                 v-model="filters['global'].value"
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />

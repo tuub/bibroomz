@@ -20,6 +20,9 @@
                 </div>
 
                 <div>
+                    <label for="valid-from-text" class="sr-only">
+                        {{ $t("admin.user_groups.import.fields.valid_from.text_label") }}
+                    </label>
                     <InputText
                         id="valid-from-text"
                         v-model="validFromText"
@@ -46,10 +49,16 @@
                 </div>
 
                 <div>
+                    <label for="valid-until-number" class="sr-only">
+                        {{ $t("admin.user_groups.import.fields.valid_until.number_label") }}
+                    </label>
+                    <span id="valid-until-unit-label" class="sr-only">
+                        {{ $t("admin.user_groups.import.fields.valid_until.unit_label") }}
+                    </span>
                     <InputGroup>
                         <InputNumber
                             v-model="validUntilNumber"
-                            input-id="valid-until-unit"
+                            input-id="valid-until-number"
                             class="w-1/2"
                             :disabled="!!validUntilDate"
                         />
@@ -58,6 +67,8 @@
                             :options="units"
                             option-label="label"
                             option-value="value"
+                            input-id="valid-until-unit"
+                            aria-labelledby="valid-until-unit-label"
                             :disabled="!!validUntilDate"
                             class="w-1/2"
                         />

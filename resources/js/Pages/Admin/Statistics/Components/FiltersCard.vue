@@ -30,15 +30,16 @@ defineEmits<{
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <label for="statistics-range-select" class="sr-only">
+                <span id="statistics-range-select-label" class="sr-only">
                     {{ $t("admin.statistics.index.range.label") }}
-                </label>
+                </span>
                 <Select
                     v-model="selectedRange"
                     :options="rangeOptions"
                     option-label="label"
                     option-value="id"
                     input-id="statistics-range-select"
+                    aria-labelledby="statistics-range-select-label"
                     data-test="range-select"
                 />
                 <div class="flex items-center gap-2">

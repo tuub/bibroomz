@@ -75,9 +75,9 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     :aria-label="$t('admin.statistics.index.time_series.chart_mode.label')"
                     data-test="time-series-chart-mode"
                 />
-                <label for="statistics-granularity-select" class="sr-only">
+                <span id="statistics-granularity-select-label" class="sr-only">
                     {{ $t("admin.statistics.index.time_series.granularity") }}
-                </label>
+                </span>
                 <Select
                     v-model="selectedGranularity"
                     :options="granularityOptions"
@@ -85,6 +85,7 @@ function toSelectionIds(value: unknown): SelectionId[] {
                     option-value="id"
                     class="w-48"
                     input-id="statistics-granularity-select"
+                    aria-labelledby="statistics-granularity-select-label"
                     data-test="granularity-select"
                 />
                 <a :href="exportUrl" download>

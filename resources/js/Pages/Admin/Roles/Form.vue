@@ -43,7 +43,9 @@
                         :indeterminate="isGroupIndeterminate(group.id)"
                         @change="updateCheckedPermissions(group.id)"
                     />
-                    <span class="text-app-muted pl-2">{{ translate(group.name) }}</span>
+                    <label :for="`group-checkbox-${group.id}`" class="text-app-muted pl-2">{{
+                        translate(group.name)
+                    }}</label>
                 </div>
 
                 <ul class="mb-2 ml-6">
@@ -70,7 +72,9 @@
                         :indeterminate="isGroupIndeterminate()"
                         @change="updateCheckedPermissions()"
                     />
-                    <span class="text-app-muted pl-2">{{ $t("admin.roles.form.no_group") }}</span>
+                    <label for="no-group-checkbox" class="text-app-muted pl-2">{{
+                        $t("admin.roles.form.no_group")
+                    }}</label>
                 </div>
 
                 <ul class="mb-2 ml-6">

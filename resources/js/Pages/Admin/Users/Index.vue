@@ -74,11 +74,15 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
                         <div class="italic">{{ $t("admin.users.index.description") }}</div>
                     </div>
                     <div class="flex flex-wrap justify-between gap-2">
+                        <label for="users-global-search" class="sr-only">
+                            {{ $t("admin.general.table.keyword_search") }}
+                        </label>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
                             <InputText
+                                id="users-global-search"
                                 v-model="filters['global'].value"
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />

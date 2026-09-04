@@ -2,7 +2,7 @@
     <FormLayout :title="$t('admin.users.form.title')" :description="$t('admin.users.form.description')">
         <div class="space-x-2">
             <ToggleSwitch v-model="form.is_system_user" input-id="is_system_user" disabled />
-            <FormLabel field="is_admin" field-key="admin.users.form.fields.is_system_user" class="inline-block" />
+            <FormLabel field="is_system_user" field-key="admin.users.form.fields.is_system_user" class="inline-block" />
             <FormValidationError :message="form.errors.is_system_user"></FormValidationError>
         </div>
 
@@ -81,7 +81,7 @@
             </legend>
 
             <div v-for="institution in institutionsWithIds" :key="institution.id" class="grid">
-                <span>{{ institution.title }}</span>
+                <label :for="`institution-roles-${institution.id}`">{{ institution.title }}</label>
 
                 <MultiSelect
                     v-model="selectedRoles[institution.id]"
@@ -90,6 +90,7 @@
                     :option-value="(role) => role.id"
                     :max-selected-labels="2"
                     :invalid="!!form.errors.roles"
+                    :input-id="`institution-roles-${institution.id}`"
                     display="chip"
                 >
                     <template #header="{ value, options }">

@@ -96,11 +96,15 @@ const isPastClosing = (closing: Closing) => {
                         <div class="italic">{{ $t("admin.closings.index.description") }}</div>
                     </div>
                     <div class="flex flex-wrap justify-between gap-2">
+                        <label for="closings-global-search" class="sr-only">
+                            {{ $t("admin.general.table.keyword_search") }}
+                        </label>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
                             <InputText
+                                id="closings-global-search"
                                 v-model="filters['global'].value"
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
