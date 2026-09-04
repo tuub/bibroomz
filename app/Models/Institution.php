@@ -6,6 +6,7 @@ use App\Contracts\ClosingSubject;
 use App\Contracts\SettingSubject;
 use App\Traits\HasTranslations;
 use Database\Factories\InstitutionFactory;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -188,9 +189,11 @@ class Institution extends Model implements ClosingSubject, SettingSubject
     }
 
     /**
+     * Happenings overlapping [$start, $end), pre-filtered in SQL.
+     *
      * @return EloquentCollection<int, Happening>
      */
-    public function getHappenings(): EloquentCollection
+    public function getHappenings(DateTimeInterface $start, DateTimeInterface $end): EloquentCollection
     {
         return Happening::whereHas(
             'resource',
@@ -198,7 +201,10 @@ class Institution extends Model implements ClosingSubject, SettingSubject
                 'resource_group',
                 fn (Builder $q) => $q->where('institution_id', $this->id)
             )
-        )->get();
+        )
+            ->where('start', '<', $end)
+            ->where('end', '>', $start)
+            ->get();
     }
 
     public function institutionForClosings(): Institution

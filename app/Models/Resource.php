@@ -6,6 +6,7 @@ use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
 use Bkwld\Cloner\Cloneable;
 use Database\Factories\ResourceFactory;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -135,11 +136,16 @@ class Resource extends Model implements ClosingSubject
     }
 
     /**
+     * Happenings overlapping [$start, $end), pre-filtered in SQL.
+     *
      * @return EloquentCollection<int, Happening>
      */
-    public function getHappenings(): EloquentCollection
+    public function getHappenings(DateTimeInterface $start, DateTimeInterface $end): EloquentCollection
     {
-        return $this->happenings;
+        return $this->happenings()
+            ->where('start', '<', $end)
+            ->where('end', '>', $start)
+            ->get();
     }
 
     protected $casts = [

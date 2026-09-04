@@ -55,6 +55,9 @@ class Closing extends Model
         'description',
     ];
 
+    /** @var Collection<int, Happening>|null */
+    private ?Collection $happeningsAffectedCache = null;
+
     /*****************************************************************
      * RELATIONS
      ****************************************************************/
@@ -108,13 +111,14 @@ class Closing extends Model
     }
 
     /**
+     * Cached because getUsersAffected() and getUserHappeningsAffected() (called once per
+     * affected user by ClosingEventDispatcher) would otherwise each re-run this query.
+     *
      * @return Collection<int, Happening>
      */
     public function getHappeningsAffected(): Collection
     {
-        return $this->getClosingSubject()->getHappenings()
-            ->where('end', '>', $this->start)
-            ->where('start', '<', $this->end);
+        return $this->happeningsAffectedCache ??= $this->getClosingSubject()->getHappenings($this->start, $this->end);
     }
 
     /**

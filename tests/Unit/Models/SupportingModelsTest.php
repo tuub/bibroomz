@@ -110,7 +110,7 @@ test('supporting models expose domain helpers and translation wrappers', functio
         'label' => Utility::getTranslatable('Study'),
     ]);
 
-    expect($institution->getHappenings()->pluck('id')->all())->toContain($happening->id);
+    expect($institution->getHappenings(CarbonImmutable::now(), CarbonImmutable::now()->addHours(3))->pluck('id')->all())->toContain($happening->id);
 
     App::setLocale('en');
     expect($resourceGroup->withoutTranslations()['title'])->toBe($resourceGroup->getTranslation('title', 'en'))
@@ -394,6 +394,80 @@ test('closing and password rule handle affected users and current password check
         });
 
     expect($errors)->toBe([]);
+});
+
+test('closing getHappeningsAffected excludes non-overlapping and boundary-touching happenings for both resource and institution closables', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);
+    $resource = Resource::factory()->create(['resource_group_id' => $resourceGroup->id]);
+    $user = User::factory()->create();
+
+    $closingStart = CarbonImmutable::now()->addHours(5);
+    $closingEnd = CarbonImmutable::now()->addHours(6);
+
+    $before = Happening::create([
+        'user_id_01' => $user->id,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'start' => $closingStart->subHours(3),
+        'end' => $closingStart->subHour(),
+        'reserved_at' => CarbonImmutable::now(),
+        'label' => Utility::getTranslatable('Before'),
+    ]);
+
+    $touchingStart = Happening::create([
+        'user_id_01' => $user->id,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'start' => $closingStart->subHours(2),
+        'end' => $closingStart,
+        'reserved_at' => CarbonImmutable::now(),
+        'label' => Utility::getTranslatable('TouchingStart'),
+    ]);
+
+    $touchingEnd = Happening::create([
+        'user_id_01' => $user->id,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'start' => $closingEnd,
+        'end' => $closingEnd->addHours(2),
+        'reserved_at' => CarbonImmutable::now(),
+        'label' => Utility::getTranslatable('TouchingEnd'),
+    ]);
+
+    $after = Happening::create([
+        'user_id_01' => $user->id,
+        'resource_id' => $resource->id,
+        'is_verified' => false,
+        'start' => $closingEnd->addHour(),
+        'end' => $closingEnd->addHours(2),
+        'reserved_at' => CarbonImmutable::now(),
+        'label' => Utility::getTranslatable('After'),
+    ]);
+
+    $excludedIds = [$before->id, $touchingStart->id, $touchingEnd->id, $after->id];
+
+    $resourceClosing = Closing::create([
+        'closable_id' => $resource->id,
+        'closable_type' => $resource->getMorphClass(),
+        'start' => $closingStart,
+        'end' => $closingEnd,
+        'description' => Utility::getTranslatable('Maintenance'),
+    ]);
+
+    $institutionClosing = Closing::create([
+        'closable_id' => $institution->id,
+        'closable_type' => $institution->getMorphClass(),
+        'start' => $closingStart,
+        'end' => $closingEnd,
+        'description' => Utility::getTranslatable('Maintenance'),
+    ]);
+
+    $resourceAffectedIds = $resourceClosing->getHappeningsAffected()->pluck('id');
+    $institutionAffectedIds = $institutionClosing->getHappeningsAffected()->pluck('id');
+
+    expect($resourceAffectedIds->intersect($excludedIds)->all())->toBe([])
+        ->and($institutionAffectedIds->intersect($excludedIds)->all())->toBe([]);
 });
 
 test('closing getClosableModel returns Resource for resource path', function (): void {

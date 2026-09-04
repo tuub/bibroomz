@@ -7,6 +7,7 @@ namespace App\Contracts;
 use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
@@ -22,9 +23,11 @@ interface ClosingSubject
     public function closings(): MorphMany;
 
     /**
+     * Happenings overlapping [$start, $end), pre-filtered in SQL.
+     *
      * @return Collection<int, Happening>
      */
-    public function getHappenings(): Collection;
+    public function getHappenings(DateTimeInterface $start, DateTimeInterface $end): Collection;
 
     public function institutionForClosings(): Institution;
 }

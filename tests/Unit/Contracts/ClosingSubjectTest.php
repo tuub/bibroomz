@@ -29,7 +29,7 @@ test('institution closings relation returns morph many', function (): void {
 test('institution getHappenings returns collection', function (): void {
     $institution = Institution::factory()->create();
 
-    $happenings = $institution->getHappenings();
+    $happenings = $institution->getHappenings(now()->subDay(), now()->addDay());
 
     expect($happenings)->toBeInstanceOf(Collection::class);
 });
