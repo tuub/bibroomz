@@ -319,6 +319,75 @@ test('isExceedingQuotas exceeds the daily hours quota when another same-day happ
     expect($result)->toBeTrue();
 });
 
+// Laravel can cache the resolved controller (and its injected ResourceQuotaService)
+// on the Route object across multiple requests in one test. otherHappenings() memoizes per
+// user/resource-group/week, so without the Happening::saved listener resetting that cache, a
+// happening created after the first call would never be seen by a later call on the same
+// service instance.
+test('isExceedingQuotas cache is invalidated when a new happening is saved on the same service instance', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $rg->settings()->where('key', 'quota_happening_block_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_weekly_happenings')->update(['value' => '1']);
+    $rg->settings()->where('key', 'quota_weekly_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_daily_hours')->update(['value' => '0']);
+
+    $service = app(ResourceQuotaService::class);
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 10:00:00');
+
+    // First call caches an empty "other happenings" result for this user/resource-group/week.
+    expect($service->isExceedingQuotas($resource, $user, $start, $end))->toBeFalse();
+
+    $resource->happenings()->create([
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-10 09:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-10 10:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    // Without cache invalidation on save, this would still see the stale empty result.
+    expect($service->isExceedingQuotas($resource, $user, $start, $end))->toBeTrue();
+});
+
+test('isExceedingQuotas cache is invalidated when a happening is deleted on the same service instance', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $rg->settings()->where('key', 'quota_happening_block_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_weekly_happenings')->update(['value' => '1']);
+    $rg->settings()->where('key', 'quota_weekly_hours')->update(['value' => '0']);
+    $rg->settings()->where('key', 'quota_daily_hours')->update(['value' => '0']);
+
+    $otherHappening = $resource->happenings()->create([
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-10 09:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-10 10:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $service = app(ResourceQuotaService::class);
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 10:00:00');
+
+    // First call caches the result including $otherHappening.
+    expect($service->isExceedingQuotas($resource, $user, $start, $end))->toBeTrue();
+
+    $otherHappening->delete();
+
+    // Without cache invalidation on delete, this would still count the deleted happening.
+    expect($service->isExceedingQuotas($resource, $user, $start, $end))->toBeFalse();
+});
+
 test('isExceedingQuotas does not exceed the daily hours quota when the total exactly matches the limit', function (): void {
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();

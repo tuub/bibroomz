@@ -7,6 +7,7 @@ use App\Models\Resource;
 use App\Models\User;
 use App\Services\Resources\GenerateResourceTimeSlotsAction;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class GetResourceTimeSlotsAction
 {
@@ -21,13 +22,21 @@ class GetResourceTimeSlotsAction
         CarbonImmutable $start,
         CarbonImmutable $end,
     ): array {
+        // Slot generation only ever covers the single calendar day of $start (see
+        // GenerateResourceTimeSlotsAction::initTimePeriod), so only happenings overlapping
+        // that day can affect the result.
+        $windowStart = $start->startOfDay();
+        $windowEnd = $windowStart->addDay();
+
         $resource = Resource::query()
             ->with([
                 'business_hours.week_days',
                 'resource_group.settings',
                 'resource_group.institution.settings',
                 'resource_group.institution.closings',
-                'happenings',
+                'happenings' => fn (Relation $query): Relation => $query
+                    ->where('start', '<=', $windowEnd)
+                    ->where('end', '>=', $windowStart),
             ])
             ->findOrFail($resourceId);
 

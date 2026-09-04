@@ -258,3 +258,120 @@ test('execute passes null actor and null happening when auth user is not an App 
 
     expect($action->execute($resource->id, null, $start, $end))->toBe($expectedResult);
 });
+
+// happenings eager-loaded onto the resource are bounded to the calendar day of
+// $start, since slot generation only ever covers that single day.
+test('execute only eager loads happenings overlapping the requested calendar day', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $withinWindow = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-12 10:00:00',
+        'end' => '2026-06-12 11:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-20 10:00:00',
+        'end' => '2026-06-20 11:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 17:00:00');
+    $expectedResult = ['start' => [], 'end' => []];
+    $generator = Mockery::mock(GenerateResourceTimeSlotsAction::class);
+    $generator->shouldReceive('execute')->once()->withArgs(
+        fn (Resource $loadedResource): bool => $loadedResource->happenings->pluck('id')->all() === [$withinWindow->id],
+    )->andReturn($expectedResult);
+
+    $action = new GetResourceTimeSlotsAction($generator);
+
+    expect($action->execute($resource->id, null, $start, $end))->toBe($expectedResult);
+});
+
+// Boundary: a happening ending exactly at the start of the day (windowStart) is included
+// (end >= windowStart), one ending just before it is excluded.
+test('execute includes a happening ending exactly at the start of the day but excludes one ending before it', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $endsAtWindowStart = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-11 22:00:00',
+        'end' => '2026-06-12 00:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-11 21:00:00',
+        'end' => '2026-06-11 23:59:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 17:00:00');
+    $expectedResult = ['start' => [], 'end' => []];
+    $generator = Mockery::mock(GenerateResourceTimeSlotsAction::class);
+    $generator->shouldReceive('execute')->once()->withArgs(
+        fn (Resource $loadedResource): bool => $loadedResource->happenings->pluck('id')->all() === [$endsAtWindowStart->id],
+    )->andReturn($expectedResult);
+
+    $action = new GetResourceTimeSlotsAction($generator);
+
+    expect($action->execute($resource->id, null, $start, $end))->toBe($expectedResult);
+});
+
+// Boundary: a happening starting exactly at the end of the day (windowEnd) is included
+// (start <= windowEnd), one starting just after it is excluded.
+test('execute includes a happening starting exactly at the end of the day but excludes one starting after it', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $startsAtWindowEnd = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-13 00:00:00',
+        'end' => '2026-06-13 01:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-06-13 00:00:01',
+        'end' => '2026-06-13 01:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 17:00:00');
+    $expectedResult = ['start' => [], 'end' => []];
+    $generator = Mockery::mock(GenerateResourceTimeSlotsAction::class);
+    $generator->shouldReceive('execute')->once()->withArgs(
+        fn (Resource $loadedResource): bool => $loadedResource->happenings->pluck('id')->all() === [$startsAtWindowEnd->id],
+    )->andReturn($expectedResult);
+
+    $action = new GetResourceTimeSlotsAction($generator);
+
+    expect($action->execute($resource->id, null, $start, $end))->toBe($expectedResult);
+});

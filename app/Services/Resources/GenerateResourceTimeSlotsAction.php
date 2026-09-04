@@ -263,18 +263,21 @@ class GenerateResourceTimeSlotsAction
      */
     private function disableNonSequentialTimeSlots(Collection $timeSlots, CarbonImmutable $start): Collection
     {
-        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start, $timeSlots): ResourceTimeSlot {
-            $hasDisabledGap = $timeSlots->contains(
-                fn (ResourceTimeSlot $candidate): bool => $candidate->time > $start
-                    && $candidate->time < $timeSlot->time
-                    && $candidate->isDisabled
-            );
+        // Relies on $timeSlots being ordered ascending by time (it always is here, built
+        // from a CarbonPeriod and only ever filtered/mapped afterward), so a single forward
+        // pass can replace the original O(n^2) self-join: once a slot originally disabled
+        // and after $start is seen, every later slot is disabled too.
+        $hasDisabledGap = false;
 
-            if ($hasDisabledGap) {
-                return $timeSlot->withDisabled(true);
+        return $timeSlots->map(function (ResourceTimeSlot $timeSlot) use ($start, &$hasDisabledGap): ResourceTimeSlot {
+            $wasDisabled = $timeSlot->isDisabled;
+            $result = $hasDisabledGap ? $timeSlot->withDisabled(true) : $timeSlot;
+
+            if ($timeSlot->time > $start && $wasDisabled) {
+                $hasDisabledGap = true;
             }
 
-            return $timeSlot;
+            return $result;
         });
     }
 

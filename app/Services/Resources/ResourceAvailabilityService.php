@@ -13,6 +13,12 @@ use Illuminate\Support\Collection;
 
 class ResourceAvailabilityService
 {
+    /** @var array<string, Collection<int, Closing>> */
+    private array $closingsCache = [];
+
+    /** @var array<string, list<array{happening: Happening, start: CarbonImmutable, end: CarbonImmutable}>> */
+    private array $reservationCandidatesCache = [];
+
     public function __construct(private readonly ResourceBusinessHoursResolver $businessHoursResolver) {}
 
     /**
@@ -76,8 +82,11 @@ class ResourceAvailabilityService
         CarbonImmutable $end,
         ?Happening $happening = null,
     ): bool {
-        foreach ($resource->happenings->whereNotIn('id', [$happening?->id]) as $existingHappening) {
-            if ($existingHappening->isConcurrent($start, $end)) {
+        foreach ($this->reservationCandidates($resource, $happening) as $candidate) {
+            $candidateStart = $candidate['start'];
+            $candidateEnd = $candidate['end'];
+
+            if (($candidateStart >= $start && $candidateStart < $end) || ($candidateStart < $start && $candidateEnd > $start)) {
                 return true;
             }
         }
@@ -143,12 +152,12 @@ class ResourceAvailabilityService
         ?Happening $happening = null,
         bool $isEnd = false,
     ): bool {
-        foreach ($resource->happenings->whereNotIn('id', [$happening?->id]) as $existingHappening) {
+        foreach ($this->reservationCandidates($resource, $happening) as $candidate) {
             if ($isEnd) {
-                if ($timeSlot > $existingHappening->start && $timeSlot <= $existingHappening->end) {
+                if ($timeSlot > $candidate['start'] && $timeSlot <= $candidate['end']) {
                     return true;
                 }
-            } elseif ($timeSlot >= $existingHappening->start && $timeSlot < $existingHappening->end) {
+            } elseif ($timeSlot >= $candidate['start'] && $timeSlot < $candidate['end']) {
                 return true;
             }
         }
@@ -161,6 +170,28 @@ class ResourceAvailabilityService
      */
     private function allClosings(Resource $resource): Collection
     {
-        return $resource->closings->concat($resource->resource_group->institution->closings)->values();
+        $cacheKey = $resource->id;
+
+        return $this->closingsCache[$cacheKey] ??= $resource->closings
+            ->concat($resource->resource_group->institution->closings)
+            ->values();
+    }
+
+    /**
+     * @return list<array{happening: Happening, start: CarbonImmutable, end: CarbonImmutable}>
+     */
+    private function reservationCandidates(Resource $resource, ?Happening $happening): array
+    {
+        $cacheKey = $resource->id.'|'.($happening->id ?? '');
+
+        return $this->reservationCandidatesCache[$cacheKey] ??= array_values($resource->happenings
+            ->whereNotIn('id', [$happening?->id])
+            ->values()
+            ->map(fn (Happening $existingHappening): array => [
+                'happening' => $existingHappening,
+                'start' => CarbonImmutable::parse($existingHappening->start),
+                'end' => CarbonImmutable::parse($existingHappening->end),
+            ])
+            ->all());
     }
 }

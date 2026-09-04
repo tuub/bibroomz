@@ -10,10 +10,25 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 class ResourceQuotaService
 {
+    /** @var array<string, list<array{happening: Happening, start: CarbonImmutable, end: CarbonImmutable}>> */
+    private array $otherHappeningsCache = [];
+
     public function __construct(
         private readonly ResourceAvailabilityService $availabilityService,
         private readonly ResourceSettingsResolver $settingsResolver,
-    ) {}
+    ) {
+        // Laravel caches the resolved controller (and its whole injected object graph, this
+        // service included) on the Route object after its first dispatch, so this instance can
+        // outlive a single request/test call and see multiple, independently-mutating requests
+        // (e.g. sequential postJson() calls in one Pest test). Without this, a Happening created
+        // after otherHappenings() cached an empty result for its cache key would never be seen.
+        Happening::saved(function (): void {
+            $this->otherHappeningsCache = [];
+        });
+        Happening::deleted(function (): void {
+            $this->otherHappeningsCache = [];
+        });
+    }
 
     /**
      * @throws BindingResolutionException
@@ -47,15 +62,15 @@ class ResourceQuotaService
         $weeklyHours = $happeningBlockHours;
         $dailyHours = $happeningBlockHours;
 
-        $happenings = $user->getOtherUserHappeningsForResourceGroup($resource->resource_group, $happening);
+        $happenings = $this->otherHappenings($user, $resource, $happening);
 
-        foreach ($happenings as $otherHappening) {
-            $originalOtherStart = new CarbonImmutable($otherHappening->start);
+        foreach ($happenings as $candidate) {
+            $originalOtherStart = $candidate['start'];
 
             [$isClosed, $otherStart, $otherEnd] = $this->availabilityService->findClosed(
                 $resource,
                 $originalOtherStart,
-                new CarbonImmutable($otherHappening->end),
+                $candidate['end'],
             );
 
             if ($isClosed) {
@@ -102,14 +117,14 @@ class ResourceQuotaService
             return false;
         }
 
-        $happenings = $user->getOtherUserHappeningsForResourceGroup($resource->resource_group, $happening);
+        $happenings = $this->otherHappenings($user, $resource, $happening);
 
-        foreach ($happenings as $otherHappening) {
+        foreach ($happenings as $candidate) {
             if ($isEnd) {
-                if ($timeSlot > $otherHappening->start && $timeSlot <= $otherHappening->end) {
+                if ($timeSlot > $candidate['start'] && $timeSlot <= $candidate['end']) {
                     return true;
                 }
-            } elseif ($timeSlot >= $otherHappening->start && $timeSlot < $otherHappening->end) {
+            } elseif ($timeSlot >= $candidate['start'] && $timeSlot < $candidate['end']) {
                 return true;
             }
         }
@@ -120,5 +135,24 @@ class ResourceQuotaService
     private function hoursBetween(CarbonImmutable $start, CarbonImmutable $end): float
     {
         return $start->diffInMinutes($end) / 60;
+    }
+
+    /**
+     * @return list<array{happening: Happening, start: CarbonImmutable, end: CarbonImmutable}>
+     */
+    private function otherHappenings(User $user, Resource $resource, ?Happening $happening): array
+    {
+        $cacheKey = $user->id.'|'.$resource->resource_group->id.'|'.($happening->id ?? '');
+
+        return $this->otherHappeningsCache[$cacheKey] ??= array_values($user->getOtherUserHappeningsForResourceGroup(
+            $resource->resource_group,
+            $happening,
+        )
+            ->map(fn (Happening $otherHappening): array => [
+                'happening' => $otherHappening,
+                'start' => CarbonImmutable::parse($otherHappening->start),
+                'end' => CarbonImmutable::parse($otherHappening->end),
+            ])
+            ->all());
     }
 }

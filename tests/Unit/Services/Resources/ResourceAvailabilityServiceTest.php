@@ -452,3 +452,91 @@ test('findClosed trims end when slot end equals closing end', function (): void 
         ->and($retStart->format('H:i'))->toBe('07:00')
         ->and($retEnd->format('H:i'))->toBe('09:00');
 });
+
+// allClosings() memoizes its result per resource on the service instance. A
+// wrong (e.g. resource-agnostic) cache key would leak one resource's closings into another's
+// lookup on the same instance.
+test('findClosed caches closings independently per resource', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $closedResource = Resource::factory()->for($rg, 'resource_group')->create();
+    $openResource = Resource::factory()->for($rg, 'resource_group')->create();
+
+    Closing::factory()->for($closedResource, 'closable')->create([
+        'start' => '2026-07-01 00:00:00',
+        'end' => '2026-07-31 23:59:59',
+    ]);
+
+    $closedResource->load(['closings', 'resource_group.institution.closings']);
+    $openResource->load(['closings', 'resource_group.institution.closings']);
+
+    $service = app(ResourceAvailabilityService::class);
+
+    [$closedResult] = $service->findClosed(
+        $closedResource,
+        CarbonImmutable::parse('2026-07-10 09:00:00'),
+        CarbonImmutable::parse('2026-07-10 17:00:00'),
+    );
+    [$openResult] = $service->findClosed(
+        $openResource,
+        CarbonImmutable::parse('2026-07-10 09:00:00'),
+        CarbonImmutable::parse('2026-07-10 17:00:00'),
+    );
+
+    expect($closedResult)->toBeTrue()
+        ->and($openResult)->toBeFalse();
+});
+
+// reservationCandidates() memoizes its result per resource+excluded-happening
+// combination. A cache key that ignores the excluded happening would return a stale candidate
+// list once a different exclusion is looked up on the same service instance.
+test('isTimeSlotReserved caches reservation candidates separately per excluded happening', function (): void {
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    Event::fake();
+
+    $happeningA = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-08-20 10:00:00',
+        'end' => '2026-08-20 11:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+    $happeningB = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => '2026-08-20 13:00:00',
+        'end' => '2026-08-20 14:00:00',
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $resource->load('happenings');
+
+    $service = app(ResourceAvailabilityService::class);
+
+    // Excluding A still finds B's reservation (populates the cache for the "exclude A" key).
+    expect($service->isTimeSlotReserved(
+        $resource,
+        CarbonImmutable::parse('2026-08-20 13:30:00'),
+        $happeningA,
+    ))->toBeTrue();
+
+    // Excluding B still finds A's reservation — must not reuse the "exclude A" cache entry.
+    expect($service->isTimeSlotReserved(
+        $resource,
+        CarbonImmutable::parse('2026-08-20 10:30:00'),
+        $happeningB,
+    ))->toBeTrue();
+
+    // Re-checking the original exclusion again still returns the correct cached result.
+    expect($service->isTimeSlotReserved(
+        $resource,
+        CarbonImmutable::parse('2026-08-20 13:30:00'),
+        $happeningA,
+    ))->toBeTrue();
+});

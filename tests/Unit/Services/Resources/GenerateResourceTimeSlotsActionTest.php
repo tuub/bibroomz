@@ -961,6 +961,61 @@ test('quota-exceeding end slots stay disabled', function (): void {
     CarbonImmutable::setTestNow();
 });
 
+// disableNonSequentialTimeSlots was rewritten from an O(n^2) self-join to a single
+// forward pass. A slot disabled by a closing (but not itself in the closing) after the gap
+// must still cascade to disabled, even though nothing between it and the gap is individually
+// disabled.
+test('a single disabled end slot cascades to disable every later end slot', function (): void {
+    $this->seed(WeekDaySeeder::class);
+
+    Carbon::setTestNow(Carbon::parse('2026-06-12 06:00:00', 'UTC'));
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-12 06:00:00', 'UTC'));
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($rg, 'resource_group')->create();
+
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+
+    // At the default 30-minute grid, only the 11:00 end slot falls strictly inside this
+    // closing (isTimeSlotInClosing isEnd=true: 11:00 > 10:45 && 11:00 < 11:15).
+    $resource->closings()->create([
+        'closable_type' => Resource::class,
+        'closable_id' => $resource->id,
+        'start' => $today->setTime(10, 45),
+        'end' => $today->setTime(11, 15),
+    ]);
+
+    $resource->refresh();
+
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+
+    $action = app(GenerateResourceTimeSlotsAction::class);
+    $result = $action->execute($resource, null, $start, $start->addDay());
+
+    $slot1030 = collect($result['end'])->first(fn (array $s): bool => $s['time']->format('H:i') === '10:30');
+    $slot1100 = collect($result['end'])->first(fn (array $s): bool => $s['time']->format('H:i') === '11:00');
+    $slot1130 = collect($result['end'])->first(fn (array $s): bool => $s['time']->format('H:i') === '11:30');
+    $slot1500 = collect($result['end'])->first(fn (array $s): bool => $s['time']->format('H:i') === '15:00');
+
+    // Before the gap: untouched, still enabled
+    expect($slot1030)->not->toBeNull()
+        ->and($slot1030['is_disabled'])->toBeFalse();
+
+    // The slot originally disabled by the closing
+    expect($slot1100)->not->toBeNull()
+        ->and($slot1100['is_disabled'])->toBeTrue();
+
+    // After the gap: not itself in the closing, but cascades to disabled
+    expect($slot1130)->not->toBeNull()
+        ->and($slot1130['is_disabled'])->toBeTrue()
+        ->and($slot1500)->not->toBeNull()
+        ->and($slot1500['is_disabled'])->toBeTrue();
+
+    CarbonImmutable::setTestNow();
+    Carbon::setTestNow();
+});
+
 test('a disabled selected start slot is deselected so the first enabled slot can be auto-selected', function (): void {
     $this->seed(WeekDaySeeder::class);
 
