@@ -2,51 +2,39 @@
     <form class="space-y-3">
         <div class="grid gap-2 sm:grid-cols-2">
             <div>
-                <FormLabel field="start" field-key="modal.form.fields.start"></FormLabel>
-                <Spinner v-if="isLoading" size="small"></Spinner>
-                <select
-                    v-else
-                    id="start"
+                <FormLabel field="start" field-key="modal.form.fields.start" as-labelledby></FormLabel>
+                <Select
                     v-model="start_time_slot_selected"
+                    input-id="start"
+                    aria-labelledby="start-label"
                     name="start"
-                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                    @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
-                    @input="$emit('update-happening', happening)"
-                >
-                    <option
-                        v-for="start_time_slot in start_time_slots"
-                        :key="start_time_slot.time"
-                        :value="start_time_slot.time"
-                        :selected="start_time_slot.is_selected"
-                        :disabled="start_time_slot.is_disabled"
-                    >
-                        {{ start_time_slot.label }}
-                    </option>
-                </select>
+                    :options="start_time_slots"
+                    option-label="label"
+                    option-value="time"
+                    option-disabled="is_disabled"
+                    :disabled="isLoading"
+                    :loading="isLoading"
+                    class="w-full"
+                    @change="updateStartTimeSlot"
+                />
             </div>
 
             <div>
-                <FormLabel field="end" field-key="modal.form.fields.end"></FormLabel>
-                <Spinner v-if="isLoading" size="small"></Spinner>
-                <select
-                    v-else
-                    id="end"
+                <FormLabel field="end" field-key="modal.form.fields.end" as-labelledby></FormLabel>
+                <Select
                     v-model="end_time_slot_selected"
+                    input-id="end"
+                    aria-labelledby="end-label"
                     name="end"
-                    class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                    @change="syncTimeSlotValues($event, start_time_slot_selected, end_time_slot_selected)"
-                    @input="$emit('update-happening', happening)"
-                >
-                    <option
-                        v-for="end_time_slot in end_time_slots"
-                        :key="end_time_slot.time"
-                        :value="end_time_slot.time"
-                        :selected="end_time_slot.is_selected"
-                        :disabled="end_time_slot.is_disabled"
-                    >
-                        {{ end_time_slot.label }}
-                    </option>
-                </select>
+                    :options="end_time_slots"
+                    option-label="label"
+                    option-value="time"
+                    option-disabled="is_disabled"
+                    :disabled="isLoading"
+                    :loading="isLoading"
+                    class="w-full"
+                    @change="updateEndTimeSlot"
+                />
             </div>
         </div>
 
@@ -108,7 +96,6 @@
 <script setup lang="ts">
 import ModalAlert from "@/Components/Modals/ModalAlert.vue";
 import FormLabel from "@/Shared/Form/FormLabel.vue";
-import Spinner from "@/Shared/Spinner.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { type Happening, type HappeningEditPayload, useHappeningStore } from "@/Stores/HappeningStore";
@@ -131,6 +118,10 @@ type FormUser = {
     name: string;
 };
 
+type TimeSlotSelectChangeEvent = {
+    value: string;
+};
+
 type HappeningFormPayload = HappeningEditPayload;
 
 const props = withDefaults(
@@ -150,7 +141,7 @@ const props = withDefaults(
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits<{
+const emit = defineEmits<{
     (event: "update-happening", payload: HappeningFormPayload): void;
     (event: "submit"): void;
 }>();
@@ -203,13 +194,13 @@ const getTimeSlotValues = async (
     resource_id: number | string | undefined,
     start: Happening["start"],
     end: Happening["end"],
-    event: Event | null,
+    isUserChange: boolean,
 ) => {
     if (!resource_id) {
         return;
     }
 
-    if (!isInitial.value && event === null) {
+    if (!isInitial.value && !isUserChange) {
         return;
     }
 
@@ -226,7 +217,6 @@ const getTimeSlotValues = async (
             happening_id: happening?.id,
             start,
             end,
-            event,
         });
 
         start_time_slots.value = response.data.start ?? [];
@@ -253,15 +243,25 @@ const getTimeSlotValues = async (
 
 const initTimeSlots = () => {
     if (happening.resource.id) {
-        void getTimeSlotValues(happening.resource.id, happening.start, happening.end, null);
+        void getTimeSlotValues(happening.resource.id, happening.start, happening.end, false);
     }
 };
 
-const syncTimeSlotValues = (event: Event, start_selected: string, end_selected: string) => {
-    void getTimeSlotValues(happening.resource.id, start_selected, end_selected, event);
+const syncTimeSlotValues = (start_selected: string, end_selected: string) => {
+    void getTimeSlotValues(happening.resource.id, start_selected, end_selected, true);
 
     happening.start = start_selected;
     happening.end = end_selected;
+};
+
+const updateStartTimeSlot = (event: TimeSlotSelectChangeEvent) => {
+    syncTimeSlotValues(event.value, end_time_slot_selected.value);
+    emit("update-happening", happening);
+};
+
+const updateEndTimeSlot = (event: TimeSlotSelectChangeEvent) => {
+    syncTimeSlotValues(start_time_slot_selected.value, event.value);
+    emit("update-happening", happening);
 };
 
 const can = authStore.can;

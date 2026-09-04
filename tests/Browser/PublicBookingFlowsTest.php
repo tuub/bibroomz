@@ -117,7 +117,10 @@ it('lets designated verifiers verify a booking from the sidebar', function (): v
         ->click(browserHappeningActionSelector($verifiableBooking, 'verify'))
         ->wait(1)
         ->assertPresent('#modal')
-        ->keys('#end', 'ArrowDown')
+        // First ArrowDown only opens the PrimeVue Select overlay (selectOnFocus/autoOptionFocus
+        // are off), the second moves the highlight to the next option, and Enter confirms it —
+        // a single ArrowDown never fires a `change` event.
+        ->keys('#end', ['ArrowDown', 'ArrowDown', 'Enter'])
         ->wait(0.5)
         ->click('[data-testid="modal-action-verify"]')
         ->wait(1)
@@ -150,7 +153,10 @@ it('lets owners edit and delete their bookings from the sidebar', function (): v
         ->click(browserHappeningActionSelector($editableBooking, 'edit'))
         ->wait(1)
         ->assertPresent('#modal')
-        ->keys('#end', 'ArrowDown')
+        // First ArrowDown only opens the PrimeVue Select overlay (selectOnFocus/autoOptionFocus
+        // are off), the second moves the highlight to the next option, and Enter confirms it —
+        // a single ArrowDown never fires a `change` event.
+        ->keys('#end', ['ArrowDown', 'ArrowDown', 'Enter'])
         ->wait(0.5)
         ->click('[data-testid="modal-action-update"]')
         ->wait(1)

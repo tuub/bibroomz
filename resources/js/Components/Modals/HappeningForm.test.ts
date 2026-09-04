@@ -7,6 +7,7 @@ import { useModal } from "@/Stores/Modal";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import type { PropType } from "vue";
 
 vi.mock("@/baseUrl", () => ({
     withBaseUrl: (path: string) => `https://rooms.example.com${path}`,
@@ -15,6 +16,121 @@ vi.mock("@/baseUrl", () => ({
 const axiosMock = {
     get: vi.fn(),
     post: vi.fn(),
+};
+
+type SelectOption = Record<string, unknown>;
+type SelectStubProps = {
+    optionLabel?: string;
+    optionValue?: string;
+    optionDisabled?: string;
+};
+type SelectStubEmit = (event: string, ...args: unknown[]) => void;
+
+const FormLabelStub = {
+    name: "FormLabelStub",
+    props: {
+        field: {
+            type: String,
+            required: true,
+        },
+        fieldKey: {
+            type: String,
+            required: true,
+        },
+        asLabelledby: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    template:
+        '<span v-if="asLabelledby" :id="`${field}-label`">{{ fieldKey }}</span><label v-else :for="field">{{ fieldKey }}</label>',
+};
+
+const SelectStub = {
+    name: "SelectStub",
+    props: {
+        modelValue: {
+            type: [String, Number] as PropType<string | number | null>,
+            default: null,
+        },
+        inputId: {
+            type: String,
+            default: "",
+        },
+        name: {
+            type: String,
+            default: "",
+        },
+        options: {
+            type: Array as PropType<SelectOption[]>,
+            default: () => [],
+        },
+        optionLabel: {
+            type: String,
+            default: "",
+        },
+        optionValue: {
+            type: String,
+            default: "",
+        },
+        optionDisabled: {
+            type: String,
+            default: "",
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+        loading: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    emits: ["update:modelValue", "change"],
+    setup(props: SelectStubProps, { emit }: { emit: SelectStubEmit }) {
+        const getOptionValue = (option: SelectOption): string | number => {
+            const value = props.optionValue ? option[props.optionValue] : option;
+
+            return typeof value === "number" ? value : String(value);
+        };
+
+        const getOptionLabel = (option: SelectOption): string => {
+            const label = props.optionLabel ? option[props.optionLabel] : option;
+
+            return String(label);
+        };
+
+        const isOptionDisabled = (option: SelectOption): boolean =>
+            props.optionDisabled ? Boolean(option[props.optionDisabled]) : false;
+
+        const changeValue = (event: Event): void => {
+            const value = (event.target as HTMLSelectElement).value;
+
+            emit("update:modelValue", value);
+            emit("change", { originalEvent: event, value });
+        };
+
+        return { changeValue, getOptionLabel, getOptionValue, isOptionDisabled };
+    },
+    template: `
+        <select
+            :id="inputId"
+            :name="name"
+            :value="modelValue"
+            :disabled="disabled"
+            :aria-busy="String(loading)"
+            @change="changeValue"
+        >
+            <option
+                v-for="option in options"
+                :key="getOptionValue(option)"
+                :value="getOptionValue(option)"
+                :disabled="isOptionDisabled(option)"
+            >
+                {{ getOptionLabel(option) }}
+            </option>
+        </select>
+    `,
 };
 
 beforeEach(() => {
@@ -75,21 +191,31 @@ function render({
                 $t: (key: string) => key,
             },
             stubs: {
-                FormLabel: true,
-                Spinner: true,
+                FormLabel: FormLabelStub,
                 ModalAlert: {
                     template: '<button data-test="close-alert" @click="$emit(\'close\')">close</button>',
                 },
-                Select: {
-                    props: ["options"],
-                    template: '<div data-test="select-stub">{{ options.length }}</div>',
-                },
+                Select: SelectStub,
             },
         },
     });
 }
 
 describe("HappeningForm", () => {
+    test("keeps the time slot fields mounted and labelled while their options are loading", () => {
+        const wrapper = render();
+
+        wrapper.get("#start-label");
+        expect(wrapper.get("#start").attributes("disabled")).toBeDefined();
+        expect(wrapper.get("#start").attributes("aria-busy")).toBe("true");
+        expect(wrapper.find('label[for="start"]').exists()).toBe(false);
+
+        wrapper.get("#end-label");
+        expect(wrapper.get("#end").attributes("disabled")).toBeDefined();
+        expect(wrapper.get("#end").attributes("aria-busy")).toBe("true");
+        expect(wrapper.find('label[for="end"]').exists()).toBe(false);
+    });
+
     test("keeps happening start/end as strings when time slots change", async () => {
         const wrapper = render();
 
@@ -162,7 +288,7 @@ describe("HappeningForm", () => {
         await flushPromises();
 
         expect(axiosMock.get).toHaveBeenCalledWith("https://rooms.example.com/api/admin/user/users");
-        expect(wrapper.get('[data-test="select-stub"]').text()).toBe("1");
+        expect(wrapper.get("#user_id_01").findAll("option")).toHaveLength(1);
     });
 
     test("clears the happening store error when the alert is closed", async () => {
