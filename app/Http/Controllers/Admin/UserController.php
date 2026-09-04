@@ -9,10 +9,12 @@ use App\Http\Requests\Admin\UserIdRequest;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 class UserController extends AdminController
 {
@@ -26,11 +28,27 @@ class UserController extends AdminController
     }
 
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, array{id: string, name: string, is_admin: bool}>
      */
     public function getFormUsers(): Collection
     {
-        return User::get(['id', 'name', 'is_admin']);
+        // Bypasses Eloquent model hydration: casting each attribute of every user
+        // (UUID key resolution included) is expensive per access, and this listing
+        // needs no relations or accessors, so a raw query is far cheaper here.
+        return DB::table('users')
+            ->select(['id', 'name', 'is_admin'])
+            ->get()
+            ->map(function (object $user): array {
+                if (! is_string($user->id) || ! is_string($user->name)) {
+                    throw new RuntimeException('Unexpected non-string id or name column value.');
+                }
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'is_admin' => (bool) $user->is_admin,
+                ];
+            });
     }
 
     public function createUser(): Response

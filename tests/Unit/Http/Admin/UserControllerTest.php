@@ -8,8 +8,11 @@ use App\Http\Requests\Admin\UserIdRequest;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
@@ -45,13 +48,52 @@ test('user controller form users query only returns id name and admin flag', fun
     $this->actingAs($actor);
     $controller = new UserController(Mockery::mock(UserAdminService::class));
     $users = $controller->getFormUsers();
-    $attributes = $users->firstWhere('id', $first->id)?->getAttributes() ?? [];
+    $attributes = $users->firstWhere('id', $first->id) ?? [];
 
     expect($users)->toHaveCount(3)
         ->and($attributes)->toHaveKey('id')
         ->and($attributes)->toHaveKey('name')
         ->and($attributes)->toHaveKey('is_admin')
         ->and($attributes)->not->toHaveKey('email');
+});
+
+// getFormUsers() bypasses Eloquent's 'is_admin' => 'boolean' cast by querying through the
+// query builder directly, so it casts is_admin by hand. Without that cast, the raw driver
+// value (an int or numeric string) would leak into the form payload instead of a real bool.
+test('user controller form users casts is_admin to a real boolean for both admins and non-admins', function (): void {
+    $actor = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->create(['is_admin' => true]);
+    $nonAdmin = User::factory()->create(['is_admin' => false]);
+
+    $this->actingAs($actor);
+    $controller = new UserController(Mockery::mock(UserAdminService::class));
+    $users = $controller->getFormUsers();
+
+    $adminAttributes = $users->firstWhere('id', $admin->id);
+    $nonAdminAttributes = $users->firstWhere('id', $nonAdmin->id);
+
+    expect($adminAttributes['is_admin'])->toBeBool()->toBeTrue()
+        ->and($nonAdminAttributes['is_admin'])->toBeBool()->toBeFalse();
+});
+
+// The id/name type guard in getFormUsers() cannot be triggered through the real
+// database (both columns are string-typed), so the raw query result is mocked here to force
+// the defensive RuntimeException path.
+test('user controller form users throws when a row has a non-string id or name', function (): void {
+    $actor = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($actor);
+
+    $builder = Mockery::mock(Builder::class);
+    DB::shouldReceive('table')->once()->with('users')->andReturn($builder);
+    $builder->shouldReceive('select')->once()->with(['id', 'name', 'is_admin'])->andReturnSelf();
+    $builder->shouldReceive('get')->once()->andReturn(collect([
+        (object) ['id' => 123, 'name' => 'not-a-string-id', 'is_admin' => 0],
+    ]));
+
+    $controller = new UserController(Mockery::mock(UserAdminService::class));
+
+    expect(fn (): Collection => $controller->getFormUsers())
+        ->toThrow(RuntimeException::class, 'Unexpected non-string id or name column value.');
 });
 
 test('user controller renders the create form for the authenticated admin user', function (): void {
