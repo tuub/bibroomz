@@ -1,14 +1,33 @@
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import vue from "@vitejs/plugin-vue";
+import { execFileSync } from "child_process";
 import laravel from "laravel-vite-plugin";
 import i18n from "laravel-vue-i18n/vite";
 import * as path from "path";
 import Components from "unplugin-vue-components/vite";
 import { URL, fileURLToPath } from "url";
-import { defineConfig } from "vite";
+import { type Plugin, defineConfig } from "vite";
+
+function ziggyGenerate(): Plugin {
+    return {
+        name: "ziggy-generate",
+        buildStart() {
+            try {
+                execFileSync("php", ["artisan", "ziggy:generate"], { stdio: "inherit" });
+            } catch (error) {
+                if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+                    return;
+                }
+
+                throw error;
+            }
+        },
+    };
+}
 
 export default defineConfig({
     plugins: [
+        ziggyGenerate(),
         vue({
             template: {
                 transformAssetUrls: {

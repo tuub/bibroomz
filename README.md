@@ -113,18 +113,16 @@ These values match `.env.example`, where Laravel connects to MariaDB through `DB
     - `php artisan migrate`
 8. Create necessary data
     - `php artisan db:seed`
-9. Create a routes file
-    - `php artisan ziggy:generate`
-10. Compile the frontend
+9. Compile the frontend
     - Development: `npm run dev`
     - Production: `npm run build`
-11. Start the websockets server
+10. Start the websockets server
     - `php artisan reverb:start`
-12. Set up a reverse proxy (optional)
-13. Set up Redis, or change `.env` to non-Redis cache, session, and queue drivers
-14. Run queue workers
+11. Set up a reverse proxy (optional)
+12. Set up Redis, or change `.env` to non-Redis cache, session, and queue drivers
+13. Run queue workers
     - See https://laravel.com/docs/11.x/queues#running-the-queue-worker
-15. Run the scheduler
+14. Run the scheduler
     - See https://laravel.com/docs/11.x/scheduling#running-the-scheduler
 
 # Local Process Runner
@@ -271,7 +269,7 @@ scripts/deploy.sh "$BUILD_PREFIX"
 ```
 
 The script installs PHP and Node dependencies, warms Laravel caches with `php artisan optimize --except=routes`,
-generates Ziggy routes, runs forced migrations with seeders, and builds the frontend with
+runs forced migrations with seeders, and builds the frontend with
 `npm run build -- --base="$BUILD_PREFIX/build"`.
 
 If you need to run the steps manually, keep the same order:
@@ -280,7 +278,6 @@ If you need to run the steps manually, keep the same order:
 composer install
 npm clean-install
 php artisan optimize --except=routes
-php artisan ziggy:generate
 php artisan migrate --force --seed
 npm run build -- --base="$BUILD_PREFIX/build"
 ```

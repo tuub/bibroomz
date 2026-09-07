@@ -149,7 +149,6 @@ final class BrowserTestRunner
         $this->ok(sprintf('storage: %s', $this->browserStorageDir));
 
         $this->step('Building frontend assets');
-        $this->runCommandOrFail([$this->phpBinary, 'artisan', 'ziggy:generate']);
         $this->runCommandOrFail(['npm', 'run', 'build']);
         $this->ok('frontend assets');
 

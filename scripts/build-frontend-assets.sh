@@ -16,5 +16,4 @@ export APP_URL="${APP_URL:-http://127.0.0.1:8000}"
 export TELESCOPE_ENABLED="${TELESCOPE_ENABLED:-false}"
 export VITE_REVERB_PORT="${VITE_REVERB_PORT:-6001}"
 
-php artisan ziggy:generate
 npm run build

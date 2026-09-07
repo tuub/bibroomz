@@ -9,8 +9,6 @@ processes:
     environment:
       - "PHP_CLI_SERVER_WORKERS=8"
 
-  routes:
-    command: "php artisan ziggy:generate"
   services:
     command: "docker compose up --detach --wait mailpit mariadb redis"
 
@@ -22,13 +20,9 @@ processes:
 
   vite:build:
     command: "npm run build"
-    depends_on: &depends_on_routes
-      routes:
-        condition: process_completed_successfully
   vite:dev:
     disabled: true
     command: "npm run dev"
-    depends_on: *depends_on_routes
 
   queue:work:
     disabled: true
