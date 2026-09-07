@@ -139,6 +139,30 @@ test('verify only allows the designated verifier for future unverified happening
         ->and($policy->verify($verifier, $verified))->toBeFalse();
 });
 
+test('admin can verify any future unverified happening regardless of designated verifier', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $other = User::factory()->create(['name' => 'other']);
+    $policy = new HappeningPolicy;
+
+    $future = createPolicyHappening([
+        'verifier' => Utility::normalizeLoginName($other->name),
+    ]);
+    $past = createPolicyHappening([
+        'verifier' => Utility::normalizeLoginName($other->name),
+        'start' => CarbonImmutable::now()->subHours(3),
+        'end' => CarbonImmutable::now()->subHour(),
+    ]);
+    $verified = createPolicyHappening([
+        'is_verified' => true,
+        'verified_at' => CarbonImmutable::now()->subMinutes(5),
+        'verifier' => Utility::normalizeLoginName($other->name),
+    ]);
+
+    expect($policy->verify($admin, $future))->toBeTrue()
+        ->and($policy->verify($admin, $past))->toBeFalse()
+        ->and($policy->verify($admin, $verified))->toBeFalse();
+});
+
 test('admin happening actions are scoped to institution permissions', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->create(['institution_id' => $institution->id]);

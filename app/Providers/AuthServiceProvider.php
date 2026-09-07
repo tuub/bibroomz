@@ -34,13 +34,13 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('admin', fn (User $user): bool => $user->isAdmin());
 
         Gate::before(function (User $user, string $ability, array $args): ?bool {
-            if ($user->isAdmin()) {
+            $target = collect($args)->first();
+
+            if ($user->isAdmin() && ! $target instanceof Happening) {
                 return true;
             }
 
-            $institution = collect($args)->first();
-
-            if (! $institution instanceof Institution) {
+            if (! $target instanceof Institution) {
                 // check global permissions
                 if ($user->roles->contains(fn (Role $role): bool => $role->hasPermission($ability))) {
                     return true;
@@ -52,7 +52,7 @@ class AuthServiceProvider extends ServiceProvider
             // check institution scoped permissions
             if (
                 $user->roles->contains(
-                    fn (Role $role): bool => $role->hasPermission($ability, $institution)
+                    fn (Role $role): bool => $role->hasPermission($ability, $target)
                 )
             ) {
                 return true;

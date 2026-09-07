@@ -78,6 +78,10 @@ class HappeningPolicy
             return false;
         }
 
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $user->name === $happening->verifier;
     }
 
