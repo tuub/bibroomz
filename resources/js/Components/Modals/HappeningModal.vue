@@ -5,7 +5,7 @@
         <HappeningForm
             v-if="editable"
             :happening="happening"
-            @update-happening="$emit('update:payload', $event)"
+            @update-happening="updateHappening"
             @submit="$emit('submit')"
         />
     </div>
@@ -45,7 +45,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Emits
 // ------------------------------------------------
-defineEmits<{
+const emit = defineEmits<{
     (event: "update:payload", payload: HappeningModalPayload): void;
     (event: "submit"): void;
 }>();
@@ -71,5 +71,13 @@ const editable = props.payload?.editable ?? false;
 // ------------------------------------------------
 function isPlainObject(obj: unknown): obj is Record<string, string> {
     return typeof obj === "object" && obj !== null && !Array.isArray(obj);
+}
+
+// HappeningForm keeps its own local copy of `happening` and emits it on every
+// change. Merge those values back into our copy so HappeningInfo (which reads
+// the same `happening` object) reflects the change, then propagate upward.
+function updateHappening(payload: HappeningModalPayload) {
+    Object.assign(happening, payload);
+    emit("update:payload", payload);
 }
 </script>
