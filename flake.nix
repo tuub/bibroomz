@@ -46,6 +46,7 @@
               php.packages.composer
               pkgs.nodejs_24
               pkgs.process-compose
+              pkgs.util-linux
             ];
             shellHook = ''
               export PATH="$PWD/vendor/bin:$PWD/node_modules/.bin:$PATH"
