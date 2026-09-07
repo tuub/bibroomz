@@ -23,10 +23,31 @@ function setMetaBaseUrl(url: string) {
     document.head.appendChild(meta);
 }
 
+// The dev .env file sets real values for these (e.g. VITE_REVERB_PORT=6001),
+// which would otherwise leak into import.meta.env and make these tests depend
+// on local/CI environment configuration. Clear them so every test starts from
+// a known, empty baseline and opts into specific values via vi.stubEnv.
+const ECHO_ENV_VARS = [
+    "VITE_API_URL",
+    "VITE_BROADCAST_DRIVER",
+    "VITE_REVERB_APP_KEY",
+    "VITE_PUSHER_APP_KEY",
+    "VITE_REVERB_HOST",
+    "VITE_PUSHER_HOST",
+    "VITE_REVERB_PORT",
+    "VITE_PUSHER_PORT",
+    "VITE_REVERB_SCHEME",
+    "VITE_PUSHER_SCHEME",
+] as const;
+
 beforeEach(() => {
     echoConstructorMock.mockReset();
     window.Echo = undefined as unknown as typeof window.Echo;
     window.Pusher = undefined as unknown as typeof window.Pusher;
+
+    for (const name of ECHO_ENV_VARS) {
+        vi.stubEnv(name, undefined);
+    }
 });
 
 afterEach(() => {
