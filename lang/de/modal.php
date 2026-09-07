@@ -41,35 +41,30 @@ return [
     ],
     'info' => [
         'title' => 'Buchungsinfo',
-        'description' => 'Buchungsinformationen anzeigen',
         'action' => [
             'ok' => 'OK',
         ],
     ],
     'create' => [
         'title' => 'Buchung erstellen',
-        'description' => 'Erstellen Sie eine neue Buchung:',
         'action' => [
             'create' => 'Erstellen',
         ],
     ],
     'edit' => [
         'title' => 'Buchung bearbeiten',
-        'description' => 'Bearbeiten Sie Ihre Buchung:',
         'action' => [
             'update' => 'Speichern',
         ],
     ],
     'delete' => [
         'title' => 'Buchung löschen',
-        'description' => 'Löschen Sie Ihre Buchung',
         'action' => [
             'delete' => 'Löschen',
         ],
     ],
     'edit_delete' => [
         'title' => 'Buchung bearbeiten/löschen',
-        'description' => 'Bearbeiten oder löschen Sie Ihre Buchung:',
         'action' => [
             'update' => 'Speichern',
             'delete' => 'Löschen',
@@ -77,7 +72,6 @@ return [
     ],
     'verify' => [
         'title' => 'Buchung bestätigen',
-        'description' => 'Bestätigen Sie Ihre Buchung:',
         'action' => [
             'verify' => 'Bestätigen',
         ],

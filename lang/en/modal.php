@@ -41,35 +41,30 @@ return [
     ],
     'info' => [
         'title' => 'Booking',
-        'description' => 'Show Booking Information',
         'action' => [
             'ok' => 'OK',
         ],
     ],
     'create' => [
         'title' => 'Create Booking',
-        'description' => 'Create new booking',
         'action' => [
             'create' => 'Create',
         ],
     ],
     'edit' => [
         'title' => 'Edit Booking',
-        'description' => 'Edit your booking',
         'action' => [
             'update' => 'Save',
         ],
     ],
     'delete' => [
         'title' => 'Delete Booking',
-        'description' => 'Delete your booking.',
         'action' => [
             'delete' => 'Delete',
         ],
     ],
     'edit_delete' => [
         'title' => 'Adjust Booking',
-        'description' => 'Adjust your booking.',
         'action' => [
             'update' => 'Save.',
             'delete' => 'Delete',
@@ -77,7 +72,6 @@ return [
     ],
     'verify' => [
         'title' => 'Verify Booking',
-        'description' => 'Verify your booking',
         'action' => [
             'verify' => 'Verify',
         ],

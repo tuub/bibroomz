@@ -164,7 +164,6 @@ export function useHappeningCreateModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.create.title"),
-        description: trans("modal.create.description"),
         editable: true,
     });
 }
@@ -173,7 +172,6 @@ export function useHappeningVerifyModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.verify.title"),
-        description: trans("modal.verify.description"),
         editable: true,
     });
 }
@@ -182,7 +180,6 @@ export function useHappeningEditModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.edit.title"),
-        description: trans("modal.edit.description"),
         editable: true,
     });
 }
@@ -191,7 +188,6 @@ export function useHappeningDeleteModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.delete.title"),
-        description: trans("modal.delete.description"),
         editable: false,
     });
 }
@@ -200,7 +196,6 @@ export function useHappeningInfoModal(happening: Happening) {
     return useHappeningModal({
         happening,
         title: trans("modal.info.title"),
-        description: trans("modal.info.description"),
         editable: false,
     });
 }
