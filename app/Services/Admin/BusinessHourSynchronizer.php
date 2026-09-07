@@ -66,7 +66,7 @@ class BusinessHourSynchronizer
     }
 
     /**
-     * @return list<string>
+     * @return list<int>
      */
     private function weekDayIds(mixed $weekDays): array
     {
@@ -77,8 +77,8 @@ class BusinessHourSynchronizer
         $ids = [];
 
         foreach ($weekDays as $weekDay) {
-            if (is_string($weekDay)) {
-                $ids[] = $weekDay;
+            if (is_int($weekDay) || (is_string($weekDay) && is_numeric($weekDay))) {
+                $ids[] = (int) $weekDay;
             }
         }
 

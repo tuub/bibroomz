@@ -151,6 +151,32 @@ test('sync syncs week days for business hour', function (): void {
     expect($bh->week_days->count())->toBe(1);
 });
 
+test('sync syncs week days submitted as integers', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+
+    DB::table('week_days')->insert(['day_of_week' => 1, 'key' => 'monday']);
+    /** @var WeekDay $weekDay */
+    $weekDay = WeekDay::query()->first();
+
+    $synchronizer = app(BusinessHourSynchronizer::class);
+    $synchronizer->sync($resource, [
+        [
+            'id' => null,
+            'start' => '08:00',
+            'end' => '18:00',
+            'start_date' => null,
+            'end_date' => null,
+            'week_days' => [$weekDay->id],
+        ],
+    ]);
+
+    /** @var BusinessHour $bh */
+    $bh = BusinessHour::where('resource_id', $resource->id)->with('week_days')->first();
+    expect($bh->week_days->count())->toBe(1);
+});
+
 test('sync parses start_date and end_date as carbon dates', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
