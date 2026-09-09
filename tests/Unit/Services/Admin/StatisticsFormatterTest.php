@@ -60,10 +60,18 @@ test('stringTranslations returns an empty array for non-array input', function (
     expect($formatter->stringTranslations('not-an-array'))->toBe([]);
 });
 
-test('stringTranslations keeps only string-keyed string values', function (): void {
+test('stringTranslations keeps only string-keyed values, dropping non-string keys', function (): void {
     $formatter = app(StatisticsFormatter::class);
 
-    $result = $formatter->stringTranslations(['en' => 'Hello', 'de' => 'Hallo', 0 => 'skip-me', 'fr' => 42]);
+    $result = $formatter->stringTranslations(['en' => 'Hello', 'de' => 'Hallo', 0 => 'skip-me']);
 
     expect($result)->toBe(['en' => 'Hello', 'de' => 'Hallo']);
+});
+
+test('stringTranslations stringifies numeric translation values instead of dropping them', function (): void {
+    $formatter = app(StatisticsFormatter::class);
+
+    $result = $formatter->stringTranslations(['en' => 481, 'de' => '481', 'fr' => null]);
+
+    expect($result)->toBe(['en' => '481', 'de' => '481']);
 });

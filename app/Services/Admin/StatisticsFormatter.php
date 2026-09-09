@@ -46,8 +46,8 @@ class StatisticsFormatter
         $result = [];
 
         foreach ($translations as $locale => $value) {
-            if (is_string($locale) && is_string($value)) {
-                $result[$locale] = $value;
+            if (is_string($locale) && (is_string($value) || is_numeric($value))) {
+                $result[$locale] = $this->toStringValue($value);
             }
         }
 
