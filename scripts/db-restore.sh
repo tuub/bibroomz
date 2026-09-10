@@ -16,6 +16,8 @@ trap 'php artisan up' EXIT
 
 export MYSQL_PWD="$DB_PASSWORD"
 
+mariadb --host="$DB_HOST" --user="$DB_USERNAME" "$DB_DATABASE" < scripts/drop-all-tables.sql
+
 mariadb \
     --host="$DB_HOST" \
     --user="$DB_USERNAME" \
