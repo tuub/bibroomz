@@ -5,16 +5,13 @@ on:
     branches:
       - main
 
-permissions:
-  pull-requests: write
-
 jobs:
   rebase:
     runs-on: ubuntu-latest
     steps:
       - name: Ask Dependabot to rebase its open PRs onto main
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_REBASE_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           gh pr list --repo "$REPO" --state open --author "app/dependabot" --json number --jq '.[].number' |
