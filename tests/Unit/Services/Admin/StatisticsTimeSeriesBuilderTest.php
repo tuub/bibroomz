@@ -65,7 +65,7 @@ test('build counts bookings into the current monthly bucket and excludes booking
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'month', null, null, 'none');
 
     expect($result[11]['count'])->toBe(2)
-        ->and(collect($result)->sum('count'))->toBe(2);
+        ->and(array_sum(array_column($result, 'count')))->toBe(2);
 });
 
 test('build window shrinks to match a given custom range', function (): void {
