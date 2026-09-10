@@ -14,6 +14,7 @@ export MYSQL_PWD="$DB_PASSWORD"
 
 exec mariadb-dump \
     --single-transaction \
+    --skip-add-locks \
     --quick \
     --host="$DB_HOST" \
     --user="$DB_USERNAME" \
