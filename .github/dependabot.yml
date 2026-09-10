@@ -29,6 +29,26 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+        update-types:
+          - "major"
+      fullcalendar:
+        patterns:
+          - "@fullcalendar/*"
+        update-types:
+          - "major"
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+        update-types:
+          - "major"
+    ignore:
+      - dependency-name: "primevue"
+      - dependency-name: "@primevue/*"
+      - dependency-name: "@primeuix/*"
+      - dependency-name: "playwright"
 
   - package-ecosystem: "github-actions"
     directory: "/"
