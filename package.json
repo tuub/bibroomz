@@ -57,7 +57,7 @@
     },
     "dependencies": {
         "@fontsource-variable/noto-sans": "^5.3.0",
-        "@fullcalendar/core": "^6.1.19",
+        "@fullcalendar/core": "^7.0.2",
         "@fullcalendar/daygrid": "^6.1.19",
         "@fullcalendar/interaction": "^6.1.19",
         "@fullcalendar/resource-timegrid": "^6.1.19",
