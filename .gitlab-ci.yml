@@ -180,7 +180,6 @@ rector:
   script:
     - nix develop --command vendor/bin/rector --dry-run --no-progress-bar
 
-
 stylelint:
   extends: .nix
   stage: lint
@@ -254,3 +253,26 @@ deploy-demo:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   manual_confirmation: Deploy to demo server?
+
+import-database:
+  stage: deploy
+  image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+  needs: []
+  before_script:
+    - apk add --update bash openssh
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SOURCE_SSH_PRIVATE_KEY" "$TARGET_SSH_PRIVATE_KEY"
+    - ssh-add "$SOURCE_SSH_PRIVATE_KEY"
+    - ssh-add "$TARGET_SSH_PRIVATE_KEY"
+    - mkdir --parents ~/.ssh
+    - chmod 700 ~/.ssh
+    - cat "$SOURCE_SSH_KNOWN_HOSTS" "$TARGET_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - scripts/db-import.sh
+  resource_group: $TARGET_SSH_HOSTNAME
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'import-database'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
