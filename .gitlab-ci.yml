@@ -29,6 +29,7 @@ dependabot:
     - apk add --no-cache curl jq
     - scripts/dependabot-merge-request.sh
     - scripts/prune-mirror-branches.sh
+    - scripts/stale-pull-requests.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH =~ /^dependabot\/.*/
 
