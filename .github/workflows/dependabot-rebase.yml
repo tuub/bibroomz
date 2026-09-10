@@ -1,0 +1,23 @@
+name: Rebase Dependabot branches
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  pull-requests: write
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask Dependabot to rebase its open PRs onto main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr list --repo "$REPO" --state open --author "app/dependabot" --json number --jq '.[].number' |
+            while read -r pr; do
+              gh pr comment "$pr" --repo "$REPO" --body "@dependabot rebase"
+            done
