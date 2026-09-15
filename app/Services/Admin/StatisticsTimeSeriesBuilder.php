@@ -24,6 +24,7 @@ class StatisticsTimeSeriesBuilder
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, ResourceGroup>  $resourceGroups
      * @param  Collection<int, Institution>  $institutions
+     * @param  'none'|'institution'|'resource_group'|'resource'  $split
      * @return array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>
      */
     public function build(
@@ -188,6 +189,7 @@ class StatisticsTimeSeriesBuilder
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, ResourceGroup>  $resourceGroups
      * @param  Collection<int, Institution>  $institutions
+     * @param  'institution'|'resource_group'|'resource'  $split
      * @return Collection<int, array{id: string, title: array<string, string>}>
      */
     private function timeSeriesSplitSubjects(
@@ -205,7 +207,6 @@ class StatisticsTimeSeriesBuilder
                     'title' => $this->formatter->stringTranslations($resource->getTranslations('title')),
                 ])
                 ->values(),
-            default => collect(),
         };
     }
 
@@ -264,6 +265,7 @@ class StatisticsTimeSeriesBuilder
     /**
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @param  'institution'|'resource_group'|'resource'  $split
      * @return array<string, string>
      */
     private function timeSeriesSegmentIdByResourceId(Collection $resources, Collection $resourceGroups, string $split): array
@@ -276,7 +278,6 @@ class StatisticsTimeSeriesBuilder
             'resource' => $resources
                 ->mapWithKeys(fn (Resource $resource): array => [(string) $resource->id => (string) $resource->id])
                 ->all(),
-            default => [],
         };
     }
 

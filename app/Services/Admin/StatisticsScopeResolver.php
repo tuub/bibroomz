@@ -24,7 +24,7 @@ class StatisticsScopeResolver
      *     1: Collection<int, ResourceGroup>,
      *     2: Collection<int, Resource>,
      *     3: Collection<int, Resource>,
-     *     4: string,
+     *     4: 'none'|'institution'|'resource_group'|'resource',
      * }
      */
     public function resolve(
@@ -99,6 +99,7 @@ class StatisticsScopeResolver
     /**
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, ResourceGroup>  $resourceGroups
+     * @return 'none'|'institution'|'resource_group'|'resource'
      */
     private function inferTimeSeriesSplit(Collection $resources, Collection $resourceGroups): string
     {

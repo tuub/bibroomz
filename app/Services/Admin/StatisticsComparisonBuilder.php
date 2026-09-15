@@ -25,6 +25,7 @@ class StatisticsComparisonBuilder
      * @param  Collection<int, ResourceGroup>  $resourceGroups
      * @param  Collection<int, Resource>  $resources
      * @param  Collection<int, Resource>  $timeSeriesResources
+     * @param  'none'|'institution'|'resource_group'|'resource'  $timeSeriesSplit
      * @return ?array{
      *     from: string,
      *     to: string,
