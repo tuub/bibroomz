@@ -10,17 +10,34 @@ set -eu
 
 target_branch="${TARGET_BRANCH:-$CI_DEFAULT_BRANCH}"
 
-existing="$(curl --silent --show-error --fail \
-    --get \
-    --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-    --data-urlencode "state=opened" \
-    --data-urlencode "source_branch=$CI_COMMIT_BRANCH" \
-    --data-urlencode "target_branch=$target_branch" \
-    "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests")"
+fetch_merge_requests() {
+    state="$1"
+
+    curl --silent --show-error --fail \
+        --get \
+        --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+        --data-urlencode "state=$state" \
+        --data-urlencode "source_branch=$CI_COMMIT_BRANCH" \
+        --data-urlencode "target_branch=$target_branch" \
+        --data-urlencode "order_by=updated_at" \
+        --data-urlencode "sort=desc" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"
+}
+
+existing="$(fetch_merge_requests opened)"
 
 iid="$(echo "$existing" | jq --raw-output '.[0].iid // empty')"
 
 if [ -z "$iid" ]; then
+    previous="$(fetch_merge_requests all)"
+    previous_iid="$(echo "$previous" | jq --raw-output 'map(select(.state != "opened"))[0].iid // empty')"
+    previous_state="$(echo "$previous" | jq --raw-output 'map(select(.state != "opened"))[0].state // empty')"
+
+    if [ -n "$previous_iid" ]; then
+        echo "Merge request !$previous_iid for $CI_COMMIT_BRANCH is $previous_state; not creating another."
+        exit 0
+    fi
+
     created="$(curl --silent --show-error --fail \
         --request POST \
         --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
