@@ -11,6 +11,7 @@ export default defineConfig({
     },
     test: {
         environment: "happy-dom",
+        pool: "vmThreads",
         include: ["resources/js/**/*.test.ts"],
     },
 });
