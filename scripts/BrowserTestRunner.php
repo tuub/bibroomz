@@ -173,8 +173,14 @@ final class BrowserTestRunner
             $this->reverbLog,
         );
 
+        // --no-reload: without it, `artisan serve` only forwards a small
+        // hardcoded allowlist of env vars (APP_ENV, PATH, ...) to the child
+        // process that actually handles requests, dropping every runtime
+        // override set above (SESSION_DRIVER, CACHE_DRIVER, DB_DATABASE,
+        // ...) so it re-reads the real .env instead and breaks against
+        // services (e.g. Redis) that aren't running in this environment.
         $this->backgroundProcesses[] = $this->startBackgroundProcess(
-            [$this->phpBinary, 'artisan', 'serve', '--host='.self::BROWSER_HOST, '--port='.$serverPort],
+            [$this->phpBinary, 'artisan', 'serve', '--host='.self::BROWSER_HOST, '--port='.$serverPort, '--no-reload'],
             $this->serverLog,
         );
         printf(
