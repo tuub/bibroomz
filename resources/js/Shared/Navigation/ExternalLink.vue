@@ -9,11 +9,12 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    icon: {
-        type: String,
-        required: false,
-        default: "",
+withDefaults(
+    defineProps<{
+        icon?: string;
+    }>(),
+    {
+        icon: "",
     },
-});
+);
 </script>

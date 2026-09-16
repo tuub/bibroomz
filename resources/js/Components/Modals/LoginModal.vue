@@ -76,21 +76,29 @@ import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 import Spinner from "@/Shared/Spinner.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { ModalContent } from "@/Stores/Modal";
 
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
+type LoginPayload = {
+    username: string;
+    password: string;
+};
+
 // ------------------------------------------------
 // Models, Props, Emits
 // ------------------------------------------------
-const payload = defineModel("payload", { type: Object, default: () => ({ username: "", password: "" }) });
+const payload = defineModel<LoginPayload>("payload", { default: () => ({ username: "", password: "" }) });
 
-defineProps({
-    content: {
-        type: Object,
-        default: () => ({}),
+withDefaults(
+    defineProps<{
+        content?: ModalContent;
+    }>(),
+    {
+        content: () => ({}),
     },
-});
+);
 
 defineEmits<{
     (event: "submit"): void;

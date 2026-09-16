@@ -4,18 +4,14 @@
 
 <script setup lang="ts">
 import ResourceInfo from "@/Components/ResourceInfo.vue";
+import type { ResourceInfoData } from "@/Composables/ModalActions";
+import type { ModalContent } from "@/Stores/Modal";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    content: {
-        type: Object,
-        required: true,
-    },
-    payload: {
-        type: Object,
-        required: true,
-    },
-});
+defineProps<{
+    content: ModalContent;
+    payload: { resource: ResourceInfoData };
+}>();
 </script>

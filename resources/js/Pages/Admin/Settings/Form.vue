@@ -25,6 +25,7 @@ import FormAction from "@/Components/Admin/FormAction.vue";
 import FormInput from "@/Shared/Form/FormInput.vue";
 import FormLayout from "@/Shared/Form/FormLayout.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { AdminSettingEntry, Settingable } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
 import { trans } from "laravel-vue-i18n";
@@ -33,26 +34,14 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    setting: {
-        type: Object,
-        default: () => ({}),
-    },
-    settingable: {
-        type: Object,
-        default: () => ({}),
-    },
+const props = defineProps<{
+    setting: AdminSettingEntry;
+    settingable: Settingable;
     // eslint-disable-next-line vue/prop-name-casing
-    settingable_type: {
-        type: String,
-        default: "",
-    },
+    settingable_type: string;
     // eslint-disable-next-line vue/prop-name-casing
-    input_type: {
-        type: String,
-        default: "text",
-    },
-});
+    input_type: string;
+}>();
 
 // ------------------------------------------------
 // Variables

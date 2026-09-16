@@ -13,20 +13,18 @@ import { inject } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    isResponsive: {
-        type: Boolean,
-        default: false,
+withDefaults(
+    defineProps<{
+        isResponsive?: boolean;
+        isPrivileged?: boolean;
+        isMultiTenancy?: boolean;
+    }>(),
+    {
+        isResponsive: false,
+        isPrivileged: false,
+        isMultiTenancy: false,
     },
-    isPrivileged: {
-        type: Boolean,
-        default: false,
-    },
-    isMultiTenancy: {
-        type: Boolean,
-        default: false,
-    },
-});
+);
 
 const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 const { isAuthenticated, user: currentUser } = storeToRefs(useAuthStore());

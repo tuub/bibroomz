@@ -11,14 +11,14 @@ import { Link } from "@inertiajs/vue3";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    icon: {
-        type: String,
-        default: null,
+withDefaults(
+    defineProps<{
+        icon?: string | null;
+        isActive?: boolean;
+    }>(),
+    {
+        icon: null,
+        isActive: false,
     },
-    isActive: {
-        type: Boolean,
-        default: false,
-    },
-});
+);
 </script>

@@ -4,24 +4,17 @@ import { Link } from "@inertiajs/vue3";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    title: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        title: string;
+        icon: string;
+        description?: string;
+        link: string;
+    }>(),
+    {
+        description: "",
     },
-    icon: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        default: "",
-    },
-    link: {
-        type: String,
-        required: true,
-    },
-});
+);
 </script>
 <template>
     <Link :href="link">

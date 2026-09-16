@@ -31,27 +31,19 @@
 <script setup lang="ts">
 import type { LabeledCheckboxUpdatePayload } from "@/Types/Admin";
 
-const props = defineProps({
-    value: {
-        type: [String, Number],
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        value: string | number;
+        checked?: boolean;
+        name: string;
+        label: string;
+        description?: string;
+    }>(),
+    {
+        checked: false,
+        description: "",
     },
-    checked: {
-        type: Boolean,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    label: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        default: "",
-    },
-});
+);
 
 defineEmits<{
     (event: "update-checked", payload: LabeledCheckboxUpdatePayload): void;

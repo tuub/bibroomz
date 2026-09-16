@@ -2,17 +2,15 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    label: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        label: string;
+        icon?: string;
+    }>(),
+    {
+        icon: "default",
     },
-    icon: {
-        type: String,
-        required: false,
-        default: "default",
-    },
-});
+);
 </script>
 
 <template>

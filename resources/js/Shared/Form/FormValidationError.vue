@@ -6,10 +6,12 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    message: {
-        type: String,
-        default: "",
+withDefaults(
+    defineProps<{
+        message?: string;
+    }>(),
+    {
+        message: "",
     },
-});
+);
 </script>

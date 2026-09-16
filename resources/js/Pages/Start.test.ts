@@ -1,5 +1,6 @@
 import Start from "@/Pages/Start.vue";
 import { useAppStore } from "@/Stores/AppStore";
+import type { Institution } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { mount } from "@vue/test-utils";
@@ -19,11 +20,20 @@ beforeEach(() => {
     vi.clearAllMocks();
 });
 
+function makeInstitution(id: string): Institution {
+    return {
+        id,
+        title: { en: `Institution ${id}` },
+        slug: `institution-${id}`,
+        resource_groups: [],
+    };
+}
+
 function render() {
     return mount(Start, {
         props: {
             appName: "BibRoomz",
-            institutions: [{ id: 1 }, { id: 2 }],
+            institutions: [makeInstitution("1"), makeInstitution("2")],
         },
         global: {
             mocks: {

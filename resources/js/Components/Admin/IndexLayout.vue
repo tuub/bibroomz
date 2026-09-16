@@ -27,26 +27,18 @@
 import CreateLink from "@/Components/Admin/Index/CreateLink.vue";
 import XModal from "@/Shared/XModal.vue";
 
-defineProps({
-    title: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        title: string;
+        description: string;
+        addCreateButton?: boolean;
+        model?: string;
+        createParams?: Record<string, unknown>;
+    }>(),
+    {
+        addCreateButton: true,
+        model: "",
+        createParams: () => ({}),
     },
-    description: {
-        type: String,
-        required: true,
-    },
-    addCreateButton: {
-        type: Boolean,
-        default: true,
-    },
-    model: {
-        type: String,
-        default: "",
-    },
-    createParams: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 </script>

@@ -37,32 +37,24 @@ import { nextTick, ref } from "vue";
 // ------------------------------------------------
 // Props and Emits
 // ------------------------------------------------
-const props = defineProps({
-    filter: {
-        type: String,
-        default: "",
+const props = withDefaults(
+    defineProps<{
+        filter?: string;
+        isFilterField?: boolean;
+        isLabelVisible?: boolean;
+        isSortField?: boolean;
+        label?: string;
+        sortDirection?: "asc" | "desc";
+    }>(),
+    {
+        filter: "",
+        isFilterField: false,
+        isLabelVisible: true,
+        isSortField: false,
+        label: "",
+        sortDirection: "desc",
     },
-    isFilterField: {
-        type: Boolean,
-        default: false,
-    },
-    isLabelVisible: {
-        type: Boolean,
-        default: true,
-    },
-    isSortField: {
-        type: Boolean,
-        default: false,
-    },
-    label: {
-        type: String,
-        default: "",
-    },
-    sortDirection: {
-        type: String,
-        default: "desc",
-    },
-});
+);
 
 const emits = defineEmits<{
     (event: "sort"): void;

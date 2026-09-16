@@ -4,6 +4,7 @@ import SidebarBlock from "@/Components/Sidebar/SidebarBlock.vue";
 import UserHappenings from "@/Components/UserHappenings.vue";
 import { useLogin } from "@/Composables/Login";
 import { useAppStore } from "@/Stores/AppStore";
+import type { ResourceGroup } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 
 import { storeToRefs } from "pinia";
@@ -12,16 +13,15 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resourceGroup: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        resourceGroup: ResourceGroup;
+        isMultiTenancy?: boolean;
+    }>(),
+    {
+        isMultiTenancy: false,
     },
-    isMultiTenancy: {
-        type: Boolean,
-        default: false,
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -37,7 +37,7 @@ const { loginUser } = useLogin();
 const { allowedResourceGroups, isAuthenticated, userHappenings } = storeToRefs(authStore);
 const translate = appStore.translate;
 const isAllowed = computed(() => {
-    return allowedResourceGroups.value.includes(props.resourceGroup.id);
+    return props.resourceGroup.id != null && allowedResourceGroups.value.includes(props.resourceGroup.id);
 });
 const helpURI = computed(() => {
     return props.resourceGroup.help_uri;

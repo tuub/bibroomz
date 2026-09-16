@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import type { Happening } from "@/Stores/HappeningStore";
 
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
@@ -8,12 +9,14 @@ import { computed } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happening: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        happening?: Happening;
+    }>(),
+    {
+        happening: () => ({}),
     },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -41,6 +44,11 @@ const happeningEnd = computed(() => {
 const isLabelPresent = computed(() => {
     return props.happening.label && !Array.isArray(props.happening.label);
 });
+
+const happeningResourceLabel = computed(() => {
+    const resource = props.happening.resource;
+    return `${appStore.translate(resource?.resourceGroup)} ${appStore.translate(resource?.title)}`.trim();
+});
 </script>
 <template>
     <ul class="w-full space-y-1 text-sm">
@@ -54,10 +62,7 @@ const isLabelPresent = computed(() => {
         </li>
         <li class="flex">
             <i class="ri-map-pin-fill mr-1"></i>
-            <div>
-                {{ happening.resource.resourceGroup }}
-                {{ happening.resource.title }}
-            </div>
+            <div>{{ happeningResourceLabel }}</div>
         </li>
         <li class="flex">
             <template v-if="isPrivileged">

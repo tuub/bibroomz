@@ -11,12 +11,9 @@ import { withBaseUrl } from "@/baseUrl";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    size: {
-        type: String,
-        required: true,
-    },
-});
+const props = defineProps<{
+    size: string;
+}>();
 
 // ------------------------------------------------
 // Variables

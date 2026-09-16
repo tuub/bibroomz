@@ -3,10 +3,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-    sortDirection: {
-        type: String,
-        required: true,
-    },
-});
+defineProps<{
+    sortDirection: "asc" | "desc";
+}>();
 </script>

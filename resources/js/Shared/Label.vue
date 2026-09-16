@@ -14,30 +14,20 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    text: {
-        type: String,
-        required: true,
+withDefaults(
+    defineProps<{
+        text: string;
+        bgColor?: string;
+        bgColorClass?: string;
+        textColor?: string;
+        textColorClass?: string;
+        iconClass: string;
+    }>(),
+    {
+        bgColor: "",
+        bgColorClass: "",
+        textColor: "",
+        textColorClass: "",
     },
-    bgColor: {
-        type: String,
-        default: "",
-    },
-    bgColorClass: {
-        type: String,
-        default: "",
-    },
-    textColor: {
-        type: String,
-        default: "",
-    },
-    textColorClass: {
-        type: String,
-        default: "",
-    },
-    iconClass: {
-        type: String,
-        required: true,
-    },
-});
+);
 </script>

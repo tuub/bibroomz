@@ -200,7 +200,9 @@ export function useHappeningInfoModal(happening: Happening) {
     });
 }
 
-export function useResourceGroupInfoModal(resourceGroup: { title?: Translatable; description?: Translatable }) {
+export type ResourceGroupInfoData = { title?: Translatable; description?: Translatable };
+
+export function useResourceGroupInfoModal(resourceGroup: ResourceGroupInfoData) {
     const modal = useModal();
     const appStore = useAppStore();
     const translate = appStore.translate;
@@ -224,14 +226,16 @@ export function useResourceGroupInfoModal(resourceGroup: { title?: Translatable;
     };
 }
 
-export function useResourceInfoModal(resource: {
+export type ResourceInfoData = {
     title?: string;
     description?: string;
     location?: string;
     resourceGroup?: string;
     location_uri?: string;
     capacity?: number;
-}) {
+};
+
+export function useResourceInfoModal(resource: ResourceInfoData) {
     const modal = useModal();
     const appStore = useAppStore();
     const translate = appStore.translate;

@@ -5,17 +5,14 @@
 </template>
 
 <script setup lang="ts">
+import type { ResourceGroupInfoData } from "@/Composables/ModalActions";
+import type { ModalContent } from "@/Stores/Modal";
+
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    content: {
-        type: Object,
-        required: true,
-    },
-    payload: {
-        type: Object,
-        required: true,
-    },
-});
+defineProps<{
+    content: ModalContent;
+    payload: { resourceGroup: ResourceGroupInfoData };
+}>();
 </script>

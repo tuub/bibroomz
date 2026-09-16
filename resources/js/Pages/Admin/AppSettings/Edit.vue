@@ -3,7 +3,7 @@
         <FormInput
             v-for="key in Object.keys(settings)"
             :key="key"
-            v-model="form[key]"
+            v-model="form[key]!"
             :field="key"
             :field-key="`admin.app_settings.form.fields.${key}`"
             :error="form.errors[key]"
@@ -25,16 +25,10 @@ import { useForm } from "@inertiajs/vue3";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    settings: {
-        type: Object,
-        required: true,
-    },
-    inputTypes: {
-        type: Object,
-        required: true,
-    },
-});
+const props = defineProps<{
+    settings: Record<string, string>;
+    inputTypes: Record<string, string>;
+}>();
 
 // ------------------------------------------------
 // Variables

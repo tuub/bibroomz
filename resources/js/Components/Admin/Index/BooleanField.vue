@@ -4,10 +4,12 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-    isTrue: {
-        type: Boolean,
-        default: false,
+withDefaults(
+    defineProps<{
+        isTrue?: boolean;
+    }>(),
+    {
+        isTrue: false,
     },
-});
+);
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
+import type { Institution } from "@/Stores/AppStore";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { inject } from "vue";
@@ -7,12 +8,9 @@ import { inject } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    institution: {
-        type: Object,
-        required: true,
-    },
-});
+defineProps<{
+    institution: Institution;
+}>();
 
 const appStore = useAppStore();
 const translate = appStore.translate;
@@ -35,11 +33,6 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
             <div class="text-center text-base lg:text-sm">
                 <i class="ri-map-pin-fill pr-1"></i> {{ institution.location }}
             </div>
-        </template>
-        <template #content>
-            <p class="m-0">
-                {{ translate(institution.description) }}
-            </p>
         </template>
         <template #footer>
             <div class="flex flex-wrap justify-center gap-2">

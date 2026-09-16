@@ -32,39 +32,24 @@
 import FormLabel from "@/Shared/Form/FormLabel.vue";
 import FormValidationError from "@/Shared/Form/FormValidationError.vue";
 
-const props = defineProps({
-    field: {
-        type: String,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        field: string;
+        fieldKey: string;
+        type?: string;
+        rows?: number;
+        isDisabled?: boolean;
+        isRequired?: boolean;
+        error?: string | null;
+    }>(),
+    {
+        type: "text",
+        rows: 4,
+        isDisabled: false,
+        isRequired: false,
+        error: null,
     },
-    fieldKey: {
-        type: String,
-        required: true,
-    },
-    type: {
-        type: String,
-        default: "text",
-    },
-    rows: {
-        type: Number,
-        default: 4,
-    },
-    isDisabled: {
-        type: Boolean,
-        default: false,
-    },
-    isRequired: {
-        type: Boolean,
-        default: false,
-    },
-    error: {
-        type: String,
-        default: null,
-    },
-});
+);
 
-const model = defineModel({
-    type: String,
-    required: true,
-});
+const model = defineModel<string>({ required: true });
 </script>

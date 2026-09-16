@@ -40,6 +40,7 @@ export interface ResourceGroup {
     term_singular?: Translatable;
     title?: Translatable;
     description?: Translatable;
+    help_uri?: string | null;
     settings?: ResourceGroupSetting[];
     [key: string]: unknown;
 }

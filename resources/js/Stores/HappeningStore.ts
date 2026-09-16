@@ -23,7 +23,7 @@ export type Happening = {
     resource?: HappeningResource;
     start?: string | Dayjs;
     end?: string | Dayjs;
-    user_01?: string;
+    user_01?: string | null;
     user_02?: string;
     user_id_01?: number | string;
     user_id_02?: number | string;

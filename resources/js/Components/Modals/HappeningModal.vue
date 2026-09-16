@@ -16,6 +16,7 @@ import HappeningInfo from "@/Components/HappeningInfo.vue";
 import HappeningForm from "@/Components/Modals/HappeningForm.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import type { HappeningEditPayload } from "@/Stores/HappeningStore";
+import type { ModalContent } from "@/Stores/Modal";
 
 import { reactive, toRaw } from "vue";
 
@@ -26,16 +27,16 @@ type HappeningModalPayload = HappeningEditPayload & {
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    content: {
-        type: Object,
-        default: () => ({}),
+const props = withDefaults(
+    defineProps<{
+        content?: ModalContent;
+        payload?: Partial<HappeningModalPayload>;
+    }>(),
+    {
+        content: () => ({}),
+        payload: () => ({}),
     },
-    payload: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores
@@ -53,9 +54,9 @@ const emit = defineEmits<{
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const happening = reactive({
+const happening = reactive<HappeningEditPayload>({
     id: props.payload.id,
-    resource: toRaw(props.payload.resource),
+    resource: toRaw(props.payload.resource) ?? {},
     start: appStore.formatDateTime(props.payload.start, true),
     end: appStore.formatDateTime(props.payload.end, true),
     user_01: props.payload.user_01 ?? null,

@@ -42,19 +42,24 @@
 </template>
 
 <script setup lang="ts">
+import type { ResourceInfoData } from "@/Composables/ModalActions";
+
 import { ref } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    resource: {
-        type: Object,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        resource: ResourceInfoData;
+        isExpandable?: boolean;
+        isInitiallyVisible?: boolean;
+    }>(),
+    {
+        isExpandable: false,
+        isInitiallyVisible: false,
     },
-    isExpandable: Boolean,
-    isInitiallyVisible: Boolean,
-});
+);
 
 // ------------------------------------------------
 // Variables

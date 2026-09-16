@@ -55,28 +55,19 @@
     </div>
 </template>
 <script setup lang="ts">
-const props = defineProps({
-    currentPage: {
-        type: Number,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        currentPage: number;
+        lastPage: number;
+        nextPage?: number | null;
+        perPage: number;
+        prevPage?: number | null;
+    }>(),
+    {
+        nextPage: null,
+        prevPage: null,
     },
-    lastPage: {
-        type: Number,
-        required: true,
-    },
-    nextPage: {
-        type: Number,
-        default: null,
-    },
-    perPage: {
-        type: Number,
-        required: true,
-    },
-    prevPage: {
-        type: Number,
-        default: null,
-    },
-});
+);
 
 defineEmits<{
     (event: "update:per-page", perPage: number): void;

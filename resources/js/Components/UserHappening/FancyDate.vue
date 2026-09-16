@@ -10,22 +10,17 @@
 
 <script setup lang="ts">
 import { useAppStore } from "@/Stores/AppStore";
+import type { Happening } from "@/Stores/HappeningStore";
 
 import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    happening: {
-        type: Object,
-        required: true,
-    },
-    cssClass: {
-        type: String,
-        required: true,
-    },
-});
+const props = defineProps<{
+    happening: Happening;
+    cssClass: string;
+}>();
 
 // ------------------------------------------------
 // Stores

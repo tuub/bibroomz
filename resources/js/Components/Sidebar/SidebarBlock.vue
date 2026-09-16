@@ -2,13 +2,14 @@
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    title: {
-        type: String,
-        required: false,
-        default: "",
+withDefaults(
+    defineProps<{
+        title?: string;
+    }>(),
+    {
+        title: "",
     },
-});
+);
 </script>
 
 <template>

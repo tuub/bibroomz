@@ -26,17 +26,20 @@
 // ------------------------------------------------
 // Imports
 // ------------------------------------------------
+import type { ModalContent } from "@/Stores/Modal";
 import useModal from "@/Stores/Modal";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-defineProps({
-    content: {
-        type: Object,
-        default: () => ({}),
+withDefaults(
+    defineProps<{
+        content?: ModalContent;
+    }>(),
+    {
+        content: () => ({}),
     },
-});
+);
 
 // ------------------------------------------------
 // Variables

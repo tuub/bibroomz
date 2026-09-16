@@ -20,16 +20,15 @@ import { computed, inject } from "vue";
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
-const props = defineProps({
-    model: {
-        type: String,
-        required: true,
+const props = withDefaults(
+    defineProps<{
+        model: string;
+        params?: Record<string, unknown>;
+    }>(),
+    {
+        params: () => ({}),
     },
-    params: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+);
 
 // ------------------------------------------------
 // Stores

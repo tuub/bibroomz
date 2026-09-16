@@ -150,6 +150,12 @@ export type AppSetting = {
     value?: unknown;
 };
 
+export type AdminSettingEntry = {
+    id?: number | string | null;
+    key?: string;
+    value?: string;
+};
+
 export type Closable = {
     id?: number | string;
     title?: Translatable;
