@@ -10,7 +10,7 @@
                 :name="field"
                 :rows="rows"
                 class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                @change="$emit('update:model-value', input)"
+                @change="syncModel"
             />
             <input
                 v-else
@@ -21,7 +21,7 @@
                 :name="field"
                 type="text"
                 class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                @change="$emit('update:model-value', input)"
+                @change="syncModel"
             />
         </template>
     </TranslatableFormField>
@@ -34,7 +34,6 @@ import { ref } from "vue";
 
 const props = withDefaults(
     defineProps<{
-        modelValue: Record<string, string> | unknown[];
         field: string;
         fieldKey: string;
         placeholder?: string;
@@ -53,14 +52,16 @@ const props = withDefaults(
     },
 );
 
-defineEmits<{
-    (event: "update:model-value", value: Record<string, string>): void;
-}>();
+const model = defineModel<Record<string, string> | unknown[]>({ required: true });
 
 const supportedTypes = ["input", "textarea"];
 if (!supportedTypes.includes(props.type)) {
     console.warn(`TranslatableFormInput: unsupported type "${props.type}"; falling back to a text input.`);
 }
 
-const input = ref<Record<string, string>>(Array.isArray(props.modelValue) ? {} : props.modelValue);
+const input = ref<Record<string, string>>(Array.isArray(model.value) ? {} : { ...model.value });
+
+function syncModel(): void {
+    model.value = input.value;
+}
 </script>

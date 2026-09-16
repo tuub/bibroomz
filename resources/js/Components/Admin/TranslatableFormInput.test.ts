@@ -46,7 +46,7 @@ describe("TranslatableFormInput", () => {
 
         await wrapper.get("#title-en").setValue("Study room");
 
-        expect(wrapper.emitted("update:model-value")).toEqual([[{ en: "Study room" }]]);
+        expect(wrapper.emitted("update:modelValue")).toEqual([[{ en: "Study room" }]]);
     });
 
     test("warns and falls back to a text input for an unsupported type value", () => {
@@ -82,6 +82,6 @@ describe("TranslatableFormInput", () => {
 
         await wrapper.get("#title-en").setValue("Quiet floor");
 
-        expect(wrapper.emitted("update:model-value")).toEqual([[{ en: "Quiet floor" }]]);
+        expect(wrapper.emitted("update:modelValue")).toEqual([[{ en: "Quiet floor" }]]);
     });
 });
