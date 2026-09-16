@@ -7,13 +7,13 @@ use App\Models\User;
 use App\Models\WeekDay;
 use App\Services\Admin\InstitutionAdminService;
 use App\Services\AdminLoggingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(InstitutionAdminService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // getIndexData

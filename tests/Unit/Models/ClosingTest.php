@@ -7,11 +7,11 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(Closing::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('closing creates with valid data for an institution closable', function (): void {
     $institution = Institution::factory()->create();

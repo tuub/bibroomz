@@ -12,13 +12,13 @@ use App\Models\UserGroup;
 use App\Services\Admin\UserAdminService;
 use Cog\Laravel\Ban\Models\Ban;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 covers(UserAdminService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // getIndexData

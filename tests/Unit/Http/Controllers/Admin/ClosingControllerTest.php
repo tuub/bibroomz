@@ -12,7 +12,7 @@ use App\Models\Closing;
 use App\Models\Institution;
 use App\Models\User;
 use App\Services\Admin\ClosingAdminService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 covers(ClosingController::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('ClosingController can be resolved from container', function (): void {
     $controller = app(ClosingController::class);

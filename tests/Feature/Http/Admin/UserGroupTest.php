@@ -11,7 +11,7 @@ use App\Models\UserGroup;
 use App\Services\Admin\UserGroupAdminService;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Response;
@@ -24,7 +24,7 @@ covers(
     UserGroupAdminService::class,
 );
 
-uses(MockeryPHPUnitIntegration::class, InteractsWithPermissions::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(PermissionSeeder::class);

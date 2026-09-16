@@ -10,12 +10,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Resources\ResourceAvailabilityService;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
 covers(ResourceAvailabilityService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('findClosed returns empty when no closings', function (): void {
     $institution = Institution::factory()->create();

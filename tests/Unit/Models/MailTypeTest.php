@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\MailContent;
 use App\Models\MailType;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(MailType::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('mail type creates with key and description', function (): void {
     $mailType = MailType::create([

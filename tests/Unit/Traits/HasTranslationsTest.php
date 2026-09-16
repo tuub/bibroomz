@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Models\Institution;
 use App\Traits\HasTranslations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HasTranslations::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('withoutTranslations returns resolved translation for current locale', function (): void {
     app()->setLocale('en');

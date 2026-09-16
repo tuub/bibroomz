@@ -7,12 +7,12 @@ use App\Models\MailContent;
 use App\Models\MailType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(MailContentIdRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('authorize returns true', function (): void {
     $user = User::factory()->create();

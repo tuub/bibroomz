@@ -9,11 +9,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\ValidateHappeningReservation;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ValidateHappeningReservation::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 use App\Models\Closing;
 use App\Models\Happening;

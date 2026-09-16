@@ -11,11 +11,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HappeningUpdatedEvent::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('extends HappeningBroadcastEvent and implements ShouldBroadcastNow', function (): void {
     $institution = Institution::factory()->create();

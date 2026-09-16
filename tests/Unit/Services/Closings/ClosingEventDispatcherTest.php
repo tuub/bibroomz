@@ -11,12 +11,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Closings\ClosingEventDispatcher;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
 covers(ClosingEventDispatcher::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('dispatchCreated dispatches no events when no users are affected', function (): void {
     Event::fake();

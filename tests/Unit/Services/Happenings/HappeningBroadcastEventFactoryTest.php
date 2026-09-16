@@ -13,11 +13,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\HappeningBroadcastEventFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HappeningBroadcastEventFactory::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 function makeBasicHappening(): Happening
 {

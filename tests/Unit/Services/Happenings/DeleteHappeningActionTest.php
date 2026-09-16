@@ -10,13 +10,13 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\DeleteHappeningAction;
 use App\Services\Happenings\HappeningBroadcaster;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(DeleteHappeningAction::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('execute deletes the happening', function (): void {
     Event::fake();

@@ -9,14 +9,14 @@ use App\Models\User;
 use App\Policies\HappeningPolicy;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(HappeningPolicy::class);
 
-uses(InteractsWithPermissions::class, MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seedPermissions();

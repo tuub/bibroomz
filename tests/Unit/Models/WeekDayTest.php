@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\WeekDay;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
 covers(WeekDay::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('week days can be created and queried', function (): void {
     DB::table('week_days')->insert(['day_of_week' => 1, 'key' => 'monday']);

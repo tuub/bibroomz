@@ -9,12 +9,12 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(AddHappeningRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('add happening request authorize returns false for guest', function (): void {
     $request = new AddHappeningRequest;

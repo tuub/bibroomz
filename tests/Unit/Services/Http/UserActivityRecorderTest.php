@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Services\Http\UserActivityRecorder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 
 covers(UserActivityRecorder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('record stores user activity in cache', function (): void {
     $user = User::factory()->create();

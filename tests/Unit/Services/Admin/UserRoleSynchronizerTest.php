@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\UserRoleSynchronizer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UserRoleSynchronizer::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('sync attaches roles to user', function (): void {
     $institution = Institution::factory()->create();

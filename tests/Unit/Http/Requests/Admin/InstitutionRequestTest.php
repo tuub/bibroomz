@@ -6,11 +6,11 @@ use App\Http\Requests\Admin\InstitutionRequest;
 use App\Models\Institution;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(InstitutionRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('InstitutionRequest defines validation rules', function (): void {
     $request = new InstitutionRequest;

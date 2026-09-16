@@ -7,11 +7,11 @@ use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Services\Admin\StatisticsComparisonBuilder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(StatisticsComparisonBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 /**
  * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}

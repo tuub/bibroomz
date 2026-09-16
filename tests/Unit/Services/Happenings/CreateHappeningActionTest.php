@@ -8,12 +8,12 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\CreateHappeningAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
 covers(CreateHappeningAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('executeForAdmin creates a happening', function (): void {
     Event::fake();

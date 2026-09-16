@@ -8,13 +8,13 @@ use App\Models\MailContent;
 use App\Models\MailType;
 use App\Models\User;
 use Database\Seeders\MailTypeSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(MailContentRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seedPermissions();

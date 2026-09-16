@@ -7,11 +7,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Services\Http\PublicResourcePresenter;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(PublicResourcePresenter::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('present returns array with all expected top-level keys', function (): void {
     $institution = Institution::factory()->create();

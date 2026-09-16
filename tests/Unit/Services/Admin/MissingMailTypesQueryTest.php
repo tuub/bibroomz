@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\MailType;
 use App\Services\Admin\MissingMailTypesQuery;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(MissingMailTypesQuery::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute returns all mail types when institution has no mail contents', function (): void {
     $institution = Institution::factory()->create();

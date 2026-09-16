@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Rules\CurrentPasswordRule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
 covers(CurrentPasswordRule::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('validate calls fail when password is wrong', function (): void {
     $user = User::factory()->create([

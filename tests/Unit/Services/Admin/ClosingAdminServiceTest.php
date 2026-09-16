@@ -9,14 +9,14 @@ use App\Models\ResourceGroup;
 use App\Services\Admin\ClosingAdminService;
 use App\Services\AdminLoggingService;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 covers(ClosingAdminService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('resolveClosable returns institution for institution type', function (): void {
     $institution = Institution::factory()->create();

@@ -8,11 +8,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Resources\ResourceQuotaService;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceQuotaService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('isExceedingQuotas returns false when user is null', function (): void {
     $institution = Institution::factory()->create();

@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\User;
 use App\Services\AdminLoggingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
 
 covers(AdminLoggingService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('log writes to admin channel', function (): void {
     Log::shouldReceive('channel')->with('admin')->once()->andReturnSelf();

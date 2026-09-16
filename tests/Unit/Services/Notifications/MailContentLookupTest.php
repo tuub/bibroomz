@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\MailContent;
 use App\Models\MailType;
 use App\Services\Notifications\MailContentLookup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(MailContentLookup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('find returns null when no mail content exists', function (): void {
     $institution = Institution::factory()->create();

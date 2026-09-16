@@ -18,13 +18,13 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);

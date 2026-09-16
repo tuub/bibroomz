@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Services\Admin\SettingAdminService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
 
 covers(SettingAdminService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getIndexData returns settings key', function (): void {
     $institution = Institution::factory()->create();

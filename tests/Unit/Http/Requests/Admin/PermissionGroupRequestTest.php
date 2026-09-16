@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Http\Requests\Admin\PermissionGroupRequest;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(PermissionGroupRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('PermissionGroupRequest defines validation rules', function (): void {
     $request = new PermissionGroupRequest;

@@ -6,14 +6,14 @@ use App\Http\Requests\Admin\StoreUserGroupRequest;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(StoreUserGroupRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

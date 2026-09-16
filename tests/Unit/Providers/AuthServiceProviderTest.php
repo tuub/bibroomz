@@ -13,14 +13,14 @@ use App\Providers\AuthServiceProvider;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 covers(AuthServiceProvider::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     config()->set('roomz.app.timezone', 'UTC');

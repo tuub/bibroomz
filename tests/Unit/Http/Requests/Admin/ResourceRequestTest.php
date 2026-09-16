@@ -7,12 +7,12 @@ use App\Http\Requests\Admin\StoreResourceRequest;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(ResourceRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('ResourceRequest is abstract class with rules method', function (): void {
     $reflection = new ReflectionClass(ResourceRequest::class);

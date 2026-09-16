@@ -5,11 +5,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resource group model can be created', function (): void {
     $institution = Institution::factory()->create();

@@ -10,12 +10,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(AnonymizeHappeningUsersCommand::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-04 12:00:00'));

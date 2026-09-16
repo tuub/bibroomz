@@ -13,12 +13,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\HappeningNotificationService;
 use Database\Seeders\MailTypeSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 
 covers(HappeningNotificationService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('sendForEvent queues no mail when no active mail content exists', function (): void {
     Mail::fake();

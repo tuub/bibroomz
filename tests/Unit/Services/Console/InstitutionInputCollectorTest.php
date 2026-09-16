@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Services\Console\InstitutionInputCollector;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Laravel\Prompts\ConfirmPrompt;
 use Laravel\Prompts\MultiSelectPrompt;
 use Laravel\Prompts\Prompt;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 covers(InstitutionInputCollector::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 /**
  * @param  list<string>  $textResponses

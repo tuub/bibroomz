@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Requests\Admin\UpdateAppSettingRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(UpdateAppSettingRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('rules allow a nullable string system_notification', function (): void {
     $rules = buildFormRequest(UpdateAppSettingRequest::class, [])->rules();

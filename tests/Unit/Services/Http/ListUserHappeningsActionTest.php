@@ -13,14 +13,14 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(ListUserHappeningsAction::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-10 10:00:00', 'UTC'));

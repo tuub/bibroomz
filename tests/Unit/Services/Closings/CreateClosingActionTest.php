@@ -6,13 +6,13 @@ use App\Models\Closing;
 use App\Models\Institution;
 use App\Services\Closings\ClosingEventDispatcher;
 use App\Services\Closings\CreateClosingAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(CreateClosingAction::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 /** @return array<string, mixed> */
 function closingAttributes(Institution $institution): array

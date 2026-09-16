@@ -6,13 +6,13 @@ use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Requests\Admin\ImpersonateUserRequest;
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 covers(ImpersonationController::class, ImpersonateUserRequest::class, UserPolicy::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('an admin can start impersonating another user', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);

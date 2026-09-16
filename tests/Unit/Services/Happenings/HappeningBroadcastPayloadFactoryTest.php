@@ -9,13 +9,13 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\HappeningBroadcastPayloadFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(HappeningBroadcastPayloadFactory::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('payload contains expected top-level happening key', function (): void {
     $institution = Institution::factory()->create();

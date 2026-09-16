@@ -11,13 +11,13 @@ use App\Models\User;
 use App\Services\Admin\ResourceAdminService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 covers(ResourceAdminService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // getIndexData

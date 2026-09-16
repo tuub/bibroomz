@@ -3,11 +3,11 @@
 use App\Models\Institution;
 use App\Traits\HasTranslations;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HasTranslations::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);

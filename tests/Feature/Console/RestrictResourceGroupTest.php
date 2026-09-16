@@ -7,13 +7,13 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\UserGroup;
 use App\Services\Console\ResourceGroupRestrictionInputCollector;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command;
 
 covers(RestrictResourceGroup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('handle returns INVALID when user does not confirm', function (): void {
     // RemoveFunctionCall would remove error('⚠ Cancelled.').

@@ -8,12 +8,12 @@ use App\Models\MailType;
 use App\Models\User;
 use App\Services\Admin\MailAdminService;
 use App\Services\AdminLoggingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(MailAdminService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // getIndexData

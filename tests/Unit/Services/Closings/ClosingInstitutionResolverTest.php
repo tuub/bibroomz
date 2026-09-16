@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Models\Closing;
 use App\Models\Institution;
 use App\Services\Closings\ClosingInstitutionResolver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ClosingInstitutionResolver::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resolveForClosing returns the institution for an institution closing', function (): void {
     $institution = Institution::factory()->create();

@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Console\Commands\CreateUserGroup;
 use App\Models\Institution;
 use App\Models\UserGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(CreateUserGroup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 // ─────────────────────────────────────────────────────────────────
 // Success path

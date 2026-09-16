@@ -5,7 +5,7 @@ use App\Models\Institution;
 use App\Models\UserGroup;
 use App\Services\Console\CreateUserGroupAction;
 use App\Services\Console\UserGroupInputCollector;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(
@@ -14,7 +14,7 @@ covers(
     CreateUserGroupAction::class,
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('create user group command follows the interactive flow', function (): void {
     $institution = Institution::factory()->create(['title' => 'Library']);

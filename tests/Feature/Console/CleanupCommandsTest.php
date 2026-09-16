@@ -18,7 +18,7 @@ use App\Services\Console\RemoveUsersAction;
 use App\Services\Console\RemoveUsersQueryBuilder;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +33,7 @@ covers(
     RemoveUsersQueryBuilder::class
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-04 12:00:00'));

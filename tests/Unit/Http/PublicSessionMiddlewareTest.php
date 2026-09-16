@@ -10,7 +10,7 @@ use App\Services\Http\InertiaSharedDataBuilder;
 use App\Services\Http\LocalePreferenceManager;
 use App\Services\Http\UserActivityRecorder;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -23,7 +23,7 @@ covers(
     UserActivityRecorder::class
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('localization middleware applies the locale from the cookie and queues the default locale otherwise', function (): void {
     app('cookie')->unqueue('locale');

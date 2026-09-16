@@ -8,7 +8,7 @@ use App\Services\Console\CreateInstitutionAction;
 use App\Services\Console\CreateInstitutionResourceGroupAction;
 use App\Services\Console\InstitutionInputCollector;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(
@@ -18,7 +18,7 @@ covers(
     CreateInstitutionResourceGroupAction::class,
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);

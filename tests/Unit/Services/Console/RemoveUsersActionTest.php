@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Services\Console\RemoveUsersAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RemoveUsersAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute deletes all users in collection', function (): void {
     $users = User::factory()->count(3)->create();

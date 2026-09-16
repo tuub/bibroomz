@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\User;
 use App\Services\Notifications\NotificationDispatchService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 
 covers(NotificationDispatchService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('queue returns null when no mail content found', function (): void {
     Mail::fake();

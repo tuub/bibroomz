@@ -7,7 +7,7 @@ use App\Exceptions\AlmaNoEmailException;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +16,7 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(AlmaUserProvider::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => app()['session']->start());
 

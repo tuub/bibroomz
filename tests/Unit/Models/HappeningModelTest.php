@@ -12,7 +12,7 @@ use App\Services\Happenings\HappeningStatusCalculator;
 use App\Services\Resources\ResourceAvailabilityService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
@@ -23,7 +23,7 @@ covers(
     HappeningStatusCalculator::class
 );
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seedPermissions();

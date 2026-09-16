@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Http\Requests\Admin\ResourceGroupIdRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroupIdRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('ResourceGroupIdRequest defines validation rules', function (): void {
     $request = new ResourceGroupIdRequest;

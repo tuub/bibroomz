@@ -13,7 +13,7 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(
@@ -25,7 +25,7 @@ covers(
     ResourceGroupRouteRequest::class
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);

@@ -8,11 +8,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\AdminHappeningPresenter;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(AdminHappeningPresenter::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('present returns array with all expected keys', function (): void {
     $institution = Institution::factory()->create();

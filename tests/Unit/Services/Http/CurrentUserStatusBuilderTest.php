@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Http\CurrentUserStatusBuilder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
 
 covers(CurrentUserStatusBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('build returns isAdmin false for regular user', function (): void {
     $user = User::factory()->create(['is_admin' => false]);

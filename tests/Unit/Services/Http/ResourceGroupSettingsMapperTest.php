@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Services\Http\ResourceGroupSettingsMapper;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroupSettingsMapper::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('map returns institution and resource_group settings indexed by key', function (): void {
     $institution = Institution::factory()->create();

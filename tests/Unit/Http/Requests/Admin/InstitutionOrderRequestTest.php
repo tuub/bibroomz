@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Http\Requests\Admin\InstitutionOrderRequest;
 use App\Models\Institution;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 
 covers(InstitutionOrderRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('InstitutionOrderRequest defines validation rules', function (): void {
     $request = new InstitutionOrderRequest;

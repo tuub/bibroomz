@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Services\Admin\UserGroupAdminService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
 
 covers(UserGroupAdminService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getIndexData returns user_groups key', function (): void {
     $user = User::factory()->create(['is_admin' => true]);

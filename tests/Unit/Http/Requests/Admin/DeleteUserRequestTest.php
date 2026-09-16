@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Http\Requests\Admin\DeleteUserRequest;
 use App\Models\Institution;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(DeleteUserRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

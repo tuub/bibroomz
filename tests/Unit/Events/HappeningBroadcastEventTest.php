@@ -10,11 +10,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HappeningBroadcastEvent::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('broadcastOn returns a private channel keyed by user id', function (): void {
     $institution = Institution::factory()->create();

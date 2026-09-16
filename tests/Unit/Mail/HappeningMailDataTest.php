@@ -10,11 +10,11 @@ use App\Models\MailContent;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HappeningMailData::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('stores all constructor arguments as public properties', function (): void {
     $institution = Institution::factory()->create();

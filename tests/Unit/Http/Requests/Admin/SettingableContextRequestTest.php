@@ -2,13 +2,13 @@
 
 use App\Http\Requests\Admin\SettingableContextRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 covers(SettingableContextRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('authorize returns true', function (): void {
     $user = User::factory()->create();

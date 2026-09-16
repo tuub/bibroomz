@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Services\Http\LoginAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 covers(LoginAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute returns null when credentials are invalid', function (): void {
     $request = Request::create('/login', 'POST');

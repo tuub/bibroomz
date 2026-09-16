@@ -4,13 +4,13 @@ use App\Http\Requests\Admin\UnbanUserRequest;
 use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(UnbanUserRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

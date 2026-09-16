@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\ResourceGroupService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
 
 covers(ResourceGroupService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getResourceGroupById returns the resource group', function (): void {
     $institution = Institution::factory()->create();

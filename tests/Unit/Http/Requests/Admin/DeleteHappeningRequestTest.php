@@ -9,12 +9,12 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(DeleteHappeningRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Rules\UniqueResourceGroupAttributeRule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UniqueResourceGroupAttributeRule::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('validation passes when slug is unique within institution', function (): void {
     $institution = Institution::factory()->create();

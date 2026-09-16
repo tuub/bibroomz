@@ -9,7 +9,7 @@ use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use App\Services\Admin\UserAdminService;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(UserController::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('user controller renders the index payload after authorization', function (): void {
     $service = Mockery::mock(UserAdminService::class);

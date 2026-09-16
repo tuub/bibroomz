@@ -7,11 +7,11 @@ use App\Models\Permission;
 use App\Models\PermissionGroup;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(PermissionGroup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('permission group can be created with translatable fields', function (): void {
     $permGroup = PermissionGroup::forceCreate([

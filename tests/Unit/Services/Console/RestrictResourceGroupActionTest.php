@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\UserGroup;
 use App\Services\Console\RestrictResourceGroupAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RestrictResourceGroupAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('restrict resource group action restricts to user groups', function (): void {
     $institution = Institution::factory()->create();

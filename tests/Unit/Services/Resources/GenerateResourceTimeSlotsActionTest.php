@@ -11,11 +11,11 @@ use App\Services\Resources\GenerateResourceTimeSlotsAction;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(GenerateResourceTimeSlotsAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute returns array with start and end time slots', function (): void {
     $institution = Institution::factory()->create();

@@ -11,13 +11,13 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Admin\StatisticsAdminService;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
 
 covers(StatisticsController::class, StatisticsAdminService::class, StatisticsRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seed(PermissionSeeder::class));
 

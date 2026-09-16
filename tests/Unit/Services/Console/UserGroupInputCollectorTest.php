@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use App\Services\Console\UserGroupInputCollector;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UserGroupInputCollector::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('user group input collector normalizes string selections', function (): void {
     $collector = new UserGroupInputCollector;

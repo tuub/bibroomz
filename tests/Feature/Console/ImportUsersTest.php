@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Console\Commands\ImportUsers;
 use App\Models\Institution;
 use App\Models\UserGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 use Tests\Feature\Console\ImportUsersTestStreamWrapper;
 
 covers(ImportUsers::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 if (! in_array('roomz-import-users-unit', stream_get_wrappers(), true)) {
     stream_wrapper_register('roomz-import-users-unit', ImportUsersTestStreamWrapper::class);

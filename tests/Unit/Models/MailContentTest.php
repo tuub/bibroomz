@@ -8,11 +8,11 @@ use App\Models\MailType;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(MailContent::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('mail content creates with required fields', function (): void {
     $institution = Institution::factory()->create();

@@ -8,12 +8,12 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\WeekDay;
 use App\Services\Admin\BusinessHourSynchronizer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
 covers(BusinessHourSynchronizer::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('sync creates new business hours for resource', function (): void {
     $institution = Institution::factory()->create();

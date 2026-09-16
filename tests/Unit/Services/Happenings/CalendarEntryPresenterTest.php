@@ -9,11 +9,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\CalendarEntryPresenter;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(CalendarEntryPresenter::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('presentHappening returns array with start and end keys', function (): void {
     $institution = Institution::factory()->create();

@@ -3,11 +3,11 @@
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Services\Admin\SettingableResolver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(SettingableResolver::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('settingable resolver resolves institution', function (): void {
     $institution = Institution::factory()->create();

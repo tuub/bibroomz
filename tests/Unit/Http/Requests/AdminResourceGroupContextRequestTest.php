@@ -3,11 +3,11 @@
 use App\Http\Requests\Admin\ResourceGroupContextRequest;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroupContextRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resource group context request defines validation rules', function (): void {
     $request = new ResourceGroupContextRequest;

@@ -9,7 +9,7 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -17,7 +17,7 @@ use Tests\Concerns\InteractsWithPermissions;
 
 covers(ResourceController::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(PermissionSeeder::class);

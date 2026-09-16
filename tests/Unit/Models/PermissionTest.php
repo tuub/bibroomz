@@ -9,11 +9,11 @@ use App\Models\Role;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(Permission::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('permission can be retrieved from seeded data by key', function (): void {
     $this->seed(PermissionSeeder::class);

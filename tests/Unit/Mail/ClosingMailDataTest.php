@@ -8,11 +8,11 @@ use App\Models\Closing;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\MailContent;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ClosingMailData::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('stores all constructor arguments as public properties', function (): void {
     $institution = Institution::factory()->create();

@@ -11,14 +11,14 @@ use App\Services\Http\HomePageDataBuilder;
 use App\Services\Http\InstitutionAccessService;
 use App\Services\Http\LocalePreferenceManager;
 use App\Services\Http\RouteResourceGroupResolver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(HomeController::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('HomeController can be resolved from container', function (): void {
     $controller = app(HomeController::class);

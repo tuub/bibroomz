@@ -9,13 +9,13 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(UpdateResourceRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

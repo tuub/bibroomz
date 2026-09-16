@@ -7,12 +7,12 @@ use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(RoleRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('RoleRequest defines validation rules', function (): void {
     $request = new RoleRequest;

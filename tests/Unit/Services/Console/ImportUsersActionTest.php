@@ -7,11 +7,11 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Services\Console\ImportUsersAction;
 use App\Services\Console\ImportUsersCsvReader;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ImportUsersAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute adds users to user group', function (): void {
     $institution = Institution::factory()->create();

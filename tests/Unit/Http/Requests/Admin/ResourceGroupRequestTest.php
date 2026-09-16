@@ -8,12 +8,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(ResourceGroupRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('ResourceGroupRequest defines validation rules', function (): void {
     $request = new ResourceGroupRequest;

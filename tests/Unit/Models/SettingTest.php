@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(Setting::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('setting getInitialValues returns institution and resource_group keys', function (): void {
     $values = Setting::getInitialValues();

@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Services\Http\RouteResourceGroupResolver;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RouteResourceGroupResolver::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resolve returns the correct resource group by slug pair', function (): void {
     $institution = Institution::factory()->create(['slug' => 'my-institution']);

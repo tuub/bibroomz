@@ -18,7 +18,7 @@ use App\Services\Http\UserActivityRecorder;
 use Carbon\Carbon;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia;
@@ -36,7 +36,7 @@ covers(
     UserActivityRecorder::class,
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);

@@ -12,7 +12,7 @@ use App\Models\WeekDay;
 use App\Services\Admin\SettingableResolver;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(
     Setting::class,
@@ -24,7 +24,7 @@ covers(
     SettingableResolver::class,
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed([PermissionSeeder::class, WeekDaySeeder::class]);

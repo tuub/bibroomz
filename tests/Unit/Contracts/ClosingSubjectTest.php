@@ -6,10 +6,10 @@ use App\Contracts\ClosingSubject;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('institution satisfies ClosingSubject and returns itself as institution for closings', function (): void {
     $institution = Institution::factory()->create();

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Models\Institution;
 use App\Models\UserGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UserGroup::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('user group can be created', function (): void {
     $institution = Institution::factory()->create();

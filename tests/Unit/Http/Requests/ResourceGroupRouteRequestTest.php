@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Requests\ResourceGroupRouteRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(ResourceGroupRouteRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('ResourceGroupRouteRequest defines validation rules', function (): void {
     $request = new ResourceGroupRouteRequest;

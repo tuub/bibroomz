@@ -6,13 +6,13 @@ use App\Http\Requests\Admin\ResourceGroupOrderRequest;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 covers(ResourceGroupOrderRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('ResourceGroupOrderRequest defines validation rules', function (): void {
     $request = new ResourceGroupOrderRequest;

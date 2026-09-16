@@ -13,7 +13,7 @@ use App\Services\Http\LocalePreferenceManager;
 use App\Services\Http\LoginAction;
 use App\Services\Http\LogoutAction;
 use App\Services\Http\RouteResourceGroupResolver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response as InertiaResponse;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -24,7 +24,7 @@ covers(
     HomeController::class,
 );
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('home controller static pages return inertia responses', function (): void {
     $controller = new HomeController(

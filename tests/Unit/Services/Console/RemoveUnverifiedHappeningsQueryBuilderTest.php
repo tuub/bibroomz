@@ -9,11 +9,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Console\RemoveUnverifiedHappeningsQueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RemoveUnverifiedHappeningsQueryBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resolveInstitution returns null for non-string non-int input', function (): void {
     $builder = app(RemoveUnverifiedHappeningsQueryBuilder::class);

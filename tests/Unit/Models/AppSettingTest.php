@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\AppSetting;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 covers(AppSetting::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getDefinitionKeys returns all known global setting keys', function (): void {
     expect(AppSetting::getDefinitionKeys())->toContain('system_notification');

@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Models\Permission;
 use App\Models\Role;
 use App\Services\Admin\RoleAdminService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RoleAdminService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getIndexData returns roles key', function (): void {
     $service = app(RoleAdminService::class);

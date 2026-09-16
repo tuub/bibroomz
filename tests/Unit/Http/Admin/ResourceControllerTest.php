@@ -13,14 +13,14 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Admin\ResourceAdminService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(ResourceController::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 /**
  * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}

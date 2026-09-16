@@ -10,13 +10,13 @@ use App\Models\MailContent;
 use App\Models\User;
 use App\Services\Closings\ClosingNotificationService;
 use App\Services\Notifications\NotificationDispatchService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(ClosingNotificationService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('sendForEvent queues no mail when no active mail content exists', function (): void {
     Mail::fake();

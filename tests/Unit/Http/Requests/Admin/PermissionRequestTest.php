@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Http\Requests\Admin\PermissionRequest;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(PermissionRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('PermissionRequest defines validation rules', function (): void {
     $request = new PermissionRequest;

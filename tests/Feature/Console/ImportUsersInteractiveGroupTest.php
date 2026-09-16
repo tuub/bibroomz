@@ -3,10 +3,10 @@
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 function writeTempImportCsv(string $contents): string
 {

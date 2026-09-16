@@ -7,12 +7,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Admin\ResourceGroupAdminService;
 use App\Services\AdminLoggingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(ResourceGroupAdminService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('getIndexData returns resource groups for institution', function (): void {
     $institution = Institution::factory()->create();

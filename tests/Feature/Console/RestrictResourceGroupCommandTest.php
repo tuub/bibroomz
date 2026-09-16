@@ -6,7 +6,7 @@ use App\Models\ResourceGroup;
 use App\Models\UserGroup;
 use App\Services\Console\ResourceGroupRestrictionInputCollector;
 use App\Services\Console\RestrictResourceGroupAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(
@@ -15,7 +15,7 @@ covers(
     RestrictResourceGroupAction::class,
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('restrict resource group command follows the interactive flow', function (): void {
     $institution = Institution::factory()->create(['title' => 'Library']);

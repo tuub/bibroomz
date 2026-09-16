@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Models\AppSetting;
 use App\Models\User;
 use App\Services\Http\InertiaSharedDataBuilder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 covers(InertiaSharedDataBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('build returns route name and null auth when unauthenticated', function (): void {
     $request = Request::create('/');

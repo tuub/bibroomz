@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
 covers(RouteServiceProvider::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('route service provider defines home constant', function (): void {
     expect(RouteServiceProvider::HOME)->toBe('/home');

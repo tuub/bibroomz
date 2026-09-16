@@ -6,12 +6,12 @@ use App\Models\Closing;
 use App\Models\Institution;
 use App\Services\Closings\ClosingEventDispatcher;
 use App\Services\Closings\DeleteClosingAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
 covers(DeleteClosingAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute deletes the closing', function (): void {
     Event::fake();

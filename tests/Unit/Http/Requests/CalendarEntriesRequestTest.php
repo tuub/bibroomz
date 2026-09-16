@@ -7,12 +7,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Http\RouteResourceGroupResolver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(CalendarEntriesRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('CalendarEntriesRequest defines validation rules', function (): void {
     $request = new CalendarEntriesRequest;

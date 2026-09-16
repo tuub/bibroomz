@@ -7,11 +7,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Services\Http\ListPublicResourcesAction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ListPublicResourcesAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute returns array with resources and pagination keys', function (): void {
     $institution = Institution::factory()->create();

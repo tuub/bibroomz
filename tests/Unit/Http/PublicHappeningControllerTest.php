@@ -17,7 +17,7 @@ use App\Services\Happenings\ListCalendarEntriesAction;
 use App\Services\Happenings\UpdateHappeningAction;
 use App\Services\Happenings\VerifyHappeningAction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -31,7 +31,7 @@ covers(
     UpdateHappeningRequest::class
 );
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 afterEach(function (): void {
     Auth::logout();

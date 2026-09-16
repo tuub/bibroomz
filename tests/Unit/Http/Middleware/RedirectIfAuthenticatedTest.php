@@ -5,14 +5,14 @@ declare(strict_types=1);
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\User;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 covers(RedirectIfAuthenticated::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('handle redirects to HOME when user is authenticated', function (): void {
     $user = User::factory()->create();

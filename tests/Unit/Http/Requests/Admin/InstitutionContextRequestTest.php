@@ -4,12 +4,12 @@ use App\Http\Requests\Admin\InstitutionContextRequest;
 use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 
 covers(InstitutionContextRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('authorize returns true', function (): void {
     $user = User::factory()->create();

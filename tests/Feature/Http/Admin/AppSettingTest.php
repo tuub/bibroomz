@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\AppSettingController;
 use App\Models\AppSetting;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
 
 covers(AppSettingController::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('index returns 403 for non-admin user', function (): void {
     $user = User::factory()->create(['is_admin' => false]);

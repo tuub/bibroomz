@@ -15,14 +15,14 @@ use App\Services\Admin\MailAdminService;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(MailController::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('MailController can be resolved from container', function (): void {
     $controller = app(MailController::class);

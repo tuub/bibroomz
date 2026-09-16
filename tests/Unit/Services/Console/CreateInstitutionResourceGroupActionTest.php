@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Services\Console\CreateInstitutionResourceGroupAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
 covers(CreateInstitutionResourceGroupAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute creates resource group from validated input', function (): void {
     $institution = Institution::factory()->create();

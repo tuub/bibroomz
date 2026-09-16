@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Rules\RequiredWithTranslationRule;
 use App\Rules\UniqueResourceGroupAttributeRule;
 use App\Services\AdminLoggingService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,7 +19,7 @@ covers(
     HappeningValidationException::class
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('required with translation rule fails only when every supported locale is empty', function (): void {
     $validator = Validator::make([

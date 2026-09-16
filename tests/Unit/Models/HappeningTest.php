@@ -13,12 +13,12 @@ use App\Services\Resources\ResourceAvailabilityService;
 use Carbon\CarbonImmutable;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Auth\GenericUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(Happening::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-07-01 10:00:00', 'UTC'));

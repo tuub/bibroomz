@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use App\Services\Console\ResourceGroupRestrictionInputCollector;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroupRestrictionInputCollector::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('resource group restriction input collector resolves selected key by value', function (): void {
     $collector = new ResourceGroupRestrictionInputCollector;

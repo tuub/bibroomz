@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Services\UserGroupService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
 
 covers(UserGroupService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('getUserGroupById returns the user group', function (): void {
     $institution = Institution::factory()->create();

@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Services\Http\HomePageDataBuilder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(HomePageDataBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('buildStartPageData returns props with appName and institutions when multiple resource groups exist', function (): void {
     $institution = Institution::factory()->create(['is_active' => true]);

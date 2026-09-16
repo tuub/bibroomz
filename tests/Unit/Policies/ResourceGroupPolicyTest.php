@@ -6,12 +6,12 @@ use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Policies\ResourceGroupPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(ResourceGroupPolicy::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

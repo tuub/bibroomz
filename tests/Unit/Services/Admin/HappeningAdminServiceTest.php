@@ -10,13 +10,13 @@ use App\Models\User;
 use App\Services\Admin\HappeningAdminService;
 use App\Services\AdminLoggingService;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(HappeningAdminService::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // getIndexData

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Models\Institution;
 use App\Services\Http\InstitutionAccessService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(InstitutionAccessService::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('isIpAllowed returns true when allowed_ips setting contains the ip', function (): void {
     $institution = Institution::factory()->create();

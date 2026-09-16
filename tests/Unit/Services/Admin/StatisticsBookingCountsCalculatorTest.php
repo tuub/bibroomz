@@ -8,11 +8,11 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Services\Admin\StatisticsBookingCountsCalculator;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(StatisticsBookingCountsCalculator::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 /**
  * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}

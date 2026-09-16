@@ -10,12 +10,12 @@ use App\Models\User;
 use App\Services\Http\GetResourceTimeSlotsAction;
 use App\Services\Resources\GenerateResourceTimeSlotsAction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 
 covers(GetResourceTimeSlotsAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute returns time slots array for resource', function (): void {
     $institution = Institution::factory()->create();

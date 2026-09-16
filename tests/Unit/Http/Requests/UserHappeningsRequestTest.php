@@ -3,11 +3,11 @@
 use App\Http\Requests\UserHappeningsRequest;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UserHappeningsRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('user happenings request defines validation rules', function (): void {
     $request = new UserHappeningsRequest;

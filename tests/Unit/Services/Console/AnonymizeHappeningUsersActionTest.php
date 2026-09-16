@@ -9,11 +9,11 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Console\AnonymizeHappeningUsersAction;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(AnonymizeHappeningUsersAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('query returns builder for happenings', function (): void {
     $action = new AnonymizeHappeningUsersAction;

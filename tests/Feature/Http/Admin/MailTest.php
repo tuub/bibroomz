@@ -10,12 +10,12 @@ use App\Models\MailType;
 use App\Models\User;
 use Database\Seeders\MailTypeSeeder;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 
 covers(MailController::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(PermissionSeeder::class);

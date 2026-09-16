@@ -7,13 +7,13 @@ use App\Models\Institution;
 use App\Services\Closings\ClosingEventDispatcher;
 use App\Services\Closings\UpdateClosingAction;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 covers(UpdateClosingAction::class);
 
-uses(MockeryPHPUnitIntegration::class, RefreshDatabase::class);
+uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
 test('execute updates closing attributes', function (): void {
     Event::fake();

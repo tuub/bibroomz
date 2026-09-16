@@ -7,11 +7,11 @@ use App\Models\InstitutionUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(Role::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('role can be created with translatable name', function (): void {
     $role = Role::create(['name' => ['en' => 'Admin', 'de' => 'Administrator'], 'description' => ['en' => 'Desc']]);

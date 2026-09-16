@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Services\Http\LogoutAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 covers(LogoutAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute logs out the authenticated user and clears is_logged_in', function (): void {
     $user = User::factory()->create(['is_logged_in' => true]);

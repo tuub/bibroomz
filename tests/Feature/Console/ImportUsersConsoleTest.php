@@ -7,7 +7,7 @@ use App\Models\UserGroup;
 use App\Services\Console\ImportUsersAction;
 use App\Services\Console\ImportUsersColumnsResolver;
 use App\Services\Console\ImportUsersDefaultsParser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Symfony\Component\Console\Command\Command;
 
 covers(
@@ -17,7 +17,7 @@ covers(
     ImportUsersDefaultsParser::class
 );
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 function writeFeatureTempCsv(string $contents): string
 {

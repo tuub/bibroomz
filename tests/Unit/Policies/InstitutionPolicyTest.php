@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\User;
 use App\Policies\InstitutionPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(InstitutionPolicy::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('InstitutionPolicy create returns bool for user without permissions', function (): void {
     $user = User::factory()->create(['is_admin' => false]);

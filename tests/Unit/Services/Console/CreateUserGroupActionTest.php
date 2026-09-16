@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Models\Institution;
 use App\Models\UserGroup;
 use App\Services\Console\CreateUserGroupAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
 covers(CreateUserGroupAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute creates user group', function (): void {
     $institution = Institution::factory()->create();

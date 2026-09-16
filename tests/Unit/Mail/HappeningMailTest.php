@@ -12,13 +12,13 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 
 covers(HappeningMail::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('constructor assigns happening and content from data object', function (): void {
     $institution = Institution::factory()->create();

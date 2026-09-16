@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Requests\Admin\SettingKeyRequest;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 covers(SettingKeyRequest::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('SettingKeyRequest defines validation rules', function (): void {
     $request = new SettingKeyRequest;

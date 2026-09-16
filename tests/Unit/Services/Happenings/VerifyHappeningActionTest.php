@@ -10,12 +10,12 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Services\Happenings\VerifyHappeningAction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
 covers(VerifyHappeningAction::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('execute throws when user is not allowed in resource group', function (): void {
     Event::fake();

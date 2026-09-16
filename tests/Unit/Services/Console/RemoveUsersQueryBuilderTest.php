@@ -6,11 +6,11 @@ use App\Models\User;
 use App\Services\Console\RemoveUsersQueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(RemoveUsersQueryBuilder::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('build returns a query builder', function (): void {
     $builder = new RemoveUsersQueryBuilder;

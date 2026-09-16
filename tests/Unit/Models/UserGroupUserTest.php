@@ -6,11 +6,11 @@ use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserGroupUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(UserGroupUser::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('user group user pivot can be created via relationship', function (): void {
     $institution = Institution::factory()->create();

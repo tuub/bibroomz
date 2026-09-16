@@ -6,14 +6,14 @@ use App\Http\Requests\Admin\UpdateSettingRequest;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithPermissions;
 
 covers(UpdateSettingRequest::class);
 
-uses(InteractsWithPermissions::class, RefreshDatabase::class);
+uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 

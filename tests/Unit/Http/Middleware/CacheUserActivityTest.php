@@ -6,13 +6,13 @@ use App\Http\Middleware\CacheUserActivity;
 use App\Models\User;
 use App\Services\Http\UserActivityRecorder;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 covers(CacheUserActivity::class);
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 test('CacheUserActivity is a middleware', function (): void {
     $middleware = app(CacheUserActivity::class);
