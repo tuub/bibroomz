@@ -29,5 +29,12 @@ return [
             'header' => 'Umsatzsteueridentifikationsnummer (USt-Id-Nr.)',
             'content' => 'DE 811 231 089',
         ],
+        'source_code' => [
+            'header' => 'Quellcode',
+            'content' => 'Diese Anwendung steht unter der GNU General Public License v3.0. Der vollständige
+                          Quellcode ist verfügbar',
+            'link_label' => 'auf GitHub',
+            'link' => 'https://github.com/tuub/bibroomz',
+        ],
     ],
 ];

@@ -23,5 +23,11 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
                 {{ $t("navigation.site_credits") }}
             </InternalLink>
         </div>
+        <div class="p-2">|</div>
+        <div>
+            <ExternalLink href="https://github.com/tuub/bibroomz">
+                {{ $t("navigation.source_code") }}
+            </ExternalLink>
+        </div>
     </footer>
 </template>

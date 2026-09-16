@@ -15,6 +15,20 @@
 
     <h1 class="mt-5 text-xl font-bold">{{ $t("site_credits.paragraphs.tax_id.header") }}</h1>
     <p>{{ $t("site_credits.paragraphs.tax_id.content") }}</p>
+
+    <h1 class="mt-5 text-xl font-bold">{{ $t("site_credits.paragraphs.source_code.header") }}</h1>
+    <p>
+        {{ $t("site_credits.paragraphs.source_code.content") }}
+        <a
+            :href="$t('site_credits.paragraphs.source_code.link')"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-tub dark:text-app-text hover:underline"
+        >
+            <i class="ri-github-fill" aria-hidden="true"></i>
+            {{ $t("site_credits.paragraphs.source_code.link_label") }} </a
+        >.
+    </p>
 </template>
 
 <script setup lang="ts">

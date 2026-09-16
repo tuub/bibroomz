@@ -29,5 +29,12 @@ return [
             'header' => 'Value added tax identification number',
             'content' => 'DE 811 231 089',
         ],
+        'source_code' => [
+            'header' => 'Source Code',
+            'content' => 'This application is licensed under the GNU General Public License v3.0. The
+                          complete source code is available',
+            'link_label' => 'on GitHub',
+            'link' => 'https://github.com/tuub/bibroomz',
+        ],
     ],
 ];

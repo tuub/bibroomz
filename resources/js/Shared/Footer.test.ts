@@ -46,5 +46,6 @@ describe("Footer", () => {
 
         expect(links[0]!.attributes("href")).toBe("https://www.tu.berlin/datenschutz");
         expect(links[1]!.attributes("href")).toBe("/site_credits");
+        expect(links[2]!.attributes("href")).toBe("https://github.com/tuub/bibroomz");
     });
 });

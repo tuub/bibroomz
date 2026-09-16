@@ -14,6 +14,7 @@ return [
     'logout' => 'Logout',
     'privacy_statement' => 'Privacy Statement',
     'site_credits' => 'Site Credits',
+    'source_code' => 'Source Code',
     'jump_to_sidebar' => 'To your booking overview',
     'theme' => [
         'system' => 'System',

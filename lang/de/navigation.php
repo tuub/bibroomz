@@ -14,6 +14,7 @@ return [
     'logout' => 'Abmelden',
     'privacy_statement' => 'Datenschutzhinweis',
     'site_credits' => 'Impressum',
+    'source_code' => 'Quellcode',
     'jump_to_sidebar' => 'Zu Ihrer Buchungsübersicht',
     'theme' => [
         'system' => 'System',
