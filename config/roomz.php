@@ -9,6 +9,9 @@ return [
     'log' => [
         'level' => env('LOG_LEVEL', 'warning'),
     ],
+    'frontend' => [
+        'build_directory' => env('ROOMZ_VITE_BUILD_DIRECTORY'),
+    ],
     'auth' => [
         'api' => [
             'endpoint' => env('AUTH_API_ENDPOINT', 'http://my.api.org'),

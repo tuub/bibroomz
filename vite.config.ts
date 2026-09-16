@@ -8,6 +8,8 @@ import Components from "unplugin-vue-components/vite";
 import { URL, fileURLToPath } from "url";
 import { type Plugin, defineConfig } from "vite";
 
+const buildDirectory = process.env.ROOMZ_VITE_BUILD_DIRECTORY?.trim();
+
 function ziggyGenerate(): Plugin {
     return {
         name: "ziggy-generate",
@@ -42,6 +44,7 @@ export default defineConfig({
         laravel({
             input: ["resources/js/app.ts", "resources/css/main.css"],
             refresh: true,
+            ...(buildDirectory ? { buildDirectory } : {}),
         }),
         i18n(),
     ],

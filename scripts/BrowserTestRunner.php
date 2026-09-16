@@ -39,6 +39,8 @@ final class BrowserTestRunner
 
     private ?string $browserStorageDir = null;
 
+    private ?string $frontendBuildLink = null;
+
     private ?bool $hasSetsid = null;
 
     /** @var list<array{process: resource, pid:int, log:string}> */
@@ -148,6 +150,8 @@ final class BrowserTestRunner
         $this->ensureDirectory($this->browserStorageDir.'/logs');
         $this->ok(sprintf('storage: %s', $this->browserStorageDir));
 
+        $this->prepareFrontendBuildDirectory();
+
         $this->step('Building frontend assets');
         $this->runCommandOrFail(['npm', 'run', 'build']);
         $this->ok('frontend assets');
@@ -220,6 +224,10 @@ final class BrowserTestRunner
     {
         foreach (array_reverse($this->backgroundProcesses) as $processData) {
             $this->stopBackgroundProcess($processData);
+        }
+
+        if ($this->frontendBuildLink !== null && is_link($this->frontendBuildLink)) {
+            @unlink($this->frontendBuildLink);
         }
 
         if ($this->browserStorageDir !== null && is_dir($this->browserStorageDir)) {
@@ -405,6 +413,31 @@ final class BrowserTestRunner
         if (! mkdir($directory, 0777, true) && ! is_dir($directory)) {
             $this->fail(sprintf('Could not create directory: %s', $directory));
         }
+    }
+
+    private function prepareFrontendBuildDirectory(): void
+    {
+        if ($this->browserStorageDir === null) {
+            $this->fail('Browser storage directory must exist before preparing frontend assets.');
+        }
+
+        $buildDirectory = 'build-browser-'.bin2hex(random_bytes(6));
+        $buildTarget = $this->browserStorageDir.'/public-build';
+        $buildLink = $this->rootDir.'/public/'.$buildDirectory;
+
+        $this->ensureDirectory($buildTarget);
+
+        if (file_exists($buildLink) || is_link($buildLink)) {
+            $this->fail(sprintf('Frontend build path already exists: %s', $buildLink));
+        }
+
+        if (! @symlink($buildTarget, $buildLink)) {
+            $this->fail(sprintf('Could not create frontend build symlink: %s -> %s', $buildLink, $buildTarget));
+        }
+
+        $this->frontendBuildLink = $buildLink;
+        $this->setEnvironmentVariable('ROOMZ_VITE_BUILD_DIRECTORY', $buildDirectory);
+        $this->ok(sprintf('frontend build: public/%s -> %s', $buildDirectory, $buildTarget));
     }
 
     private function createTemporaryDirectory(string $prefix): string
