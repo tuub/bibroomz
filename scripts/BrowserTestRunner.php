@@ -429,7 +429,7 @@ final class BrowserTestRunner
     private function captureCommand(array $command): array
     {
         $process = proc_open(
-            implode(' ', array_map(escapeshellarg(...), $command)),
+            $command,
             [
                 0 => ['file', 'php://stdin', 'r'],
                 1 => ['pipe', 'w'],
@@ -463,7 +463,7 @@ final class BrowserTestRunner
     private function runCommandOrFail(array $command): int
     {
         $process = proc_open(
-            implode(' ', array_map(escapeshellarg(...), $command)),
+            $command,
             [
                 0 => ['file', 'php://stdin', 'r'],
                 1 => ['file', 'php://stdout', 'w'],
