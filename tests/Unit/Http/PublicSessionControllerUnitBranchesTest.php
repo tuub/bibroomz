@@ -26,7 +26,7 @@ covers(
 
 uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 
-test('home controller static pages return inertia responses', function (): void {
+test('home controller site credits page returns an inertia response', function (): void {
     $controller = new HomeController(
         Mockery::mock(HomePageDataBuilder::class),
         Mockery::mock(InstitutionAccessService::class),
@@ -34,8 +34,7 @@ test('home controller static pages return inertia responses', function (): void 
         Mockery::mock(RouteResourceGroupResolver::class),
     );
 
-    expect($controller->getPrivacyStatement())->toBeInstanceOf(InertiaResponse::class)
-        ->and($controller->getSiteCredits())->toBeInstanceOf(InertiaResponse::class);
+    expect($controller->getSiteCredits())->toBeInstanceOf(InertiaResponse::class);
 });
 
 test('home controller redirects blocked terminal views back to the start page', function (): void {

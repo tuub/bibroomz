@@ -230,11 +230,7 @@ test('terminal view preserves the current inertia payload contract', function ()
             ->where('hiddenDays', []));
 });
 
-test('privacy statement and site credits routes render their inertia components', function (): void {
-    $this->get(route('privacy_statement'))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('PrivacyStatement'));
-
+test('site credits route renders its inertia component', function (): void {
     $this->get(route('site_credits'))
         ->assertOk()
         ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('SiteCredits'));

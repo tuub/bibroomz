@@ -60,11 +60,6 @@ class HomeController extends Controller
         return Inertia::render('Home', $this->homePageDataBuilder->buildHomePageData($resourceGroup));
     }
 
-    public function getPrivacyStatement(): Response
-    {
-        return Inertia::render('PrivacyStatement');
-    }
-
     public function getSiteCredits(): Response
     {
         return Inertia::render('SiteCredits');

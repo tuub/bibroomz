@@ -51,7 +51,7 @@ describe("Breadcrumbs", () => {
     });
 
     test("links the home icon back to the start page", () => {
-        const wrapper = render("privacy_statement");
+        const wrapper = render("site_credits");
 
         const homeLink = wrapper.find(".p-breadcrumb-home-item a");
 
@@ -60,12 +60,12 @@ describe("Breadcrumbs", () => {
     });
 
     test("maps known routes into linked breadcrumb items", () => {
-        const wrapper = render("privacy_statement");
+        const wrapper = render("site_credits");
 
         const crumbs = wrapper.findAll(".p-breadcrumb-item:not(.p-breadcrumb-home-item) a");
 
         expect(crumbs).toHaveLength(1);
-        expect(crumbs[0]!.text()).toBe("PRIVACY");
-        expect(crumbs[0]!.attributes("href")).toBe("/privacy_statement");
+        expect(crumbs[0]!.text()).toBe("IMPRINT");
+        expect(crumbs[0]!.attributes("href")).toBe("/site_credits");
     });
 });

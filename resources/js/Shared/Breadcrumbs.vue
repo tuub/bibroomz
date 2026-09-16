@@ -25,7 +25,6 @@ const items = computed(() => {
     // Define mappings
     const routesMap: Record<string, { label: string; url: string }> = {
         start: { label: "START", url: route("start") },
-        privacy_statement: { label: "PRIVACY", url: route("privacy_statement") },
         site_credits: { label: "IMPRINT", url: route("site_credits") },
     };
 
