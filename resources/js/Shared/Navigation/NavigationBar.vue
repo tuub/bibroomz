@@ -68,11 +68,11 @@ const { loginUser, logoutUser } = useLogin();
                     v-if="isAuthenticated"
                     id="auth"
                     href="#"
-                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast flex rounded-sm px-3 py-2"
                     title="Logout"
                     @click="logoutUser"
                 >
-                    <i class="pi pi-user"></i>
+                    <div class="mr-2"><i class="pi pi-user"></i></div>
                     {{ $t("navigation.logout") }}
                     ({{ currentUser?.name }})
                 </a>
@@ -80,11 +80,11 @@ const { loginUser, logoutUser } = useLogin();
                     v-else
                     id="auth"
                     href="#"
-                    class="text-tub hover:bg-tub hover:text-brand-contrast block rounded-sm px-3 py-2"
+                    class="text-tub hover:bg-tub hover:text-brand-contrast flex rounded-sm px-3 py-2"
                     title="Login"
                     @click="loginUser"
                 >
-                    <i class="pi pi-user"></i>
+                    <div class="mr-2"><i class="pi pi-user"></i></div>
                     {{ $t("navigation.login") }}
                 </a>
             </li>
