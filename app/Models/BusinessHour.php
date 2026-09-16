@@ -144,10 +144,16 @@ class BusinessHour extends Model
         return [$is_open, $start, $end];
     }
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
+        ];
+    }
 }

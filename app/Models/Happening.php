@@ -262,13 +262,19 @@ class Happening extends Model
         return $is_open && ! $is_closed;
     }
 
-    protected $casts = [
-        'is_verified' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'start' => 'datetime',
-        'end' => 'datetime',
-        'reserved_at' => 'datetime',
-        'verified_at' => 'datetime',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_verified' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'start' => 'datetime',
+            'end' => 'datetime',
+            'reserved_at' => 'datetime',
+            'verified_at' => 'datetime',
+        ];
+    }
 }

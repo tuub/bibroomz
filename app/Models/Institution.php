@@ -217,7 +217,13 @@ class Institution extends Model implements ClosingSubject, SettingSubject
         return $this;
     }
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

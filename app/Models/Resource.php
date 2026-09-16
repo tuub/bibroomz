@@ -148,8 +148,14 @@ class Resource extends Model implements ClosingSubject
             ->get();
     }
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'is_verification_required' => 'boolean',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'is_verification_required' => 'boolean',
+        ];
+    }
 }

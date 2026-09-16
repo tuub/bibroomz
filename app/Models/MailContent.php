@@ -76,7 +76,13 @@ class MailContent extends Model
         return $user->can('view', $this);
     }
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

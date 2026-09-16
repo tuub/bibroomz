@@ -225,18 +225,19 @@ class User extends Authenticatable implements BannableInterface
     }
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'is_admin' => 'boolean',
-        'is_system_user' => 'boolean',
-        'is_logged_in' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'banned_at' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'last_login' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_admin' => 'boolean',
+            'is_system_user' => 'boolean',
+            'is_logged_in' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'banned_at' => 'datetime',
+            'email_verified_at' => 'datetime',
+            'last_login' => 'datetime',
+        ];
+    }
 }

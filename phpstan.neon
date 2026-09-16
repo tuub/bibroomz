@@ -16,6 +16,7 @@ parameters:
     - stubs/PestTestCall.stub
   universalObjectCratesClasses:
     - Pest\Support\HigherOrderTapProxy
+  parseModelCastsMethod: true
   ignoreErrors:
     # Collection::get() returns T|null; offset access is safe when key is known to exist
     - message: '#Offset .+ might not exist on array\{.+\}\|null#'

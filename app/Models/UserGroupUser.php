@@ -30,12 +30,13 @@ class UserGroupUser extends Pivot
     }
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'valid_from' => 'date',
-        'valid_until' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'valid_from' => 'date',
+            'valid_until' => 'date',
+        ];
+    }
 }

@@ -164,7 +164,13 @@ class ResourceGroup extends Model implements SettingSubject
         return false;
     }
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

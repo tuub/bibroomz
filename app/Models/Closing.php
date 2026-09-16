@@ -153,9 +153,15 @@ class Closing extends Model
         return static::onlyTrashed();
     }
 
-    protected $casts = [
-        'start' => 'datetime',
-        'end' => 'datetime',
-        'notify_users' => 'boolean',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'start' => 'datetime',
+            'end' => 'datetime',
+            'notify_users' => 'boolean',
+        ];
+    }
 }
