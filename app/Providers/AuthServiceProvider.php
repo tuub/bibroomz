@@ -7,7 +7,6 @@ use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Role;
 use App\Models\User;
-use App\Policies\HappeningPolicy;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -17,13 +16,10 @@ use Illuminate\Support\Facades\Gate;
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
+     * All policies (App\Policies\{Model}Policy for App\Models\{Model}) are resolved
+     * via Laravel's naming-convention auto-discovery, so none are registered here.
      */
-    protected $policies = [
-        Happening::class => HappeningPolicy::class,
-    ];
+    protected $policies = [];
 
     /**
      * Register any authentication / authorization services.
