@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeApplicationServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,12 @@ class AppServiceProvider extends ServiceProvider
     #[\Override]
     public function register(): void
     {
-        //
+        // Telescope is a development dependency, so deployments that install
+        // production dependencies only do not ship it. Registering the
+        // application's provider unconditionally would fatal on boot there.
+        if (class_exists(TelescopeApplicationServiceProvider::class)) {
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
