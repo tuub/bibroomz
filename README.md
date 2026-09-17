@@ -259,6 +259,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now roomz-reverb.service roomz-queue.service roomz-scheduler.service
 ```
 
+For per-branch review environments, see [review app setup and operations](review/README.md).
+
 # Redeployment
 
 The GitLab deploy jobs SSH into the target host, check out the selected commit, and run `scripts/deploy.sh` with the
@@ -271,6 +273,19 @@ scripts/deploy.sh "$BUILD_PREFIX"
 The script installs PHP and Node dependencies, warms Laravel caches with `php artisan optimize --except=routes`,
 runs forced migrations with seeders, and builds the frontend with
 `npm run build -- --base="$BUILD_PREFIX/build"`.
+
+Two optional flags trade redeployment time for disk:
+
+- `--no-dev` passes `--no-dev` to `composer install`, which takes `vendor/` from about 500 MB to 70 MB.
+- `--prune-node-modules` deletes `node_modules` after the frontend build, saving a further 350 MB.
+
+```bash
+scripts/deploy.sh --no-dev --prune-node-modules "$BUILD_PREFIX"
+```
+
+Staging and demo deploy without them and keep their full dependency trees, so both hosts currently carry the
+development dependencies too. Adding `--no-dev` there is safe — the application boots without them — but it removes
+Telescope, which is a development dependency.
 
 If you need to run the steps manually, keep the same order:
 

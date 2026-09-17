@@ -1,0 +1,14 @@
+[Unit]
+Description=BibRoomz scheduler for review app %i
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/review/apps/%i
+ExecStart=/usr/bin/env php artisan schedule:work
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

@@ -1,3 +1,6 @@
+include:
+  - local: review/gitlab-ci.yml
+
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH =~ /^dependabot\/.*/
@@ -74,7 +77,7 @@ dependabot:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
-.deploy:
+.ssh:
   stage: deploy
   image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
   needs: []
@@ -87,6 +90,10 @@ dependabot:
     - chmod 700 ~/.ssh
     - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+  interruptible: false
+
+.deploy:
+  extends: .ssh
   script:
     - |
       ssh "${SSH_USER}@${SSH_HOSTNAME}" bash -o errexit -o xtrace <<EOT
@@ -96,7 +103,6 @@ dependabot:
       scripts/deploy.sh $BUILD_PREFIX
       EOT
   resource_group: $SSH_HOSTNAME
-  interruptible: false
   when: manual
 
 ### install stage

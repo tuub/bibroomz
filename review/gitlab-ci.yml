@@ -1,0 +1,36 @@
+# Review apps: one independent deployment per branch, living beside staging on
+# the same host under /review/<branch-slug>. review/review-app.sh is piped in
+# over SSH so the host always runs this commit's version of it.
+.review:
+  extends: .ssh
+  # Keyed per branch so review deployments do not queue behind each other.
+  resource_group: $SSH_HOSTNAME-$CI_COMMIT_REF_SLUG
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: manual
+      allow_failure: true
+
+deploy-review:
+  extends: .review
+  script:
+    - |
+      ssh "${SSH_USER}@${SSH_HOSTNAME}" \
+        "REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
+         REVIEW_REPOSITORY_URL='$CI_REPOSITORY_URL' \
+         REVIEW_COMMIT_SHA='$CI_COMMIT_SHA' \
+         bash -s deploy" < review/review-app.sh
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    url: https://roomz.onit-ub.tu-berlin.de/review/$CI_COMMIT_REF_SLUG
+    on_stop: stop-review
+    auto_stop_in: 14 days
+
+stop-review:
+  extends: .review
+  script:
+    - |
+      ssh "${SSH_USER}@${SSH_HOSTNAME}" \
+        "REVIEW_SLUG='$CI_COMMIT_REF_SLUG' bash -s destroy" < review/review-app.sh
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    action: stop

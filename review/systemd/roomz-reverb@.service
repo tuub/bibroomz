@@ -1,0 +1,14 @@
+[Unit]
+Description=BibRoomz Reverb websocket server for review app %i
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/review/apps/%i
+ExecStart=/usr/bin/env php artisan reverb:start
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target
