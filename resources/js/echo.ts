@@ -20,6 +20,9 @@ window.Echo = new Echo({
     wsPort: import.meta.env.VITE_REVERB_PORT ?? import.meta.env.VITE_PUSHER_PORT ?? baseUrl.port ?? 80,
     wssPort: import.meta.env.VITE_REVERB_PORT ?? import.meta.env.VITE_PUSHER_PORT ?? baseUrl.port ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? import.meta.env.VITE_PUSHER_SCHEME ?? protocol) === "https",
+    // Set when the app is served under a path prefix (review apps, demo), where
+    // the reverse proxy routes "<prefix>/app/..." to this app's own Reverb.
+    wsPath: import.meta.env.VITE_REVERB_PATH ?? "",
     enabledTransports: ["ws", "wss"],
     authEndpoint,
 });

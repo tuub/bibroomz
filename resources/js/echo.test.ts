@@ -38,6 +38,7 @@ const ECHO_ENV_VARS = [
     "VITE_PUSHER_PORT",
     "VITE_REVERB_SCHEME",
     "VITE_PUSHER_SCHEME",
+    "VITE_REVERB_PATH",
 ] as const;
 
 beforeEach(() => {
@@ -134,6 +135,23 @@ describe("echo bootstrap", () => {
         expect(config.wsPort).toBe("9000");
         expect(config.wssPort).toBe("9000");
         expect(config.forceTLS).toBe(true);
+    });
+
+    test("defaults the websocket path to an empty string", async () => {
+        setMetaBaseUrl("https://rooms.example.com/");
+
+        const config = await loadEcho();
+
+        expect(config.wsPath).toBe("");
+    });
+
+    test("uses the configured websocket path when the app is served under a prefix", async () => {
+        setMetaBaseUrl("https://rooms.example.com/review/my-branch");
+        vi.stubEnv("VITE_REVERB_PATH", "/review/my-branch");
+
+        const config = await loadEcho();
+
+        expect(config.wsPath).toBe("/review/my-branch");
     });
 
     test("strips exactly one trailing slash from the pathname when building the auth endpoint", async () => {
