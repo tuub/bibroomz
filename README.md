@@ -289,3 +289,8 @@ the app-managed services with:
 ```bash
 sudo systemctl restart roomz-reverb.service roomz-queue.service roomz-scheduler.service
 ```
+
+# License
+
+This application is licensed under the GNU General Public License v3.0 (GPL-3.0-or-later). See
+[`LICENSE`](LICENSE) for the full text.

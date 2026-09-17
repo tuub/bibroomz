@@ -1,6 +1,7 @@
 {
     "name": "bibroomz",
     "private": true,
+    "license": "GPL-3.0-or-later",
     "packageManager": "npm@11.12.1",
     "type": "module",
     "scripts": {
