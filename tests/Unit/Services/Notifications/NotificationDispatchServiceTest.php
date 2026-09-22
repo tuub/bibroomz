@@ -23,7 +23,7 @@ test('queue returns null when no mail content found', function (): void {
     {
         public function build(): static
         {
-            return $this->text('emails.test');
+            return $this->text('emails.text.mail');
         }
     });
 
