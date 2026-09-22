@@ -1,6 +1,17 @@
-.fc-timegrid-body {
-    cursor: grab;
-}
+/*
+    Everything the room calendar renders.
+
+    Two prefixes, for two different kinds of element. `roomz-calendar-*` names
+    are handed to FullCalendar through its class hooks (slotLaneClass,
+    dayHeaderInnerClass, eventClass, ...) and land on elements FullCalendar owns
+    inside a single column - see ResourceGridCalendar.ts. `roomz-grid-*` names
+    belong to the wrapper elements ResourceGrid.vue renders around those
+    columns, and exist only because this view is N side-by-side calendars rather
+    than the one resource calendar it replaced.
+
+    Keying off FullCalendar's own class names is not an option either way: v7
+    minifies them (fc-vg, fc-Dh, ...) and they are not a stable contract.
+*/
 
 /* Clamp event content to the number of lines the slot can fit, breaking
    long unbroken strings (e.g. usernames) instead of letting them overflow. */
@@ -12,57 +23,210 @@
     overflow-wrap: anywhere;
 }
 
-/* Firefox fix for now-indicator */
-.fc .fc-timegrid-now-indicator-container {
-    overflow: visible;
+/* Dims the grid while a resource page is being fetched, so a paging click
+   gets an immediate visual response instead of the grid sitting static
+   until the new resources swap in all at once. `grayscale` is required
+   (not just `opacity`): blending any amount of a neutral color over a
+   saturated event color (e.g. the yellow reservation status) only pales
+   it toward that same hue, it never reads as "dimmed". */
+.full-calendar {
+    transition:
+        filter 0.15s ease,
+        opacity 0.15s ease;
 }
 
-.fc-non-business {
-    background-color: rgb(var(--app-border-rgb)) !important;
+.roomz-calendar-loading {
+    opacity: 0.6;
+    filter: grayscale(1);
 }
 
-div.fc-timegrid-slots tr {
+.roomz-grid-root {
+    /* Width the first column reserves for FullCalendar's time axis, so every
+       room column ends up the same width despite only the first one rendering
+       an axis. Cosmetic only - row alignment comes from each instance sharing
+       the same slotDuration/slotMinTime/slotMaxTime, not from this value. */
+    --roomz-grid-axis-width: 2.875rem;
+
+    /* Leading space v7 reserves for the time axis in a column that shows no
+       labels: an 8px row spacer plus the 1px axis divider plus the calendar's
+       1px outer border. Clipped away by the rule further down. */
+    --roomz-grid-axis-remnant: 10px;
+
+    box-shadow:
+        0 1px 3px 0 rgb(var(--calendar-overlay) / 10%),
+        0 1px 2px -1px rgb(var(--calendar-overlay) / 10%);
+}
+
+.roomz-grid-row {
+    display: flex;
+    align-items: stretch;
+}
+
+/* The tokens the classic theme reads. Set per column rather than once on the
+   root, because each column is its own calendar instance and the theme resolves
+   them against the element it renders into. */
+.roomz-grid-col {
+    --fc-classic-background: rgb(var(--app-surface-rgb));
+    --fc-classic-border: rgb(var(--app-subtle-rgb));
+    --fc-classic-strong-border: rgb(var(--app-muted-rgb));
+    --fc-classic-faint: rgb(var(--app-field-rgb));
+    --fc-classic-foreground: rgb(var(--app-text-rgb));
+    --fc-classic-muted: rgb(var(--app-field-rgb));
+    --fc-classic-muted-foreground: rgb(var(--app-muted-rgb));
+
+    /* The theme uses this token in exactly one place: the background of the
+       interactive day-lane surface. That surface is stacked on top of the
+       slot-lane striping rows, so anything opaque here paints the striping out.
+       Keeping it transparent is what makes the stripes visible - and there is no
+       "today" highlight to preserve, since a column only ever shows one date. */
+    --fc-classic-today: transparent;
+
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Starts its flex sizing at the axis width so the *day* part of this column
+   matches the others, which have no axis to pay for. */
+.roomz-grid-col-first {
+    flex-basis: var(--roomz-grid-axis-width);
+}
+
+/* Only the first column shows the time axis; the rest collapse theirs so the
+   grid reads as one continuous table. Applied through the slotHeaderClass hook
+   (see getSlotHeaderClass) rather than a descendant selector, because v7's own
+   class names are minified and not a stable contract. */
+.roomz-grid-axis-collapsed {
+    border-inline: 0;
+    padding: 0;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    overflow: hidden;
+    color: transparent;
+    white-space: nowrap;
+}
+
+/* Columns 2..N still reserve a sliver of leading space that no public hook can
+   reach: v7 renders a spacer element into every body row to stand in for the
+   time axis, and that element carries only minified `fc-*` class names. It is a
+   fixed 8px - it does not follow the (now zero-width) label content - plus the
+   1px axis divider and the calendar's own 1px outer border, so it is a constant
+   rather than something that drifts with font or locale.
+
+   Shifting the whole calendar left by that constant and clipping at the column
+   edge is what removes it. The alternative - a negative margin on the column
+   itself - would overlap the sliver onto the previous column's events instead of
+   discarding it. Clipping also drops the now-indicator arrow in columns 2..N,
+   which is what the premium view did anyway: one arrow, at the grid's left edge.
+
+   The shift clips the calendar's own left border, so the single grid line
+   between two columns is the left neighbour's right border.
+
+   `clip` rather than `hidden`, and on one axis only: `overflow: hidden` would
+   make each column its own scrollport, and the sticky room header inside it
+   would then stick to that never-scrolling box instead of the page - leaving
+   only the first column's header sticky. `clip` clips without creating a
+   scrollport, so the headers keep resolving against the page scroll. */
+.roomz-grid-col:not(.roomz-grid-col-first) {
+    overflow-x: clip;
+}
+
+.roomz-grid-col:not(.roomz-grid-col-first) > * {
+    margin-inline-start: calc(-1 * var(--roomz-grid-axis-remnant));
+}
+
+/* The content fed to the collapsed axis labels (see slotHeaderContent in
+   ResourceGridCalendar.ts). Inline-block so it still establishes a line box -
+   that line box is what gives the slot row its height - while taking no width. */
+.roomz-grid-axis-spacer {
+    display: inline-block;
+    width: 0;
+}
+
+/* Room names wrap, and a name that wraps onto a second line in one column would
+   push that column's grid down relative to its neighbours - the one alignment
+   risk this layout has that the single-calendar premium view did not, since
+   there a single header row sized all the resource cells together.
+
+   Every header is pinned to the tallest one instead. The height is measured at
+   runtime (see equalizeHeaderHeights in ResourceGrid.vue) rather than fixed
+   here: a fixed height would have to either clamp long names - truncating text
+   the premium view showed in full - or reserve space for a worst case that most
+   resource groups never hit. The fallback covers the window before the first
+   measurement lands. */
+.roomz-calendar-resource-header-inner {
+    display: block;
+    box-sizing: border-box;
+    padding: 0.5rem 0.25rem;
+    height: var(--roomz-grid-header-height, auto);
+    min-height: 3.25rem;
+    overflow: hidden;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    white-space: normal;
+}
+
+/* The header's bottom edge. FullCalendar renders a dedicated element for this
+   spanning the full header width (axis corner included), which the
+   dayHeaderDividerClass option targets - see ResourceGridCalendar.ts. Styling
+   that element rather than the header cells' own border-bottom avoids fighting
+   the skeleton stylesheet, which zeroes that border with !important. */
+.roomz-calendar-day-header-divider {
+    /* The theme gives this element a 1px border of its own and box-sizing is
+       border-box, so without zeroing that border the declared height would be
+       split between the border's color and this background. */
+    border: 0;
+    background-color: rgb(var(--app-muted-rgb));
+    height: 2px;
+}
+
+.roomz-calendar-slot-lane {
     background-color: rgb(var(--app-surface-rgb));
 }
 
-.fc-timegrid-axis-frame i.ri-time-line {
-    @apply mx-auto mt-0.5;
+/* app-field-rgb is nearly indistinguishable from app-surface-rgb in light
+   mode (249 vs 255), so the zebra striping was effectively invisible there
+   even though it read fine in dark mode (64 vs 38). app-page-rgb gives
+   light mode roughly double the contrast; the .dark override below keeps
+   dark mode's already-good field-rgb striping unchanged.
+
+   Every slot lane except the very first also got a border-top from the
+   theme, marking every single slot boundary (e.g. every 30 minutes) and
+   giving the grid a dense, spreadsheet-like look. Suppressing it here on
+   the "alt" (odd, half-slot) lanes leaves a visible line only on the hour
+   marks, with this same striping still marking the half-hour boundary. */
+.roomz-calendar-slot-lane-alt {
+    border-top-color: transparent;
+    background-color: rgb(var(--app-page-rgb));
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child) {
-    width: 21px;
-    height: 25px;
-    font-size: 0.85em;
+.dark .roomz-calendar-slot-lane-alt {
+    background-color: rgb(var(--app-field-rgb));
 }
 
-.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
-    width: 21px;
-    height: 25px;
-    font-size: 0.85em;
-}
-
-/* Calender header */
-.fc-header-toolbar {
-    h2 {
-        font-weight: 700;
-        font-size: 1rem;
-    }
-}
-
-/* Today */
-.fc-unthemed td.fc-today {
-    background-color: rgb(var(--app-surface-rgb)) !important;
+/* The time-axis label cells (e.g. "0:30") sit in their own column next to
+   the grid and, without this, kept a border on every slot instead of just
+   the hour marks - twice the grid's line density. That mismatch is what
+   made the border right after the axis read as heavier than the rest of the
+   grid. roomz-calendar-slot-header-alt is applied via the slotHeaderClass
+   option (see getSlotHeaderClass in ResourceGridCalendar.ts), which mirrors
+   getSlotLaneClass above but for the axis - keeping this in sync with
+   whatever slot duration the resource group is configured with, rather than
+   assuming a fixed 30 minutes here. */
+.roomz-calendar-slot-header-alt {
+    border-top-color: transparent;
 }
 
 /* Past Days */
-.fc-past {
+.roomz-calendar-day-lane-past {
     cursor: not-allowed;
     background-color: rgb(var(--status-closing-bg-rgb));
     color: rgb(var(--status-closing-fg-rgb));
 }
 
 /* Closed timeslots */
-.fc-nonbusiness {
+.roomz-calendar-non-business {
     cursor: not-allowed;
     background-color: rgb(var(--status-closing-bg-rgb));
     color: rgb(var(--status-closing-fg-rgb));
@@ -71,40 +235,28 @@ div.fc-timegrid-slots tr {
 /* Background Events: Closings */
 
 /* https://css-tricks.com/stripes-css/ */
-.fc-bg-event {
-    opacity: 1 !important;
+.roomz-calendar-bg-event {
+    opacity: 1;
     cursor: not-allowed;
-    background-color: rgb(var(--app-surface-rgb));
     background: repeating-linear-gradient(
         45deg,
         rgb(var(--app-field-rgb)),
         rgb(var(--app-field-rgb)) 10px,
         rgb(var(--app-page-rgb)) 10px,
         rgb(var(--app-page-rgb)) 20px
-    ) !important;
+    );
     color: rgb(var(--app-text-rgb));
 }
 
-/* Room header columns */
-.fc-widget-header th.fc-resource-cell {
-    text-align: center;
-}
-
-.fc-ltr .fc-time-grid .fc-event-container {
-    margin: 0 !important;
-}
-
-a.fc-event {
+.roomz-calendar-event-clickable {
     cursor: pointer;
 
     &:hover {
         cursor: pointer;
     }
+}
 
-    .fc-event-main {
-        color: unset;
-    }
-
+.roomz-calendar-event {
     &.past-event {
         opacity: 0.4;
         background-color: rgb(var(--app-border-rgb));
@@ -129,72 +281,48 @@ a.fc-event {
     }
 }
 
-.fc-timegrid-slots tr:nth-child(odd) {
-    background-color: rgb(var(--app-surface-rgb));
-}
-
-.fc-timegrid-slots tr:nth-child(even) {
-    background-color: rgb(var(--app-field-rgb));
-}
-
-.fc-direction-ltr .fc-button-group > .fc-button:not(:last-child),
-.fc-direction-ltr .fc-button-group > .fc-button:not(:first-child) {
-    margin: 0;
-    padding: 0;
-}
-
-.fc-next-button .fc-button .fc-button-primary {
-    vertical-align: middle;
-    width: 30px;
-    height: 18px;
-    font-size: 0.4em;
+.roomz-calendar-event-inner {
+    color: unset;
 }
 
 /* Dark mode overrides */
 .dark {
-    .fc {
-        --fc-border-color: rgb(var(--app-border-rgb));
-        --fc-page-bg-color: rgb(var(--app-surface-rgb));
-        --fc-neutral-bg-color: rgb(var(--app-field-rgb));
-        --fc-neutral-text-color: rgb(var(--app-muted-rgb));
-        --fc-non-business-color: rgb(var(--calendar-overlay) / 30%);
-        --fc-more-link-bg-color: rgb(var(--app-field-rgb));
-        --fc-today-bg-color: rgb(var(--brand-tub-rgb) / 15%);
+    /* app-subtle-rgb/app-muted-rgb (the light-mode border tokens) sit at
+       163/212 out of 255 - built to read as a faint line against a near-white
+       surface, but that same lightness reads as a bright, almost white line
+       against this theme's dark surfaces. app-border-rgb (82) is the token
+       actually meant for visible borders on dark surfaces; app-subtle-rgb still
+       gives the "strong" border a touch more contrast than the regular one
+       without going anywhere near white. */
+    .roomz-grid-col {
+        --fc-classic-border: rgb(var(--app-border-rgb));
+        --fc-classic-strong-border: rgb(var(--app-subtle-rgb));
     }
 
-    .fc-non-business {
-        background-color: rgb(var(--app-field-rgb)) !important;
+    /* A dark surface needs a stronger shadow than a light one to read as depth
+       at all, since there is far less base contrast against the page. */
+    .roomz-grid-root {
+        box-shadow:
+            0 1px 3px 0 rgb(var(--calendar-overlay) / 40%),
+            0 1px 2px -1px rgb(var(--calendar-overlay) / 40%);
     }
 
-    div.fc-timegrid-slots tr {
-        background-color: rgb(var(--app-surface-rgb));
+    .roomz-calendar-day-header-divider {
+        background-color: rgb(var(--app-subtle-rgb));
     }
 
-    .fc-unthemed td.fc-today {
-        background-color: rgb(var(--app-field-rgb)) !important;
-    }
-
-    .fc-bg-event {
-        background-color: rgb(var(--app-surface-rgb));
+    .roomz-calendar-bg-event {
         background: repeating-linear-gradient(
             45deg,
             rgb(var(--app-border-rgb)),
             rgb(var(--app-border-rgb)) 10px,
             rgb(var(--app-field-rgb)) 10px,
             rgb(var(--app-field-rgb)) 20px
-        ) !important;
+        );
         color: rgb(var(--app-text-rgb));
     }
 
-    a.fc-event.past-event {
-        background-color: rgb(var(--app-field-rgb));
-    }
-
-    .fc-timegrid-slots tr:nth-child(odd) {
-        background-color: rgb(var(--app-surface-rgb));
-    }
-
-    .fc-timegrid-slots tr:nth-child(even) {
+    .roomz-calendar-event.past-event {
         background-color: rgb(var(--app-field-rgb));
     }
 }

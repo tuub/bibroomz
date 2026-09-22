@@ -26,7 +26,7 @@ class CalendarEntryPresenter
             'resourceId' => $happening->resource->id,
             'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
             'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
-            'classNames' => $status['type'],
+            'className' => $status['type'],
             'can' => $happening->getPermissions($viewer),
             'isVerificationRequired' => $happening->resource->is_verification_required,
             'resource' => [
@@ -52,7 +52,7 @@ class CalendarEntryPresenter
             'description' => $closing->getTranslations('description'),
             'resource_group' => $resource->resource_group->getTranslations('term_singular'),
             'user' => null,
-            'classNames' => 'closed',
+            'className' => 'closed',
             'display' => 'background',
         ];
     }
@@ -70,7 +70,7 @@ class CalendarEntryPresenter
             'end' => Carbon::parse($closing->end)->format('Y-m-d H:i'),
             'description' => $closing->getTranslations('description'),
             'user' => null,
-            'classNames' => 'closed',
+            'className' => 'closed',
             'display' => 'background',
         ];
     }

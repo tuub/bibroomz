@@ -5,33 +5,17 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const refetchHappeningsMock = vi.fn();
-const useCalendarMock = vi.fn((args: unknown) => ({
-    calendarOptions: { mocked: true, args },
-    refetchHappenings: refetchHappeningsMock,
-}));
-
-vi.mock("@/Composables/Calendar", () => ({
-    useCalendar: (args: unknown) => useCalendarMock(args),
-}));
-
-vi.mock("@fullcalendar/vue3", () => ({
+vi.mock("@/Components/Calendar/ResourceGrid.vue", () => ({
     default: {
-        name: "FullCalendarStub",
-        props: ["options"],
-        template: '<div data-test="full-calendar"><slot /></div>',
+        name: "ResourceGridStub",
+        props: ["interactive"],
+        template: '<div data-test="resource-grid"></div>',
     },
 }));
 
 beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    globalThis.Echo = {
-        channel: vi.fn(() => ({
-            listen: vi.fn(),
-        })),
-        leave: vi.fn(),
-    } as unknown as typeof Echo;
 });
 
 function render() {
@@ -52,11 +36,11 @@ function render() {
 }
 
 describe("TerminalView", () => {
-    test("initializes the app store and calendar composable from typed props", () => {
+    test("initializes the app store from typed props", () => {
         const appStore = useAppStore();
         const setCurrentSpy = vi.spyOn(appStore, "setCurrent");
 
-        const wrapper = render();
+        render();
 
         expect(setCurrentSpy).toHaveBeenCalledWith(
             {
@@ -71,66 +55,19 @@ describe("TerminalView", () => {
             [0, 6],
             false,
         );
-
-        expect(useCalendarMock).toHaveBeenCalledWith({
-            calendarOptions: {
-                headerToolbar: {
-                    left: "title",
-                    center: "",
-                    right: "",
-                },
-                selectable: false,
-                select: false,
-                selectAllow: false,
-                eventClick: false,
-            },
-            pagination: {
-                currentPage: "/tu-berlin/rooms/resources",
-                nextPage: null,
-                previousPage: null,
-            },
-            translate: appStore.translate,
-        });
-
-        expect(wrapper.find('[data-test="full-calendar"]').exists()).toBe(true);
     });
 
-    test("disables select, selectAllow, and eventClick interactions on the unattended kiosk view", () => {
-        render();
-
-        const options = useCalendarMock.mock.calls[0]?.[0] as {
-            calendarOptions: Record<string, unknown>;
-        };
-
-        expect(options.calendarOptions).toMatchObject({
-            selectable: false,
-            select: false,
-            selectAllow: false,
-            eventClick: false,
-        });
-    });
-
-    test("subscribes to happening updates on mount and leaves the channel on unmount", () => {
+    test("renders the same calendar the public page does", () => {
         const wrapper = render();
 
-        expect(Echo.channel).toHaveBeenCalledWith("happenings");
+        expect(wrapper.find('[data-test="resource-grid"]').exists()).toBe(true);
+    });
 
-        const channelResult = (Echo.channel as unknown as ReturnType<typeof vi.fn>).mock.results[0];
-        expect(channelResult?.value).toBeDefined();
+    // The kiosk is unattended: nobody is there to log in, so a slot selection or
+    // an event click could only ever open a modal that then sits on screen.
+    test("switches the calendar into its unattended mode", () => {
+        const wrapper = render();
 
-        const listenMock = (channelResult?.value as { listen: ReturnType<typeof vi.fn> }).listen;
-        expect(listenMock).toHaveBeenCalledWith("HappeningsChangedEvent", expect.any(Function));
-
-        const listenCall = listenMock.mock.calls[0];
-        expect(listenCall).toBeDefined();
-
-        const listener = listenCall?.[1] as () => void;
-        listener();
-
-        expect(refetchHappeningsMock).toHaveBeenCalledOnce();
-
-        wrapper.unmount();
-
-        expect(Echo.leave).toHaveBeenCalledWith("happenings");
+        expect(wrapper.findComponent({ name: "ResourceGridStub" }).props("interactive")).toBe(false);
     });
 });

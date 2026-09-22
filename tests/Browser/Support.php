@@ -1,11 +1,13 @@
 <?php
 
 use App\Library\Utility;
+use App\Models\BusinessHour;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
+use App\Models\WeekDay;
 use Carbon\CarbonImmutable;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
@@ -69,7 +71,7 @@ function createBrowserResource(
     string $title,
     bool $verificationRequired = true,
 ): Resource {
-    return Resource::factory()
+    $resource = Resource::factory()
         ->for($resourceGroup, 'resource_group')
         ->create([
             'title' => Utility::getTranslatable($title),
@@ -78,6 +80,28 @@ function createBrowserResource(
             'is_active' => true,
             'is_verification_required' => $verificationRequired,
         ]);
+
+    createBrowserBusinessHour($resource);
+
+    return $resource;
+}
+
+/**
+ * The calendar's `selectConstraint: "businessHours"` blocks all date
+ * selection unless the resource has business hours covering it, so every
+ * browser-test resource needs a permissive one seeded up front.
+ */
+function createBrowserBusinessHour(Resource $resource): BusinessHour
+{
+    $businessHour = BusinessHour::create([
+        'resource_id' => $resource->id,
+        'start' => '00:00:00',
+        'end' => '23:59:59',
+    ]);
+
+    $businessHour->week_days()->attach(WeekDay::all()->pluck('id'));
+
+    return $businessHour;
 }
 
 function buildBrowserHomeRoute(ResourceGroup $resourceGroup): string
@@ -344,16 +368,50 @@ function openBrowserCreateModalForNextDay(
         ->addDay()
         ->format('d.m.Y');
 
-    return $page
-        ->assertPresent("td.fc-timegrid-slot-lane[data-time=\"{$startTime}\"]")
+    $page = $page
+        ->assertPresent(".roomz-calendar-slot-lane[data-time=\"{$startTime}\"]")
         ->click('#calendar-date-next')
         ->wait(0.5)
         ->assertSeeIn('#calendar-date-display', $tomorrow)
-        ->wait(0.5)
-        ->drag(
-            "td.fc-timegrid-slot-lane[data-time=\"{$startTime}\"]",
-            "td.fc-timegrid-slot-lane[data-time=\"{$endTime}\"]",
-        )
+        ->wait(0.5);
+
+    dragBrowserCalendarSlots($page, $startTime, $endTime);
+
+    return $page
         ->wait(1)
         ->assertPresent('#modal');
+}
+
+/**
+ * FullCalendar v7 renders `.roomz-calendar-slot-lane` as a decorative,
+ * `aria-hidden` background row; the actual interactive drag/select surface is a
+ * separate `role="gridcell"` element stacked on top of it. Playwright's default
+ * actionability check refuses to drag the slot-lane because that gridcell
+ * intercepts pointer events, so we drag with `force: true` (skips the check) at
+ * an explicit position inside each slot-lane. Real input is still dispatched at
+ * those coordinates, so the gridcell receives it exactly as a user's mouse
+ * would.
+ *
+ * The default calendar renders one instance per room, so a given `data-time`
+ * now matches once per room on screen rather than once for the whole grid:
+ * `nth=0` picks the first room's lane, which is the resource these flows book.
+ * The drag lands mid-lane rather than near the left edge, because that first
+ * column also carries the time axis - a few pixels in would hit the axis
+ * instead of the day.
+ */
+function dragBrowserCalendarSlots($page, string $startTime, string $endTime): void
+{
+    $rawPage = $page->page();
+
+    $from = $rawPage->locator(".roomz-calendar-slot-lane[data-time=\"{$startTime}\"] >> nth=0");
+    $to = $rawPage->locator(".roomz-calendar-slot-lane[data-time=\"{$endTime}\"] >> nth=0");
+
+    $fromBox = $from->boundingBox();
+    $toBox = $to->boundingBox();
+
+    $from->dragTo($to, [
+        'sourcePosition' => ['x' => $fromBox['width'] / 2, 'y' => $fromBox['height'] / 2],
+        'targetPosition' => ['x' => $toBox['width'] / 2, 'y' => $toBox['height'] / 2],
+        'force' => true,
+    ]);
 }

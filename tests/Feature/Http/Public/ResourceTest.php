@@ -219,7 +219,7 @@ test('calendar entries endpoint returns adjusted happenings and both institution
     $resourceClosingEntry = $entries->firstWhere('id', $resourceClosing->id);
     $institutionClosingEntry = $entries
         ->filter(fn (array $entry): bool => $entry['id'] !== $resourceClosing->id)
-        ->firstWhere('classNames', 'closed');
+        ->firstWhere('className', 'closed');
 
     expect($happeningEntry['start'])->toBe('2026-06-10 09:00')
         ->and($happeningEntry['end'])->toBe('2026-06-10 11:00')

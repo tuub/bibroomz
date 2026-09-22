@@ -70,7 +70,13 @@ export default defineConfig({
                         return "vendor-primevue";
                     }
 
-                    if (id.includes("/@fullcalendar/")) {
+                    if (
+                        id.includes("/@fullcalendar/") ||
+                        id.includes("/@full-ui/") ||
+                        id.includes("/temporal-polyfill/") ||
+                        id.includes("/temporal-spec/") ||
+                        id.includes("/temporal-utils/")
+                    ) {
                         return "vendor-fullcalendar";
                     }
 

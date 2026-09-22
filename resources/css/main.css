@@ -20,6 +20,9 @@
   Left unlayered on purpose: unlayered CSS always beats layered CSS in the
   cascade, regardless of the layer order above, so these always apply.
 */
+@import "@fullcalendar/vue3/skeleton.css";
+@import "@fullcalendar/vue3/themes/classic/theme.css";
+@import "@fullcalendar/vue3/themes/classic/palette.css";
 @import "./calendar.css";
 
 @plugin "@tailwindcss/typography";

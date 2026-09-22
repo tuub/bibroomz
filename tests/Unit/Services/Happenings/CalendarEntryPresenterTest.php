@@ -45,7 +45,7 @@ test('presentHappening returns all required keys', function (): void {
         ->and($result)->toHaveKey('resourceId')
         ->and($result)->toHaveKey('start')
         ->and($result)->toHaveKey('end')
-        ->and($result)->toHaveKey('classNames')
+        ->and($result)->toHaveKey('className')
         ->and($result)->toHaveKey('can')
         ->and($result)->toHaveKey('isVerificationRequired')
         ->and($result)->toHaveKey('resource')
@@ -148,7 +148,7 @@ test('presentInstitutionClosing returns all required keys', function (): void {
         ->and($result)->toHaveKey('description')
         ->and($result)->toHaveKey('resource_group')
         ->and($result)->toHaveKey('user')
-        ->and($result)->toHaveKey('classNames')
+        ->and($result)->toHaveKey('className')
         ->and($result)->toHaveKey('display');
 });
 
@@ -163,7 +163,7 @@ test('presentInstitutionClosing has correct static values', function (): void {
 
     expect($result['status'])->toBeNull()
         ->and($result['user'])->toBeNull()
-        ->and($result['classNames'])->toBe('closed')
+        ->and($result['className'])->toBe('closed')
         ->and($result['display'])->toBe('background');
 });
 
@@ -196,7 +196,7 @@ test('presentResourceClosing returns all required keys', function (): void {
         ->and($result)->toHaveKey('end')
         ->and($result)->toHaveKey('description')
         ->and($result)->toHaveKey('user')
-        ->and($result)->toHaveKey('classNames')
+        ->and($result)->toHaveKey('className')
         ->and($result)->toHaveKey('display');
 });
 
@@ -211,7 +211,7 @@ test('presentResourceClosing has correct static values', function (): void {
 
     expect($result['status'])->toBeNull()
         ->and($result['user'])->toBeNull()
-        ->and($result['classNames'])->toBe('closed')
+        ->and($result['className'])->toBe('closed')
         ->and($result['display'])->toBe('background');
 });
 

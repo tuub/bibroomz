@@ -2,7 +2,7 @@
     <div id="calendar" class="space-y-4">
         <SystemNotificationList :notifications="systemNotifications" />
         <h1 class="sr-only mb-2 block text-xl font-bold">{{ $t("calendar.header") }}</h1>
-        <Calendar @open-modal-component="getModal"></Calendar>
+        <ResourceGrid @open-modal-component="getModal"></ResourceGrid>
     </div>
 
     <Teleport defer to="aside#sidebar">
@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import Calendar from "@/Components/Calendar/Calendar.vue";
+import ResourceGrid from "@/Components/Calendar/ResourceGrid.vue";
 import Sidebar from "@/Components/Sidebar/Sidebar.vue";
 import SystemNotificationList from "@/Components/SystemNotificationList.vue";
 import CalendarLayout from "@/Layouts/CalendarLayout.vue";

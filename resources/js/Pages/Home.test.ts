@@ -7,12 +7,12 @@ import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent } from "vue";
 
-const CalendarStub = defineComponent({
-    name: "CalendarStub",
+const ResourceGridStub = defineComponent({
+    name: "ResourceGridStub",
     emits: ["open-modal-component"],
     template: `
         <button
-            data-test="calendar-open"
+            data-test="resource-grid"
             @click="$emit('open-modal-component', {
                 view: { name: 'TestView' },
                 content: { title: 'Inspect' },
@@ -50,7 +50,7 @@ function render() {
                 $t: (key: string) => key,
             },
             stubs: {
-                Calendar: CalendarStub,
+                ResourceGrid: ResourceGridStub,
                 Sidebar: true,
                 SystemNotificationList: true,
                 Teleport: true,
@@ -82,12 +82,18 @@ describe("Home", () => {
         );
     });
 
+    test("renders the calendar", () => {
+        const wrapper = render();
+
+        expect(wrapper.find('[data-test="resource-grid"]').exists()).toBe(true);
+    });
+
     test("forwards calendar modal events to the modal store", async () => {
         const modalStore = useModal();
         const openSpy = vi.spyOn(modalStore, "open");
         const wrapper = render();
 
-        await wrapper.find('[data-test="calendar-open"]').trigger("click");
+        await wrapper.find('[data-test="resource-grid"]').trigger("click");
 
         expect(openSpy).toHaveBeenCalledWith({ name: "TestView" }, { title: "Inspect" }, { id: 42 }, [{ label: "ok" }]);
     });

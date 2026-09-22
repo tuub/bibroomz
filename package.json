@@ -60,12 +60,7 @@
     },
     "dependencies": {
         "@fontsource-variable/noto-sans": "^5.3.0",
-        "@fullcalendar/core": "^6.1.19",
-        "@fullcalendar/daygrid": "^6.1.19",
-        "@fullcalendar/interaction": "^6.1.19",
-        "@fullcalendar/resource-timegrid": "^6.1.19",
-        "@fullcalendar/resource-timeline": "^6.1.1",
-        "@fullcalendar/vue3": "^6.1.19",
+        "@fullcalendar/vue3": "^7.1.0",
         "@inertiajs/vue3": "^3.7.1",
         "@primeuix/themes": "^2.0.3",
         "@tailwindcss/typography": "^0.5.9",
@@ -80,6 +75,7 @@
         "primeicons": "^8.0.1",
         "primevue": "^4.5.5",
         "remixicon": "^4.9.1",
+        "temporal-polyfill": "^1.0.5",
         "vue": "^3.5.42"
     }
 }
