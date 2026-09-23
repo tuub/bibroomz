@@ -8,3 +8,56 @@ variables:
 .nix:
   rules:
     - if: $GITLAB_CI == 'false'
+
+# install:nix overrides `.nix`'s rules to drive CACHE_POLICY, so the override
+# above no longer reaches it. Mirror the real behaviour: restore only, unless
+# REBUILD_CACHE is passed (`gitlab-ci-local --variable REBUILD_CACHE=true`).
+install:nix:
+  rules:
+    - if: $GITLAB_CI == 'false' && $REBUILD_CACHE == 'true'
+      variables:
+        CACHE_POLICY: pull-push
+    - if: $GITLAB_CI == 'false'
+
+# Gated on the default branch upstream, so the override at the top does not
+# reach it either. Runs locally only alongside a push, since it republishes
+# what install:nix wrote.
+warm:main-cache:
+  rules:
+    - if: $GITLAB_CI == 'false' && $REBUILD_CACHE == 'true'
+  # gitlab-ci-local 4.75.1 walks a job's cache entries with `return` where it
+  # means `continue`, so one entry whose policy does not match ends the whole
+  # import or export loop. The real job mixes `pull` and `push` in one list,
+  # which that cannot represent: the first `pull` entry aborts the export and
+  # the stable keys are never written. Restating every entry as `pull-push`
+  # keeps both loops going, so the write is exercised here. Upstream keeps
+  # `push` on the stable keys, where it saves ~930 MiB of download per run.
+  cache:
+    - key:
+        files:
+          - flake.lock
+          - flake.nix
+        prefix: nix-store
+      fallback_keys:
+        - nix-store-main
+      paths:
+        - .nix-cache/
+      policy: pull-push
+    - key:
+        files:
+          - flake.lock
+          - flake.nix
+        prefix: nix-store-browser
+      fallback_keys:
+        - nix-store-browser-main
+      paths:
+        - .nix-browser-cache/
+      policy: pull-push
+    - key: nix-store-main
+      paths:
+        - .nix-cache/
+      policy: pull-push
+    - key: nix-store-browser-main
+      paths:
+        - .nix-browser-cache/
+      policy: pull-push
