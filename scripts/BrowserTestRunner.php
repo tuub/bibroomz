@@ -167,11 +167,7 @@ final class BrowserTestRunner
         $this->ensureDirectory($this->browserStorageDir.'/logs');
         $this->ok(sprintf('storage: %s', $this->browserStorageDir));
 
-        $this->prepareFrontendBuildDirectory();
-
-        $this->step('Building frontend assets');
-        $this->runCommandOrFail(['npm', 'run', 'build']);
-        $this->ok('frontend assets');
+        $this->buildFrontendAssets($pinnedServerPort !== null && $pinnedReverbPort !== null);
 
         $this->step('Preparing database schema');
         $this->runCommandOrFail([$this->phpBinary, 'artisan', 'migrate:fresh', '--force']);
@@ -420,6 +416,62 @@ final class BrowserTestRunner
             'TZ' => 'Europe/Berlin',
             'VITE_REVERB_PORT' => (string) $reverbPort,
         ];
+    }
+
+    /**
+     * CI builds the frontend once in its own job and hands `public/build/` to
+     * this one as an artifact, so rebuilding here would pay a second time for
+     * a vite build the pipeline has already done.
+     *
+     * Reusing that artifact is only sound when both ports are pinned: the
+     * bundle has APP_URL baked into it by `ziggy:generate` and
+     * VITE_REVERB_PORT baked in by vite, so assets built for one pair of
+     * ports point every route and every websocket at a dead port when the
+     * next run picks different ones.
+     *
+     * Only the building path gets its own `public/build-browser-*` directory.
+     * Reuse deliberately leaves ROOMZ_VITE_BUILD_DIRECTORY unset so the app
+     * falls back to `public/build`, which is where the artifact unpacks.
+     */
+    private function buildFrontendAssets(bool $portsArePinned): void
+    {
+        if (! $this->shouldSkipFrontendBuild()) {
+            $this->prepareFrontendBuildDirectory();
+
+            $this->step('Building frontend assets');
+            $this->runCommandOrFail(['npm', 'run', 'build']);
+            $this->ok('frontend assets');
+
+            return;
+        }
+
+        $this->step('Reusing prebuilt frontend assets');
+
+        if (! $portsArePinned) {
+            $this->fail('SKIP_FRONTEND_BUILD requires both BROWSER_SERVER_PORT and BROWSER_REVERB_PORT to be set.');
+        }
+
+        $manifest = $this->rootDir.'/public/build/manifest.json';
+
+        if (! is_file($manifest)) {
+            $this->fail(sprintf('SKIP_FRONTEND_BUILD is set but no prebuilt manifest exists at %s.', $manifest));
+        }
+
+        $this->ok(sprintf('manifest: %s', $manifest));
+    }
+
+    /**
+     * Whether CI has already built `public/build/` and handed it to this run.
+     */
+    private function shouldSkipFrontendBuild(): bool
+    {
+        $value = getenv('SKIP_FRONTEND_BUILD');
+
+        if (! is_string($value)) {
+            return false;
+        }
+
+        return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
     }
 
     private function pinnedPort(string $name): ?int

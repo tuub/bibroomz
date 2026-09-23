@@ -17,6 +17,11 @@ variables:
   # Set this to "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/" in CI variables
   # to route Docker Hub pulls through the GitLab dependency proxy.
   DOCKERHUB_IMAGE_PREFIX: ""
+  # The frontend bundle has APP_URL (via ziggy:generate) and VITE_REVERB_PORT
+  # compiled into it, so frontend-build and the browser job reusing its
+  # artifact have to agree on both ports up front.
+  BROWSER_REVERB_PORT: "6001"
+  BROWSER_SERVER_PORT: "8000"
 
 default:
   interruptible: true
@@ -196,6 +201,9 @@ frontend-build:
   stage: build
   needs:
     - install:nix
+  variables:
+    APP_URL: http://127.0.0.1:$BROWSER_SERVER_PORT
+    VITE_REVERB_PORT: $BROWSER_REVERB_PORT
   script:
     - nix develop --command scripts/build-frontend-assets.sh
   artifacts:
@@ -228,12 +236,19 @@ coverage:
 browser:
   extends: .nix
   stage: test
+  needs:
+    - job: frontend-build
+      artifacts: true
+  variables:
+    SKIP_FRONTEND_BUILD: "1"
   script:
     - nix develop --command composer run test:browser
 
 vitest:
   extends: .nix
   stage: test
+  needs:
+    - install:nix
   script:
     - nix develop --command npm run test
 
