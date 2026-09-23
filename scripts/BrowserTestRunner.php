@@ -123,8 +123,25 @@ final class BrowserTestRunner
         }
 
         $this->step('Selecting ports');
-        $serverPort = $this->findUnusedPort(self::BROWSER_HOST);
-        $reverbPort = $this->findUnusedPort(self::BROWSER_HOST, [$serverPort]);
+        $pinnedServerPort = $this->pinnedPort('BROWSER_SERVER_PORT');
+        $pinnedReverbPort = $this->pinnedPort('BROWSER_REVERB_PORT');
+
+        if ($pinnedServerPort !== null && $pinnedServerPort === $pinnedReverbPort) {
+            $this->fail('BROWSER_SERVER_PORT and BROWSER_REVERB_PORT must not be the same port.');
+        }
+
+        foreach (['BROWSER_SERVER_PORT' => $pinnedServerPort, 'BROWSER_REVERB_PORT' => $pinnedReverbPort] as $name => $pinnedPort) {
+            if ($pinnedPort !== null && ! $this->isPortAvailable(self::BROWSER_HOST, $pinnedPort)) {
+                $this->fail(sprintf('%s %d is already in use.', $name, $pinnedPort));
+            }
+        }
+
+        $serverPort = $pinnedServerPort ?? $this->findUnusedPort(
+            self::BROWSER_HOST,
+            $pinnedReverbPort === null ? [] : [$pinnedReverbPort],
+        );
+        $reverbPort = $pinnedReverbPort ?? $this->findUnusedPort(self::BROWSER_HOST, [$serverPort]);
+
         $this->ok(sprintf('serve port: %d', $serverPort));
         $this->ok(sprintf('reverb port: %d', $reverbPort));
 
@@ -405,6 +422,30 @@ final class BrowserTestRunner
         ];
     }
 
+    private function pinnedPort(string $name): ?int
+    {
+        return $this->integerEnvironmentVariable($name, 1, 65535);
+    }
+
+    private function integerEnvironmentVariable(string $name, int $minimum, int $maximum): ?int
+    {
+        $value = getenv($name);
+
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $parsed = filter_var(trim($value), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => $minimum, 'max_range' => $maximum],
+        ]);
+
+        if (! is_int($parsed)) {
+            $this->fail(sprintf('%s must be an integer between %d and %d: %s', $name, $minimum, $maximum, $value));
+        }
+
+        return $parsed;
+    }
+
     private function ensureDirectory(string $directory): void
     {
         if (is_dir($directory)) {
@@ -638,16 +679,25 @@ final class BrowserTestRunner
                 continue;
             }
 
-            $server = @stream_socket_server(sprintf('tcp://%s:%d', $host, $port), $errorNumber, $errorMessage);
-
-            if (is_resource($server)) {
-                fclose($server);
-
+            if ($this->isPortAvailable($host, $port)) {
                 return $port;
             }
         }
 
         $this->fail('Could not find a free high TCP port.');
+    }
+
+    private function isPortAvailable(string $host, int $port): bool
+    {
+        $server = @stream_socket_server(sprintf('tcp://%s:%d', $host, $port), $errorNumber, $errorMessage);
+
+        if (! is_resource($server)) {
+            return false;
+        }
+
+        fclose($server);
+
+        return true;
     }
 
     private function waitForTcp(string $host, int $port, int $attempts = 60): bool
