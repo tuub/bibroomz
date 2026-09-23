@@ -1,6 +1,9 @@
 # Review apps: one independent deployment per branch, living beside staging on
 # the same host under /review/<branch-slug>. review/review-app.sh is piped in
 # over SSH so the host always runs this commit's version of it.
+#
+# REVIEW_ROOT is optional: unset or empty leaves the host tree at its /srv/review
+# default, which is what the nginx and Apache snippets expect.
 .review:
   extends: .ssh
   # Keyed per branch so review deployments do not queue behind each other.
@@ -15,7 +18,8 @@ deploy-review:
   script:
     - |
       ssh "${SSH_USER}@${SSH_HOSTNAME}" \
-        "REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
+        "REVIEW_ROOT='$REVIEW_ROOT' \
+         REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
          REVIEW_REPOSITORY_URL='$CI_REPOSITORY_URL' \
          REVIEW_COMMIT_SHA='$CI_COMMIT_SHA' \
          bash -s deploy" < review/review-app.sh
@@ -30,7 +34,9 @@ stop-review:
   script:
     - |
       ssh "${SSH_USER}@${SSH_HOSTNAME}" \
-        "REVIEW_SLUG='$CI_COMMIT_REF_SLUG' bash -s destroy" < review/review-app.sh
+        "REVIEW_ROOT='$REVIEW_ROOT' \
+         REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
+         bash -s destroy" < review/review-app.sh
   environment:
     name: review/$CI_COMMIT_REF_SLUG
     action: stop

@@ -34,6 +34,11 @@ The web root is a directory of symlinks whose layout matches the URL, so one sta
 every branch. Each frontend uses `/review/<slug>/reverb/<port>/app/...` for websockets, and the web server forwards only
 to loopback ports 6100-6199. Deploying a branch never edits or reloads that configuration.
 
+`REVIEW_ROOT` moves the whole tree elsewhere. Both review jobs forward it to the host, so it belongs in the CI
+variables and not in `review.env`, which is itself read from `$REVIEW_ROOT/review.env`. An unset or empty value keeps
+the default. Nothing derives the path from anywhere else, so the web server snippet's `root` or `Alias` has to be
+pointed at the same directory by hand.
+
 A review app occupies roughly 90 MB: review deployments install production dependencies only and delete `node_modules`
 once the assets are built, which cuts about 780 MB per app. Nothing reads `node_modules` at runtime because the app
 builds no SSR bundle, and the shared caches keep the reinstall on the next deployment cheap.
@@ -147,7 +152,7 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    `RewriteBase` and would resolve against the filesystem path rather than `/review/<slug>`.
 
 6. Scope the `SSH_*` CI variables to the `review/*` environment as well as to `staging`, so the review jobs can reach
-   the host.
+   the host. Add `REVIEW_ROOT` there too if the review tree does not live at `/srv/review`.
 
 ## Lifecycle
 
