@@ -38,8 +38,6 @@
               spx.http_ui_assets_dir=${pkgs.php83.extensions.spx}/share/misc/php-spx/assets/web-ui
             '';
           };
-        in
-        {
           default = pkgs.mkShell {
             packages = [
               php
@@ -51,10 +49,22 @@
             shellHook = ''
               export PATH="$PWD/vendor/bin:$PWD/node_modules/.bin:$PATH"
               export PC_CONFIG_FILES="$PWD/process-compose.yaml"
-              export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright.browsers}"
               export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; }}"
             '';
           };
+        in
+        {
+          inherit default;
+
+          # Playwright's browsers pull ~2 GiB into the closure, which every CI
+          # job used to download because they hung off the default shell. Only
+          # the browser tests launch a browser, so they get their own shell.
+          # Run browser tests with `nix develop .#browser`.
+          browser = default.overrideAttrs (previous: {
+            shellHook = previous.shellHook + ''
+              export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright.browsers}"
+            '';
+          });
         }
       );
     };

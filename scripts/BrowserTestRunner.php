@@ -112,15 +112,10 @@ final class BrowserTestRunner
         }
 
         $this->ok('playwright: '.trim($playwrightVersion['stdout']));
+        $this->ok('browsers: '.$this->resolveBrowsersPath());
 
         $this->step('Reaping processes left by previous runs');
         $this->reapStaleProcesses();
-
-        $playwrightBrowsersPath = getenv('PLAYWRIGHT_BROWSERS_PATH');
-
-        if (is_string($playwrightBrowsersPath) && $playwrightBrowsersPath !== '' && ! is_dir($playwrightBrowsersPath)) {
-            $this->fail(sprintf('PLAYWRIGHT_BROWSERS_PATH does not exist: %s', $playwrightBrowsersPath));
-        }
 
         $this->step('Selecting ports');
         $pinnedServerPort = $this->pinnedPort('BROWSER_SERVER_PORT');
@@ -368,6 +363,68 @@ final class BrowserTestRunner
         $cmdline = str_replace("\0", ' ', (string) file_get_contents($cmdlinePath));
 
         return str_contains($cmdline, 'artisan') || str_contains($cmdline, 'playwright') || str_contains($cmdline, $this->rootDir);
+    }
+
+    /**
+     * `nix develop .#browser` points PLAYWRIGHT_BROWSERS_PATH at the browsers
+     * in the nix store. Outside that shell the variable is unset and
+     * Playwright falls back to its own download directory, which only holds
+     * anything once someone has run `playwright install`. Accept either, but
+     * insist on one of them: a missing browser otherwise surfaces much later
+     * as a launch timeout rather than as a missing prerequisite.
+     */
+    private function resolveBrowsersPath(): string
+    {
+        $configured = getenv('PLAYWRIGHT_BROWSERS_PATH');
+
+        if (is_string($configured) && trim($configured) !== '') {
+            $configured = trim($configured);
+
+            if (! is_dir($configured)) {
+                $this->fail(sprintf('PLAYWRIGHT_BROWSERS_PATH does not exist: %s', $configured));
+            }
+
+            return $configured;
+        }
+
+        $default = $this->defaultBrowsersPath();
+
+        if ($default === null) {
+            $this->fail('PLAYWRIGHT_BROWSERS_PATH is not set and the default browser directory could not be resolved. Enter the browser devshell with `nix develop .#browser`, or run `npx playwright install`.');
+        }
+
+        if (! is_dir($default)) {
+            $this->fail(sprintf('No Playwright browsers found at %s. Enter the browser devshell with `nix develop .#browser`, or run `npx playwright install`.', $default));
+        }
+
+        return $default;
+    }
+
+    /**
+     * Where Playwright downloads browsers to when PLAYWRIGHT_BROWSERS_PATH is
+     * unset.
+     */
+    private function defaultBrowsersPath(): ?string
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $localAppData = getenv('LOCALAPPDATA');
+
+            if (! is_string($localAppData) || $localAppData === '') {
+                return null;
+            }
+
+            return $localAppData.'\\ms-playwright';
+        }
+
+        $home = getenv('HOME');
+
+        if (! is_string($home) || $home === '') {
+            return null;
+        }
+
+        return PHP_OS_FAMILY === 'Darwin'
+            ? $home.'/Library/Caches/ms-playwright'
+            : $home.'/.cache/ms-playwright';
     }
 
     private function step(string $message): void
