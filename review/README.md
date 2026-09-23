@@ -56,13 +56,6 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    `www-data` (PHP-FPM) then remain writable by both. Redeployments only adjust permissions on files owned by `deploy`.
    Start a fresh SSH session as `deploy` after changing its group membership.
 
-   For existing checkouts created by the older script, repair ownership once before redeploying so the script can
-   install those ACLs on all existing files and directories:
-
-   ```bash
-   chown --recursive deploy:www-data /srv/review/apps/*/storage /srv/review/apps/*/bootstrap/cache
-   ```
-
 2. Grant the shared review database account rights over `review_*` databases only. It creates and drops its own
    databases, so no administrative credentials are needed at deploy time:
 
@@ -123,8 +116,8 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
 
    Enable the two optional include lines in [`deployment/nginx.conf`](../deployment/nginx.conf):
    `include /etc/nginx/roomz-review/http.conf;` belongs in the `http` context alongside the shared websocket maps,
-   and `include /etc/nginx/roomz-review/server.conf;` belongs inside the staging `server` block. Replace any existing
-   inline review map and location block with these includes to avoid duplicate definitions. Then validate and reload:
+   and `include /etc/nginx/roomz-review/server.conf;` belongs inside the staging `server` block. Then validate and
+   reload:
 
    ```bash
    nginx -t
@@ -152,11 +145,6 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    The snippet sets `AllowOverride None` for the review document root, so each branch's `public/.htaccess` is ignored
    and its front controller is driven from the snippet instead. Under an `Alias`, Laravel's stock rules have no
    `RewriteBase` and would resolve against the filesystem path rather than `/review/<slug>`.
-
-   When migrating from system services and port maps, have the administrator stop and disable the old
-   `roomz-reverb@<slug>`, `roomz-queue@<slug>` and `roomz-scheduler@<slug>` system services for each app, remove the old
-   port map configuration and `/etc/sudoers.d/roomz-review`, and install the static web server configuration. Redeploy
-   each app to rebuild its websocket URL and start the user services.
 
 6. Scope the `SSH_*` CI variables to the `review/*` environment as well as to `staging`, so the review jobs can reach
    the host.
