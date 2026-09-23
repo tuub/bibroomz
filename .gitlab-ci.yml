@@ -241,6 +241,11 @@ browser:
       artifacts: true
   variables:
     SKIP_FRONTEND_BUILD: "1"
+  # Browser tests stall rather than slow down when the runner is busy, because
+  # every Pest worker talks to one shared `playwright run-server`. Running a
+  # single browser job at a time keeps the machine out of the state that
+  # triggers it, at the cost of queueing this job across merge requests.
+  resource_group: browser
   script:
     - nix develop --command composer run test:browser
 
