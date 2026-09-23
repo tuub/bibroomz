@@ -51,6 +51,14 @@ dependabot:
       - flake.lock
       - flake.nix
     prefix: nix-store
+  # When a lock file moves the new key misses, and the job would rebuild from
+  # cache.nixos.org. Falling back to the copy the default branch keeps means
+  # nix fetches only the paths that actually changed. Safe here because store
+  # paths are content addressed, so a stale hit costs a download and nothing
+  # else -- deliberately not done for vendor/ or node_modules/, where a stale
+  # hit would be silent and wrong.
+  fallback_keys:
+    - nix-store-main
   paths:
     - .nix-cache/
   policy: pull
@@ -65,6 +73,8 @@ dependabot:
       - flake.lock
       - flake.nix
     prefix: nix-store-browser
+  fallback_keys:
+    - nix-store-browser-main
   paths:
     - .nix-browser-cache/
   policy: pull
@@ -86,6 +96,27 @@ dependabot:
   paths:
     - vendor/
   policy: pull
+
+### Cache recovery
+# The GitLab cache is best effort, and install:nix only pushes when a lock file
+# moved, so an evicted cache arrives here as an empty directory. Reinstalling
+# costs about a minute; failing costs the whole pipeline. A missing .nix-cache
+# needs no step of its own: nix just falls back to cache.nixos.org.
+.restore-node:
+  script:
+    - |
+      if [ ! -d node_modules ]; then
+        echo "node_modules/ was not restored from the cache; installing it."
+        nix develop --command npm ci --ignore-scripts
+      fi
+
+.restore-composer:
+  script:
+    - |
+      if [ ! -d vendor ]; then
+        echo "vendor/ was not restored from the cache; installing it."
+        nix develop --command composer install --no-interaction --quiet
+      fi
 
 ### Base images
 .nix:
@@ -128,6 +159,9 @@ dependabot:
   cache:
     - *cache-nix
     - *cache-node
+  before_script:
+    - !reference [.nix, before_script]
+    - !reference [.restore-node, script]
 
 # PHP tooling only: no node_modules/.
 .nix-php:
@@ -135,6 +169,9 @@ dependabot:
   cache:
     - *cache-nix
     - *cache-composer
+  before_script:
+    - !reference [.nix, before_script]
+    - !reference [.restore-composer, script]
 
 .nix-full:
   extends: .nix
@@ -142,6 +179,10 @@ dependabot:
     - *cache-nix
     - *cache-node
     - *cache-composer
+  before_script:
+    - !reference [.nix, before_script]
+    - !reference [.restore-node, script]
+    - !reference [.restore-composer, script]
 
 .ssh:
   stage: deploy
@@ -176,22 +217,95 @@ install:nix:
   extends: .nix
   stage: install
   needs: []
+  variables:
+    # All four caches are keyed on nothing but the lock files listed in the
+    # rules below, so when none of them changed a push would overwrite an
+    # identical object. Restoring is ~7 s and pushing is ~40 s of the runner's
+    # time plus ~1.5 GiB to cache storage, so the default is not to push.
+    CACHE_POLICY: pull
+    # Only the scheduled warm-cache run rewrites the nix caches from empty.
+    COMPACT_CACHE: "false"
+  rules:
+    # Everything merges here, so this is what keeps the caches that merge
+    # requests branch from alive, and it recovers an evicted cache without
+    # anyone noticing. It is off the critical path of merge request feedback.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CACHE_POLICY: pull-push
+    # A backstop for the case where nothing has merged in a while. Needs a
+    # pipeline schedule with SCHEDULE_TASK=warm-cache.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
+      variables:
+        CACHE_POLICY: pull-push
+        COMPACT_CACHE: "true"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - flake.lock
+        - flake.nix
+        - composer.lock
+        - package-lock.json
+      variables:
+        CACHE_POLICY: pull-push
+    # For refilling a wiped cache right now rather than waiting for the next
+    # merge or the nightly schedule. Run a pipeline with REBUILD_CACHE=true.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $REBUILD_CACHE == 'true'
+      variables:
+        CACHE_POLICY: pull-push
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   cache:
     - <<: *cache-nix
-      policy: pull-push
+      policy: $CACHE_POLICY
     - <<: *cache-nix-browser
-      policy: pull-push
+      policy: $CACHE_POLICY
     - <<: *cache-composer
-      policy: pull-push
+      policy: $CACHE_POLICY
     - <<: *cache-node
-      policy: pull-push
+      policy: $CACHE_POLICY
   script:
+    - |
+      if [ "$CACHE_POLICY" = pull ]; then
+        # Nothing built here would be uploaded, so the only work left worth
+        # doing is checking that what the rest of the pipeline reads came back.
+        missing=""
+
+        [ -f .nix-cache/nix-cache-info ] || missing="$missing .nix-cache"
+        [ -f .nix-browser-cache/nix-cache-info ] || missing="$missing .nix-browser-cache"
+        [ -d vendor ] || missing="$missing vendor"
+        [ -d node_modules ] || missing="$missing node_modules"
+
+        if [ -n "$missing" ]; then
+          # Not fatal any more: the lint and test jobs reinstall what they need,
+          # so the pipeline is slower but still correct.
+          echo "Not restored from the cache:$missing"
+          echo "No lock file changed here, so this pipeline cannot refill it. The next"
+          echo "default-branch pipeline or the warm-cache schedule will. To refill it"
+          echo "now, re-run this pipeline with the variable REBUILD_CACHE=true."
+          exit 0
+        fi
+
+        echo "All four caches restored, and no lock file changed. Nothing to build."
+        exit 0
+      fi
+
     - nix develop --command composer install --no-interaction --quiet
     - nix develop --command npm ci --ignore-scripts
     # --out-link roots both shells, so nothing can collect them between the
     # build and the copy. `nix copy` walks each closure on its own.
     - nix build .#devShells.x86_64-linux.default --out-link /tmp/devshell-default
     - nix build .#devShells.x86_64-linux.browser --out-link /tmp/devshell-browser
+    - |
+      # `nix copy` skips paths the destination already holds, which is what
+      # keeps an ordinary push cheap -- rewriting both caches from empty costs
+      # ~7 minutes of NAR compression. The flip side is that old closures
+      # accumulate as lock files move, and a fallback_keys hit seeds the
+      # directory with an older closure by design. So the scheduled run, and
+      # only the scheduled run, starts from empty and compacts them back to one
+      # closure each. The store paths are local by now, so nothing needs these
+      # directories any more.
+      if [ "$COMPACT_CACHE" = "true" ]; then
+        echo "Compacting: rewriting both nix caches from empty."
+        rm --recursive --force "$CI_PROJECT_DIR/.nix-cache" "$CI_PROJECT_DIR/.nix-browser-cache"
+      fi
     - nix copy --to "file://$CI_PROJECT_DIR/.nix-cache" --no-check-sigs /tmp/devshell-default
     - |
       # A binary cache has to be closure-complete, so this one repeats the
@@ -199,6 +313,49 @@ install:nix:
       # difference. That makes it self-contained: the browser job restores this
       # cache alone, and no other job pays for the ~2 GiB it holds.
       nix copy --to "file://$CI_PROJECT_DIR/.nix-browser-cache" --no-check-sigs /tmp/devshell-browser
+
+# Publishes what install:nix just built under the fixed keys the fallback_keys
+# above point at. A job of its own rather than two more cache entries on
+# install:nix: those would be restored by every pipeline that reads the
+# lock-file-keyed caches, which is ~930 MiB unpacked into directories that are
+# already populated, to serve a copy nothing in that pipeline reads. The rules
+# here also make the write impossible from a branch, where a lock file of its
+# own would hand every other branch the wrong fallback.
+warm:main-cache:
+  extends: .nix
+  stage: install
+  needs:
+    - job: install:nix
+      artifacts: false
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
+  cache:
+    # Restored from the keys install:nix wrote a moment ago, then republished
+    # below under the stable names. `push` means these two are never downloaded.
+    - *cache-nix
+    - *cache-nix-browser
+    - key: nix-store-main
+      paths:
+        - .nix-cache/
+      policy: push
+    - key: nix-store-browser-main
+      paths:
+        - .nix-browser-cache/
+      policy: push
+  script:
+    - |
+      # A cache is only uploaded when the job succeeds, so failing here is what
+      # stops an empty directory from replacing a good fallback.
+      for dir in .nix-cache .nix-browser-cache; do
+        if [ ! -f "$dir/nix-cache-info" ]; then
+          echo "$dir was not restored, so there is nothing to publish as a fallback."
+          echo "install:nix should have written it in this same pipeline."
+          exit 1
+        fi
+      done
+
+      echo "Publishing both nix caches under nix-store-main and nix-store-browser-main."
 
 ### Lint stage
 commitlint:
@@ -317,6 +474,10 @@ browser:
     - *cache-nix-browser
     - *cache-node
     - *cache-composer
+  before_script:
+    - !reference [.nix, before_script]
+    - !reference [.restore-node, script]
+    - !reference [.restore-composer, script]
   variables:
     SKIP_FRONTEND_BUILD: "1"
   # Browser tests stall rather than slow down when the runner is busy, because
