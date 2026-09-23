@@ -394,6 +394,7 @@ final class BrowserTestRunner
             'CACHE_DRIVER' => 'file',
             'DB_CONNECTION' => 'sqlite',
             'DB_DATABASE' => $this->dbFile,
+            'QUEUE_CONNECTION' => 'sync',
             'REVERB_SCHEME' => 'http',
             'REVERB_HOST' => self::BROWSER_HOST,
             'REVERB_PORT' => (string) $reverbPort,
