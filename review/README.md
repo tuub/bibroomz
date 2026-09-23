@@ -12,10 +12,11 @@ one; `stop-review` removes it. Both jobs are optional and do not block pipeline 
 app automatically after 14 days of inactivity.
 
 Deployments and teardown run entirely as the deployment user, using `systemctl --user`. The account needs no sudo
-privileges. An administrator performs the initial host setup and nginx configuration once.
+privileges. An administrator performs the initial host setup and web server configuration once.
 
 This directory contains the deployment and test scripts, environment template, [GitLab jobs](gitlab-ci.yml),
-[nginx snippets](nginx/), and [systemd user services](systemd/). Run the repository commands below from the repository root.
+[nginx](nginx/) and [Apache](apache/) snippets, and [systemd user services](systemd/). Run the repository commands
+below from the repository root.
 
 ## Host layout
 
@@ -29,9 +30,9 @@ Everything lives under `/srv/review`:
 | `cache/`           | Composer and npm caches, shared by every review app.            |
 | `review.env`        | Host configuration and secrets, read by `review/review-app.sh`. |
 
-The web root is a directory of symlinks whose layout matches the URL, so nginx serves every branch from one static
-configuration. Each frontend uses `/review/<slug>/reverb/<port>/app/...` for websockets, and nginx forwards only to
-loopback ports 6100-6199. Deploying a branch never edits or reloads nginx configuration.
+The web root is a directory of symlinks whose layout matches the URL, so one static web server configuration serves
+every branch. Each frontend uses `/review/<slug>/reverb/<port>/app/...` for websockets, and the web server forwards only
+to loopback ports 6100-6199. Deploying a branch never edits or reloads that configuration.
 
 A review app occupies roughly 90 MB: review deployments install production dependencies only and delete `node_modules`
 once the assets are built, which cuts about 780 MB per app. Nothing reads `node_modules` at runtime because the app
@@ -109,8 +110,11 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    systemctl --user daemon-reload
    ```
 
-5. As an administrator, install the nginx snippets. Adjust the PHP-FPM socket in `review/nginx/server.conf` if the
-   host uses a different PHP version:
+5. As an administrator, install the snippets for the host's web server. Both restrict websockets to `/app/` requests
+   on ports `6100`-`6199`; neither exposes arbitrary loopback ports or Reverb's API. Adjust the PHP-FPM socket if the
+   host uses a different PHP version.
+
+   **nginx** — copy the two snippets:
 
    ```bash
    mkdir --parents /etc/nginx/roomz-review
@@ -127,19 +131,35 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    systemctl reload nginx
    ```
 
-   The websocket location accepts only `/app/` requests to ports `6100`-`6199`; it does not expose arbitrary loopback
-   ports or Reverb's API.
+   **Apache** — copy the single snippet and enable the modules it needs:
+
+   ```bash
+   mkdir --parents /etc/apache2/roomz-review
+   cp review/apache/review.conf /etc/apache2/roomz-review/
+   a2enmod alias rewrite proxy proxy_http proxy_wstunnel proxy_fcgi
+   ```
+
+   Enable the optional `Include /etc/apache2/roomz-review/review.conf` line in
+   [`deployment/apache.conf`](../deployment/apache.conf). It belongs inside the staging `VirtualHost` and **before**
+   that file's own websocket `RewriteRule`, which otherwise sends review websockets to staging's Reverb listener; the
+   `RewriteCond %{REQUEST_URI} !^/review/` on that rule is the second half of the same guard. Then validate and reload:
+
+   ```bash
+   apache2ctl configtest
+   systemctl reload apache2
+   ```
+
+   The snippet sets `AllowOverride None` for the review document root, so each branch's `public/.htaccess` is ignored
+   and its front controller is driven from the snippet instead. Under an `Alias`, Laravel's stock rules have no
+   `RewriteBase` and would resolve against the filesystem path rather than `/review/<slug>`.
 
    When migrating from system services and port maps, have the administrator stop and disable the old
    `roomz-reverb@<slug>`, `roomz-queue@<slug>` and `roomz-scheduler@<slug>` system services for each app, remove the old
-   port map configuration and `/etc/sudoers.d/roomz-review`, and install the static nginx configuration. Redeploy each
-   app to rebuild its websocket URL and start the user services.
+   port map configuration and `/etc/sudoers.d/roomz-review`, and install the static web server configuration. Redeploy
+   each app to rebuild its websocket URL and start the user services.
 
 6. Scope the `SSH_*` CI variables to the `review/*` environment as well as to `staging`, so the review jobs can reach
    the host.
-
-Review apps are only covered for nginx. Serving them under Apache needs an equivalent of the shared document root and
-the restricted websocket proxy, which `deployment/apache.conf` does not provide.
 
 ## Lifecycle
 
@@ -162,9 +182,11 @@ REVIEW_SLUG=<slug> review/review-app.sh destroy
 Run the deployment regression checks locally with:
 
 ```bash
-nix shell --inputs-from . nixpkgs#{nginx,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
+nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
 ```
 
-These use temporary checkouts, nginx and Redis instances, with database and systemd commands stubbed. They check
-redeployment, ACL inheritance, websocket routing and its port/path restrictions, Redis cleanup, and user service
-commands. Any attempt to invoke sudo fails the checks.
+These use temporary checkouts, nginx, Apache and Redis instances, with database and systemd commands stubbed. They
+check redeployment, ACL inheritance, websocket routing and its port/path restrictions, Redis cleanup, and user service
+commands. The Apache pass also serves real requests through the symlinked document root, covering the per-branch front
+controller, static assets and the dotfile guard; PHP-FPM is out of scope, so front controllers answer as static files.
+Any attempt to invoke sudo fails the checks.

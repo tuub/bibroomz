@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Isolated deployment checks. Requires nginx, redis, acl, curl and node.
-# nix shell --inputs-from . nixpkgs#{nginx,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
+# Isolated deployment checks. Requires nginx, apacheHttpd, redis, acl, curl and node.
+# nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,6 +22,9 @@ cleanup() {
     if [[ -f "$test_root/nginx.pid" ]]; then
         nginx -p "$test_root/" -c "$test_root/nginx.conf" -s quit > /dev/null 2>&1 || true
     fi
+    if [[ -f "$test_root/httpd.pid" ]]; then
+        httpd -f "$test_root/httpd.conf" -k stop > /dev/null 2>&1 || true
+    fi
     if [[ -n "$backend_pid" ]]; then
         kill "$backend_pid" 2>/dev/null || true
         wait "$backend_pid" 2>/dev/null || true
@@ -41,7 +44,7 @@ mkdir --parents "$test_root/bin" "$REVIEW_ROOT" \
     "$test_root/source/scripts" "$test_root/source/storage/logs" "$test_root/source/bootstrap/cache" \
     "$test_root/source/public" "$test_root/source/review"
 
-# Only infrastructure commands are replaced; git, ACLs, Redis and nginx are real.
+# Only infrastructure commands are replaced; git, ACLs, Redis, nginx and Apache are real.
 printf '#!/bin/sh\nexit 0\n' > "$test_root/bin/mysql"
 cat > "$test_root/bin/sudo" <<'SH'
 #!/bin/sh
@@ -195,6 +198,60 @@ for path in /reverb/6001/app/key /reverb/6200/app/key /reverb/6379/app/key /reve
     [[ "$status" == 404 ]]
 done
 printf 'PASS: nginx forwards websocket paths, queries and upgrades only within the reserved range\n'
+
+# Apache serves the same layout from review/apache/review.conf. Unlike the
+# nginx checks, this one runs against the real document root, so it also covers
+# the Alias, the per-branch front controller and the dotfile guard.
+httpd_root="$(dirname "$(dirname "$(command -v httpd)")")"
+httpd_port="$(node --eval 'const s=require("node:net").createServer();
+    s.listen(0, "127.0.0.1", () => { console.log(s.address().port); s.close(); });')"
+{
+    printf 'ServerRoot "%s"\n' "$httpd_root"
+    for module in mpm_event authz_core unixd alias rewrite proxy proxy_http proxy_wstunnel mime dir; do
+        printf 'LoadModule %s_module modules/mod_%s.so\n' "$module" "$module"
+    done
+    printf 'Listen 127.0.0.1:%s\nServerName review.example.test\n' "$httpd_port"
+    printf 'PidFile "%s/httpd.pid"\nErrorLog "%s/httpd.log"\nDefaultRuntimeDir "%s"\nTypesConfig /dev/null\n' \
+        "$test_root" "$test_root" "$test_root"
+    # PHP-FPM is out of scope here, so .php files are served as static text;
+    # everything that routes a request to them is the real configuration.
+    sed --expression "s#/srv/review#$REVIEW_ROOT#g" --expression '/SetHandler "proxy:unix/d' \
+        "$repo_root/review/apache/review.conf"
+} > "$test_root/httpd.conf"
+httpd -f "$test_root/httpd.conf" -k start
+review_curl() { curl --silent --show-error --max-time 5 "$@"; }
+for ((attempt = 0; attempt < 100; attempt++)); do
+    if review_curl --output /dev/null "http://127.0.0.1:$httpd_port/"; then break; fi
+    sleep 0.05
+done
+for slug in include feature-demo; do
+    app_public="$REVIEW_ROOT/apps/$slug/public"
+    printf 'front controller %s\n' "$slug" > "$app_public/index.php"
+    mkdir --parents "$app_public/build" "$app_public/.well-known"
+    printf 'asset %s\n' "$slug" > "$app_public/build/asset.txt"
+    printf 'acme %s\n' "$slug" > "$app_public/.well-known/challenge"
+    base="http://127.0.0.1:$httpd_port/review/$slug"
+    port="$(cat "$REVIEW_ROOT/ports/$slug")"
+
+    query='protocol=7&client=js'
+    url="$base/reverb/$port/app/review-$slug?$query"
+    expected="$port:/app/review-$slug?$query"
+    [[ "$(review_curl --fail "$url")" == "$expected" ]]
+    [[ "$(review_curl --fail --header 'Connection: Upgrade' --header 'Upgrade: websocket' "$url")" == "$expected" ]]
+
+    # Requests outside the reserved range or the /app/ path are never proxied;
+    # they reach the branch's own front controller instead.
+    for path in /booking/3 / /reverb/6001/app/key /reverb/6200/app/key /reverb/$port/apps/key/events; do
+        [[ "$(review_curl --fail "$base$path")" == "front controller $slug" ]]
+    done
+    [[ "$(review_curl --fail "$base/build/asset.txt")" == "asset $slug" ]]
+    [[ "$(review_curl --fail "$base/.well-known/challenge")" == "acme $slug" ]]
+    [[ "$(review_curl --output /dev/null --write-out '%{http_code}' "$base/.env")" == 403 ]]
+    [[ "$(review_curl --output /dev/null --write-out '%{http_code}' "$base/missing.php")" == 404 ]]
+    [[ "$(review_curl --fail "$base/index.php")" == "front controller $slug" ]]
+    [[ "$(review_curl --output /dev/null --write-out '%{redirect_url}' "$base/booking/")" == "$base/booking" ]]
+done
+printf 'PASS: apache serves each branch from the shared root and restricts websockets alike\n'
 
 for database in 0 1; do
     redis-cli -n "$database" set review_default_database_key value > /dev/null
