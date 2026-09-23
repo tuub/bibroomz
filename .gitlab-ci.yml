@@ -41,41 +41,107 @@ dependabot:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH =~ /^dependabot\/.*/
 
+### Cache fragments
+# Every job used to pull all three caches. Restoring one is far from free --
+# the devshell closure alone is ~940 MiB and node_modules is ~350 MiB -- so
+# each job now pulls only what its script actually reads.
+.cache-nix: &cache-nix
+  key:
+    files:
+      - flake.lock
+      - flake.nix
+    prefix: nix-store
+  paths:
+    - .nix-cache/
+  policy: pull
+
+# Closure-complete on its own: a binary cache has to be, so this repeats the
+# default shell's paths rather than carrying only the Playwright difference.
+# The browser job therefore restores this cache instead of .nix-cache, and no
+# other job pays for the ~730 MiB it holds.
+.cache-nix-browser: &cache-nix-browser
+  key:
+    files:
+      - flake.lock
+      - flake.nix
+    prefix: nix-store-browser
+  paths:
+    - .nix-browser-cache/
+  policy: pull
+
+.cache-node: &cache-node
+  key:
+    files:
+      - package-lock.json
+    prefix: node
+  paths:
+    - node_modules/
+  policy: pull
+
+.cache-composer: &cache-composer
+  key:
+    files:
+      - composer.lock
+    prefix: composer
+  paths:
+    - vendor/
+  policy: pull
+
 ### Base images
 .nix:
   image: ${DOCKERHUB_IMAGE_PREFIX}nixos/nix:2.34.7@sha256:898e3874bc80a8fbd7df6001b6c83d6e0c904a942e3a4cdf8a89881458333cac
   variables:
     NIX_CONFIG: "extra-experimental-features = nix-command flakes"
   cache:
-    - key:
-        files:
-          - flake.lock
-          - flake.nix
-        prefix: nix-store
-      paths:
-        - .nix-cache/
-      policy: pull
-    - key:
-        files:
-          - package-lock.json
-        prefix: node
-      paths:
-        - node_modules/
-      policy: pull
-    - key:
-        files:
-          - composer.lock
-        prefix: composer
-      paths:
-        - vendor/
-      policy: pull
+    - *cache-nix
   before_script:
-    - mkdir --parents .nix-cache
-    - echo "extra-substituters = file://$PWD/.nix-cache" >> /etc/nix/nix.conf
-    - echo "extra-trusted-substituters = file://$PWD/.nix-cache" >> /etc/nix/nix.conf
+    - |
+      # Repeating extra-substituters in nix.conf overrides the previous value
+      # instead of appending, so every cache goes on one line. Jobs restore
+      # different caches and the first pipeline restores none, so only
+      # directories nix copy has actually written are listed.
+      substituters=""
+
+      for dir in .nix-cache .nix-browser-cache; do
+        if [ -f "$dir/nix-cache-info" ]; then
+          substituters="$substituters file://$PWD/$dir"
+        fi
+      done
+
+      if [ -n "$substituters" ]; then
+        echo "extra-substituters =$substituters" >> /etc/nix/nix.conf
+        echo "extra-trusted-substituters =$substituters" >> /etc/nix/nix.conf
+        # install:nix builds a handful of paths itself (fonts.conf, composer,
+        # php-with-extensions, the shell wrappers) and they land in the cache
+        # unsigned, so every job would discard them and rebuild. Nothing here
+        # is trusted on its content anyway: the caches are directories this
+        # pipeline just wrote, inside a container that is thrown away after.
+        echo "require-sigs = false" >> /etc/nix/nix.conf
+      fi
 
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+# Node tooling only: no vendor/.
+.nix-node:
+  extends: .nix
+  cache:
+    - *cache-nix
+    - *cache-node
+
+# PHP tooling only: no node_modules/.
+.nix-php:
+  extends: .nix
+  cache:
+    - *cache-nix
+    - *cache-composer
+
+.nix-full:
+  extends: .nix
+  cache:
+    - *cache-nix
+    - *cache-node
+    - *cache-composer
 
 .ssh:
   stage: deploy
@@ -111,47 +177,42 @@ install:nix:
   stage: install
   needs: []
   cache:
-    - key:
-        files:
-          - flake.lock
-          - flake.nix
-        prefix: nix-store
-      paths:
-        - .nix-cache/
+    - <<: *cache-nix
       policy: pull-push
-    - key:
-        files:
-          - composer.lock
-        prefix: composer
-      paths:
-        - vendor/
+    - <<: *cache-nix-browser
       policy: pull-push
-    - key:
-        files:
-          - package-lock.json
-        prefix: node
-      paths:
-        - node_modules/
+    - <<: *cache-composer
+      policy: pull-push
+    - <<: *cache-node
       policy: pull-push
   script:
     - nix develop --command composer install --no-interaction --quiet
     - nix develop --command npm ci --ignore-scripts
-    - nix build .#devShells.x86_64-linux.default --no-link
+    # --out-link roots both shells, so nothing can collect them between the
+    # build and the copy. `nix copy` walks each closure on its own.
+    - nix build .#devShells.x86_64-linux.default --out-link /tmp/devshell-default
+    - nix build .#devShells.x86_64-linux.browser --out-link /tmp/devshell-browser
+    - nix copy --to "file://$CI_PROJECT_DIR/.nix-cache" --no-check-sigs /tmp/devshell-default
     - |
-      nix path-info --recursive .#devShells.x86_64-linux.default \
-        | xargs nix copy --to "file://$CI_PROJECT_DIR/.nix-cache" --no-check-sigs
+      # A binary cache has to be closure-complete, so this one repeats the
+      # default shell's paths instead of carrying only the Playwright
+      # difference. That makes it self-contained: the browser job restores this
+      # cache alone, and no other job pays for the ~2 GiB it holds.
+      nix copy --to "file://$CI_PROJECT_DIR/.nix-browser-cache" --no-check-sigs /tmp/devshell-browser
 
 ### Lint stage
 commitlint:
-  extends: .nix
+  extends: .nix-node
   stage: lint
   variables:
     GIT_DEPTH: "0"
   script:
     - nix develop --command node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
+# tsconfig resolves ziggy-js inside vendor/, and type-aware rules follow
+# that import, so this one needs both dependency caches.
 eslint:
-  extends: .nix
+  extends: .nix-full
   stage: lint
   script:
     - nix develop --command npm run eslint
@@ -167,43 +228,46 @@ gitleaks:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 phpstan:
-  extends: .nix
+  extends: .nix-php
   stage: lint
   script:
     - nix develop --command vendor/bin/phpstan --no-progress
 
 pint:
-  extends: .nix
+  extends: .nix-php
   stage: lint
   script:
     - nix develop --command vendor/bin/pint --test
 
 prettier:
-  extends: .nix
+  extends: .nix-node
   stage: lint
   script:
     - nix develop --command npm run format:check
 
 rector:
-  extends: .nix
+  extends: .nix-php
   stage: lint
   script:
     - nix develop --command vendor/bin/rector --dry-run --no-progress-bar
 
 stylelint:
-  extends: .nix
+  extends: .nix-node
   stage: lint
   script:
     - nix develop --command npm run stylelint
 
+# vue-tsc resolves ziggy-js inside vendor/, so this one needs both caches too.
 typescript:
-  extends: .nix
+  extends: .nix-full
   stage: lint
   script:
     - nix develop --command npm run typecheck
 
+# vite shells out to `php artisan ziggy:generate` and aliases ziggy-js into
+# vendor/, so this one needs both dependency caches.
 frontend-build:
-  extends: .nix
+  extends: .nix-full
   stage: build
   needs:
     - install:nix
@@ -219,7 +283,7 @@ frontend-build:
 
 ### Test stage
 coverage:
-  extends: .nix
+  extends: .nix-php
   stage: test
   coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
   needs:
@@ -245,6 +309,14 @@ browser:
   needs:
     - job: frontend-build
       artifacts: true
+  # The only job that launches a browser, so the only one that pulls the
+  # Playwright closure on top of the default shell.
+  cache:
+    # The browser cache is closure-complete, so *cache-nix would only be a
+    # second copy of paths this job already gets from it.
+    - *cache-nix-browser
+    - *cache-node
+    - *cache-composer
   variables:
     SKIP_FRONTEND_BUILD: "1"
   # Browser tests stall rather than slow down when the runner is busy, because
@@ -253,10 +325,10 @@ browser:
   # triggers it, at the cost of queueing this job across merge requests.
   resource_group: browser
   script:
-    - nix develop --command composer run test:browser
+    - nix develop .#browser --command composer run test:browser
 
 vitest:
-  extends: .nix
+  extends: .nix-node
   stage: test
   needs:
     - install:nix
