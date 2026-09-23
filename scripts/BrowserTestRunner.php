@@ -827,6 +827,11 @@ final class BrowserTestRunner
         fwrite(STDERR, $contents);
     }
 
+    private function browserProcesses(): int
+    {
+        return $this->integerEnvironmentVariable('BROWSER_TEST_PROCESSES', 1, 64) ?? 1;
+    }
+
     /**
      * @param  list<string>  $browserArguments
      * @return list<string>
@@ -838,6 +843,18 @@ final class BrowserTestRunner
             '--cache-directory=/tmp/phpunit-cache',
             '--display-all-issues',
             '--parallel',
+            // One worker by default. Every worker drives its own browser,
+            // but they all share a single `playwright run-server` process,
+            // and once the machine is busy with other CI jobs that shared
+            // server stops servicing some commands altogether: the step does
+            // not run slow, it stalls until the browser timeout fires, which
+            // is why raising that timeout does not rescue it.
+            //
+            // Serialising lowers the failure rate rather than removing it, so
+            // a runner that stays oversubscribed needs its concurrency capped
+            // as well. BROWSER_TEST_PROCESSES puts the workers back where
+            // there is headroom to spare.
+            '--processes='.$this->browserProcesses(),
             '--testsuite=Browser',
             '--configuration',
             'phpunit.browser.xml',
