@@ -10,6 +10,7 @@ workflow:
 
 stages:
   - automation
+  - image
   - install
   - lint
   - build
@@ -25,6 +26,9 @@ variables:
   # artifact have to agree on both ports up front.
   BROWSER_REVERB_PORT: "6001"
   BROWSER_SERVER_PORT: "8000"
+  # Which build of the CI images the pipeline runs on. Overridden per job by
+  # the .flake-changed rule below; see the ci-image job for the whole scheme.
+  CI_IMAGE_TAG: main
 
 default:
   interruptible: true
@@ -41,44 +45,88 @@ dependabot:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH =~ /^dependabot\/.*/
 
+### Image stage
+# The toolchain used to arrive as a nix binary cache: every job restored a
+# ~284 MiB archive and had `nix develop` unpack it into a ~943 MiB store of its
+# own, thirteen times a pipeline. It ships as an image instead, so the runner
+# keeps it between jobs and pipelines and the jobs below start with php, node
+# and composer already on PATH. Both images come out of flake.nix, from the
+# same package list the devshell is built from, so the two cannot drift.
+#
+# `main` is the only tag the pipeline normally reads, and it moves only when
+# flake.nix or flake.lock does -- in practice about weekly, since
+# .github/workflows/update-flake-lock.yml proposes a nixpkgs bump every Monday.
+# A merge request that edits either builds its own `mr-<iid>` tag first,
+# because the image it needs does not exist yet anywhere else. That build is
+# on the critical path of that one merge request, which is a dependency bump
+# nobody is waiting on.
+#
+# Unlike the caches this replaced, a missing image is fatal rather than slow:
+# jobs cannot start at all. Two things keep `main` alive -- it is rebuilt on
+# the default branch whenever the flake moves, and the warm-cache schedule
+# re-pushes it weekly so a registry cleanup policy does not age it out. If it
+# does go missing -- or does not exist yet, on a fresh registry -- run a
+# pipeline with REBUILD_IMAGE=true. The merge request that first added this
+# touches flake.nix, so it bootstraps itself: it builds `mr-<iid>` to run on,
+# and pushes `main` when it merges.
+.flake-changed: &flake-changed
+  if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  changes:
+    - flake.nix
+    - flake.lock
+  variables:
+    CI_IMAGE_TAG: mr-$CI_MERGE_REQUEST_IID
+
+ci-image:
+  stage: image
+  image: ${DOCKERHUB_IMAGE_PREFIX}nixos/nix:2.34.7@sha256:898e3874bc80a8fbd7df6001b6c83d6e0c904a942e3a4cdf8a89881458333cac
+  needs: []
+  variables:
+    NIX_CONFIG: "extra-experimental-features = nix-command flakes"
+  rules:
+    - <<: *flake-changed
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - flake.nix
+        - flake.lock
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
+    # Republishes `main` from whatever the flake currently pins. Reached only
+    # when the flake did not change, so the image it pushes is the one the
+    # default branch would have pushed anyway -- which is what makes it safe
+    # to run from a merge request to repair a missing tag.
+    - if: $REBUILD_IMAGE == 'true'
+  script:
+    - nix build .#ci-image --out-link /tmp/ci-image
+    - nix build .#ci-browser-image --out-link /tmp/ci-browser-image
+    - |
+      # skopeo comes from this flake's pinned nixpkgs rather than the ambient
+      # registry, and it pushes straight from the archive nix just built --
+      # no docker daemon and no dind service anywhere in this job.
+      #
+      # --insecure-policy because skopeo refuses to run at all without a
+      # trust policy, and this container has no /etc/containers/policy.json.
+      # It governs what skopeo is willing to *read*; both sides here are the
+      # archive nix just built and a registry this job authenticates to.
+      publish() {
+        nix shell .#skopeo --command skopeo --insecure-policy copy \
+          --dest-creds "$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD" \
+          "docker-archive:$1" \
+          "docker://$2:$CI_IMAGE_TAG"
+      }
+
+      # buildLayeredImage splits the closure across 120 layers, so a nixpkgs
+      # bump re-uploads the store paths that moved and skips the rest.
+      publish /tmp/ci-image "$CI_REGISTRY_IMAGE/roomz-ci"
+      publish /tmp/ci-browser-image "$CI_REGISTRY_IMAGE/roomz-ci-browser"
+
 ### Cache fragments
-# Every job used to pull all three caches. Restoring one is far from free --
-# the devshell closure alone is ~940 MiB and node_modules is ~350 MiB -- so
-# each job now pulls only what its script actually reads.
-.cache-nix: &cache-nix
-  key:
-    files:
-      - flake.lock
-      - flake.nix
-    prefix: nix-store
-  # When a lock file moves the new key misses, and the job would rebuild from
-  # cache.nixos.org. Falling back to the copy the default branch keeps means
-  # nix fetches only the paths that actually changed. Safe here because store
-  # paths are content addressed, so a stale hit costs a download and nothing
-  # else -- deliberately not done for vendor/ or node_modules/, where a stale
-  # hit would be silent and wrong.
-  fallback_keys:
-    - nix-store-main
-  paths:
-    - .nix-cache/
-  policy: pull
-
-# Closure-complete on its own: a binary cache has to be, so this repeats the
-# default shell's paths rather than carrying only the Playwright difference.
-# The browser job therefore restores this cache instead of .nix-cache, and no
-# other job pays for the ~730 MiB it holds.
-.cache-nix-browser: &cache-nix-browser
-  key:
-    files:
-      - flake.lock
-      - flake.nix
-    prefix: nix-store-browser
-  fallback_keys:
-    - nix-store-browser-main
-  paths:
-    - .nix-browser-cache/
-  policy: pull
-
+# node_modules/ and vendor/ stay in the GitLab cache rather than in the image.
+# Baking them in would key the image on three lock files instead of one, and
+# those two moved 39 times over the last 90 days: rebuilding and pushing ~1 GiB
+# on every dependency bump, to save a cache restore, and making the merge
+# request that has to build its own image the common case rather than the rare
+# one. No fallback_keys on either: a stale hit here would be silently wrong
+# rather than merely slow.
 .cache-node: &cache-node
   key:
     files:
@@ -98,16 +146,15 @@ dependabot:
   policy: pull
 
 ### Cache recovery
-# The GitLab cache is best effort, and install:nix only pushes when a lock file
-# moved, so an evicted cache arrives here as an empty directory. Reinstalling
-# costs about a minute; failing costs the whole pipeline. A missing .nix-cache
-# needs no step of its own: nix just falls back to cache.nixos.org.
+# The GitLab cache is best effort, and install:deps only pushes when a lock
+# file moved, so an evicted cache arrives here as an empty directory.
+# Reinstalling costs about a minute; failing costs the whole pipeline.
 .restore-node:
   script:
     - |
       if [ ! -d node_modules ]; then
         echo "node_modules/ was not restored from the cache; installing it."
-        nix develop --command npm ci --ignore-scripts
+        npm ci --ignore-scripts
       fi
 
 .restore-composer:
@@ -115,72 +162,39 @@ dependabot:
     - |
       if [ ! -d vendor ]; then
         echo "vendor/ was not restored from the cache; installing it."
-        nix develop --command composer install --no-interaction --quiet
+        composer install --no-interaction --quiet
       fi
 
 ### Base images
-.nix:
-  image: ${DOCKERHUB_IMAGE_PREFIX}nixos/nix:2.34.7@sha256:898e3874bc80a8fbd7df6001b6c83d6e0c904a942e3a4cdf8a89881458333cac
-  variables:
-    NIX_CONFIG: "extra-experimental-features = nix-command flakes"
-  cache:
-    - *cache-nix
-  before_script:
-    - |
-      # Repeating extra-substituters in nix.conf overrides the previous value
-      # instead of appending, so every cache goes on one line. Jobs restore
-      # different caches and the first pipeline restores none, so only
-      # directories nix copy has actually written are listed.
-      substituters=""
-
-      for dir in .nix-cache .nix-browser-cache; do
-        if [ -f "$dir/nix-cache-info" ]; then
-          substituters="$substituters file://$PWD/$dir"
-        fi
-      done
-
-      if [ -n "$substituters" ]; then
-        echo "extra-substituters =$substituters" >> /etc/nix/nix.conf
-        echo "extra-trusted-substituters =$substituters" >> /etc/nix/nix.conf
-        # install:nix builds a handful of paths itself (fonts.conf, composer,
-        # php-with-extensions, the shell wrappers) and they land in the cache
-        # unsigned, so every job would discard them and rebuild. Nothing here
-        # is trusted on its content anyway: the caches are directories this
-        # pipeline just wrote, inside a container that is thrown away after.
-        echo "require-sigs = false" >> /etc/nix/nix.conf
-      fi
-
+# No before_script and no cache of its own: the toolchain is the image.
+.ci:
+  image: $CI_REGISTRY_IMAGE/roomz-ci:$CI_IMAGE_TAG
   rules:
+    - <<: *flake-changed
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 # Node tooling only: no vendor/.
-.nix-node:
-  extends: .nix
+.ci-node:
+  extends: .ci
   cache:
-    - *cache-nix
     - *cache-node
   before_script:
-    - !reference [.nix, before_script]
     - !reference [.restore-node, script]
 
 # PHP tooling only: no node_modules/.
-.nix-php:
-  extends: .nix
+.ci-php:
+  extends: .ci
   cache:
-    - *cache-nix
     - *cache-composer
   before_script:
-    - !reference [.nix, before_script]
     - !reference [.restore-composer, script]
 
-.nix-full:
-  extends: .nix
+.ci-full:
+  extends: .ci
   cache:
-    - *cache-nix
     - *cache-node
     - *cache-composer
   before_script:
-    - !reference [.nix, before_script]
     - !reference [.restore-node, script]
     - !reference [.restore-composer, script]
 
@@ -213,19 +227,27 @@ dependabot:
   when: manual
 
 ### install stage
-install:nix:
-  extends: .nix
+install:deps:
+  extends: .ci
   stage: install
-  needs: []
+  needs:
+    # Only in the pipeline when the flake moved; every other pipeline runs
+    # this job against the image already in the registry.
+    - job: ci-image
+      optional: true
   variables:
-    # All four caches are keyed on nothing but the lock files listed in the
-    # rules below, so when none of them changed a push would overwrite an
-    # identical object. Restoring is ~7 s and pushing is ~40 s of the runner's
-    # time plus ~1.5 GiB to cache storage, so the default is not to push.
+    # Both caches are keyed on nothing but the lock files listed in the rules
+    # below, so when neither changed a push would overwrite an identical
+    # object. Restoring is cheap and pushing is not, so the default is not to
+    # push.
     CACHE_POLICY: pull
-    # Only the scheduled warm-cache run rewrites the nix caches from empty.
-    COMPACT_CACHE: "false"
   rules:
+    # A new toolchain is reason enough to reinstall against it, and the
+    # image this runs on is the one ci-image just pushed.
+    - <<: *flake-changed
+      variables:
+        CI_IMAGE_TAG: mr-$CI_MERGE_REQUEST_IID
+        CACHE_POLICY: pull-push
     # Everything merges here, so this is what keeps the caches that merge
     # requests branch from alive, and it recovers an evicted cache without
     # anyone noticing. It is off the critical path of merge request feedback.
@@ -237,11 +259,8 @@ install:nix:
     - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
       variables:
         CACHE_POLICY: pull-push
-        COMPACT_CACHE: "true"
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
-        - flake.lock
-        - flake.nix
         - composer.lock
         - package-lock.json
       variables:
@@ -253,10 +272,6 @@ install:nix:
         CACHE_POLICY: pull-push
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   cache:
-    - <<: *cache-nix
-      policy: $CACHE_POLICY
-    - <<: *cache-nix-browser
-      policy: $CACHE_POLICY
     - <<: *cache-composer
       policy: $CACHE_POLICY
     - <<: *cache-node
@@ -264,18 +279,16 @@ install:nix:
   script:
     - |
       if [ "$CACHE_POLICY" = pull ]; then
-        # Nothing built here would be uploaded, so the only work left worth
+        # Nothing installed here would be uploaded, so the only work left worth
         # doing is checking that what the rest of the pipeline reads came back.
         missing=""
 
-        [ -f .nix-cache/nix-cache-info ] || missing="$missing .nix-cache"
-        [ -f .nix-browser-cache/nix-cache-info ] || missing="$missing .nix-browser-cache"
         [ -d vendor ] || missing="$missing vendor"
         [ -d node_modules ] || missing="$missing node_modules"
 
         if [ -n "$missing" ]; then
-          # Not fatal any more: the lint and test jobs reinstall what they need,
-          # so the pipeline is slower but still correct.
+          # Not fatal: the lint and test jobs reinstall what they need, so the
+          # pipeline is slower but still correct.
           echo "Not restored from the cache:$missing"
           echo "No lock file changed here, so this pipeline cannot refill it. The next"
           echo "default-branch pipeline or the warm-cache schedule will. To refill it"
@@ -283,96 +296,29 @@ install:nix:
           exit 0
         fi
 
-        echo "All four caches restored, and no lock file changed. Nothing to build."
+        echo "Both caches restored, and no lock file changed. Nothing to install."
         exit 0
       fi
 
-    - nix develop --command composer install --no-interaction --quiet
-    - nix develop --command npm ci --ignore-scripts
-    # --out-link roots both shells, so nothing can collect them between the
-    # build and the copy. `nix copy` walks each closure on its own.
-    - nix build .#devShells.x86_64-linux.default --out-link /tmp/devshell-default
-    - nix build .#devShells.x86_64-linux.browser --out-link /tmp/devshell-browser
-    - |
-      # `nix copy` skips paths the destination already holds, which is what
-      # keeps an ordinary push cheap -- rewriting both caches from empty costs
-      # ~7 minutes of NAR compression. The flip side is that old closures
-      # accumulate as lock files move, and a fallback_keys hit seeds the
-      # directory with an older closure by design. So the scheduled run, and
-      # only the scheduled run, starts from empty and compacts them back to one
-      # closure each. The store paths are local by now, so nothing needs these
-      # directories any more.
-      if [ "$COMPACT_CACHE" = "true" ]; then
-        echo "Compacting: rewriting both nix caches from empty."
-        rm --recursive --force "$CI_PROJECT_DIR/.nix-cache" "$CI_PROJECT_DIR/.nix-browser-cache"
-      fi
-    - nix copy --to "file://$CI_PROJECT_DIR/.nix-cache" --no-check-sigs /tmp/devshell-default
-    - |
-      # A binary cache has to be closure-complete, so this one repeats the
-      # default shell's paths instead of carrying only the Playwright
-      # difference. That makes it self-contained: the browser job restores this
-      # cache alone, and no other job pays for the ~2 GiB it holds.
-      nix copy --to "file://$CI_PROJECT_DIR/.nix-browser-cache" --no-check-sigs /tmp/devshell-browser
-
-# Publishes what install:nix just built under the fixed keys the fallback_keys
-# above point at. A job of its own rather than two more cache entries on
-# install:nix: those would be restored by every pipeline that reads the
-# lock-file-keyed caches, which is ~930 MiB unpacked into directories that are
-# already populated, to serve a copy nothing in that pipeline reads. The rules
-# here also make the write impossible from a branch, where a lock file of its
-# own would hand every other branch the wrong fallback.
-warm:main-cache:
-  extends: .nix
-  stage: install
-  needs:
-    - job: install:nix
-      artifacts: false
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
-  cache:
-    # Restored from the keys install:nix wrote a moment ago, then republished
-    # below under the stable names. `push` means these two are never downloaded.
-    - *cache-nix
-    - *cache-nix-browser
-    - key: nix-store-main
-      paths:
-        - .nix-cache/
-      policy: push
-    - key: nix-store-browser-main
-      paths:
-        - .nix-browser-cache/
-      policy: push
-  script:
-    - |
-      # A cache is only uploaded when the job succeeds, so failing here is what
-      # stops an empty directory from replacing a good fallback.
-      for dir in .nix-cache .nix-browser-cache; do
-        if [ ! -f "$dir/nix-cache-info" ]; then
-          echo "$dir was not restored, so there is nothing to publish as a fallback."
-          echo "install:nix should have written it in this same pipeline."
-          exit 1
-        fi
-      done
-
-      echo "Publishing both nix caches under nix-store-main and nix-store-browser-main."
+    - composer install --no-interaction --quiet
+    - npm ci --ignore-scripts
 
 ### Lint stage
 commitlint:
-  extends: .nix-node
+  extends: .ci-node
   stage: lint
   variables:
     GIT_DEPTH: "0"
   script:
-    - nix develop --command node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    - node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
 # tsconfig resolves ziggy-js inside vendor/, and type-aware rules follow
 # that import, so this one needs both dependency caches.
 eslint:
-  extends: .nix-full
+  extends: .ci-full
   stage: lint
   script:
-    - nix develop --command npm run eslint
+    - npm run eslint
 
 gitleaks:
   image:
@@ -385,54 +331,54 @@ gitleaks:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 phpstan:
-  extends: .nix-php
+  extends: .ci-php
   stage: lint
   script:
-    - nix develop --command vendor/bin/phpstan --no-progress
+    - vendor/bin/phpstan --no-progress
 
 pint:
-  extends: .nix-php
+  extends: .ci-php
   stage: lint
   script:
-    - nix develop --command vendor/bin/pint --test
+    - vendor/bin/pint --test
 
 prettier:
-  extends: .nix-node
+  extends: .ci-node
   stage: lint
   script:
-    - nix develop --command npm run format:check
+    - npm run format:check
 
 rector:
-  extends: .nix-php
+  extends: .ci-php
   stage: lint
   script:
-    - nix develop --command vendor/bin/rector --dry-run --no-progress-bar
+    - vendor/bin/rector --dry-run --no-progress-bar
 
 stylelint:
-  extends: .nix-node
+  extends: .ci-node
   stage: lint
   script:
-    - nix develop --command npm run stylelint
+    - npm run stylelint
 
 # vue-tsc resolves ziggy-js inside vendor/, so this one needs both caches too.
 typescript:
-  extends: .nix-full
+  extends: .ci-full
   stage: lint
   script:
-    - nix develop --command npm run typecheck
+    - npm run typecheck
 
 # vite shells out to `php artisan ziggy:generate` and aliases ziggy-js into
 # vendor/, so this one needs both dependency caches.
 frontend-build:
-  extends: .nix-full
+  extends: .ci-full
   stage: build
   needs:
-    - install:nix
+    - install:deps
   variables:
     APP_URL: http://127.0.0.1:$BROWSER_SERVER_PORT
     VITE_REVERB_PORT: $BROWSER_REVERB_PORT
   script:
-    - nix develop --command scripts/build-frontend-assets.sh
+    - scripts/build-frontend-assets.sh
   artifacts:
     expire_in: 1 week
     paths:
@@ -440,7 +386,7 @@ frontend-build:
 
 ### Test stage
 coverage:
-  extends: .nix-php
+  extends: .ci-php
   stage: test
   coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
   needs:
@@ -448,7 +394,7 @@ coverage:
       artifacts: true
   script:
     - mkdir --parents build/coverage
-    - nix develop --command composer run coverage
+    - composer run coverage
 
   artifacts:
     when: always
@@ -461,23 +407,14 @@ coverage:
       - build/coverage/
 
 browser:
-  extends: .nix
+  extends: .ci-full
   stage: test
+  # The only job that launches a browser, so the only one on the image that
+  # carries the ~2 GiB Playwright closure on top of the shared toolchain.
+  image: $CI_REGISTRY_IMAGE/roomz-ci-browser:$CI_IMAGE_TAG
   needs:
     - job: frontend-build
       artifacts: true
-  # The only job that launches a browser, so the only one that pulls the
-  # Playwright closure on top of the default shell.
-  cache:
-    # The browser cache is closure-complete, so *cache-nix would only be a
-    # second copy of paths this job already gets from it.
-    - *cache-nix-browser
-    - *cache-node
-    - *cache-composer
-  before_script:
-    - !reference [.nix, before_script]
-    - !reference [.restore-node, script]
-    - !reference [.restore-composer, script]
   variables:
     SKIP_FRONTEND_BUILD: "1"
   # Browser tests stall rather than slow down when the runner is busy, because
@@ -486,15 +423,15 @@ browser:
   # triggers it, at the cost of queueing this job across merge requests.
   resource_group: browser
   script:
-    - nix develop .#browser --command composer run test:browser
+    - composer run test:browser
 
 vitest:
-  extends: .nix-node
+  extends: .ci-node
   stage: test
   needs:
-    - install:nix
+    - install:deps
   script:
-    - nix develop --command npm run test
+    - npm run test
 
 ### Deploy stage
 deploy-staging:

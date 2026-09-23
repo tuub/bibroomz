@@ -11,8 +11,6 @@ _ide_helper.php
 /lang/*.csv
 /lang/php_*.json
 *.log
-/.nix-browser-cache
-/.nix-cache
 /node_modules
 /public/build
 /public/hot

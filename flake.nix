@@ -11,9 +11,11 @@
         "aarch64-darwin"
       ];
       forEachSystem = nixpkgs.lib.genAttrs systems;
-    in
-    {
-      devShells = forEachSystem (
+
+      # Everything the devshell and the CI images have in common, resolved
+      # once per system. Both consume this, so the image CI runs in cannot
+      # drift away from the shell the same commands are developed in.
+      environmentFor =
         system:
         let
           pkgs = import nixpkgs { inherit system; };
@@ -38,18 +40,111 @@
               spx.http_ui_assets_dir=${pkgs.php83.extensions.spx}/share/misc/php-spx/assets/web-ui
             '';
           };
-          default = pkgs.mkShell {
-            packages = [
-              php
-              php.packages.composer
-              pkgs.nodejs_24
-              pkgs.process-compose
-              pkgs.util-linux
+        in
+        {
+          inherit pkgs php;
+          fontsConf = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
+          browsersPath = "${pkgs.playwright.browsers}";
+          packages = [
+            php
+            php.packages.composer
+            pkgs.nodejs_24
+            pkgs.process-compose
+            pkgs.util-linux
+          ];
+        };
+
+      # The CI images. Jobs run their tools straight off PATH rather than
+      # through `nix develop`, so the store closure arrives as image layers
+      # the runner keeps between jobs instead of a ~284 MiB cache archive
+      # every job unpacks into a ~943 MiB store of its own.
+      ciImageFor =
+        {
+          environment,
+          browser,
+        }:
+        let
+          inherit (environment) pkgs;
+        in
+        pkgs.dockerTools.buildLayeredImage {
+          name = if browser then "roomz-ci-browser" else "roomz-ci";
+          tag = "latest";
+          # One layer per store path as far as the budget goes, so a nixpkgs
+          # bump re-uploads only the paths that actually moved.
+          maxLayers = 120;
+          contents = pkgs.buildEnv {
+            name = "roomz-ci-root";
+            # Binaries reference their own store paths directly, so this tree
+            # only has to make the entry points reachable from PATH.
+            pathsToLink = [
+              "/bin"
+              "/etc"
+              "/share"
+              # `#!/usr/bin/env` shebangs in scripts/, and fakeNss's /var/empty.
+              "/usr"
+              "/var"
             ];
+            paths = environment.packages ++ [
+              # The runner drives every job through `sh`, unpacks artifacts,
+              # and commitlint reads history, so the shell, the usual
+              # userland and git all have to be in the image.
+              pkgs.bashInteractive
+              pkgs.coreutils
+              pkgs.findutils
+              pkgs.diffutils
+              pkgs.gnugrep
+              pkgs.gnused
+              pkgs.gawk
+              # scripts/BrowserTestRunner.php probes for setsid with it, and
+              # a devshell only ever had it because the host PATH did.
+              pkgs.which
+              pkgs.gnutar
+              pkgs.gzip
+              pkgs.xz
+              pkgs.zip
+              pkgs.unzip
+              pkgs.git
+              pkgs.openssh
+              pkgs.curl
+              pkgs.cacert
+              # /bin/sh, /usr/bin/env and an /etc/passwd with a root entry:
+              # a scratch image has none of them, and composer, npm and git
+              # all expect at least one.
+              pkgs.dockerTools.binSh
+              pkgs.dockerTools.usrBinEnv
+              pkgs.dockerTools.fakeNss
+            ];
+          };
+          extraCommands = ''
+            mkdir --parents tmp root
+            chmod 1777 tmp
+          '';
+          config = {
+            Env = [
+              "PATH=/bin"
+              "HOME=/root"
+              "LANG=C.UTF-8"
+              # The container carries no fonts of its own, and headless
+              # Chromium renders text at zero size without this.
+              "FONTCONFIG_FILE=${environment.fontsConf}"
+              "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+              "GIT_SSL_CAINFO=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+            ]
+            ++ nixpkgs.lib.optional browser "PLAYWRIGHT_BROWSERS_PATH=${environment.browsersPath}";
+          };
+        };
+    in
+    {
+      devShells = forEachSystem (
+        system:
+        let
+          environment = environmentFor system;
+          default = environment.pkgs.mkShell {
+            inherit (environment) packages;
             shellHook = ''
               export PATH="$PWD/vendor/bin:$PWD/node_modules/.bin:$PATH"
               export PC_CONFIG_FILES="$PWD/process-compose.yaml"
-              export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; }}"
+              export FONTCONFIG_FILE="${environment.fontsConf}"
             '';
           };
         in
@@ -62,9 +157,33 @@
           # Run browser tests with `nix develop .#browser`.
           browser = default.overrideAttrs (previous: {
             shellHook = previous.shellHook + ''
-              export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright.browsers}"
+              export PLAYWRIGHT_BROWSERS_PATH="${environment.browsersPath}"
             '';
           });
+        }
+      );
+
+      packages = forEachSystem (
+        system:
+        let
+          environment = environmentFor system;
+        in
+        nixpkgs.lib.optionalAttrs environment.pkgs.stdenv.hostPlatform.isLinux {
+          ci-image = ciImageFor {
+            inherit environment;
+            browser = false;
+          };
+
+          # Same image plus the Playwright browsers, for the one job that
+          # launches one.
+          ci-browser-image = ciImageFor {
+            inherit environment;
+            browser = true;
+          };
+
+          # Pushes the two above. Exposed here so the pipeline gets it from
+          # this flake's pinned nixpkgs rather than the ambient registry.
+          inherit (environment.pkgs) skopeo;
         }
       );
     };
