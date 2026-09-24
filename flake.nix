@@ -19,6 +19,7 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
+          nodejs = pkgs.nodejs_24;
           php = pkgs.php83.buildEnv {
             extensions =
               { all, enabled }:
@@ -42,13 +43,13 @@
           };
         in
         {
-          inherit pkgs php;
+          inherit pkgs php nodejs;
           fontsConf = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
           browsersPath = "${pkgs.playwright.browsers}";
           packages = [
             php
             php.packages.composer
-            pkgs.nodejs_24
+            nodejs
             pkgs.process-compose
             pkgs.util-linux
           ];
@@ -168,7 +169,12 @@
         let
           environment = environmentFor system;
         in
-        nixpkgs.lib.optionalAttrs environment.pkgs.stdenv.hostPlatform.isLinux {
+        {
+          # The devshell's Node on its own, for jobs that only need npm and
+          # would otherwise download the whole devshell.
+          inherit (environment) nodejs;
+        }
+        // nixpkgs.lib.optionalAttrs environment.pkgs.stdenv.hostPlatform.isLinux {
           ci-image = ciImageFor {
             inherit environment;
             browser = false;

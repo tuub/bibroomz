@@ -20,6 +20,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Update flake.lock
+        id: update
         uses: DeterminateSystems/update-flake-lock@da03c0f078bc4b2c37ee4f7e072d34bf8f188bb3 # v29
         with:
           # The dependabot/ prefix is what the GitLab mirror, its pipeline
@@ -31,3 +32,25 @@ jobs:
           pr-labels: |
             dependencies
             automated
+
+      # Playwright only drives browsers built for its own version, and those
+      # come from nixpkgs, so the npm pin has to follow the lock file.
+      - name: Match the npm playwright pin to nixpkgs
+        if: steps.update.outputs.pull-request-number != ''
+        env:
+          BRANCH: dependabot/nix/flake-lock
+        run: |
+          git fetch origin "$BRANCH"
+          git checkout "$BRANCH"
+          nix_version=$(nix eval --inputs-from . --raw nixpkgs#playwright.version)
+          npm_version=$(jq --raw-output '.devDependencies.playwright' package.json)
+          if [ "$nix_version" = "$npm_version" ]; then
+            exit 0
+          fi
+          nix shell .#nodejs --command \
+            npm install --package-lock-only --save-exact --save-dev "playwright@$nix_version"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --message "chore(deps): bump playwright to $nix_version to match nixpkgs" \
+            package.json package-lock.json
+          git push origin "$BRANCH"
