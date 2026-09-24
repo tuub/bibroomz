@@ -26,6 +26,8 @@ jobs:
           # rules and scripts/dependabot-merge-request.sh key on.
           branch: dependabot/nix/flake-lock
           pr-title: "chore(devshell): update flake.lock"
+          # The default "flake.lock: Update" fails commitlint in GitLab CI.
+          commit-msg: "chore(devshell): update flake.lock"
           pr-labels: |
             dependencies
             automated
