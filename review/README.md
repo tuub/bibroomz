@@ -193,7 +193,7 @@ REVIEW_SLUG=<slug> review/review-app.sh destroy
 Run the deployment regression checks locally with:
 
 ```bash
-nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
+nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/tests/test-review-app.sh
 ```
 
 These use temporary checkouts, nginx, Apache and Redis instances, with database and systemd commands stubbed. They
@@ -205,7 +205,7 @@ Any attempt to invoke sudo fails the checks.
 The reconciliation has checks of its own, with the GitLab API and the review host stubbed:
 
 ```bash
-nix shell --inputs-from . nixpkgs#jq --command bash review/test-prune-review-apps.sh
+nix shell --inputs-from . nixpkgs#jq --command bash review/tests/test-prune-review-apps.sh
 ```
 
 They cover which apps are destroyed, that a live branch keeps its app and environment even when its slug differs from

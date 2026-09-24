@@ -2,10 +2,10 @@
 
 # Isolated checks for scripts/prune-review-apps.sh. The GitLab API and the
 # review host are stubbed; jq, grep and the script's own logic are real.
-# nix shell --inputs-from . nixpkgs#jq --command bash review/test-prune-review-apps.sh
+# nix shell --inputs-from . nixpkgs#jq --command bash review/tests/test-prune-review-apps.sh
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 test_root="$(mktemp -d)"
 trap 'rm --recursive --force "$test_root"' EXIT
 trap 'cat "$test_root/prune.log" 2>/dev/null || true' ERR

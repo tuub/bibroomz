@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Isolated deployment checks. Requires nginx, apacheHttpd, redis, acl, curl and node.
-# nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/test-review-app.sh
+# nix shell --inputs-from . nixpkgs#{nginx,apacheHttpd,redis,acl,curl,nodejs} --command bash review/tests/test-review-app.sh
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 test_root="$(mktemp -d)"
 export REVIEW_TEST_REDIS_SOCKET="$test_root/redis.sock"
 REVIEW_TEST_REDIS_CLI="$(command -v redis-cli)"
