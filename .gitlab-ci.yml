@@ -85,7 +85,9 @@ ci-image:
     NIX_CONFIG: "extra-experimental-features = nix-command flakes"
   rules:
     - <<: *flake-changed
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # Push only: in a schedule or web pipeline `changes` has no diff to look
+    # at and always matches, which would rebuild the images in every one.
+    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - flake.nix
         - flake.lock
@@ -251,7 +253,8 @@ install:deps:
     # Everything merges here, so this is what keeps the caches that merge
     # requests branch from alive, and it recovers an evicted cache without
     # anyone noticing. It is off the critical path of merge request feedback.
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # Push only, so the unrelated schedules on this branch do not match it.
+    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       variables:
         CACHE_POLICY: pull-push
     # A backstop for the case where nothing has merged in a while. Needs a
@@ -267,7 +270,7 @@ install:deps:
         CACHE_POLICY: pull-push
     # For refilling a wiped cache right now rather than waiting for the next
     # merge or the nightly schedule. Run a pipeline with REBUILD_CACHE=true.
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $REBUILD_CACHE == 'true'
+    - if: $REBUILD_CACHE == 'true'
       variables:
         CACHE_POLICY: pull-push
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
