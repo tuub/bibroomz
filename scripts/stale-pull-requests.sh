@@ -8,7 +8,6 @@ set -eu
 : "${GITHUB_TOKEN:?}"
 
 github_repo="${GITHUB_REPO:-tuub/bibroomz}"
-github_owner="${github_repo%%/*}"
 github_api="${GITHUB_API_BASE:-https://api.github.com}"
 branch_prefix="${BRANCH_PREFIX:-dependabot/}"
 
@@ -30,7 +29,10 @@ fetch_closed_mrs() {
         [ "$count" -eq 0 ] && break
 
         echo "$response" | jq --raw-output --arg prefix "$branch_prefix" \
-            '.[] | select(.source_branch | startswith($prefix)) | "\(.source_branch)\t\(.iid)\t\(.web_url)\t\(.state)"'
+            '.[] | select(.source_branch | startswith($prefix))
+                | ((.description // "") | split("\n") | map(capture("^GitHub-PR: #(?<n>[0-9]+)$").n) | first) as $pr
+                | select($pr != null)
+                | "\(.source_branch)\t\(.iid)\t\(.web_url)\t\(.state)\t\($pr)"'
 
         [ "$count" -lt 100 ] && break
         page=$((page + 1))
@@ -42,19 +44,17 @@ tab="$(printf '\t')"
 {
     fetch_closed_mrs merged
     fetch_closed_mrs closed
-} | while IFS="$tab" read -r branch iid web_url state; do
+} | while IFS="$tab" read -r branch iid web_url state pr_number; do
     [ -z "$branch" ] && continue
 
-    open_prs="$(curl --silent --show-error --fail \
-        --get \
+    # Only the pull request the merge request was opened for: the branch may
+    # already carry a newer one, as update-flake-lock reuses its branch name.
+    pull_request="$(curl --silent --show-error --fail \
         --header "Authorization: Bearer $GITHUB_TOKEN" \
         --header "Accept: application/vnd.github+json" \
-        --data-urlencode "head=$github_owner:$branch" \
-        --data-urlencode "state=open" \
-        "$github_api/repos/$github_repo/pulls")"
+        "$github_api/repos/$github_repo/pulls/$pr_number")"
 
-    pr_number="$(echo "$open_prs" | jq --raw-output '.[0].number // empty')"
-    [ -z "$pr_number" ] && continue
+    [ "$(echo "$pull_request" | jq --raw-output '.state')" != "open" ] && continue
 
     echo "Closing GitHub PR #$pr_number for $branch (GitLab MR !$iid is $state)"
 
