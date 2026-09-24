@@ -226,6 +226,11 @@ ci-image:
       scripts/deploy.sh $BUILD_PREFIX
       EOT
   resource_group: $SSH_HOSTNAME
+
+# Deploy from the default branch only, and not from the scheduled pipelines
+# that run on it for unrelated tasks.
+.deploy-manual: &deploy-manual
+  if: $CI_PIPELINE_SOURCE != 'schedule' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   when: manual
 
 ### install stage
@@ -442,6 +447,10 @@ deploy-staging:
   environment:
     name: staging
     url: https://roomz.onit-ub.tu-berlin.de
+  rules:
+    # A schedule with SCHEDULE_TASK=deploy-staging deploys without a click.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'deploy-staging'
+    - *deploy-manual
 
 deploy-demo:
   extends: .deploy
@@ -449,8 +458,9 @@ deploy-demo:
     name: demo
     url: https://demo.ub.tu-berlin.de/bibroomz
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  manual_confirmation: Deploy to demo server?
+    # A schedule with SCHEDULE_TASK=deploy-demo deploys without a click.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'deploy-demo'
+    - *deploy-manual
 
 import-database:
   stage: deploy
