@@ -26,9 +26,6 @@ variables:
   # artifact have to agree on both ports up front.
   BROWSER_REVERB_PORT: "6001"
   BROWSER_SERVER_PORT: "8000"
-  # Which build of the CI images the pipeline runs on. Overridden per job by
-  # the .flake-changed rule below; see the ci-image job for the whole scheme.
-  CI_IMAGE_TAG: main
 
 default:
   interruptible: true
@@ -53,30 +50,32 @@ dependabot:
 # and composer already on PATH. Both images come out of flake.nix, from the
 # same package list the devshell is built from, so the two cannot drift.
 #
-# `main` is the only tag the pipeline normally reads, and it moves only when
-# flake.nix or flake.lock does -- in practice about weekly, since
-# .github/workflows/update-flake-lock.yml proposes a nixpkgs bump every Monday.
-# A merge request that edits either builds its own `mr-<iid>` tag first,
-# because the image it needs does not exist yet anywhere else. That build is
-# on the critical path of that one merge request, which is a dependency bump
-# nobody is waiting on.
+# Each image is tagged `flake-<hash>`, where the hash covers flake.nix and
+# flake.lock, so the tag names the toolchain rather than the branch it was
+# built for. Every pipeline starts with ci-image, which works out that tag
+# from its own checkout and hands it to the jobs below through a dotenv
+# report. Nothing in a pipeline can then run on an image built from a
+# different lock file.
+#
+# The tag used to be `main`, moved by a rebuild after the merge. That left a
+# window after every flake.lock bump: a merge request built on the new main
+# got the new npm playwright pin but still ran on the old browsers until the
+# rebuild finished, and one still on the old lock broke the other way round
+# once it had.
+#
+# ci-image only builds when the tag is not in the registry yet, which in
+# practice is once per flake.lock bump -- about weekly, since
+# .github/workflows/update-flake-lock.yml proposes a nixpkgs bump every
+# Monday. That build lands in the merge request that makes the bump, and the
+# merge to main then finds it already there. Every other pipeline spends a
+# few seconds checking the registry.
 #
 # Unlike the caches this replaced, a missing image is fatal rather than slow:
-# jobs cannot start at all. Two things keep `main` alive -- it is rebuilt on
-# the default branch whenever the flake moves, and the warm-cache schedule
-# re-pushes it weekly so a registry cleanup policy does not age it out. If it
-# does go missing -- or does not exist yet, on a fresh registry -- run a
-# pipeline with REBUILD_IMAGE=true. The merge request that first added this
-# touches flake.nix, so it bootstraps itself: it builds `mr-<iid>` to run on,
-# and pushes `main` when it merges.
-.flake-changed: &flake-changed
-  if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-  changes:
-    - flake.nix
-    - flake.lock
-  variables:
-    CI_IMAGE_TAG: mr-$CI_MERGE_REQUEST_IID
-
+# jobs cannot start at all. A missing tag simply gets rebuilt, but a registry
+# cleanup policy has to keep `flake-.*` tags alive for as long as a pipeline
+# might still run on them. The warm-cache schedule re-pushes the current tag
+# weekly, so the one main is on is never the oldest. To rebuild regardless,
+# run a pipeline with REBUILD_IMAGE=true.
 ci-image:
   stage: image
   image: ${DOCKERHUB_IMAGE_PREFIX}nixos/nix:2.34.7@sha256:898e3874bc80a8fbd7df6001b6c83d6e0c904a942e3a4cdf8a89881458333cac
@@ -84,20 +83,47 @@ ci-image:
   variables:
     NIX_CONFIG: "extra-experimental-features = nix-command flakes"
   rules:
-    - <<: *flake-changed
-    # Push only: in a schedule or web pipeline `changes` has no diff to look
-    # at and always matches, which would rebuild the images in every one.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      changes:
-        - flake.nix
-        - flake.lock
     - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
-    # Republishes `main` from whatever the flake currently pins. Reached only
-    # when the flake did not change, so the image it pushes is the one the
-    # default branch would have pushed anyway -- which is what makes it safe
-    # to run from a merge request to repair a missing tag.
+      variables:
+        REBUILD_IMAGE: "true"
     - if: $REBUILD_IMAGE == 'true'
+    # install:deps runs in these too, and needs the tag.
+    - if: $REBUILD_CACHE == 'true'
   script:
+    - |
+      # Nothing but these two files goes into the images: flake.nix imports
+      # no other file from the repository.
+      CI_IMAGE_TAG="flake-$(cat flake.nix flake.lock | sha256sum | cut --characters=1-32)"
+      echo "CI_IMAGE_TAG=$CI_IMAGE_TAG" > ci-image.env
+      echo "Toolchain image tag: $CI_IMAGE_TAG"
+
+      # Asks the registry for the manifest directly: skopeo would have to be
+      # built from the flake first, which costs more than the check saves.
+      # The nix image ships curl, grep and coreutils, but no sed or jq.
+      exists() {
+        repository="${1#"$CI_REGISTRY"/}"
+        token=$(
+          curl --silent --show-error --fail \
+            --user "$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD" \
+            "$CI_SERVER_URL/jwt/auth?service=container_registry&scope=repository:$repository:pull" |
+            grep --only-matching '"token":"[^"]*"' |
+            cut --delimiter='"' --fields=4
+        )
+        curl --silent --fail --head --output /dev/null \
+          --header "Authorization: Bearer $token" \
+          --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+          --header "Accept: application/vnd.oci.image.manifest.v1+json" \
+          "https://$CI_REGISTRY/v2/$repository/manifests/$CI_IMAGE_TAG"
+      }
+
+      if [ "$REBUILD_IMAGE" != true ] &&
+        exists "$CI_REGISTRY_IMAGE/roomz-ci" &&
+        exists "$CI_REGISTRY_IMAGE/roomz-ci-browser"; then
+        echo "Both images already exist. Nothing to build."
+        exit 0
+      fi
     - nix build .#ci-image --out-link /tmp/ci-image
     - nix build .#ci-browser-image --out-link /tmp/ci-browser-image
     - |
@@ -120,6 +146,13 @@ ci-image:
       # bump re-uploads the store paths that moved and skips the rest.
       publish /tmp/ci-image "$CI_REGISTRY_IMAGE/roomz-ci"
       publish /tmp/ci-browser-image "$CI_REGISTRY_IMAGE/roomz-ci-browser"
+  artifacts:
+    # CI_IMAGE_TAG for every job below. A dotenv variable is expanded in
+    # `image:` because the runner, not the pipeline, resolves that keyword --
+    # which also means it only reaches jobs that take this job's artifacts:
+    # every job in a later stage without `needs`, and any job listing it there.
+    reports:
+      dotenv: ci-image.env
 
 ### Cache fragments
 # node_modules/ and vendor/ stay in the GitLab cache rather than in the image.
@@ -169,10 +202,12 @@ ci-image:
 
 ### Base images
 # No before_script and no cache of its own: the toolchain is the image.
+# CI_IMAGE_TAG comes from ci-image's dotenv report, so a job extending this
+# that sets `needs` has to list ci-image there too. Optional only because
+# gitlab-ci-local has no registry and drops ci-image.
 .ci:
   image: $CI_REGISTRY_IMAGE/roomz-ci:$CI_IMAGE_TAG
   rules:
-    - <<: *flake-changed
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 # Node tooling only: no vendor/.
@@ -238,8 +273,6 @@ install:deps:
   extends: .ci
   stage: install
   needs:
-    # Only in the pipeline when the flake moved; every other pipeline runs
-    # this job against the image already in the registry.
     - job: ci-image
       optional: true
   variables:
@@ -249,11 +282,12 @@ install:deps:
     # push.
     CACHE_POLICY: pull
   rules:
-    # A new toolchain is reason enough to reinstall against it, and the
-    # image this runs on is the one ci-image just pushed.
-    - <<: *flake-changed
+    # A new toolchain is reason enough to reinstall against it.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - flake.nix
+        - flake.lock
       variables:
-        CI_IMAGE_TAG: mr-$CI_MERGE_REQUEST_IID
         CACHE_POLICY: pull-push
     # Everything merges here, so this is what keeps the caches that merge
     # requests branch from alive, and it recovers an evicted cache without
@@ -381,6 +415,8 @@ frontend-build:
   extends: .ci-full
   stage: build
   needs:
+    - job: ci-image
+      optional: true
     - install:deps
   variables:
     APP_URL: http://127.0.0.1:$BROWSER_SERVER_PORT
@@ -398,6 +434,8 @@ coverage:
   stage: test
   coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
   needs:
+    - job: ci-image
+      optional: true
     - job: frontend-build
       artifacts: true
   script:
@@ -421,6 +459,8 @@ browser:
   # carries the ~2 GiB Playwright closure on top of the shared toolchain.
   image: $CI_REGISTRY_IMAGE/roomz-ci-browser:$CI_IMAGE_TAG
   needs:
+    - job: ci-image
+      optional: true
     - job: frontend-build
       artifacts: true
   variables:
@@ -437,6 +477,8 @@ vitest:
   extends: .ci-node
   stage: test
   needs:
+    - job: ci-image
+      optional: true
     - install:deps
   script:
     - npm run test
