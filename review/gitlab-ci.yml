@@ -1,6 +1,8 @@
 # Review apps: one independent deployment per branch, living beside staging on
 # the same host under /review/<branch-slug>. review/review-app.sh is piped in
-# over SSH so the host always runs this commit's version of it.
+# over SSH so the host always runs this commit's version of it. stop-review is
+# the exception: it runs the copy in the app's own checkout, because by then
+# there may be no branch left to check out.
 #
 # REVIEW_ROOT is optional: unset or empty leaves the host tree at its /srv/review
 # default, which is what the nginx and Apache snippets expect.
@@ -31,12 +33,55 @@ deploy-review:
 
 stop-review:
   extends: .review
+  variables:
+    # GitLab triggers this job when the branch is deleted or the merge request
+    # is merged, so there is usually no ref left for the runner to check out.
+    # Nothing here reads the working directory: the copy of review-app.sh that
+    # deployed the app is on the host, in the app's own checkout.
+    GIT_STRATEGY: none
   script:
+    - review_root="${REVIEW_ROOT:-/srv/review}"
     - |
-      ssh "${SSH_USER}@${SSH_HOSTNAME}" \
-        "REVIEW_ROOT='$REVIEW_ROOT' \
-         REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
-         bash -s destroy" < review/review-app.sh
+      ssh "${SSH_USER}@${SSH_HOSTNAME}" bash -o errexit -o xtrace <<EOT
+      app_script="$review_root/apps/$CI_COMMIT_REF_SLUG/review/review-app.sh"
+
+      if [ ! -f "\$app_script" ]; then
+        echo "No checkout for '$CI_COMMIT_REF_SLUG' under $review_root; nothing to tear down from here."
+        echo "cleanup-review removes whatever a half-finished deployment left behind."
+        exit 0
+      fi
+
+      # destroy deletes the checkout this script lives in, so run it from a copy.
+      script_copy="\$(mktemp)"
+      trap 'rm -f "\$script_copy"' EXIT
+      cp "\$app_script" "\$script_copy"
+
+      REVIEW_ROOT='$review_root' \
+      REVIEW_SLUG='$CI_COMMIT_REF_SLUG' \
+      bash -s destroy < "\$script_copy"
+      EOT
   environment:
     name: review/$CI_COMMIT_REF_SLUG
     action: stop
+
+# Backstop for review apps whose branch went away without stop-review running:
+# the job failed, its pipeline was gone by then, or the branch was deleted by
+# scripts/prune-mirror-branches.sh. Their checkout, database, Redis keys and
+# reserved port survive on the host, and the reserved port range caps the host
+# at 100 apps, so something has to reconcile the two. Needs a pipeline schedule
+# with SCHEDULE_TASK=cleanup-review.
+cleanup-review:
+  extends: .ssh
+  # Only for the SSH_* variables, which are scoped to the review environments.
+  # Deliberately not named review/<something>: this job stops every available
+  # review/* environment whose branch is gone, and that includes its own.
+  environment:
+    name: review-cleanup
+    action: access
+  script:
+    - apk add --no-cache curl jq
+    - scripts/prune-review-apps.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'cleanup-review'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual

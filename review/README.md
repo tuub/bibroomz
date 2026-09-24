@@ -8,8 +8,11 @@ https://roomz.onit-ub.tu-berlin.de/review/<branch-slug>
 
 Each one is a separate checkout with its own database, Redis key namespace, Reverb listener and systemd services, so
 branches cannot interfere with each other. `deploy-review` (manual, on every merge request pipeline) creates or updates
-one; `stop-review` removes it. Both jobs are optional and do not block pipeline completion. GitLab also stops a review
-app automatically after 14 days of inactivity.
+one; `stop-review` removes it. Both jobs are optional and do not block pipeline completion.
+
+Nobody has to run `stop-review` by hand. GitLab triggers it when the branch is deleted or the merge request is merged,
+and after 14 days of inactivity. `cleanup-review` then reconciles what that missed, so a review app never outlives its
+branch by more than a day.
 
 Deployments and teardown run entirely as the deployment user, using `systemctl --user`. The account needs no sudo
 privileges. An administrator performs the initial host setup and web server configuration once.
@@ -34,7 +37,7 @@ The web root is a directory of symlinks whose layout matches the URL, so one sta
 every branch. Each frontend uses `/review/<slug>/reverb/<port>/app/...` for websockets, and the web server forwards only
 to loopback ports 6100-6199. Deploying a branch never edits or reloads that configuration.
 
-`REVIEW_ROOT` moves the whole tree elsewhere. Both review jobs forward it to the host, so it belongs in the CI
+`REVIEW_ROOT` moves the whole tree elsewhere. All three review jobs forward it to the host, so it belongs in the CI
 variables and not in `review.env`, which is itself read from `$REVIEW_ROOT/review.env`. An unset or empty value keeps
 the default. Nothing derives the path from anywhere else, so the web server snippet's `root` or `Alias` has to be
 pointed at the same directory by hand.
@@ -151,8 +154,12 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
    and its front controller is driven from the snippet instead. Under an `Alias`, Laravel's stock rules have no
    `RewriteBase` and would resolve against the filesystem path rather than `/review/<slug>`.
 
-6. Scope the `SSH_*` CI variables to the `review/*` environment as well as to `staging`, so the review jobs can reach
-   the host. Add `REVIEW_ROOT` there too if the review tree does not live at `/srv/review`.
+6. Scope the `SSH_*` CI variables to `review*` as well as to `staging`, so all three review jobs can reach the host.
+   The wildcard covers both `review/<slug>` and the `review-cleanup` environment that `cleanup-review` attaches itself
+   to for exactly this reason. Add `REVIEW_ROOT` there too if the review tree does not live at `/srv/review`.
+
+7. Create a pipeline schedule on the default branch with `SCHEDULE_TASK=cleanup-review`, daily. It runs
+   `cleanup-review`, which needs the `GITLAB_TOKEN` the automation jobs already use.
 
 ## Lifecycle
 
@@ -165,8 +172,19 @@ all of it, including dropping the database, removing the app's keys from Redis d
 
 Redeploying a branch reuses its port, database and `APP_KEY`, so sessions and data survive.
 
-Stop a review app **before** deleting its branch: the stop job needs to check out the commit it deployed, which GitLab
-may no longer be able to provide once the branch is gone. A leftover app can always be removed on the host with:
+`stop-review` is the one job that does not pipe the script in. GitLab usually starts it once the branch is gone, when
+there is no ref left to check out, so it sets `GIT_STRATEGY: none` and runs
+`$REVIEW_ROOT/apps/<slug>/review/review-app.sh` instead — still the version from the commit that deployed the app.
+
+That leaves the cases where the job never runs at all: it failed, its pipeline had already been deleted, or
+[`scripts/prune-mirror-branches.sh`](../scripts/prune-mirror-branches.sh) deleted the branch. The app then keeps its
+checkout, database, Redis keys and reserved port, and the port range allows only 100 apps at a time. The scheduled
+`cleanup-review` job runs [`scripts/prune-review-apps.sh`](../scripts/prune-review-apps.sh), which destroys every app
+under `apps/` whose branch no longer exists, force-stops the matching environments, and asks GitLab to delete the
+stopped ones (it carries that out a week later). It refuses to do anything if the branch list comes back empty, so a
+failing API cannot empty the host.
+
+A leftover app can always be removed on the host with:
 
 ```bash
 REVIEW_SLUG=<slug> review/review-app.sh destroy
@@ -183,3 +201,12 @@ check redeployment, ACL inheritance, websocket routing and its port/path restric
 commands. The Apache pass also serves real requests through the symlinked document root, covering the per-branch front
 controller, static assets and the dotfile guard; PHP-FPM is out of scope, so front controllers answer as static files.
 Any attempt to invoke sudo fails the checks.
+
+The reconciliation has checks of its own, with the GitLab API and the review host stubbed:
+
+```bash
+nix shell --inputs-from . nixpkgs#jq --command bash review/test-prune-review-apps.sh
+```
+
+They cover which apps are destroyed, that a live branch keeps its app and environment even when its slug differs from
+its name, and that an empty branch list destroys nothing.
