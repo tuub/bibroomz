@@ -393,6 +393,12 @@ gitleaks:history:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
 
+pest:type-coverage:
+  extends: .ci-php
+  stage: lint
+  script:
+    - composer run type-coverage
+
 phpstan:
   extends: .ci-php
   stage: lint

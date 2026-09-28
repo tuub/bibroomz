@@ -74,6 +74,9 @@
         "coverage:unit": [
             "@pest --testsuite=Unit --coverage --coverage-cobertura build/coverage/cobertura-unit.xml"
         ],
+        "type-coverage": [
+            "pest --type-coverage --min=97"
+        ],
         "mutate": [
             "pest --mutate --covered-only --parallel"
         ],
