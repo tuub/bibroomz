@@ -240,7 +240,7 @@ ci-image:
   image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
   needs: []
   before_script:
-    - apk add --update openssh
+    - apk add --update curl openssh
     - eval $(ssh-agent -s)
     - chmod 400 "$SSH_PRIVATE_KEY"
     - ssh-add "$SSH_PRIVATE_KEY"
@@ -249,6 +249,18 @@ ci-image:
     - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   interruptible: false
+
+# deploy.sh exiting 0 says every step ran, not that the app answers. The start
+# page reads from the database, so a 200 from it covers PHP, the web server and
+# the database connection. Retries give the web server time to pick up the new
+# release.
+.smoke-check:
+  script:
+    - |
+      curl --silent --show-error --fail --location --output /dev/null \
+        --retry 5 --retry-delay 5 --retry-all-errors --max-time 30 \
+        "$CI_ENVIRONMENT_URL"
+      echo "$CI_ENVIRONMENT_URL answers."
 
 .deploy:
   extends: .ssh
@@ -260,6 +272,7 @@ ci-image:
       git checkout FETCH_HEAD
       scripts/deploy.sh $BUILD_PREFIX
       EOT
+    - !reference [.smoke-check, script]
   resource_group: $SSH_HOSTNAME
 
 # Deploy from the default branch only, and not from the scheduled pipelines

@@ -25,6 +25,7 @@ deploy-review:
          REVIEW_REPOSITORY_URL='$CI_REPOSITORY_URL' \
          REVIEW_COMMIT_SHA='$CI_COMMIT_SHA' \
          bash -s deploy" < review/review-app.sh
+    - !reference [.smoke-check, script]
   environment:
     name: review/$CI_COMMIT_REF_SLUG
     url: https://roomz.onit-ub.tu-berlin.de/review/$CI_COMMIT_REF_SLUG
