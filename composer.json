@@ -66,7 +66,7 @@
             "@pest --testsuite=Unit"
         ],
         "coverage": [
-            "@pest --coverage --coverage-cobertura build/coverage/cobertura.xml"
+            "@pest --coverage --coverage-cobertura build/coverage/cobertura.xml --min=95"
         ],
         "coverage:feature": [
             "@pest --testsuite=Feature --coverage --coverage-cobertura build/coverage/cobertura-feature.xml"
