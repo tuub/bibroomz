@@ -1,0 +1,36 @@
+name: Delete pull request branches
+
+# Pull requests here are merged through the GitLab push mirror, so GitHub never
+# deletes their branches. A branch left behind comes back on GitLab through the
+# pull mirror once the merge request deleted it, and there it starts a pipeline
+# for a pull request that is already closed.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  delete-branch:
+    # A fork's branch is not this repository's to delete.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the head branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # Dependabot deletes its own branches, so this one may be gone
+          # already.
+          if ! output=$(gh api --method DELETE "repos/$REPO/git/refs/heads/$BRANCH" 2>&1); then
+            if echo "$output" | grep --quiet "Reference does not exist"; then
+              echo "$BRANCH is already gone."
+              exit 0
+            fi
+            echo "$output" >&2
+            exit 1
+          fi
+          echo "Deleted $BRANCH."
