@@ -89,6 +89,9 @@ ci-image:
       variables:
         REBUILD_IMAGE: "true"
     - if: $REBUILD_IMAGE == 'true'
+    # pest:mutate runs on the toolchain image, so it needs the tag.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'mutate'
+    - if: $CI_PIPELINE_SOURCE == 'web'
     # install:deps runs in these too, and needs the tag.
     - if: $REBUILD_CACHE == 'true'
   script:
@@ -537,6 +540,25 @@ pest:mariadb:
     expire_in: 1 week
     reports:
       junit: build/junit/pest-mariadb.xml
+
+# Changes the code under test in small ways and checks that some test fails
+# for each change. Too slow for every merge request, so it needs a pipeline
+# schedule with SCHEDULE_TASK=mutate; a web pipeline can also start it by
+# hand. Only tests with covers() take part.
+pest:mutate:
+  extends: .ci-php
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+  script:
+    - composer run mutate
+  # A cancelled run reports nothing, and a restart starts from scratch.
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'mutate'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
 
 browser:
   extends: .ci-full
