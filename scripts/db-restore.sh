@@ -8,6 +8,7 @@ set -e
 set -o pipefail
 
 set -a
+# shellcheck source=/dev/null # The deployment's .env, not in the repository.
 source .env
 set +a
 

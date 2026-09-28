@@ -51,6 +51,7 @@
             php.packages.composer
             nodejs
             pkgs.process-compose
+            pkgs.shellcheck
             pkgs.util-linux
           ];
         };

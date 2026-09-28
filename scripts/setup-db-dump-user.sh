@@ -62,6 +62,7 @@ passwd -l "$user" >/dev/null
 # needs SELECT: the app has no views or triggers, and --single-transaction in scripts/db-dump.sh
 # already gives a consistent snapshot of the InnoDB tables without LOCK TABLES.
 set -a
+# shellcheck source=/dev/null # The deployment's .env, not in the repository.
 source "$git_dir/.env"
 set +a
 

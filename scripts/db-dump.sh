@@ -7,6 +7,7 @@ set -e
 set -o pipefail
 
 set -a
+# shellcheck source=/dev/null # Written on the host, not in the repository.
 source ~/.env.db-dump
 set +a
 

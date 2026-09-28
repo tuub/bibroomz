@@ -417,6 +417,12 @@ rector:
   script:
     - vendor/bin/rector --dry-run --no-progress-bar
 
+shellcheck:
+  extends: .ci
+  stage: lint
+  script:
+    - git ls-files -z '*.sh' | xargs --null shellcheck
+
 stylelint:
   extends: .ci-node
   stage: lint
