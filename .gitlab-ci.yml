@@ -362,15 +362,36 @@ eslint:
   script:
     - npm run eslint
 
-gitleaks:
+.gitleaks:
   image:
     name: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
     entrypoint: [""]
   stage: lint
   needs: []
+
+gitleaks:
+  extends: .gitleaks
   script: gitleaks git --platform=gitlab --log-opts=$CI_MERGE_REQUEST_DIFF_BASE_SHA..
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+# The job above sees one merge request's commits and nothing else, so a secret
+# that landed before gitleaks was added, or by any route other than a merge
+# request, stays unreported however often it runs. This one reads every commit
+# on every ref instead. Needs a pipeline schedule with
+# SCHEDULE_TASK=secret-scan; a web pipeline can also start it by hand.
+gitleaks:history:
+  extends: .gitleaks
+  variables:
+    # The whole point is the history the default shallow clone leaves out.
+    GIT_DEPTH: "0"
+  script: gitleaks git --platform=gitlab --log-opts=--all
+  # A cancelled scan reports nothing, which looks exactly like a clean one.
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'secret-scan'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
 
 phpstan:
   extends: .ci-php
