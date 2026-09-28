@@ -77,8 +77,9 @@ test('sync updates existing business hour by id', function (): void {
     ]);
 
     $updated = BusinessHour::findOrFail($existing->id);
-    expect($updated->start)->toBe('09:00')
-        ->and($updated->end)->toBe('17:00');
+    // MariaDB appends seconds.
+    expect($updated->start)->toStartWith('09:00')
+        ->and($updated->end)->toStartWith('17:00');
 });
 
 test('sync preserves midnight as 00:00 for start', function (): void {
@@ -100,7 +101,8 @@ test('sync preserves midnight as 00:00 for start', function (): void {
 
     /** @var BusinessHour $bh */
     $bh = BusinessHour::where('resource_id', $resource->id)->first();
-    expect($bh->start)->toBe('00:00');
+    // MariaDB appends seconds.
+    expect($bh->start)->toStartWith('00:00');
 });
 
 test('sync converts midnight end to 24:00', function (): void {
@@ -122,7 +124,8 @@ test('sync converts midnight end to 24:00', function (): void {
 
     /** @var BusinessHour $bh */
     $bh = BusinessHour::where('resource_id', $resource->id)->first();
-    expect($bh->end)->toBe('24:00');
+    // MariaDB appends seconds.
+    expect($bh->end)->toStartWith('24:00');
 });
 
 test('sync syncs week days for business hour', function (): void {
@@ -240,8 +243,9 @@ test('sync updates an existing business hour by id preserving identity', functio
     expect(BusinessHour::where('resource_id', $resource->id)->count())->toBe(1);
     /** @var BusinessHour $updated */
     $updated = BusinessHour::where('resource_id', $resource->id)->first();
+    // MariaDB appends seconds.
     expect($updated->id)->toBe($existingId)
-        ->and($updated->start)->toBe('09:00');
+        ->and($updated->start)->toStartWith('09:00');
 });
 
 test('sync deletes business hours not in list using array_values result', function (): void {

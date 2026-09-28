@@ -726,8 +726,9 @@ test('catalog admin routes render and mutate institutions resources settings clo
     expect((int) $updatedResource?->capacity)->toBe(4)
         ->and($updatedResource?->is_verification_required)->toBeTrue()
         ->and($updatedResource?->business_hours)->toHaveCount(1)
-        ->and($updatedResource?->business_hours->first()?->start)->toBe('09:00')
-        ->and($updatedResource?->business_hours->first()?->end)->toBe('17:00');
+        // MariaDB appends seconds.
+        ->and($updatedResource?->business_hours->first()?->start)->toStartWith('09:00')
+        ->and($updatedResource?->business_hours->first()?->end)->toStartWith('17:00');
 
     $this->post(route('admin.resource.order'), [
         'rows' => [['id' => $resource->id, 'order' => 9]],

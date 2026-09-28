@@ -8,6 +8,7 @@ use App\Models\Resource;
 use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Models\WeekDay;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -131,7 +132,8 @@ test('institution week_days can be synced', function (): void {
     $this->seed(WeekDaySeeder::class);
     $institution = Institution::factory()->create();
 
-    $institution->week_days()->sync([1, 2]);
+    // MariaDB keeps auto-increment across rollbacks, so ids vary.
+    $institution->week_days()->sync(WeekDay::whereIn('key', ['monday', 'tuesday'])->pluck('id'));
 
     expect($institution->week_days()->count())->toBe(2);
 });
@@ -265,9 +267,10 @@ test('institution getHiddenDays returns days not assigned to institution', funct
     $this->seed(WeekDaySeeder::class);
     $institution = Institution::factory()->create();
 
-    $institution->week_days()->sync([1]); // Only monday
+    // Monday is not id 1: WeekDaySeeder inserts sunday first.
+    $institution->week_days()->sync(WeekDay::where('key', 'monday')->pluck('id'));
 
     $hidden = $institution->getHiddenDays();
 
-    expect($hidden->isEmpty())->toBeFalse(); // Other days should be hidden
+    expect($hidden->sort()->values()->all())->toBe([0, 2, 3, 4, 5, 6]);
 });

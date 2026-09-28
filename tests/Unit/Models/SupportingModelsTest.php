@@ -62,12 +62,13 @@ test('supporting models expose domain helpers and translation wrappers', functio
         ['day_of_week' => 2, 'key' => 'tue'],
         ['day_of_week' => 3, 'key' => 'wed'],
     ]);
+    // MariaDB keeps auto-increment across rollbacks, so ids vary.
     /** @var WeekDay $weekdayOne */
-    $weekdayOne = WeekDay::find(1);
+    $weekdayOne = WeekDay::where('key', 'mon')->first();
     /** @var WeekDay $weekdayTwo */
-    $weekdayTwo = WeekDay::find(2);
+    $weekdayTwo = WeekDay::where('key', 'tue')->first();
     /** @var WeekDay $weekdayThree */
-    $weekdayThree = WeekDay::find(3);
+    $weekdayThree = WeekDay::where('key', 'wed')->first();
     $institution->week_days()->sync([$weekdayOne->id, $weekdayThree->id]);
 
     $userGroup = UserGroup::create([

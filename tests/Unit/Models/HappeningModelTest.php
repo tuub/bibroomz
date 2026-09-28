@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithPermissions;
@@ -259,7 +260,8 @@ test('happening broadcast concurrency and resource status helpers work', functio
 
     Event::assertDispatched(HappeningCreatedEvent::class, 3);
     Event::assertDispatched(HappeningsChangedEvent::class);
-    expect($happening->prunable()->toSql())->toContain('"end" <=')
+    // Quoting differs per driver.
+    expect($happening->prunable()->toSql())->toContain(DB::getQueryGrammar()->wrap('end').' <=')
         ->and($happening->isEditableByUser($fixture['owner']))->toBeFalse()
         ->and($happening->isViewableByUser($fixture['owner']))->toBeFalse();
 });
