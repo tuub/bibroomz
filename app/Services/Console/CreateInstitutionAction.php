@@ -4,6 +4,7 @@ namespace App\Services\Console;
 
 use App\Models\Institution;
 use App\Models\Setting;
+use App\Models\WeekDay;
 use App\Rules\RequiredWithTranslationRule;
 use Illuminate\Support\Facades\Validator;
 
@@ -53,11 +54,12 @@ class CreateInstitutionAction
     }
 
     /**
-     * @return array<int, int|string>
-     */
-    /**
+     * Resolves the ISO day numbers the prompt returns ('1' is Monday, '7' is
+     * Sunday), or day names, to week_days ids. The ids themselves follow
+     * WeekDaySeeder's insert order, which starts with Sunday.
+     *
      * @param  array<mixed>  $weekDays
-     * @return array<int, int|string>
+     * @return array<mixed>
      */
     private function normalizeWeekDays(array $weekDays): array
     {
@@ -71,21 +73,22 @@ class CreateInstitutionAction
             'Sunday' => 7,
         ];
 
-        $normalized = [];
+        $daysOfWeek = [];
 
         foreach ($weekDays as $day) {
             if (is_string($day) && array_key_exists($day, $map)) {
-                $normalized[] = $map[$day];
-
-                continue;
+                $day = $map[$day];
             }
 
-            if (is_int($day) || is_string($day)) {
-                $normalized[] = $day;
+            if (is_numeric($day)) {
+                $daysOfWeek[] = (int) $day % 7;
             }
         }
 
-        return $normalized;
+        return WeekDay::query()
+            ->whereIn('day_of_week', $daysOfWeek)
+            ->pluck('id')
+            ->all();
     }
 
     /**

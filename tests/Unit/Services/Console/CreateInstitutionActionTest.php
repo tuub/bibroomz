@@ -85,28 +85,25 @@ test('execute syncs named week days as integers', function (): void {
     ]);
 
     $institution->load('week_days');
-    $ids = $institution->week_days->pluck('id')->sort()->values()->toArray();
+    $days = $institution->week_days->pluck('day_of_week')->sort()->values()->toArray();
 
-    expect($ids)->toContain(1)
-        ->and($ids)->toContain(3)
-        ->and($ids)->toContain(5);
+    expect($days)->toBe([1, 3, 5]);
 });
 
-test('execute syncs numeric week days directly', function (): void {
+test('execute syncs numeric week days as ISO day numbers', function (): void {
     $action = new CreateInstitutionAction;
     $institution = $action->execute([
         'title' => ['en' => 'Numeric WD'],
         'short_title' => 'NWD',
         'slug' => 'numeric-wd-'.uniqid(),
         'is_active' => true,
-        'week_days' => [2, 4],
+        'week_days' => [2, '4', 7],
     ]);
 
     $institution->load('week_days');
-    $ids = $institution->week_days->pluck('id')->sort()->values()->toArray();
+    $keys = $institution->week_days->pluck('key')->sort()->values()->toArray();
 
-    expect($ids)->toContain(2)
-        ->and($ids)->toContain(4);
+    expect($keys)->toBe(['sunday', 'thursday', 'tuesday']);
 });
 
 test('execute skips null and array items in week_days', function (): void {
@@ -120,10 +117,9 @@ test('execute skips null and array items in week_days', function (): void {
     ]);
 
     $institution->load('week_days');
-    $ids = $institution->week_days->pluck('id')->sort()->values()->toArray();
+    $keys = $institution->week_days->pluck('key')->toArray();
 
-    expect($ids)->toContain(1)
-        ->and(count($ids))->toBe(1);
+    expect($keys)->toBe(['monday']);
 });
 
 test('execute creates institution settings from initial values', function (): void {
@@ -197,12 +193,9 @@ test('normalizeWeekDays maps all day names to integers', function (): void {
     ]);
 
     $institution->load('week_days');
-    $ids = $institution->week_days->pluck('id')->sort()->values()->toArray();
+    $days = $institution->week_days->pluck('day_of_week')->sort()->values()->toArray();
 
-    expect($ids)->toContain(2)
-        ->and($ids)->toContain(4)
-        ->and($ids)->toContain(6)
-        ->and($ids)->toContain(7);
+    expect($days)->toBe([0, 2, 4, 6]);
 });
 
 // --- Mutation-killing tests for validateInput() rule array (lines 21-30 RemoveArrayItem) ---
