@@ -530,12 +530,21 @@ browser:
 vitest:
   extends: .ci-node
   stage: test
+  coverage: '/Lines\s*:\s*(\d+(?:\.\d+)?)%/'
   needs:
     - job: ci-image
       optional: true
     - install:deps
   script:
-    - npm run test
+    - npm run coverage -- --reporter=default --reporter=junit --outputFile.junit=build/junit/vitest.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage-js/cobertura-coverage.xml
+      junit: build/junit/vitest.xml
 
 ### Deploy stage
 deploy-staging:

@@ -1,4 +1,6 @@
 /build/coverage
+/build/coverage-js
+/build/junit
 *.cache
 /coverage-html
 coverage*.xml

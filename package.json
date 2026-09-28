@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "coverage": "vitest run --coverage",
         "dev": "vite",
         "eslint": "eslint resources/ *.ts",
         "format": "prettier --write resources/ *.ts",
@@ -26,6 +27,7 @@
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@typescript-eslint/eslint-plugin": "^8.70.0",
         "@typescript-eslint/parser": "^8.60.1",
+        "@vitest/coverage-v8": "^5.0.2",
         "@vue/compiler-sfc": "^3.5.42",
         "@vue/test-utils": "^2.4.11",
         "axios": "^1.12.1",
