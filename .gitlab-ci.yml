@@ -432,6 +432,12 @@ gitleaks:history:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
 
+hadolint:
+  extends: .ci
+  stage: lint
+  script:
+    - hadolint Dockerfile
+
 # Blocks only where the lock file changes, like composer:audit.
 npm:audit:
   extends: .ci

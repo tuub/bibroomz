@@ -23,6 +23,8 @@ FROM frankenphp-base AS php-build
 
 COPY --from=composer-bin /usr/bin/composer /usr/bin/composer
 
+# The base image is pinned by digest, and Debian drops old package versions.
+# hadolint ignore=DL3008
 RUN apt-get --yes update \
     && apt-get --yes install --no-install-recommends git unzip \
     && rm --recursive --force /var/lib/apt/lists/*

@@ -50,6 +50,7 @@
             php
             php.packages.composer
             nodejs
+            pkgs.hadolint
             pkgs.process-compose
             pkgs.shellcheck
             pkgs.util-linux
