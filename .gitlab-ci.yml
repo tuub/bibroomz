@@ -473,7 +473,7 @@ pest:coverage:
       artifacts: true
   script:
     - mkdir --parents build/coverage
-    - composer run coverage
+    - composer run coverage -- --log-junit build/junit/pest.xml
 
   artifacts:
     when: always
@@ -482,6 +482,7 @@ pest:coverage:
       coverage_report:
         coverage_format: cobertura
         path: build/coverage/cobertura.xml
+      junit: build/junit/pest.xml
     paths:
       - build/coverage/
 
@@ -504,7 +505,12 @@ pest:mariadb:
     DB_USERNAME: root
     DB_PASSWORD: roomz
   script:
-    - composer run pest
+    - composer run pest -- --log-junit build/junit/pest-mariadb.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: build/junit/pest-mariadb.xml
 
 browser:
   extends: .ci-full
@@ -525,7 +531,15 @@ browser:
   # triggers it, at the cost of queueing this job across merge requests.
   resource_group: browser
   script:
-    - composer run test:browser
+    - composer run test:browser -- --log-junit build/junit/browser.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: build/junit/browser.xml
+    # Pest saves a screenshot of the page for every failed browser assertion.
+    paths:
+      - tests/Browser/Screenshots/
 
 vitest:
   extends: .ci-node
