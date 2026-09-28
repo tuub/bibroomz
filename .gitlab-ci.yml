@@ -508,6 +508,36 @@ typescript:
   script:
     - npm run typecheck
 
+# Builds every image compose.yaml describes, starts the stack and asks the app
+# for a page. Nothing else touches the Dockerfile or compose.yaml, so a base
+# image bump or an edit can break them unnoticed. Needs a pipeline schedule
+# with SCHEDULE_TASK=docker; a web pipeline can also start it by hand. Docker
+# in Docker only works on a runner that allows privileged containers.
+docker:compose:
+  stage: build
+  image: ${DOCKERHUB_IMAGE_PREFIX}docker:29.1.3-cli@sha256:4fa0ee1f3a7e4354c4ea34558b6d4ee32859baf4973d4c8ccc8e7fe3dd730c04
+  services:
+    - name: ${DOCKERHUB_IMAGE_PREFIX}docker:29.1.3-dind@sha256:173f284a4299164772a90f52b373e73e087583c0963f1334c9995f190ef6f3f5
+      alias: docker
+  needs: []
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    # The daemon only listens inside the job's network, so TLS buys nothing.
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    # The runner logs in to the dependency proxy for the job's own image only;
+    # the daemon in the job pulls through it on its own.
+    - |
+      if [ -n "$DOCKERHUB_IMAGE_PREFIX" ]; then
+        echo "$CI_DEPENDENCY_PROXY_PASSWORD" | docker login \
+          --username "$CI_DEPENDENCY_PROXY_USER" --password-stdin "$CI_DEPENDENCY_PROXY_SERVER"
+      fi
+    - scripts/check-compose-stack.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'docker'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
 # vite shells out to `php artisan ziggy:generate` and aliases ziggy-js into
 # vendor/, so this one needs both dependency caches.
 frontend-build:
