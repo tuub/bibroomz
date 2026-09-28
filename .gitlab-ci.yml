@@ -450,7 +450,7 @@ frontend-build:
       - public/build/
 
 ### Test stage
-coverage:
+pest:coverage:
   extends: .ci-php
   stage: test
   coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
@@ -472,6 +472,27 @@ coverage:
         path: build/coverage/cobertura.xml
     paths:
       - build/coverage/
+
+pest:mariadb:
+  extends: .ci-php
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+    - install:deps
+  services:
+    - name: ${DOCKERHUB_IMAGE_PREFIX}mariadb:10.11.17-jammy@sha256:8acd4a5561e8897cfc8a99480f25bcecb10b726fa17b1ec7381c6ef36fa00a79
+      alias: mariadb
+  variables:
+    MARIADB_ROOT_PASSWORD: roomz
+    MARIADB_DATABASE: roomz_testing
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_DATABASE: roomz_testing
+    DB_USERNAME: root
+    DB_PASSWORD: roomz
+  script:
+    - composer run pest
 
 browser:
   extends: .ci-full
