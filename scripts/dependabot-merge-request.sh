@@ -4,6 +4,7 @@ set -eu
 
 : "${CI_API_V4_URL:?}"
 : "${CI_COMMIT_BRANCH:?}"
+: "${CI_COMMIT_SHA:?}"
 : "${CI_DEFAULT_BRANCH:?}"
 : "${CI_PROJECT_ID:?}"
 : "${GITLAB_TOKEN:?}"
@@ -19,34 +20,47 @@ github_api="${GITHUB_API_BASE:-https://api.github.com}"
 # and Dependabot rebases change the commit without making it a new update.
 # stale-pull-requests.sh reads the same line back.
 #
-# Sets pr_number rather than printing it: BusyBox sh does not apply set -e
-# inside a command substitution, so a failing curl would read as "no pull
-# request yet".
-fetch_pull_request_number() {
-    open_prs="$(curl --silent --show-error --fail \
+# Sets pr_number and closed_pr_number rather than printing them: BusyBox sh
+# does not apply set -e inside a command substitution, so a failing curl would
+# read as "no pull request yet".
+#
+# GitHub keeps the branch after its pull request is merged, so the mirror can
+# bring it back once GitLab has deleted it. closed_pr_number names the closed
+# pull request for this very commit, which leaves nothing to do.
+fetch_pull_request_numbers() {
+    prs="$(curl --silent --show-error --fail \
         --get \
         --header "Authorization: Bearer $GITHUB_TOKEN" \
         --header "Accept: application/vnd.github+json" \
         --data-urlencode "head=$github_owner:$CI_COMMIT_BRANCH" \
-        --data-urlencode "state=open" \
+        --data-urlencode "state=all" \
         "$github_api/repos/$github_repo/pulls")"
 
-    pr_number="$(echo "$open_prs" | jq --raw-output '.[0].number // empty')"
+    pr_number="$(echo "$prs" | jq --raw-output \
+        'map(select(.state == "open"))[0].number // empty')"
+    closed_pr_number="$(echo "$prs" | jq --raw-output --arg sha "$CI_COMMIT_SHA" \
+        'map(select(.state == "closed" and .head.sha == $sha))[0].number // empty')"
 }
 
 # The mirror can pull the branch before the pull request for it is opened.
 pull_request_attempts=6
 
 while :; do
-    fetch_pull_request_number
+    fetch_pull_request_numbers
     pull_request_attempts=$((pull_request_attempts - 1))
 
-    if [ -n "$pr_number" ] || [ "$pull_request_attempts" -eq 0 ]; then
+    if [ -n "$pr_number" ] || [ -n "$closed_pr_number" ] ||
+        [ "$pull_request_attempts" -eq 0 ]; then
         break
     fi
 
     sleep 10
 done
+
+if [ -z "$pr_number" ] && [ -n "$closed_pr_number" ]; then
+    echo "GitHub pull request #$closed_pr_number for $CI_COMMIT_BRANCH at $CI_COMMIT_SHA is already closed; nothing to do."
+    exit 0
+fi
 
 if [ -z "$pr_number" ]; then
     echo "No open GitHub pull request for $CI_COMMIT_BRANCH in $github_repo." >&2
