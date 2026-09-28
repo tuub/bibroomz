@@ -354,6 +354,12 @@ commitlint:
   script:
     - node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
+composer:validate:
+  extends: .ci
+  stage: lint
+  script:
+    - composer validate --strict
+
 # tsconfig resolves ziggy-js inside vendor/, and type-aware rules follow
 # that import, so this one needs both dependency caches.
 eslint:
@@ -392,6 +398,13 @@ gitleaks:history:
     - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'secret-scan'
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
+
+# Fails when package.json and package-lock.json disagree, without installing.
+npm:lockfile:
+  extends: .ci
+  stage: lint
+  script:
+    - npm ci --dry-run --ignore-scripts
 
 pest:type-coverage:
   extends: .ci-php
