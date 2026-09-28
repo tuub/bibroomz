@@ -370,6 +370,23 @@ commitlint:
   script:
     - node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
 
+# Advisories are published independently of this repository, so a new one can
+# turn these audits red on a merge request that touches no dependency. They
+# only block the merge request that changes the lock file; everywhere else
+# they warn.
+composer:audit:
+  extends: .ci
+  stage: lint
+  script:
+    - composer audit --locked --no-dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - composer.json
+        - composer.lock
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      allow_failure: true
+
 composer:validate:
   extends: .ci
   stage: lint
@@ -414,6 +431,20 @@ gitleaks:history:
     - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'secret-scan'
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
+
+# Blocks only where the lock file changes, like composer:audit.
+npm:audit:
+  extends: .ci
+  stage: lint
+  script:
+    - npm audit --omit=dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - package.json
+        - package-lock.json
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      allow_failure: true
 
 # Fails when package.json and package-lock.json disagree, without installing.
 npm:lockfile:
