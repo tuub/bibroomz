@@ -96,7 +96,9 @@ void createInertiaApp({
                 fallbackLang: "en",
                 resolve: async (lang: string) => {
                     const mod = await import(`../../lang/php_${lang}.json`);
-                    return { default: stripEmpty(mod.default ?? mod) };
+                    const messages: Record<string, string> = stripEmpty(mod.default ?? mod);
+
+                    return { default: messages };
                 },
             })
             // Ziggy
