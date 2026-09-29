@@ -11,7 +11,8 @@ branch_prefix="${BRANCH_PREFIX:-dependabot/}"
 
 github_branches="$(mktemp)"
 gitlab_branches="$(mktemp)"
-trap 'rm -f "$github_branches" "$gitlab_branches"' EXIT
+stale_branches="$(mktemp)"
+trap 'rm -f "$github_branches" "$gitlab_branches" "$stale_branches"' EXIT
 
 : >"$github_branches"
 page=1
@@ -59,12 +60,40 @@ if [ -z "$stale" ]; then
     exit 0
 fi
 
-echo "$stale" | while IFS= read -r branch; do
+# Read from a file rather than a pipe: the loop keeps track of failures, and a
+# pipeline would run it in a subshell where that tally is lost.
+printf '%s\n' "$stale" >"$stale_branches"
+
+# The branch can disappear between the listing and the delete: this job runs
+# right after dependabot-merge-request.sh has enabled auto-merge with
+# should_remove_source_branch, so GitLab deletes the source branch itself the
+# moment the pipeline goes green. A 404 means the pruning is already done, not
+# that something went wrong, so it must not fail the job.
+exit_status=0
+
+while IFS= read -r branch; do
     [ -z "$branch" ] && continue
     encoded="$(printf '%s' "$branch" | jq -sRr @uri)"
     echo "Deleting stale mirror branch: $branch"
-    curl --silent --show-error --fail \
+
+    http_status="$(curl --silent --show-error \
+        --output /dev/null \
+        --write-out "%{http_code}" \
         --request DELETE \
         --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded"
-done
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded")" || http_status="000"
+
+    case "$http_status" in
+        2??)
+            ;;
+        404)
+            echo "Branch $branch is already gone; nothing to delete."
+            ;;
+        *)
+            echo "Failed to delete $branch (HTTP $http_status)." >&2
+            exit_status=1
+            ;;
+    esac
+done <"$stale_branches"
+
+exit "$exit_status"
