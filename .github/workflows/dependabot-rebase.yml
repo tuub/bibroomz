@@ -13,8 +13,33 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DEPENDABOT_REBASE_TOKEN }}
           REPO: ${{ github.repository }}
+          BASE: ${{ github.ref_name }}
         run: |
-          gh pr list --repo "$REPO" --state open --author "app/dependabot" --json number --jq '.[].number' |
-            while read -r pr; do
+          # The push that runs this workflow can be the merge itself: the
+          # mirror merges fast-forward, so the pull request's own commits
+          # arrive on main and GitHub closes it as merged. That takes a moment,
+          # and --state open still lists the pull request until it does, which
+          # leaves an "@dependabot rebase" comment on a merged pull request.
+          # Dependabot ignores it, but the comment stays.
+          #
+          # Waiting for the state to flip would only narrow the window. Since
+          # the merge is fast-forward, the head commit reaches main unchanged,
+          # so a pull request that is already in carries a head main contains,
+          # which compare reports as identical or behind.
+          gh pr list --repo "$REPO" --state open --author "app/dependabot" \
+            --json number,headRefOid --jq '.[] | "\(.number) \(.headRefOid)"' |
+            while read -r pr sha; do
+              if ! status="$(gh api "repos/$REPO/compare/$BASE...$sha" --jq '.status')"; then
+                echo "Could not compare PR #$pr against $BASE; leaving it alone."
+                continue
+              fi
+
+              case "$status" in
+                identical | behind)
+                  echo "PR #$pr is already in $BASE; not asking for a rebase."
+                  continue
+                  ;;
+              esac
+
               gh pr comment "$pr" --repo "$REPO" --body "@dependabot rebase"
             done
