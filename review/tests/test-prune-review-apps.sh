@@ -29,6 +29,12 @@ export REVIEW_TEST_ENVIRONMENTS='[
     {"id":12,"name":"review/gone"},
     {"id":13,"name":"review/feature-abc-1"}
 ]'
+# What GitLab lists as stopped: the environment this run stops, plus one left
+# over from an earlier run that the bulk endpoint would only ever re-schedule.
+export REVIEW_TEST_STOPPED_ENVIRONMENTS='[
+    {"id":12,"name":"review/gone"},
+    {"id":14,"name":"review/older"}
+]'
 
 cat > "$test_root/bin/curl" <<'SH'
 #!/usr/bin/env bash
@@ -36,7 +42,13 @@ set -euo pipefail
 url="${*: -1}"
 case "$url" in
     */repository/branches) printf '%s' "$REVIEW_TEST_BRANCHES" ;;
-    */environments) printf '%s' "$REVIEW_TEST_ENVIRONMENTS" ;;
+    */environments)
+        if [[ "$*" == *states=stopped* ]]; then
+            printf '%s' "$REVIEW_TEST_STOPPED_ENVIRONMENTS"
+        else
+            printf '%s' "$REVIEW_TEST_ENVIRONMENTS"
+        fi
+        ;;
     *)
         printf 'curl %s\n' "$url" >> "$REVIEW_TEST_LOG"
         printf '{}'
@@ -79,8 +91,11 @@ printf 'PASS: only apps without a branch are destroyed, including one GitLab for
 printf 'PASS: a live branch keeps its app and environment, slug rule included\n'
 
 grep --quiet "environments/12/stop?force=true" "$REVIEW_TEST_LOG"
-grep --quiet "environments/review_apps?before=.*dry_run=false" "$REVIEW_TEST_LOG"
-printf 'PASS: orphaned environments are stopped and the stopped ones scheduled for deletion\n'
+grep --quiet "environments/12$" "$REVIEW_TEST_LOG"
+grep --quiet "environments/14$" "$REVIEW_TEST_LOG"
+[[ "$(grep --count "environments/11$" "$REVIEW_TEST_LOG" || true)" == 0 ]]
+[[ "$(grep --count "environments/review_apps" "$REVIEW_TEST_LOG" || true)" == 0 ]]
+printf 'PASS: orphaned environments are stopped and every stopped one is deleted outright\n'
 
 # An empty branch list is indistinguishable from "every branch was deleted".
 : > "$REVIEW_TEST_LOG"

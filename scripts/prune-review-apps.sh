@@ -23,7 +23,8 @@ gitlab_api() {
 live_slugs="$(mktemp)"
 host_apps="$(mktemp)"
 environments="$(mktemp)"
-trap 'rm -f "$live_slugs" "$host_apps" "$environments"' EXIT
+stopped_envs="$(mktemp)"
+trap 'rm -f "$live_slugs" "$host_apps" "$environments" "$stopped_envs"' EXIT
 
 # deploy-review names the host directory and the environment after
 # CI_COMMIT_REF_SLUG: the branch lower cased, with everything but 0-9 and a-z
@@ -105,9 +106,33 @@ while read -r id slug; do
 done < "$environments"
 
 # Stopped environments stay in the list until something deletes them, and
-# GitLab has no setting for it. The deletion is scheduled rather than immediate,
-# and is carried out a week later.
-echo "Scheduling deletion of stopped review environments."
-now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-gitlab_api --request DELETE \
-    "$CI_API_V4_URL/projects/$CI_PROJECT_ID/environments/review_apps?before=$now&limit=100&dry_run=false"
+# GitLab has no setting for it. DELETE environments/review_apps only sets
+# auto_delete_at to a week out, and sets it again on every call, so while this
+# job runs more often than weekly the deletion it schedules never comes due.
+# Deleting each stopped environment by id takes effect immediately instead.
+: >"$stopped_envs"
+page=1
+while :; do
+    response="$(gitlab_api --get \
+        --data-urlencode "per_page=100" \
+        --data-urlencode "page=$page" \
+        --data-urlencode "states=stopped" \
+        --data-urlencode "search=review/" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/environments")"
+
+    count="$(echo "$response" | jq 'length')"
+    echo "$response" | jq --raw-output \
+        '.[] | select(.name | startswith("review/")) | "\(.id) \(.name)"' \
+        >>"$stopped_envs"
+
+    [ "$count" -lt 100 ] && break
+    page=$((page + 1))
+done
+
+while read -r id name; do
+    [ -n "$id" ] || continue
+
+    echo "Deleting environment $name"
+    gitlab_api --request DELETE \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/environments/$id" > /dev/null
+done < "$stopped_envs"

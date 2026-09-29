@@ -180,9 +180,11 @@ That leaves the cases where the job never runs at all: it failed, its pipeline h
 [`scripts/prune-mirror-branches.sh`](../scripts/prune-mirror-branches.sh) deleted the branch. The app then keeps its
 checkout, database, Redis keys and reserved port, and the port range allows only 100 apps at a time. The scheduled
 `cleanup-review` job runs [`scripts/prune-review-apps.sh`](../scripts/prune-review-apps.sh), which destroys every app
-under `apps/` whose branch no longer exists, force-stops the matching environments, and asks GitLab to delete the
-stopped ones (it carries that out a week later). It refuses to do anything if the branch list comes back empty, so a
-failing API cannot empty the host.
+under `apps/` whose branch no longer exists, force-stops the matching environments, and deletes every stopped
+`review/*` environment by id. The bulk `environments/review_apps` endpoint is deliberately not used: it only sets
+`auto_delete_at` a week out and sets it again on every call, so a job running more often than weekly keeps pushing the
+deletion it schedules out of reach. The script refuses to do anything if the branch list comes back empty, so a failing
+API cannot empty the host.
 
 A leftover app can always be removed on the host with:
 
