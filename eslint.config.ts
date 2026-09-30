@@ -3,6 +3,7 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import type { Linter } from "eslint";
 import prettier from "eslint-config-prettier";
+import importX from "eslint-plugin-import-x";
 import vuePlugin from "eslint-plugin-vue";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
@@ -71,6 +72,39 @@ export default [
         files: ["**/*.test.ts"],
         rules: {
             "no-restricted-syntax": "off",
+        },
+    },
+    // Anything imported from here is compiled into public/build and downloaded
+    // by every visitor, whichever section of package.json it is declared in.
+    // So the declaration has to match: a package this code imports belongs in
+    // "dependencies", and what is left in "devDependencies" is what only the
+    // build and the tooling run. Nothing checked that before and eight packages
+    // sat on the wrong side of it, five of them imported from here.
+    //
+    // Tests are exempt -- they are not built -- and so are the config files at
+    // the repository root, which the rule never looks at.
+    {
+        files: ["resources/js/**/*.{ts,vue}"],
+        ignores: ["resources/js/**/*.test.ts"],
+        plugins: { "import-x": importX },
+        settings: {
+            // Neither of these is a package: "@/" is this project's own source
+            // tree, and "ziggy-js" is a tsconfig path and a Vite alias onto the
+            // composer package that generates the route helpers.
+            "import-x/internal-regex": "^@/",
+            "import-x/core-modules": ["ziggy-js"],
+        },
+        rules: {
+            // Type-only imports are left out by default, which is right: they
+            // are erased before anything is bundled.
+            "import-x/no-extraneous-dependencies": [
+                "error",
+                {
+                    devDependencies: false,
+                    optionalDependencies: false,
+                    peerDependencies: false,
+                },
+            ],
         },
     },
     {
