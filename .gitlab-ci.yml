@@ -238,6 +238,23 @@ ci-image:
     - !reference [.restore-node, script]
     - !reference [.restore-composer, script]
 
+### Services
+# The jobs that need a real database rather than the SQLite the default test
+# suite runs on. Sharing one definition keeps the credentials and the image
+# digest in step between them.
+.mariadb:
+  services:
+    - name: ${DOCKERHUB_IMAGE_PREFIX}mariadb:10.11.17-jammy@sha256:8acd4a5561e8897cfc8a99480f25bcecb10b726fa17b1ec7381c6ef36fa00a79
+      alias: mariadb
+  variables:
+    MARIADB_ROOT_PASSWORD: roomz
+    MARIADB_DATABASE: roomz_testing
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_DATABASE: roomz_testing
+    DB_USERNAME: root
+    DB_PASSWORD: roomz
+
 .ssh:
   stage: deploy
   image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
@@ -586,23 +603,14 @@ pest:coverage:
       - build/coverage/
 
 pest:mariadb:
-  extends: .ci-php
+  extends:
+    - .ci-php
+    - .mariadb
   stage: test
   needs:
     - job: ci-image
       optional: true
     - install:deps
-  services:
-    - name: ${DOCKERHUB_IMAGE_PREFIX}mariadb:10.11.17-jammy@sha256:8acd4a5561e8897cfc8a99480f25bcecb10b726fa17b1ec7381c6ef36fa00a79
-      alias: mariadb
-  variables:
-    MARIADB_ROOT_PASSWORD: roomz
-    MARIADB_DATABASE: roomz_testing
-    DB_CONNECTION: mysql
-    DB_HOST: mariadb
-    DB_DATABASE: roomz_testing
-    DB_USERNAME: root
-    DB_PASSWORD: roomz
   script:
     - composer run pest -- --log-junit build/junit/pest-mariadb.xml
   artifacts:
@@ -610,6 +618,22 @@ pest:mariadb:
     expire_in: 1 week
     reports:
       junit: build/junit/pest-mariadb.xml
+
+# Every migration defines down() and nothing ever ran one: the test suites
+# build their schema from scratch, and deploy.sh only migrates forward. This
+# migrates up, rolls the whole schema back and builds it again, against the
+# database production uses. See scripts/check-migrations.sh.
+migrations:rollback:
+  extends:
+    - .ci-php
+    - .mariadb
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+    - install:deps
+  script:
+    - scripts/check-migrations.sh
 
 # Changes the code under test in small ways and checks that some test fails
 # for each change. Too slow for every merge request, so it needs a pipeline

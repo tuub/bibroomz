@@ -29,10 +29,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permission_groups');
-
+        // MariaDB will not drop a table while another table still references
+        // it, and permissions.group_id references permission_groups, so that
+        // reference has to go first. The column goes with it: up() added it,
+        // and leaving it behind would make the next run of up() fail on a
+        // duplicate column.
         Schema::table('permissions', function (Blueprint $table): void {
             $table->dropForeign(['group_id']);
+            $table->dropColumn('group_id');
         });
+
+        Schema::dropIfExists('permission_groups');
     }
 };

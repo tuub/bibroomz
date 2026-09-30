@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\MethodCall\RemoveNullArgOnNullDefaultParamRector;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Set\ValueObject\SetList;
 use RectorLaravel\Rector\Class_\ModelCastsPropertyToCastsMethodRector;
@@ -38,4 +39,12 @@ return RectorConfig::configure()
         // e.g. Collection::where('key', '!==', null) → where('key', '!==') changes semantics
         RemoveExtraParametersRector::class,
         RemoveNullArgOnNullDefaultParamRector::class,
+
+        // A migration matches class names that were written into the database
+        // when it ran, not the ones the code uses today. ::class follows a
+        // rename of the model and the stored rows do not, so the two would
+        // silently stop matching.
+        StringClassNameToClassConstantRector::class => [
+            __DIR__.'/database/migrations',
+        ],
     ]);
