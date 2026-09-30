@@ -45,6 +45,7 @@ updates:
         update-types:
           - "major"
     ignore:
+      - dependency-name: "primeicons"
       - dependency-name: "primevue"
       - dependency-name: "@primevue/*"
       - dependency-name: "@primeuix/*"

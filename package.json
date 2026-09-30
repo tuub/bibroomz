@@ -72,7 +72,7 @@
         "lodash": "^4.17.21",
         "pinia": "^4.0.3",
         "pinia-plugin-persistedstate": "^4.7.1",
-        "primeicons": "^8.0.1",
+        "primeicons": "^7.0.0",
         "primevue": "^4.5.5",
         "pusher-js": "^8.4.0-rc2",
         "remixicon": "^4.9.1",

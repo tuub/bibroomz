@@ -28,6 +28,13 @@
             "pinDigests": true
         },
         {
+            "description": "Hold primeicons on 7.x, its last MIT release: 8.0.0 moved to the commercial PrimeUI license, which a GPL-3.0-or-later project cannot ship",
+            "matchPackageNames": [
+                "primeicons"
+            ],
+            "allowedVersions": "<8"
+        },
+        {
             "description": "Only security updates on release branches",
             "matchBaseBranches": [
                 "/^release[/-].*/"
