@@ -20,10 +20,10 @@ class InstitutionFactory extends Factory
     public function definition()
     {
         return [
-            'title' => fake()->unique()->company,
+            'title' => fake()->unique()->company(),
             'short_title' => fake()->unique()->text(5),
             'slug' => fake()->unique()->slug(1),
-            'location' => fake()->streetAddress,
+            'location' => fake()->streetAddress(),
             'home_uri' => 'https://www.example.org',
             'email' => 'info@example.org',
             'logo_uri' => 'https://picsum.photos/500/200',

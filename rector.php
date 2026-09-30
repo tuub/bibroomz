@@ -8,7 +8,6 @@ use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Set\ValueObject\SetList;
 use RectorLaravel\Rector\Class_\ModelCastsPropertyToCastsMethodRector;
-use RectorLaravel\Set\LaravelLevelSetList;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -23,12 +22,13 @@ return RectorConfig::configure()
         __DIR__.'/rector.php',
     ])
     ->withPhpSets()
+    // Reads the installed laravel/framework version out of composer.lock and
+    // registers the upgrade rules up to it, so this keeps pace with the
+    // framework on its own rather than naming a version that has to be bumped.
+    ->withComposerBased(laravel: true)
     ->withSets([
-        LaravelLevelSetList::UP_TO_LARAVEL_130,
-
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
-        SetList::EARLY_RETURN,
         SetList::TYPE_DECLARATION,
     ])
     ->withSkip([

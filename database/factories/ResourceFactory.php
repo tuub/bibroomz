@@ -21,7 +21,7 @@ class ResourceFactory extends Factory
     {
         return [
             'title' => $this->getTranslatable((string) fake()->unique()->numberBetween($min = 100, $max = 500)),
-            'location' => $this->getTranslatable(fake()->streetAddress),
+            'location' => $this->getTranslatable(fake()->streetAddress()),
             'description' => $this->getTranslatable(fake()->realText(125)),
             'capacity' => fake()->numberBetween(1, 25),
             'is_active' => 1,

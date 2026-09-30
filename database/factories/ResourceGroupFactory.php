@@ -21,7 +21,7 @@ class ResourceGroupFactory extends Factory
     public function definition()
     {
         $faker = FakerFactory::create('de_DE');
-        $title = ucfirst($faker->colorName);
+        $title = ucfirst($faker->colorName());
 
         return [
             'title' => $this->getTranslatable($title),
