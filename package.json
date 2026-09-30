@@ -75,7 +75,7 @@
         "primeicons": "^7.0.0",
         "primevue": "^4.5.5",
         "pusher-js": "^8.4.0-rc2",
-        "remixicon": "^4.9.1",
+        "remixicon": "4.8.0",
         "temporal-polyfill": "^1.0.5",
         "vue": "^3.5.43"
     }

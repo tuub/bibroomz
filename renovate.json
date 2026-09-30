@@ -35,6 +35,13 @@
             "allowedVersions": "<8"
         },
         {
+            "description": "Hold remixicon on 4.8.0, its last Apache-2.0 release: 4.9.0 moved to a license of its own that adds restrictions, which a GPL-3.0-or-later project cannot ship",
+            "matchPackageNames": [
+                "remixicon"
+            ],
+            "allowedVersions": "<4.9"
+        },
+        {
             "description": "Only security updates on release branches",
             "matchBaseBranches": [
                 "/^release[/-].*/"

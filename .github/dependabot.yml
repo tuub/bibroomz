@@ -50,6 +50,7 @@ updates:
       - dependency-name: "@primevue/*"
       - dependency-name: "@primeuix/*"
       - dependency-name: "playwright"
+      - dependency-name: "remixicon"
 
   - package-ecosystem: "github-actions"
     directory: "/"
