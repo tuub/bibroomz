@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Gate;
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
@@ -75,15 +74,21 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     }
 
     /**
-     * Register the Telescope gate.
+     * Leave the viewTelescope ability to AuthServiceProvider, which defines it
+     * beside viewPulse, where every other ability in this application is
+     * defined: an administrator may read the dashboard, and nobody else.
      *
-     * This gate determines who can access Telescope in non-local environments.
+     * The override has to stay. This provider is listed after
+     * AuthServiceProvider in config/app.php, so it boots later, and what the
+     * package would define here -- a hard-coded list of email addresses, empty
+     * in this application -- would replace the definition made there and leave
+     * it dead.
      *
      * @return void
      */
     #[\Override]
     protected function gate()
     {
-        Gate::define('viewTelescope', function (): void {});
+        //
     }
 }

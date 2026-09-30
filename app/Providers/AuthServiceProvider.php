@@ -57,7 +57,12 @@ class AuthServiceProvider extends ServiceProvider
             return null;
         });
 
+        // Both dashboards show what the application did rather than what it is
+        // for, down to the parameters of a request, so both are for the people
+        // who administer it and nobody else. Telescope defers to this: its own
+        // provider would define the ability as a list of email addresses.
         Gate::define('viewPulse', fn (User $user): bool => $user->isAdmin());
+        Gate::define('viewTelescope', fn (User $user): bool => $user->isAdmin());
 
         Auth::provider('alma', fn (Application $app): AlmaUserProvider => new AlmaUserProvider($app->make(Hasher::class)));
     }

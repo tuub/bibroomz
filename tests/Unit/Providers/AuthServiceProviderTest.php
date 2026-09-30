@@ -64,6 +64,10 @@ test('auth service provider registers viewPulse gate', function (): void {
     expect(Gate::has('viewPulse'))->toBeTrue();
 });
 
+test('auth service provider registers viewTelescope gate', function (): void {
+    expect(Gate::has('viewTelescope'))->toBeTrue();
+});
+
 test('view-admin-panel gate returns true when user has permissions', function (): void {
     $this->seed(PermissionSeeder::class);
     $institution = Institution::factory()->create();
@@ -180,6 +184,26 @@ test('viewPulse gate denies non-admin users', function (): void {
     $result = Gate::forUser($user)->allows('viewPulse');
 
     expect($result)->toBeFalse();
+});
+
+test('viewTelescope gate allows admin users', function (): void {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $result = Gate::forUser($admin)->allows('viewTelescope');
+
+    expect($result)->toBeTrue();
+});
+
+test('viewTelescope gate denies non-admin users', function (): void {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $result = Gate::forUser($user)->allows('viewTelescope');
+
+    expect($result)->toBeFalse();
+});
+
+test('viewTelescope gate denies a guest', function (): void {
+    expect(Gate::allows('viewTelescope'))->toBeFalse();
 });
 
 test('Gate::before defers to HappeningPolicy for a not-yet-verified happening, letting an admin verify it', function (): void {

@@ -29,7 +29,9 @@
             <directory suffix=".php">./app</directory>
         </include>
         <exclude>
-            <!-- Never loaded in tests because TELESCOPE_ENABLED=false -->
+            <!-- Registered on every host, but TELESCOPE_ENABLED=false here, so
+                 the filter and the watchers this provider configures never run
+                 and the file would only ever be partly covered. -->
             <file>./app/Providers/TelescopeServiceProvider.php</file>
         </exclude>
     </source>

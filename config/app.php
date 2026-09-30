@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Providers\AppServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\RouteServiceProvider;
+use App\Providers\TelescopeServiceProvider;
 use App\Providers\TranslatableServiceProvider;
 use Bkwld\Cloner\ServiceProvider;
 use Illuminate\Auth\AuthServiceProvider;
@@ -230,6 +231,7 @@ return [
         App\Providers\BroadcastServiceProvider::class,
         EventServiceProvider::class,
         RouteServiceProvider::class,
+        TelescopeServiceProvider::class,
 
         /*
          * Custom Service Providers
