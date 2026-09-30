@@ -1,7 +1,11 @@
 *
 !app/
 !artisan
-!bootstrap/
+# bootstrap/cache is listed by its .gitignore alone. The final stage copies this
+# context and runs no composer, so a manifest from a development machine would
+# be the one it boots, naming providers the image does not have.
+!bootstrap/app.php
+!bootstrap/cache/.gitignore
 !composer.json
 !composer.lock
 !config/

@@ -31,6 +31,11 @@ RUN apt-get --yes update \
 
 WORKDIR /var/www
 COPY composer.json composer.lock ./
+# The image only runs the application, so it leaves the development dependencies
+# out, and with them the interactive error page. Build with COMPOSER_NO_DEV=0 to
+# keep both; composer reads the variable for install and for dump-autoload.
+ARG COMPOSER_NO_DEV=1
+ENV COMPOSER_NO_DEV=${COMPOSER_NO_DEV}
 RUN composer install --no-autoloader
 
 COPY . .

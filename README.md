@@ -184,6 +184,14 @@ Use `compose.yaml` when you want the application to run in containers instead of
 builds the final `frankenphp` target from the `Dockerfile`, serves `public/` through Caddy and FrankenPHP, proxies
 websocket requests under `/app/*` to the `reverb` service, and exposes Mailpit under `/mailpit`.
 
+The image leaves the development dependencies out, so an error inside the stack shows the plain page. Build with
+`COMPOSER_NO_DEV=0` to keep them and get the interactive one (`.env` also needs `APP_DEBUG=true`, which
+`.env.example` already sets):
+
+```bash
+COMPOSER_NO_DEV=0 docker compose up --build --detach --wait
+```
+
 The container build and runtime both read `.env` as a Docker secret. Generate `APP_KEY` on the host before building,
 because the secret is mounted read-only inside the containers:
 
