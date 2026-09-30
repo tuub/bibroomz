@@ -265,6 +265,9 @@ ci-image:
         "$CI_ENVIRONMENT_URL"
       echo "$CI_ENVIRONMENT_URL answers."
 
+# Nothing on a deployed host runs the tests, the linters or the code generators,
+# and one development dependency renders a debug page. What a host does need is
+# required for production.
 .deploy:
   extends: .ssh
   script:
@@ -273,7 +276,7 @@ ci-image:
       cd $SSH_GIT_DIR
       git fetch $CI_REPOSITORY_URL $CI_COMMIT_SHA
       git checkout FETCH_HEAD
-      scripts/deploy.sh $BUILD_PREFIX
+      scripts/deploy.sh --no-dev $BUILD_PREFIX
       EOT
     - !reference [.smoke-check, script]
   resource_group: $SSH_HOSTNAME

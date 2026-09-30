@@ -264,7 +264,7 @@ For per-branch review environments, see [review app setup and operations](review
 # Redeployment
 
 The GitLab deploy jobs SSH into the target host, check out the selected commit, and run `scripts/deploy.sh` with the
-environment-specific build prefix. For the current deployment workflow, redeploy by running:
+environment-specific build prefix and flags. For the current deployment workflow, redeploy by running:
 
 ```bash
 scripts/deploy.sh "$BUILD_PREFIX"
@@ -283,9 +283,13 @@ Two optional flags trade redeployment time for disk:
 scripts/deploy.sh --no-dev --prune-node-modules "$BUILD_PREFIX"
 ```
 
-Staging and demo deploy without them and keep their full dependency trees, so both hosts currently carry the
-development dependencies too. Adding `--no-dev` there is safe — the application boots without them — but it removes
-Telescope, which is a development dependency.
+Both deploy jobs pass `--no-dev`. Nothing on either host runs the test suite or the linters, and one development
+dependency renders a debug page; what a host does need is required for production.
+
+Neither deploy job passes `--prune-node-modules`; both hosts keep `node_modules` so a redeployment does not
+reinstall it. Review environments do pass it, and both flags, because they are built to be thrown away.
+Seeding survives `--no-dev`: the factories the seeders use need `fakerphp/faker`, which is why it is a production
+requirement rather than a development one.
 
 If you need to run the steps manually, keep the same order:
 
