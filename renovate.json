@@ -35,11 +35,33 @@
             "allowedVersions": "<8"
         },
         {
-            "description": "Hold remixicon on 4.8.0, its last Apache-2.0 release: 4.9.0 moved to a license of its own that adds restrictions, which a GPL-3.0-or-later project cannot ship",
+            "description": "Hold PrimeVue on 4.x, its last MIT release: 5.0.0 moved to the commercial PrimeUI license, which a GPL-3.0-or-later project cannot ship",
+            "matchPackageNames": [
+                "primevue",
+                "@primevue/*"
+            ],
+            "allowedVersions": "<5"
+        },
+        {
+            "description": "Hold the PrimeVue themes on 2.x, their last MIT release: 3.0.0 moved to the commercial PrimeUI license, which a GPL-3.0-or-later project cannot ship",
+            "matchPackageNames": [
+                "@primeuix/*"
+            ],
+            "allowedVersions": "<3"
+        },
+        {
+            "description": "Hold remixicon on 4.8.x, its last Apache-2.0 release: 4.9.0 replaced the license text with one of its own that adds restrictions, which a GPL-3.0-or-later project cannot ship, while still declaring Apache-2.0",
             "matchPackageNames": [
                 "remixicon"
             ],
             "allowedVersions": "<4.9"
+        },
+        {
+            "description": "Leave playwright alone: the npm pin has to name the version nixpkgs builds the browsers for, and the flake.lock job is what moves it",
+            "matchPackageNames": [
+                "playwright"
+            ],
+            "enabled": false
         },
         {
             "description": "Only security updates on release branches",
