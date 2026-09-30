@@ -1,6 +1,10 @@
 includes:
   - vendor/larastan/larastan/extension.neon
   - vendor/pestphp/pest/extension.neon
+  # Reports calls to anything a library marked @deprecated, so an upgrade that
+  # retires a class or a constant fails the lint job instead of sitting in the
+  # config until someone happens to read it in an editor.
+  - vendor/phpstan/phpstan-deprecation-rules/rules.neon
 
 parameters:
   level: max
@@ -10,6 +14,9 @@ parameters:
     - routes
     - scripts
     - tests
+    # The tool configs are PHP too, and they are where a deprecated set or rule
+    # name goes unnoticed.
+    - rector.php
   excludePaths:
     - tests/Browser
   stubFiles:
