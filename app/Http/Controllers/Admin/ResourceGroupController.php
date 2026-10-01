@@ -38,10 +38,10 @@ class ResourceGroupController extends AdminController
         $institution = $request->institution();
         $this->authorize('create', [ResourceGroup::class, $institution]);
 
-        return Inertia::render('Admin/ResourceGroups/Form', $this->resourceGroupAdminService->getCreateFormData(
-            $institution,
-            $this->authenticatedUser(),
-        ));
+        return Inertia::render(
+            'Admin/ResourceGroups/Form',
+            $this->resourceGroupAdminService->getCreateFormData($institution),
+        );
     }
 
     public function storeResourceGroup(ResourceGroupRequest $request): RedirectResponse
@@ -58,10 +58,10 @@ class ResourceGroupController extends AdminController
         $resourceGroup = $request->resourceGroup()->load('user_groups');
         $this->authorize('edit', $resourceGroup);
 
-        return Inertia::render('Admin/ResourceGroups/Form', $this->resourceGroupAdminService->getEditFormData(
-            $resourceGroup,
-            $this->authenticatedUser(),
-        ));
+        return Inertia::render(
+            'Admin/ResourceGroups/Form',
+            $this->resourceGroupAdminService->getEditFormData($resourceGroup),
+        );
     }
 
     public function updateResourceGroup(ResourceGroupRequest $request): RedirectResponse

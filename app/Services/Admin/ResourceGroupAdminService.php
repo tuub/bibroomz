@@ -4,7 +4,6 @@ namespace App\Services\Admin;
 
 use App\Models\Institution;
 use App\Models\ResourceGroup;
-use App\Models\User;
 use App\Services\AdminLoggingService;
 use App\Services\ResourceGroupService;
 
@@ -34,11 +33,12 @@ class ResourceGroupAdminService
     /**
      * @return array<string, mixed>
      */
-    public function getCreateFormData(Institution $institution, User $user): array
+    public function getCreateFormData(Institution $institution): array
     {
+        $institution->loadMissing('user_groups');
+
         return [
             'institution' => $institution,
-            'institutions' => $this->resourceGroupService->getInstitutionsForUser($user),
             'languages' => config('app.supported_locales'),
         ];
     }
@@ -46,16 +46,13 @@ class ResourceGroupAdminService
     /**
      * @return array<string, mixed>
      */
-    public function getEditFormData(ResourceGroup $resourceGroup, User $user): array
+    public function getEditFormData(ResourceGroup $resourceGroup): array
     {
         $resourceGroup->loadMissing('institution.user_groups');
 
         return [
+            'institution' => $resourceGroup->institution,
             'resource_group' => $resourceGroup,
-            'institutions' => $this->resourceGroupService->getInstitutionsForUser($user)
-                ->prepend($resourceGroup->institution)
-                ->unique('id')
-                ->values(),
             'languages' => config('app.supported_locales'),
         ];
     }

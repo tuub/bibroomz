@@ -3,26 +3,6 @@
         :title="$t('admin.resource_groups.form.title')"
         :description="$t('admin.resource_groups.form.description')"
     >
-        <!-- Select: Institution -->
-        <div>
-            <FormLabel field="institution_id" field-key="admin.resource_groups.form.fields.institution"></FormLabel>
-            <select
-                id="institution_id"
-                v-model="form.institution_id"
-                name="institution_id"
-                class="border-app-border bg-app-field text-app-text placeholder-app-subtle focus:border-tub focus:ring-tub dark:border-app-border dark:bg-app-field dark:text-app-text dark:focus:border-tub dark:focus:ring-tub block w-full rounded-lg border p-2.5 text-sm"
-                required
-            >
-                <option v-for="i in institutions" :key="i.id" :value="i.id">
-                    {{ translate(i.title) }}
-                </option>
-            </select>
-            <FormValidationError
-                v-if="form.errors.institution_id"
-                :message="form.errors.institution_id"
-            ></FormValidationError>
-        </div>
-
         <!-- Input: Title -->
         <TranslatableFormInput
             v-model="form.title"
@@ -110,7 +90,7 @@
 
             <MultiSelect
                 v-model="form.user_groups"
-                :options="selectedInstitution?.user_groups ?? []"
+                :options="institution.user_groups ?? []"
                 :option-label="(userGroup) => translate(userGroup.title)"
                 :option-value="(userGroup) => userGroup.id"
                 :invalid="!!form.errors.user_groups"
@@ -131,7 +111,7 @@
             :form="form"
             model="resource_group"
             cancel-route="admin.resource_group.index"
-            :cancel-route-params="{ institution_id: form.institution_id }"
+            :cancel-route-params="{ institution_id: institution.id }"
         />
     </FormLayout>
 </template>
@@ -147,24 +127,20 @@ import { useAppStore } from "@/Stores/AppStore";
 import type { AdminInstitution, ResourceGroup } from "@/Types/Admin";
 
 import { useForm } from "@inertiajs/vue3";
-import { computed } from "vue";
 
 // ------------------------------------------------
 // Props
 // ------------------------------------------------
 const props = withDefaults(
     defineProps<{
-        institution?: AdminInstitution;
+        institution: AdminInstitution;
         // Inertia provides this page prop in snake_case from the backend contract.
         // eslint-disable-next-line vue/prop-name-casing
         resource_group?: ResourceGroup;
-        institutions?: AdminInstitution[];
         languages: string[];
     }>(),
     {
-        institution: () => ({}),
         resource_group: () => ({}),
-        institutions: () => [],
     },
 );
 
@@ -180,7 +156,7 @@ const translate = appStore.translate;
 
 const form = useForm({
     id: props.resource_group?.id ?? "",
-    institution_id: props.resource_group?.institution_id ?? props.institution.id,
+    institution_id: props.institution.id,
     title: props.resource_group?.title ?? {},
     slug: props.resource_group?.slug ?? "",
     term_singular: props.resource_group?.term_singular ?? {},
@@ -190,9 +166,5 @@ const form = useForm({
     is_active: props.resource_group?.is_active ?? false,
     order: props.resource_group?.order?.toString() ?? "0",
     user_groups: props.resource_group?.user_groups?.map((userGroup) => userGroup.id) ?? [],
-});
-
-const selectedInstitution = computed(() => {
-    return props.institutions.find((institution) => institution.id === form.institution_id);
 });
 </script>

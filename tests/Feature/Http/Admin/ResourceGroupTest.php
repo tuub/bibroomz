@@ -10,6 +10,8 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Inertia\Testing\AssertableInertia as Assert;
 
 covers(ResourceGroupController::class);
 
@@ -255,4 +257,79 @@ test('scoped admin without delete_resource_groups cannot delete resource group',
         ->assertForbidden();
 
     $this->assertDatabaseHas('resource_groups', ['id' => $resourceGroup->id]);
+});
+
+// ---------------------------------------------------------------------------
+// The form is bound to the institution it was opened from
+// ---------------------------------------------------------------------------
+
+test('createResourceGroup renders the context institution without an institution choice', function (): void {
+    $institution = Institution::factory()->create();
+    $otherInstitution = Institution::factory()->create();
+    $actor = User::factory()->create();
+    grantAdminPermission($actor, $institution, 'create_resource_groups');
+    grantAdminPermission($actor, $otherInstitution, 'create_resource_groups');
+
+    $this->actingAs($actor)
+        ->get(route('admin.resource_group.create', ['institution_id' => $institution->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/ResourceGroups/Form')
+            ->where('institution.id', $institution->id)
+            ->has('institution.user_groups')
+            ->has('languages')
+            ->missing('institutions'));
+});
+
+test('createResourceGroup renders the form for a disabled institution', function (): void {
+    $institution = Institution::factory()->create(['is_active' => false]);
+    $actor = User::factory()->create();
+    grantAdminPermission($actor, $institution, 'create_resource_groups');
+
+    $this->actingAs($actor)
+        ->get(route('admin.resource_group.create', ['institution_id' => $institution->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/ResourceGroups/Form')
+            ->where('institution.id', $institution->id));
+});
+
+test('storeResourceGroup creates a resource group for a disabled institution', function (): void {
+    $institution = Institution::factory()->create(['is_active' => false]);
+    $actor = User::factory()->create();
+    grantAdminPermission($actor, $institution, 'create_resource_groups');
+
+    $this->actingAs($actor)
+        ->post(route('admin.resource_group.store'), [
+            'institution_id' => $institution->id,
+            'title' => Utility::getTranslatable('Disabled Rooms'),
+            'slug' => 'disabled-rooms',
+            'term_singular' => Utility::getTranslatable('Room'),
+            'term_plural' => Utility::getTranslatable('Rooms'),
+            'description' => Utility::getTranslatable('Behind a disabled institution'),
+            'is_active' => true,
+            'user_groups' => [],
+        ])
+        ->assertRedirect(route('admin.resource_group.index', ['institution_id' => $institution->id]));
+
+    $this->assertDatabaseHas('resource_groups', [
+        'slug' => 'disabled-rooms',
+        'institution_id' => $institution->id,
+    ]);
+});
+
+test('editResourceGroup renders the owning institution of a disabled institution', function (): void {
+    $institution = Institution::factory()->create(['is_active' => false]);
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $actor = User::factory()->create();
+    grantAdminPermission($actor, $institution, 'edit_resource_groups');
+
+    $this->actingAs($actor)
+        ->get(route('admin.resource_group.edit', ['id' => $resourceGroup->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/ResourceGroups/Form')
+            ->where('institution.id', $institution->id)
+            ->where('resource_group.id', $resourceGroup->id)
+            ->missing('institutions'));
 });

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
 use App\Models\User;
@@ -17,21 +16,6 @@ class ResourceGroupService
         $rg->deleteOrFail();
 
         return $rg;
-    }
-
-    /**
-     * @return Collection<int, Institution>
-     */
-    public function getInstitutionsForUser(User $user): Collection
-    {
-        return Institution::active()
-            ->orderBy('title')
-            ->with('user_groups')
-            ->without('closings')
-            ->get()
-            ->filter
-            ->isUserAbleToCreateResourceGroup($user)
-            ->values();
     }
 
     public function getResourceGroupById(string $id): ResourceGroup

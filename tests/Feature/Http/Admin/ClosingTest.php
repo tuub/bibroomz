@@ -612,7 +612,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/ResourceGroups/Form')
             ->where('institution.id', $institution->id)
-            ->has('institutions'));
+            ->has('institution.user_groups'));
 
     $this->post(route('admin.resource_group.store'), [
         'institution_id' => $institution->id,
@@ -633,7 +633,7 @@ test('catalog admin routes render and mutate institutions resources settings clo
         ->assertInertia(fn (Assert $page): AssertableJson => $page
             ->component('Admin/ResourceGroups/Form')
             ->where('resource_group.id', $resourceGroup->id)
-            ->has('institutions'));
+            ->where('institution.id', $institution->id));
 
     $this->post(route('admin.resource_group.update'), [
         'id' => $resourceGroup->id,
