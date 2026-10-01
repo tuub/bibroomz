@@ -28,7 +28,7 @@ it('shows the calendar title and lets users browse dates forward and backward', 
         ->wait(0.5)
         ->assertSeeIn(
             '#calendar-date-display',
-            CarbonImmutable::today(config('roomz.app.timezone'))->addDay()->format('d.m.Y'),
+            CarbonImmutable::today(config('app.timezone'))->addDay()->format('d.m.Y'),
         )
         ->click('#calendar-date-previous')
         ->wait(0.5)

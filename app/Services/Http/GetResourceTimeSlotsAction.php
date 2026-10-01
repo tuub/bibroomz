@@ -43,12 +43,34 @@ class GetResourceTimeSlotsAction
         $happening = $happeningId ? Happening::find($happeningId) : null;
         $actor = auth()->user();
 
-        return $this->generateResourceTimeSlotsAction->execute(
+        $slots = $this->generateResourceTimeSlotsAction->execute(
             $resource,
             $actor instanceof User ? $actor : null,
             $start,
             $end,
             $happening,
         );
+
+        return [
+            'start' => $this->presentSlots($slots['start']),
+            'end' => $this->presentSlots($slots['end']),
+        ];
+    }
+
+    /**
+     * The frontend posts the chosen slot straight back as the happening's start
+     * or end, so it has to leave here the way every other datetime does: as
+     * wall-clock time in the app timezone, with no zone on it. Serializing the
+     * Carbon itself would append a UTC offset and move the booking by it.
+     *
+     * @param  list<array{time: CarbonImmutable, label: string, is_disabled: bool, is_selected: bool}>  $slots
+     * @return list<array{time: string, label: string, is_disabled: bool, is_selected: bool}>
+     */
+    private function presentSlots(array $slots): array
+    {
+        return array_map(static fn (array $slot): array => [
+            ...$slot,
+            'time' => $slot['time']->format('Y-m-d H:i:s'),
+        ], $slots);
     }
 }

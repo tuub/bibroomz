@@ -32,6 +32,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import type { Happening } from "@/Stores/HappeningStore";
 import type { ModalOpenPayload } from "@/Stores/Modal";
 import type { Translatable } from "@/Types/Admin";
+import { appWallClock } from "@/appTime";
 import { withBaseUrl } from "@/baseUrl";
 
 import dayjs from "dayjs";
@@ -156,7 +157,7 @@ export function useResourceGridCalendar({
     // ------------------------------------------------
     const rooms = ref<Room[]>([]);
     const happenings = ref<CalendarEntry[]>([]);
-    const date = ref(dayjs());
+    const date = ref(appStore.now());
     const isLoadingRooms = ref(false);
 
     const currentPage = ref<string | null>(null);
@@ -239,7 +240,7 @@ export function useResourceGridCalendar({
         return axios({
             method: "GET",
             url: withBaseUrl(`/${institution?.slug}/${resourceGroup?.slug}/happenings`),
-            params: { start: start.toDate(), end: end.toDate() },
+            params: { start: appWallClock(start), end: appWallClock(end) },
         })
             .then((response: HappeningsResponse) => {
                 happenings.value = response.data;
@@ -251,7 +252,7 @@ export function useResourceGridCalendar({
 
     function getValidRange() {
         const weeksInAdvance = resourceGroupSettings?.["weeks_in_advance"];
-        const startDate = dayjs();
+        const startDate = appStore.now();
 
         return {
             start: startDate.toDate(),
@@ -269,8 +270,8 @@ export function useResourceGridCalendar({
             return false;
         }
 
-        const tsStart = dayjs(selection.startStr);
-        const tsEnd = dayjs(selection.endStr);
+        const tsStart = dayjs.utc(selection.startStr);
+        const tsEnd = dayjs.utc(selection.endStr);
 
         if (authStore.isAuthenticated && authStore.isExceedingQuotas(tsStart, tsEnd)) {
             return false;
@@ -282,7 +283,7 @@ export function useResourceGridCalendar({
             minutes: parseInt(tsLenConfig[1] ?? "0"),
         };
 
-        const now = dayjs.utc();
+        const now = appStore.now();
         const isNotPast = tsStart.isSameOrAfter(now);
         const isCurrentTimeSlot = now.isBetween(tsStart, tsEnd);
         const isValid = tsStart.add(tsLen.hours, "hours").add(tsLen.minutes, "minutes").isAfter(now);
@@ -309,8 +310,8 @@ export function useResourceGridCalendar({
                 useHappeningCreateModal({
                     isSelected: true,
                     resource: describeRoom(room),
-                    start: selection.startStr,
-                    end: selection.endStr,
+                    start: appWallClock(selection.startStr),
+                    end: appWallClock(selection.endStr),
                     isVerificationRequired: room.isVerificationRequired,
                 }),
             );
@@ -337,8 +338,8 @@ export function useResourceGridCalendar({
             id: info.event.id,
             user_01: props.user_01 ?? undefined,
             user_02: props.status?.user?.verification,
-            start: dayjs.utc(info.event.start),
-            end: dayjs.utc(info.event.end),
+            start: appWallClock(info.event.start),
+            end: appWallClock(info.event.end),
             isVerificationRequired: props.isVerificationRequired,
             can: props.can,
             label: props.label,
@@ -474,6 +475,12 @@ export function useResourceGridCalendar({
             hiddenDays,
             editable: false,
             nowIndicator: true,
+            // Without this, every "now" FullCalendar derives itself - the
+            // indicator line and the past/today lane classes - is the browser's
+            // clock read as UTC, which trails the wall-clock values the columns
+            // render by the app timezone's offset. Re-read on every tick, so
+            // the indicator keeps moving.
+            now: () => appStore.now().toDate(),
             allDaySlot: false,
             longPressDelay: import.meta.env.VITE_LONG_PRESS_DELAY ?? 500,
             unselectAuto: true,

@@ -35,7 +35,7 @@ uses(LazilyRefreshDatabase::class);
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
     $this->seed(PermissionSeeder::class);
-    config()->set('roomz.app.timezone', 'UTC');
+    useAppTimezone('UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });
@@ -197,6 +197,40 @@ test('authenticated users can create a public reservation and dispatch events', 
 
     Event::assertDispatched(HappeningCreatedEvent::class);
     Event::assertDispatched(HappeningsChangedEvent::class);
+});
+
+/**
+ * The round trip every booking makes: the frontend posts the wall clock the
+ * user picked, zone-less, and that is what the database holds. A zone slipping
+ * in at either end - a `Z` on the way in, a conversion on the way out - would
+ * move the booking by the app timezone's offset.
+ */
+test('a reservation is stored as the wall clock it was booked for', function (): void {
+    useAppTimezone('Europe/Berlin');
+    ['resource' => $resource, 'owner' => $owner, 'verifier' => $verifier] = createPublicHappeningFixture();
+
+    Event::fake([HappeningCreatedEvent::class, HappeningsChangedEvent::class]);
+    Sanctum::actingAs($owner);
+
+    $this->postJson(route('happening.add'), [
+        'resource' => ['id' => $resource->id],
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+        'verifier' => $verifier->name,
+        'label' => ['en' => 'Study slot'],
+    ])->assertNoContent();
+
+    $this->assertDatabaseHas('happenings', [
+        'resource_id' => $resource->id,
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+    ]);
+
+    // And back out again, for the calendar to render.
+    $happening = Happening::firstWhere('resource_id', $resource->id);
+
+    expect($happening?->start?->format('Y-m-d H:i'))->toBe('2026-06-10 09:00')
+        ->and($happening?->toArray()['start'] ?? null)->toBe('2026-06-10 09:00:00');
 });
 
 test('overlapping reservations are rejected with the translated public error message', function (): void {

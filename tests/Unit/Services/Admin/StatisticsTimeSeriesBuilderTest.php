@@ -14,6 +14,10 @@ covers(StatisticsTimeSeriesBuilder::class);
 
 uses(LazilyRefreshDatabase::class);
 
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+});
+
 /**
  * @return array{institution: Institution, resourceGroup: ResourceGroup, resource: Resource}
  */
@@ -33,7 +37,7 @@ test('build defaults to a monthly time series of 12 buckets', function (): void 
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'month', null, null, 'none');
 
     expect($result)->toHaveCount(12)
-        ->and($result[11]['label'])->toBe(now()->format('Y-m'));
+        ->and($result[11]['label'])->toBe(CarbonImmutable::now()->format('Y-m'));
 });
 
 test('build week granularity returns 12 buckets labelled by ISO week', function (): void {
@@ -43,7 +47,7 @@ test('build week granularity returns 12 buckets labelled by ISO week', function 
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'week', null, null, 'none');
 
     expect($result)->toHaveCount(12)
-        ->and($result[11]['label'])->toBe(now()->format('o-\WW'));
+        ->and($result[11]['label'])->toBe(CarbonImmutable::now()->format('o-\WW'));
 });
 
 test('build year granularity returns 5 buckets labelled by year', function (): void {
@@ -53,13 +57,14 @@ test('build year granularity returns 5 buckets labelled by year', function (): v
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'year', null, null, 'none');
 
     expect($result)->toHaveCount(5)
-        ->and($result[4]['label'])->toBe(now()->format('Y'));
+        ->and($result[4]['label'])->toBe(CarbonImmutable::now()->format('Y'));
 });
 
 test('build counts bookings into the current monthly bucket and excludes bookings older than the window', function (): void {
     $fixture = buildTimeSeriesFixture();
-    Happening::factory()->count(2)->for($fixture['resource'], 'resource')->create(['start' => now(), 'end' => now()->addHour()]);
-    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => now()->subYears(2), 'end' => now()->subYears(2)->addHour()]);
+    $appNow = CarbonImmutable::now();
+    Happening::factory()->count(2)->for($fixture['resource'], 'resource')->create(['start' => $appNow, 'end' => $appNow->addHour()]);
+    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => $appNow->subYears(2), 'end' => $appNow->subYears(2)->addHour()]);
 
     $builder = app(StatisticsTimeSeriesBuilder::class);
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'month', null, null, 'none');
@@ -101,7 +106,7 @@ test('build clamps the window to the maximum number of buckets for a very wide r
     );
 
     expect($result)->toHaveCount(104)
-        ->and($result[103]['label'])->toBe(now()->startOfMonth()->format('Y-m'));
+        ->and($result[103]['label'])->toBe(CarbonImmutable::now()->startOfMonth()->format('Y-m'));
 });
 
 test('build with split "none" omits segments', function (): void {
@@ -153,4 +158,31 @@ test('build splits counts by institution, resource group or resource', function 
 
     expect(array_column($resourceSegments, 'id'))->toBe([(string) $firstResource->id])
         ->and(array_column($resourceSegments, 'count'))->toBe([1]);
+});
+
+/**
+ * The buckets are cut from `happenings.start`, a wall-clock column, so the last
+ * one has to be the period the app is in. On the UTC clock the series would
+ * still end in the previous month for the first hours of a new one.
+ */
+test('build ends the default window in the app timezone\'s period', function (): void {
+    useAppTimezone('Europe/Berlin');
+    // 22:30 UTC on 30 June is already 00:30 on 1 July in Berlin.
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-30 22:30:00', 'UTC'));
+
+    $fixture = buildTimeSeriesFixture();
+
+    $builder = app(StatisticsTimeSeriesBuilder::class);
+    $result = $builder->build(
+        collect([$fixture['resource']]),
+        collect([$fixture['resourceGroup']]),
+        collect([$fixture['institution']]),
+        'month',
+        null,
+        null,
+        'none',
+    );
+
+    expect($result)->toHaveCount(12)
+        ->and($result[11]['label'])->toBe('2026-07');
 });

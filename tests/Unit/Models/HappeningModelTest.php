@@ -28,7 +28,7 @@ uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seedPermissions();
-    config()->set('roomz.app.timezone', 'UTC');
+    useAppTimezone('UTC');
     config()->set('roomz.happenings.cleanup_days', 5);
     Carbon::setTestNow(Carbon::parse('2026-06-03 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));

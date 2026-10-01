@@ -1,4 +1,5 @@
 import type { Translatable } from "@/Types/Admin";
+import { appNow } from "@/appTime";
 import { withBaseUrl } from "@/baseUrl";
 
 import dayjs, { type Dayjs } from "dayjs";
@@ -80,6 +81,7 @@ type AppStoreState = {
     systemNotifications: SystemNotification[];
     globalSystemNotification: string | null;
     locale: string;
+    timezone: string;
     shortDateFormat: string | null;
     dateFormat: string | null;
     timeFormat: string | null;
@@ -100,6 +102,7 @@ export const useAppStore = defineStore("app", {
             systemNotifications: [],
             globalSystemNotification: null,
             locale: getActiveLanguage(),
+            timezone: "UTC",
             shortDateFormat: null,
             dateFormat: null,
             timeFormat: null,
@@ -140,6 +143,26 @@ export const useAppStore = defineStore("app", {
             this.hiddenDays = null;
             this.isMultiTenancy = false;
             this.systemNotifications = [];
+        },
+
+        /**
+         * The app timezone, shared by the backend on every Inertia response.
+         * Nothing but the server knows it - the browser's own zone is
+         * irrelevant - so an absent or empty value leaves the current one
+         * alone rather than guessing.
+         */
+        setTimezone(timezone: unknown) {
+            if (typeof timezone === "string" && timezone !== "") {
+                this.timezone = timezone;
+            }
+        },
+
+        /**
+         * The current time in the app's wall-clock space, which is where every
+         * datetime from the API lives. See `appTime.ts`.
+         */
+        now(): Dayjs {
+            return appNow(this.timezone);
         },
 
         setGlobalSystemNotification(message: unknown) {

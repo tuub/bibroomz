@@ -1,6 +1,7 @@
 import { useTheme } from "@/Composables/Theme";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import "@/bootstrap";
 import { stripEmpty } from "@/stripEmpty";
 import { Ziggy } from "@/ziggy";
@@ -111,6 +112,10 @@ void createInertiaApp({
             .component("Link", Link);
 
         useTheme().init();
+
+        // Every datetime from the API is a wall-clock value in this zone, so the
+        // store needs it before the first component reads the clock.
+        useAppStore().setTimezone(props.initialPage.props.timezone);
 
         app.mount(el);
     },

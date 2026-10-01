@@ -216,6 +216,42 @@ describe("setGlobalSystemNotification", () => {
     });
 });
 
+describe("setTimezone", () => {
+    test("stores the zone shared by the backend", () => {
+        const store = useAppStore();
+        store.setTimezone("Europe/Berlin");
+        expect(store.timezone).toBe("Europe/Berlin");
+    });
+
+    test("keeps the current zone when the shared value is missing or empty", () => {
+        const store = useAppStore();
+        store.setTimezone("Europe/Berlin");
+
+        store.setTimezone(undefined);
+        store.setTimezone("");
+
+        expect(store.timezone).toBe("Europe/Berlin");
+    });
+
+    test("defaults to UTC until the backend says otherwise", () => {
+        expect(useAppStore().timezone).toBe("UTC");
+    });
+});
+
+describe("now", () => {
+    test("reads the clock in the stored timezone, not the browser's", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-06-10T08:00:00Z"));
+
+        const store = useAppStore();
+        store.setTimezone("Europe/Berlin");
+
+        expect(store.now().format("YYYY-MM-DD HH:mm")).toBe("2026-06-10 10:00");
+
+        vi.useRealTimers();
+    });
+});
+
 describe("getters", () => {
     test("institution reads from the current resource group", () => {
         const store = useAppStore();

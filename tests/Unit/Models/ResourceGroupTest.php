@@ -5,11 +5,16 @@ use App\Models\ResourceGroup;
 use App\Models\User;
 use App\Models\UserGroup;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 covers(ResourceGroup::class);
 
 uses(LazilyRefreshDatabase::class);
+
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+});
 
 test('resource group model can be created', function (): void {
     $institution = Institution::factory()->create();
@@ -228,4 +233,30 @@ test('resource group isViewableByUser returns false for user without permission'
     $user = User::factory()->create(['is_admin' => false]);
 
     expect($rg->isViewableByUser($user))->toBeFalse();
+});
+
+/**
+ * `valid_from` and `valid_until` are plain dates an admin typed, so membership
+ * has to be judged against the app's own date. On the UTC clock a membership
+ * starting today would not take effect until the offset had passed.
+ */
+test('isAllowedUser reads the membership dates against the app timezone', function (): void {
+    useAppTimezone('Europe/Berlin');
+    // 22:30 UTC on 10 June is already 00:30 on 11 June in Berlin.
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 22:30:00', 'UTC'));
+
+    $institution = Institution::factory()->create();
+    $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $userGroup = UserGroup::factory()->for($institution, 'institution')->create();
+    $rg->user_groups()->attach($userGroup->id);
+
+    $user = User::factory()->create();
+    $user->user_groups()->attach($userGroup->id, [
+        'valid_from' => '2026-06-11',
+        'valid_until' => null,
+    ]);
+    $rg->load('user_groups');
+    $user->load('user_groups');
+
+    expect($rg->isAllowedUser($user))->toBeTrue();
 });

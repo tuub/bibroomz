@@ -167,7 +167,7 @@ function buildBrowserBookingFixture(): array
     ] = buildBrowserCalendarFixture(resourceCount: 1, verificationRequired: true);
 
     $resource = $resources->firstOrFail();
-    $today = CarbonImmutable::today(config('roomz.app.timezone'));
+    $today = CarbonImmutable::today(config('app.timezone'));
     $password = browserPassword();
 
     $owner = createBrowserSystemUser('browser.owner', $password);
@@ -226,7 +226,7 @@ function buildBrowserValidationFixture(): array
     ] = buildBrowserCalendarFixture(resourceCount: 1, verificationRequired: true);
 
     $resource = $resources->firstOrFail();
-    $today = CarbonImmutable::today(config('roomz.app.timezone'));
+    $today = CarbonImmutable::today(config('app.timezone'));
     $password = browserPassword();
 
     $owner = createBrowserSystemUser('browser.validation.owner', $password);
@@ -268,7 +268,7 @@ function buildBrowserValidationFixture(): array
  */
 function browserPastBookingWindow(): array
 {
-    $now = CarbonImmutable::now(config('roomz.app.timezone'));
+    $now = CarbonImmutable::now(config('app.timezone'));
     $end = $now->subHours(4);
     $currentWeekStart = $now->startOfWeek();
 
@@ -364,7 +364,7 @@ function openBrowserCreateModalForNextDay(
     string $startTime = '11:00:00',
     string $endTime = '13:00:00',
 ) {
-    $tomorrow = CarbonImmutable::today(config('roomz.app.timezone'))
+    $tomorrow = CarbonImmutable::today(config('app.timezone'))
         ->addDay()
         ->format('d.m.Y');
 

@@ -242,7 +242,15 @@ test('execute passes null actor and null happening when auth user is not an App 
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
     $start = CarbonImmutable::today();
     $end = CarbonImmutable::today()->addDay();
-    $expectedResult = ['start' => [['label' => '09:00']], 'end' => []];
+    $generatedResult = [
+        'start' => [[
+            'time' => CarbonImmutable::parse('2026-06-12 09:00:00'),
+            'label' => '09:00',
+            'is_disabled' => false,
+            'is_selected' => true,
+        ]],
+        'end' => [],
+    ];
     $generator = Mockery::mock(GenerateResourceTimeSlotsAction::class);
     $generator->shouldReceive('execute')->once()->withArgs(
         fn (Resource $loadedResource, mixed $actor, CarbonImmutable $passedStart, CarbonImmutable $passedEnd, ?Happening $passedHappening): bool => $loadedResource->is($resource)
@@ -250,13 +258,23 @@ test('execute passes null actor and null happening when auth user is not an App 
             && $passedStart->equalTo($start)
             && $passedEnd->equalTo($end)
             && ! $passedHappening instanceof Happening,
-    )->andReturn($expectedResult);
+    )->andReturn($generatedResult);
 
     Auth::shouldReceive('user')->once()->andReturn(new stdClass);
 
     $action = new GetResourceTimeSlotsAction($generator);
 
-    expect($action->execute($resource->id, null, $start, $end))->toBe($expectedResult);
+    // The slot goes out as zone-less wall clock: the frontend posts it back as
+    // the happening's start, and a zone would be read as a real instant.
+    expect($action->execute($resource->id, null, $start, $end))->toBe([
+        'start' => [[
+            'time' => '2026-06-12 09:00:00',
+            'label' => '09:00',
+            'is_disabled' => false,
+            'is_selected' => true,
+        ]],
+        'end' => [],
+    ]);
 });
 
 // happenings eager-loaded onto the resource are bounded to the calendar day of

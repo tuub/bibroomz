@@ -1,5 +1,6 @@
 /* eslint-disable vue/one-component-per-file */
 import UserHappening from "@/Components/UserHappening.vue";
+import { useAppStore } from "@/Stores/AppStore";
 
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
@@ -117,6 +118,29 @@ describe("UserHappening", () => {
         expect(wrapper.findComponent(FancyDateStub).props("cssClass")).toBe("status-booking");
         expect(wrapper.find('[data-test="sidebar-label"]').text()).toBe("user_happenings.item.verified|success");
         expect(wrapper.find('[data-test="happening-status"]').text()).toBe("user_happenings.item.future_happening");
+    });
+
+    /**
+     * The API sends wall-clock times in the app timezone with no zone on them,
+     * so both sides of the comparison have to be read in that zone - the one
+     * the backend declares, not the one the browser happens to be in. The zone
+     * here is deliberately far from UTC: at 10:30 UTC it is already 23:30 in
+     * Auckland, so a 21:00 to 22:00 booking is over, while both a UTC reading
+     * and a reading in the test runner's own zone would still call it future.
+     */
+    test("judges zone-less API datetimes against the app timezone's clock", () => {
+        useAppStore().setTimezone("Pacific/Auckland");
+
+        const wrapper = render({
+            id: 1,
+            start: "2026-03-05 21:00",
+            end: "2026-03-05 22:00",
+            isVerified: true,
+            resource: {},
+        });
+
+        expect(wrapper.find('[data-test="happening-status"]').text()).toBe("user_happenings.item.past_happening");
+        expect(wrapper.findComponent(FancyDateStub).props("cssClass")).toBe("over");
     });
 
     test("marks past happenings as over and hides verification labels", () => {

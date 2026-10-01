@@ -14,13 +14,6 @@ afterEach(function (): void {
     CarbonImmutable::setTestNow();
 });
 
-test('get carbon now applies configured timezone offset', function (): void {
-    config()->set('roomz.app.timezone', 'Europe/Berlin');
-    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-01-15 10:00:00', 'UTC'));
-
-    expect(Utility::getCarbonNow()->toDateTimeString())->toBe('2026-01-15 11:00:00');
-});
-
 test('create carbon date time combines date and time strings', function (): void {
     expect(Utility::createCarbonDateTime('03.06.2026', '14:30')->format('Y-m-d H:i:s'))
         ->toBe('2026-06-03 14:30:00');

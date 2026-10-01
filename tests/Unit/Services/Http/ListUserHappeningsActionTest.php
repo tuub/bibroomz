@@ -25,7 +25,7 @@ uses(MockeryPHPUnitIntegration::class, LazilyRefreshDatabase::class);
 beforeEach(function (): void {
     Carbon::setTestNow(Carbon::parse('2026-06-10 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 10:00:00', 'UTC'));
-    config()->set('roomz.app.timezone', 'UTC');
+    useAppTimezone('UTC');
     $this->seed(WeekDaySeeder::class);
 });
 

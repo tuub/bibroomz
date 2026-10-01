@@ -2,7 +2,6 @@
 
 namespace App\Services\Resources;
 
-use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
@@ -158,7 +157,7 @@ class GenerateResourceTimeSlotsAction
         $intervalMinutes = $interval['minute'] + 60 * $interval['hour'];
 
         return $timeSlots->filter(function (ResourceTimeSlot $timeSlot) use ($intervalMinutes): bool {
-            $now = Utility::getCarbonNow();
+            $now = CarbonImmutable::now();
 
             if ($timeSlot->time->isAfter($now)) {
                 return true;

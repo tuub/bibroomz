@@ -55,3 +55,25 @@ test('build returns the current app setting system_notification', function (): v
 
     expect($data['systemNotification'])->toBe('Global notice');
 });
+
+test('build shares the configured app timezone', function (): void {
+    config()->set('app.timezone', 'Europe/Berlin');
+
+    $request = Request::create('/');
+
+    $builder = new InertiaSharedDataBuilder;
+    $data = $builder->build($request);
+
+    expect($data['timezone'])->toBe('Europe/Berlin');
+});
+
+test('build falls back to UTC when the configured timezone is not a string', function (): void {
+    config()->set('app.timezone', null);
+
+    $request = Request::create('/');
+
+    $builder = new InertiaSharedDataBuilder;
+    $data = $builder->build($request);
+
+    expect($data['timezone'])->toBe('UTC');
+});

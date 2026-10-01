@@ -100,6 +100,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { type Happening, type HappeningEditPayload, useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+import { appWallClock } from "@/appTime";
 import { withBaseUrl } from "@/baseUrl";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
@@ -215,8 +216,10 @@ const getTimeSlotValues = async (
 
         const response = await axios.post<{ start: TimeSlot[]; end: TimeSlot[] }>(url, {
             happening_id: happening?.id,
-            start,
-            end,
+            // The slot list is cut from the app timezone's wall clock, and a
+            // zone-bearing bound would be read as a real instant.
+            start: appWallClock(start),
+            end: appWallClock(end),
         });
 
         start_time_slots.value = response.data.start ?? [];

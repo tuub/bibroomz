@@ -20,7 +20,7 @@ uses(InteractsWithPermissions::class, MockeryPHPUnitIntegration::class, LazilyRe
 
 beforeEach(function (): void {
     $this->seedPermissions();
-    config()->set('roomz.app.timezone', 'UTC');
+    useAppTimezone('UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-03 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-03 10:00:00', 'UTC'));
 });

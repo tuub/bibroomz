@@ -17,6 +17,16 @@ covers(GenerateResourceTimeSlotsAction::class);
 
 uses(LazilyRefreshDatabase::class);
 
+/**
+ * The slots are wall-clock times in the app timezone and are filtered against
+ * the app's own clock, so these cases fix that zone and freeze an instant in
+ * UTC: 08:00 UTC below is 10:00 in Berlin, which is the "now" the comments
+ * refer to.
+ */
+beforeEach(function (): void {
+    useAppTimezone('Europe/Berlin');
+});
+
 test('execute returns array with start and end time slots', function (): void {
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -90,7 +100,7 @@ test('slot matching the selected time has is_selected true', function (): void {
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
     // Business hours 09:00–23:00 with all weekdays from factory
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     // Pick a start slot in business hours
     $selectedStart = $today->setTime(10, 0);
     $selectedEnd = $today->setTime(11, 0);
@@ -122,7 +132,7 @@ test('time slots are generated at 30-minute intervals for 30-minute slot length 
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     // Start from 09:00 so we get slots within business hours, with no past filtering interference
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $result = $action->execute($resource, null, $start, $start->addDay());
 
     // With 30-min intervals there should be many slots in the business hour window
@@ -158,7 +168,7 @@ test('30-minute slot length uses minute branch not hour branch', function (): vo
     expect($setting?->value)->toBe('00:30');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $result = $action->execute($resource, null, $today, $today->addDay());
 
     // With minute=30, a full day should have 48 slots
@@ -175,7 +185,7 @@ test('30-minute slot length uses minute branch not hour branch', function (): vo
 test('slot length with hour and minute combines both correctly for past slot filtering', function (): void {
     $this->seed(WeekDaySeeder::class);
 
-    // getCarbonNow() = UTC_now + Berlin_offset(+2h) = 08:00 + 2 = 10:00
+    // now() = 08:00 UTC read in the app timezone = 10:00
     Carbon::setTestNow(Carbon::parse('2026-06-12 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-12 08:00:00', 'UTC'));
 
@@ -187,17 +197,17 @@ test('slot length with hour and minute combines both correctly for past slot fil
     // Period uses 90-min steps: 00:00, 01:30, 03:00, 04:30, 06:00, 07:30, 09:00, 10:30, ...
     $rg->settings()->where('key', 'time_slot_length')->update(['value' => '01:30']);
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
-    // getCarbonNow = 10:00. Slot at 09:00 UTC is 60 min before now.
+    // now = 10:00. The 09:00 slot is 60 min before it.
     // intervalMinutes=90: 60 < 90 → slot at 09:00 is KEPT
     // With PlusToMinus mutation: intervalMinutes = 30 - 60 = -30 → 60 < -30 is FALSE → excluded
     $startTimes = collect($result['start'])->map(fn (array $s): string => $s['time']->format('H:i'))->values()->toArray();
 
-    // 09:00 is 60 min before getCarbonNow(10:00) → 60 < 90 → should appear
+    // 09:00 is 60 min before now (10:00) → 60 < 90 → should appear
     expect(in_array('09:00', $startTimes))->toBeTrue();
 
     Carbon::setTestNow();
@@ -209,7 +219,7 @@ test('slot length with hour and minute combines both correctly for past slot fil
 test('past slots within interval window are kept in result', function (): void {
     $this->seed(WeekDaySeeder::class);
 
-    // getCarbonNow() = UTC_now + Berlin_offset(+2h) = 10:00 + 2 = 12:00
+    // now() = 10:00 UTC read in the app timezone = 12:00
     Carbon::setTestNow(Carbon::parse('2026-06-12 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-12 10:00:00', 'UTC'));
 
@@ -218,10 +228,10 @@ test('past slots within interval window are kept in result', function (): void {
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
     // Default slot length is 00:30 → intervalMinutes=30
-    // getCarbonNow = 12:00 UTC
-    // Slot at 12:00 UTC: NOT after 12:00, diffInMinutes(12:00, 12:00)=0 < 30 → KEPT
-    // Slot at 11:30 UTC: NOT after 12:00, diffInMinutes(11:30, 12:00)=30 NOT < 30 → excluded
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    // now = 12:00
+    // Slot at 12:00: NOT after 12:00, diffInMinutes(12:00, 12:00)=0 < 30 → KEPT
+    // Slot at 11:30: NOT after 12:00, diffInMinutes(11:30, 12:00)=30 NOT < 30 → excluded
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
@@ -241,7 +251,7 @@ test('past slots within interval window are kept in result', function (): void {
 test('future slots are always kept regardless of interval', function (): void {
     $this->seed(WeekDaySeeder::class);
 
-    // getCarbonNow() = UTC_now + Berlin_offset(+2h) = 10:00 + 2 = 12:00
+    // now() = 10:00 UTC read in the app timezone = 12:00
     Carbon::setTestNow(Carbon::parse('2026-06-12 10:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-12 10:00:00', 'UTC'));
 
@@ -249,11 +259,11 @@ test('future slots are always kept regardless of interval', function (): void {
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
-    // 12:30 UTC is after getCarbonNow(12:00 UTC) → kept by isAfter branch
+    // 12:30 is after now (12:00) → kept by the isAfter branch
     $startTimes = collect($result['start'])->map(fn (array $s): string => $s['time']->format('H:i'))->values()->toArray();
     expect(in_array('12:30', $startTimes))->toBeTrue();
 
@@ -281,8 +291,8 @@ test('end slots include the business hour end time while start slots exclude it'
 
     // Use $start = 09:00 (within business hours) to avoid disableNonSequentialTimeSlots
     // disabling the 23:00 end slot due to gaps before business hours
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
-    $end = CarbonImmutable::parse('2026-06-12 23:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 23:00:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $end);
@@ -315,7 +325,7 @@ test('end slots disable the happening end time while start slots do not', functi
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     // Create a happening from 10:00–12:00
     $resource->happenings()->create([
@@ -356,7 +366,7 @@ test('when initially selected slot is disabled a different slot gets selected', 
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     // Provide a start time (00:00) that will be disabled because it's outside business hours (09:00–23:00)
     // The selected slot at 00:00 will be disabled → adjustSelectedTimeSlots triggers → first enabled selected
@@ -387,7 +397,7 @@ test('auto-selected slot is enabled not disabled when adjusting selection', func
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     // Selected time at 00:00 is outside business hours → disabled → triggers auto-select
     $action = app(GenerateResourceTimeSlotsAction::class);
@@ -414,7 +424,7 @@ test('when selected slot remains enabled it stays selected without auto-override
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     // 10:00 is within business hours 09:00–23:00 → stays enabled → stays selected
     $selectedStart = $today->setTime(10, 0);
     $selectedEnd = $today->setTime(11, 0);
@@ -451,7 +461,7 @@ test('hourly slot length creates slots at one-hour intervals', function (): void
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     // Start from 09:00 to avoid past-slot filtering removing early slots
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $result = $action->execute($resource, null, $start, $start->addDay());
 
     $slots = $result['start'];
@@ -480,7 +490,7 @@ test('slots outside business hours remain disabled after business hours processi
     // Business hours 09:00–23:00; slot at 00:00 is outside → disabled
     // Slot at 08:00 is outside → disabled (< 09:00)
     // Slot at 09:00 is inside → enabled
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
@@ -510,7 +520,7 @@ test('start of closing range is disabled in start slots but enabled in end slots
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     // Create a closing from 14:00–16:00
     $resource->closings()->create([
@@ -524,7 +534,7 @@ test('start of closing range is disabled in start slots but enabled in end slots
 
     // Use $start = 13:30 (within business hours, before closing) to avoid
     // disableNonSequentialTimeSlots disabling 14:00 due to gaps before business hours
-    $start = CarbonImmutable::parse('2026-06-12 13:30:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 13:30:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
@@ -551,7 +561,7 @@ test('start of closing range is disabled in start slots but enabled in end slots
 test('interval minutes is calculated correctly for hour-only slot length', function (): void {
     $this->seed(WeekDaySeeder::class);
 
-    // getCarbonNow() = UTC_now + Berlin_offset(+2h) = 08:00 + 2 = 10:00
+    // now() = 08:00 UTC read in the app timezone = 10:00
     Carbon::setTestNow(Carbon::parse('2026-06-12 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-12 08:00:00', 'UTC'));
 
@@ -563,11 +573,11 @@ test('interval minutes is calculated correctly for hour-only slot length', funct
     // PlusToMinus → 0 - 60*1 = -60 → no past slots kept at all
     $rg->settings()->where('key', 'time_slot_length')->update(['value' => '01:00']);
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
-    // getCarbonNow = 10:00 UTC. Slot at 09:00 UTC is 60 min ago → diffInMinutes=60, NOT < 60 → excluded
+    // now = 10:00. The 09:00 slot is 60 min ago → diffInMinutes=60, NOT < 60 → excluded
     // Slot at 10:00 UTC: isAfter(10:00) = false, diffInMinutes=0 < 60 → KEPT
     $startTimes = collect($result['start'])->map(fn (array $s): string => $s['time']->format('H:i'))->values()->toArray();
 
@@ -588,7 +598,7 @@ test('execute returns start slots as zero-indexed array even after collection op
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
 
@@ -610,7 +620,7 @@ test('execute returns end slots as zero-indexed array even after collection oper
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
 
@@ -632,8 +642,8 @@ test('end slot exactly at start time is disabled', function (): void {
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $start = CarbonImmutable::parse('2026-06-12 10:00:00', 'UTC');
-    $end = CarbonImmutable::parse('2026-06-12 11:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 10:00:00');
+    $end = CarbonImmutable::parse('2026-06-12 11:00:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $end);
@@ -657,7 +667,7 @@ test('end slots reserve the happening end boundary with isEnd true', function ()
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $resource->happenings()->create([
         'start' => $today->setTime(13, 30),
@@ -668,7 +678,7 @@ test('end slots reserve the happening end boundary with isEnd true', function ()
 
     $resource->refresh();
 
-    $start = CarbonImmutable::parse('2026-06-12 13:30:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 13:30:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
@@ -694,7 +704,7 @@ test('end slots concurrent user check uses isEnd true flag', function (): void {
 
     $user = User::factory()->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $resource->happenings()->create([
         'start' => $today->setTime(15, 30),
@@ -706,7 +716,7 @@ test('end slots concurrent user check uses isEnd true flag', function (): void {
 
     $resource->refresh();
 
-    $start = CarbonImmutable::parse('2026-06-12 15:30:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 15:30:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, $user, $start, $start->addDay());
@@ -733,7 +743,7 @@ test('minute interval of exactly 1 creates 1-minute steps', function (): void {
     $rg->settings()->where('key', 'time_slot_length')->update(['value' => '00:01']);
 
     $action = app(GenerateResourceTimeSlotsAction::class);
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $result = $action->execute($resource, null, $start, $start->addDay());
 
     $slots = $result['start'];
@@ -763,7 +773,7 @@ test('hour interval greater-than-zero condition prevents hour branch for minute-
     $rg->settings()->where('key', 'time_slot_length')->update(['value' => '00:30']);
 
     $action = app(GenerateResourceTimeSlotsAction::class);
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
     $result = $action->execute($resource, null, $start, $start->addDay());
 
     $slots = $result['start'];
@@ -792,7 +802,7 @@ test('interval minutes multiplies hours by exactly 60 not 59', function (): void
 
     $rg->settings()->where('key', 'time_slot_length')->update(['value' => '01:00']);
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $today, $today->addDay());
 
@@ -816,7 +826,7 @@ test('reserved time slots within a happening range are disabled in end slots', f
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $resource->happenings()->create([
         'start' => $today->setTime(11, 0),
@@ -827,7 +837,7 @@ test('reserved time slots within a happening range are disabled in end slots', f
 
     $resource->refresh();
 
-    $start = CarbonImmutable::parse('2026-06-12 10:30:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 10:30:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
@@ -852,7 +862,7 @@ test('end slot concurrency is evaluated against the users other resource-group h
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
     $otherResource = Resource::factory()->for($rg, 'resource_group')->create();
     $user = User::factory()->create();
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $otherResource->happenings()->create([
         'user_id_01' => $user->id,
@@ -893,8 +903,8 @@ test('zero time-slot length falls back to the default period branch instead of t
     $result = app(GenerateResourceTimeSlotsAction::class)->execute(
         $resource,
         null,
-        CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC'),
-        CarbonImmutable::parse('2026-06-13 00:00:00', 'UTC'),
+        CarbonImmutable::parse('2026-06-12 00:00:00'),
+        CarbonImmutable::parse('2026-06-13 00:00:00'),
     );
 
     expect($result['start'])->toHaveCount(2)
@@ -919,8 +929,8 @@ test('hourly past-slot filtering keeps a slot that is fifty-nine minutes behind 
     $result = app(GenerateResourceTimeSlotsAction::class)->execute(
         $resource,
         null,
-        CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC'),
-        CarbonImmutable::parse('2026-06-13 00:00:00', 'UTC'),
+        CarbonImmutable::parse('2026-06-12 00:00:00'),
+        CarbonImmutable::parse('2026-06-13 00:00:00'),
     );
 
     $startTimes = collect($result['start'])->map(fn (array $slot): string => $slot['time']->format('H:i'))->all();
@@ -941,7 +951,7 @@ test('quota-exceeding end slots stay disabled', function (): void {
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
     $user = User::factory()->create();
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $rg->settings()->where('key', 'quota_happening_block_hours')->update(['value' => '1']);
 
@@ -975,7 +985,7 @@ test('a single disabled end slot cascades to disable every later end slot', func
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
 
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     // At the default 30-minute grid, only the 11:00 end slot falls strictly inside this
     // closing (isTimeSlotInClosing isEnd=true: 11:00 > 10:45 && 11:00 < 11:15).
@@ -988,7 +998,7 @@ test('a single disabled end slot cascades to disable every later end slot', func
 
     $resource->refresh();
 
-    $start = CarbonImmutable::parse('2026-06-12 09:00:00', 'UTC');
+    $start = CarbonImmutable::parse('2026-06-12 09:00:00');
 
     $action = app(GenerateResourceTimeSlotsAction::class);
     $result = $action->execute($resource, null, $start, $start->addDay());
@@ -1025,7 +1035,7 @@ test('a disabled selected start slot is deselected so the first enabled slot can
     $institution = Institution::factory()->create();
     $rg = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($rg, 'resource_group')->create();
-    $today = CarbonImmutable::parse('2026-06-12 00:00:00', 'UTC');
+    $today = CarbonImmutable::parse('2026-06-12 00:00:00');
 
     $result = app(GenerateResourceTimeSlotsAction::class)->execute(
         $resource,

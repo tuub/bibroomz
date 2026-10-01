@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\SerializesWallClockDates;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 ])]
 class UserGroupUser extends Pivot
 {
+    use SerializesWallClockDates;
+
     /**
      * @return BelongsTo<User, $this>
      */

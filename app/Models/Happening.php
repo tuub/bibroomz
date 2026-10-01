@@ -9,6 +9,7 @@ use App\Services\Happenings\HappeningBroadcaster;
 use App\Services\Happenings\HappeningStatusCalculator;
 use App\Services\Resources\ResourceAvailabilityService;
 use App\Traits\HasTranslations;
+use App\Traits\SerializesWallClockDates;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -53,7 +54,7 @@ class Happening extends Model
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
-    use HasTranslations, HasUuids, MassPrunable, SoftDeletes;
+    use HasTranslations, HasUuids, MassPrunable, SerializesWallClockDates, SoftDeletes;
 
     /**
      * @var list<string>
@@ -173,12 +174,12 @@ class Happening extends Model
 
     public function isPast(): bool
     {
-        return $this->end < Utility::getCarbonNow();
+        return $this->end < Carbon::now();
     }
 
     public function isPresent(): bool
     {
-        return $this->start < Utility::getCarbonNow() && $this->end > Utility::getCarbonNow();
+        return $this->start < Carbon::now() && $this->end > Carbon::now();
     }
 
     /**

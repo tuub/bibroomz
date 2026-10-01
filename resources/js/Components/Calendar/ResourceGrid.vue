@@ -20,7 +20,7 @@
             "title" }` ever showed there.
         -->
         <div v-if="!interactive" id="calendar-date-display" class="my-2 text-center">
-            {{ date.isToday() ? $t("calendar.today") : formattedDate }}
+            {{ isToday ? $t("calendar.today") : formattedDate }}
         </div>
 
         <div v-else class="my-2 flex flex-wrap justify-between">
@@ -29,8 +29,8 @@
                 <div class="flex w-full items-center justify-end lg:w-1/6">
                     <button
                         id="calendar-date-today"
-                        :disabled="date.isToday()"
-                        :class="{ 'opacity-25': date.isToday() }"
+                        :disabled="isToday"
+                        :class="{ 'opacity-25': isToday }"
                         :title="$t('calendar.go_to_today')"
                         @click="goToday"
                     >
@@ -51,7 +51,7 @@
                     </button>
                 </div>
                 <div id="calendar-date-display" class="flex w-full items-center justify-center text-center lg:w-3/6">
-                    {{ date.isToday() ? $t("calendar.today") : formattedDate }}
+                    {{ isToday ? $t("calendar.today") : formattedDate }}
                 </div>
                 <div class="flex w-full items-center justify-start lg:w-1/6">
                     <button
@@ -167,11 +167,11 @@ import { withBaseUrl } from "@/baseUrl";
 
 import dayjs from "dayjs";
 import "dayjs/locale/de";
-import isToday from "dayjs/plugin/isToday";
+import utc from "dayjs/plugin/utc";
 import { storeToRefs } from "pinia";
 import { computed, nextTick, onBeforeMount, onMounted, onUnmounted, ref, watch } from "vue";
 
-dayjs.extend(isToday);
+dayjs.extend(utc);
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
@@ -231,14 +231,23 @@ const resourceGroupTitle = computed(() => translate(institution.title) + ": " + 
 // only the formatted date is computed here.
 const formattedDate = computed(() => date.value.locale(locale.value).format(appStore.dateFormat ?? undefined));
 
-const isAtRangeStart = computed(() => date.value.isSame(dayjs(validRange.start), "day"));
-const isAtRangeEnd = computed(() => date.value.isSame(dayjs(validRange.end), "day"));
+const isAtRangeStart = computed(() => date.value.isSame(dayjs.utc(validRange.start), "day"));
+const isAtRangeEnd = computed(() => date.value.isSame(dayjs.utc(validRange.end), "day"));
+
+/**
+ * dayjs' `isToday` plugin compares against the browser's own date, which is
+ * not the app's - the grid and the day it is showing both live in the app
+ * timezone's wall-clock space.
+ */
+const isToday = computed(() => date.value.isSame(appStore.now(), "day"));
 
 function buildPage(page: number) {
     const url = new URL(resourcesUrl, window.location.origin);
     url.searchParams.set("count", String(roomCount.value));
     url.searchParams.set("page", String(page));
-    url.searchParams.set("date", date.value.utcOffset(0, true).format("YY-MM-DD"));
+    // `date` is already in the app's wall-clock space, so its own day is the
+    // one the backend has to resolve business hours and closings for.
+    url.searchParams.set("date", date.value.format("YY-MM-DD"));
 
     return `${url.pathname}?${url.searchParams.toString()}`;
 }
@@ -283,7 +292,7 @@ function goToDate(next: dayjs.Dayjs) {
 
 const goNext = () => goToDate(date.value.add(1, "day"));
 const goPrev = () => goToDate(date.value.subtract(1, "day"));
-const goToday = () => goToDate(dayjs());
+const goToday = () => goToDate(appStore.now());
 
 function roomsPrev() {
     if (!previousPage.value) {

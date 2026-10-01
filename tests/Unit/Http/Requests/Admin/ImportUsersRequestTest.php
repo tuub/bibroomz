@@ -18,6 +18,10 @@ uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(fn () => $this->seedPermissions());
 
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+});
+
 test('authorize returns false when no authenticated user', function (): void {
     $institution = Institution::factory()->create();
     $userGroup = UserGroup::create([
@@ -418,4 +422,37 @@ test('importData returns merged safe data including valid_from', function (): vo
 
     expect($data)->toHaveKey('id')
         ->and($data)->toHaveKey('valid_from');
+});
+
+/**
+ * `valid_from` lands in a date column that membership checks read against the
+ * app clock, so the default has to be the app's date. The UTC clock would
+ * stamp yesterday for the first hours of the day and leave the import
+ * ineffective until the offset had passed.
+ */
+test('passedValidation defaults valid_from to the app timezone date', function (): void {
+    useAppTimezone('Europe/Berlin');
+    // 22:30 UTC on 10 June is already 00:30 on 11 June in Berlin.
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 22:30:00', 'UTC'));
+
+    $group = UserGroup::create([
+        'institution_id' => Institution::factory()->create()->id,
+        'title' => ['en' => 'G'],
+    ]);
+
+    $request = buildFormRequest(ImportUsersRequest::class, [
+        'id' => $group->id,
+        'users' => [['name' => 'alice']],
+    ]);
+
+    $validator = Validator::make($request->all(), $request->rules());
+    $validator->passes();
+    $request->setValidator($validator);
+
+    (new ReflectionMethod($request, 'passedValidation'))->invoke($request);
+
+    $validFrom = $request->importData()['valid_from'];
+    assert($validFrom instanceof CarbonImmutable);
+
+    expect($validFrom->toDateString())->toBe('2026-06-11');
 });

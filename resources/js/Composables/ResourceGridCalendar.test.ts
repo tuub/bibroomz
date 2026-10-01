@@ -4,7 +4,7 @@ import { useAuthStore } from "@/Stores/AuthStore";
 import type { Happening } from "@/Stores/HappeningStore";
 
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@fullcalendar/vue3/interaction", () => ({ default: { id: "interactionPlugin" } }));
 vi.mock("@fullcalendar/vue3/themes/classic", () => ({ default: { id: "classicThemePlugin" } }));
@@ -50,6 +50,13 @@ function asHandler(value: unknown) {
     expect(value).toBeTypeOf("function");
 
     return value as (...args: unknown[]) => void;
+}
+
+/** Same narrowing as `asHandler`, for the one hook whose answer matters. */
+function asPredicate(value: unknown) {
+    expect(value).toBeTypeOf("function");
+
+    return value as (...args: unknown[]) => boolean;
 }
 
 function makeGrid(overrides: Partial<Parameters<typeof useResourceGridCalendar>[0]> = {}) {
@@ -332,6 +339,21 @@ describe("selection", () => {
         );
     });
 
+    /**
+     * The modal posts these straight on, so they leave the grid in the shape
+     * the API reads back: wall clock, no zone.
+     */
+    test("hands the modal zone-less wall-clock bounds", () => {
+        authStore.isAuthenticated = true;
+
+        const grid = makeGrid();
+        asHandler(grid.columnOptions(makeRoom("a"), 0).select)(selection);
+
+        expect(modalActionsMock.useHappeningCreateModal).toHaveBeenCalledWith(
+            expect.objectContaining({ start: "2026-09-16 10:00:00", end: "2026-09-16 11:00:00" }),
+        );
+    });
+
     test("disables selection entirely when the caller overrides it", () => {
         const grid = makeGrid({ overrides: { selectable: false } });
         const options = grid.columnOptions(makeRoom("a"), 0);
@@ -392,6 +414,18 @@ describe("event clicks", () => {
         expect(grid.emit).not.toHaveBeenCalled();
     });
 
+    test("hands the modal zone-less wall-clock bounds", () => {
+        const grid = makeGrid();
+
+        asHandler(grid.columnOptions(makeRoom("a"), 0).eventClick)(
+            clickInfo({ extendedProps: { can: { edit: true } } }),
+        );
+
+        expect(modalActionsMock.useHappeningEditModal).toHaveBeenCalledWith(
+            expect.objectContaining({ start: "2026-09-16 10:00:00", end: "2026-09-16 11:00:00" }),
+        );
+    });
+
     test("disables event clicks entirely when the caller overrides it", () => {
         const grid = makeGrid({ overrides: { interactive: false } });
 
@@ -417,5 +451,84 @@ describe("room info", () => {
             "open-modal-component",
             expect.objectContaining({ kind: "resource-info" }),
         );
+    });
+});
+
+/**
+ * Every datetime the grid renders is a wall-clock value in the app timezone
+ * (`CalendarEntryPresenter` sends no zone, the columns render with
+ * `timeZone: "utc"`), so everything derived from "now" has to be read in that
+ * zone too. Reading the browser's UTC clock instead drew the now-indicator two
+ * hours too high in summer and let slots that had already passed be selected.
+ */
+describe("the app's clock", () => {
+    // 10:00 in Berlin, which is two hours ahead of UTC in June.
+    const summerMorning = "2026-06-10T08:00:00Z";
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date(summerMorning));
+        appStore.setTimezone("Europe/Berlin");
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    test("hands FullCalendar the app timezone's now", () => {
+        const options = makeGrid().columnOptions(makeRoom("a"), 0);
+
+        expect(options.nowIndicator).toBe(true);
+        expect(options.now().toISOString()).toBe("2026-06-10T10:00:00.000Z");
+    });
+
+    test("opens on the app timezone's today, not the browser's", () => {
+        // Still 10 June by the browser's UTC clock, already 11 June in Berlin.
+        vi.setSystemTime(new Date("2026-06-10T22:30:00Z"));
+
+        const grid = makeGrid();
+
+        expect(grid.date.value.format("YYYY-MM-DD")).toBe("2026-06-11");
+        // Kept in the grid's own wall-clock space, whatever zone the browser is
+        // in, so the toolbar's day and the columns' day cannot drift apart.
+        expect(grid.date.value.isUTC()).toBe(true);
+    });
+
+    test("starts the bookable range at the app timezone's today", () => {
+        vi.setSystemTime(new Date("2026-06-10T22:30:00Z"));
+
+        const { start, end } = makeGrid().validRange;
+
+        expect(start.toISOString()).toBe("2026-06-11T00:30:00.000Z");
+        // weeks_in_advance is 4 in these settings.
+        expect(end.toISOString()).toBe("2026-07-09T00:30:00.000Z");
+    });
+
+    test("asks for the day's happenings in zone-less wall clock", async () => {
+        vi.setSystemTime(new Date("2026-06-10T22:30:00Z"));
+
+        const grid = makeGrid();
+        await grid.loadHappenings();
+
+        // A zone on these would be read as a real instant and move the window.
+        expect(axiosMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                params: { start: "2026-06-11 00:00:00", end: "2026-06-11 23:59:59" },
+            }),
+        );
+    });
+
+    test("refuses a slot that has passed in the app timezone", () => {
+        const selectAllow = asPredicate(makeGrid().columnOptions(makeRoom("a"), 0).selectAllow);
+
+        // 09:00 is an hour away by the browser's UTC clock, but an hour gone in
+        // Berlin - this is the "bookings two hours early" case.
+        expect(selectAllow({ startStr: "2026-06-10T09:00:00Z", endStr: "2026-06-10T10:00:00Z" })).toBe(false);
+    });
+
+    test("still allows the slot that is running right now", () => {
+        const selectAllow = asPredicate(makeGrid().columnOptions(makeRoom("a"), 0).selectAllow);
+
+        expect(selectAllow({ startStr: "2026-06-10T10:00:00Z", endStr: "2026-06-10T11:00:00Z" })).toBe(true);
     });
 });

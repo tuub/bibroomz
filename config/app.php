@@ -93,12 +93,18 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. We have gone
-    | ahead and set this to a sensible default for you out of the box.
+    | will be used by the PHP date and date-time functions.
+    |
+    | This is the zone the whole app lives in, not just a formatting
+    | preference: datetimes are stored without a zone, so the value in a
+    | `start`, `end`, `reserved_at` or `created_at` column is wall-clock time
+    | here. `Carbon::now()` therefore compares directly against them, and
+    | `resources/js/appTime.ts` reads the same zone in the browser, which has
+    | one of its own.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
 
     /*
     |--------------------------------------------------------------------------

@@ -3,9 +3,14 @@
 declare(strict_types=1);
 
 use App\Services\Admin\StatisticsDateRangeResolver;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 covers(StatisticsDateRangeResolver::class);
+
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+});
 
 test('resolve returns null bounds for an unrecognized range', function (): void {
     $resolver = app(StatisticsDateRangeResolver::class);
@@ -19,8 +24,8 @@ test('resolve returns start-of-week through now for this_week', function (): voi
     [$from, $to] = $resolver->resolve('this_week', null, null);
     assert($from instanceof CarbonInterface && $to instanceof CarbonInterface);
 
-    expect($from->toDateString())->toBe(now()->startOfWeek()->toDateString())
-        ->and($to->toDateString())->toBe(now()->toDateString());
+    expect($from->toDateString())->toBe(CarbonImmutable::now()->startOfWeek()->toDateString())
+        ->and($to->toDateString())->toBe(CarbonImmutable::now()->toDateString());
 });
 
 test('resolve returns start-of-month through now for this_month', function (): void {
@@ -29,7 +34,7 @@ test('resolve returns start-of-month through now for this_month', function (): v
     [$from] = $resolver->resolve('this_month', null, null);
     assert($from instanceof CarbonInterface);
 
-    expect($from->toDateString())->toBe(now()->startOfMonth()->toDateString());
+    expect($from->toDateString())->toBe(CarbonImmutable::now()->startOfMonth()->toDateString());
 });
 
 test('resolve returns start-of-year through now for this_year', function (): void {
@@ -38,7 +43,7 @@ test('resolve returns start-of-year through now for this_year', function (): voi
     [$from] = $resolver->resolve('this_year', null, null);
     assert($from instanceof CarbonInterface);
 
-    expect($from->toDateString())->toBe(now()->startOfYear()->toDateString());
+    expect($from->toDateString())->toBe(CarbonImmutable::now()->startOfYear()->toDateString());
 });
 
 test('resolve returns a window of days back from now for last_7_days, last_30_days, last_3_months and last_12_months', function (): void {
@@ -50,10 +55,10 @@ test('resolve returns a window of days back from now for last_7_days, last_30_da
     [$twelveMonthsFrom] = $resolver->resolve('last_12_months', null, null);
     assert($sevenDaysFrom instanceof CarbonInterface && $thirtyDaysFrom instanceof CarbonInterface && $threeMonthsFrom instanceof CarbonInterface && $twelveMonthsFrom instanceof CarbonInterface);
 
-    expect($sevenDaysFrom->toDateString())->toBe(now()->subDays(7)->toDateString())
-        ->and($thirtyDaysFrom->toDateString())->toBe(now()->subDays(30)->toDateString())
-        ->and($threeMonthsFrom->toDateString())->toBe(now()->subMonths(3)->toDateString())
-        ->and($twelveMonthsFrom->toDateString())->toBe(now()->subMonths(12)->toDateString());
+    expect($sevenDaysFrom->toDateString())->toBe(CarbonImmutable::now()->subDays(7)->toDateString())
+        ->and($thirtyDaysFrom->toDateString())->toBe(CarbonImmutable::now()->subDays(30)->toDateString())
+        ->and($threeMonthsFrom->toDateString())->toBe(CarbonImmutable::now()->subMonths(3)->toDateString())
+        ->and($twelveMonthsFrom->toDateString())->toBe(CarbonImmutable::now()->subMonths(12)->toDateString());
 });
 
 test('resolve parses custom range bounds to start and end of day', function (): void {
@@ -87,4 +92,23 @@ test('resolveComparison parses both bounds to start and end of day', function ()
 
     expect($from->toDateTimeString())->toBe('2026-01-01 00:00:00')
         ->and($to->toDateTimeString())->toBe('2026-01-31 23:59:59');
+});
+
+/**
+ * The ranges are applied to `happenings.start`, which holds wall-clock time in
+ * the app timezone, so "this week" has to be the week the app is in - not the
+ * one UTC is still in.
+ */
+test('resolve reads the current range from the app timezone', function (): void {
+    useAppTimezone('Europe/Berlin');
+    // Sunday 22:30 UTC, already Monday 00:30 in Berlin: the new week.
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-14 22:30:00', 'UTC'));
+
+    $resolver = app(StatisticsDateRangeResolver::class);
+
+    [$from, $to] = $resolver->resolve('this_week', null, null);
+    assert($from instanceof CarbonInterface && $to instanceof CarbonInterface);
+
+    expect($from->toDateTimeString())->toBe('2026-06-15 00:00:00')
+        ->and($to->toDateTimeString())->toBe('2026-06-15 00:30:00');
 });

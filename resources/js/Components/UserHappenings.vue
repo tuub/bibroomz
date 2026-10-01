@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SidebarBlock from "@/Components/Sidebar/SidebarBlock.vue";
+import { useAppStore } from "@/Stores/AppStore";
 import type { Happening } from "@/Stores/HappeningStore";
 
 import UserHappening from "./UserHappening.vue";
@@ -27,6 +28,11 @@ const props = withDefaults(
 dayjs.extend(utc);
 
 // ------------------------------------------------
+// Stores
+// ------------------------------------------------
+const appStore = useAppStore();
+
+// ------------------------------------------------
 // Variables
 // ------------------------------------------------
 const hidePast = ref(true);
@@ -44,7 +50,7 @@ const happenings = computed(() => {
 // ------------------------------------------------
 
 const isPastHappening = (happening: Happening) => {
-    return dayjs(happening.end).isBefore(dayjs.utc());
+    return dayjs.utc(happening.end).isBefore(appStore.now());
 };
 </script>
 

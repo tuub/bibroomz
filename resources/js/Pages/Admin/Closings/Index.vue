@@ -65,7 +65,7 @@ const getClosingDateTime = (dateTime?: string) => {
 };
 
 const isPastClosing = (closing: Closing) => {
-    return dayjs(closing.end).isBefore(dayjs().utcOffset(0, true));
+    return dayjs.utc(closing.end).isBefore(appStore.now());
 };
 </script>
 

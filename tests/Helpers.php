@@ -101,3 +101,17 @@ function buildRoutedFormRequest(
 
     return $request;
 }
+
+/**
+ * Run the rest of the test in a given app timezone.
+ *
+ * `app.timezone` is applied to PHP's default zone when the application boots,
+ * so setting the config alone would not move `Carbon::now()`. Both have to go
+ * together. Nothing has to be undone: the next test boots a fresh application,
+ * which sets the zone again from the configuration.
+ */
+function useAppTimezone(string $timezone): void
+{
+    config()->set('app.timezone', $timezone);
+    date_default_timezone_set($timezone);
+}

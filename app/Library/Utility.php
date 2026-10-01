@@ -5,19 +5,10 @@ declare(strict_types=1);
 namespace App\Library;
 
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use InvalidArgumentException;
 
 class Utility
 {
-    public static function getCarbonNow(): CarbonImmutable
-    {
-        $timezone = config('roomz.app.timezone');
-        $tzOffset = CarbonImmutable::now(is_string($timezone) ? $timezone : null)->offsetHours;
-
-        return CarbonImmutable::now()->addHours($tzOffset);
-    }
-
     public static function createCarbonDateTime(string $date, string $time): Carbon
     {
         try {

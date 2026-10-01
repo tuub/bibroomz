@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'app' => [
-        'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
-    ],
     'log' => [
         'level' => env('LOG_LEVEL', 'warning'),
     ],

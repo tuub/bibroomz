@@ -100,11 +100,13 @@ const happening = computed<Happening>(() => {
 });
 
 const isPast = computed(() => {
-    return dayjs(props.happening.end).isBefore(dayjs.utc());
+    return dayjs.utc(props.happening.end).isBefore(appStore.now());
 });
 
 const isPresent = computed(() => {
-    return dayjs(props.happening.start).isBefore(dayjs.utc()) && dayjs(props.happening.end).isAfter(dayjs.utc());
+    const now = appStore.now();
+
+    return dayjs.utc(props.happening.start).isBefore(now) && dayjs.utc(props.happening.end).isAfter(now);
 });
 
 const getStatusClass = computed(() => {

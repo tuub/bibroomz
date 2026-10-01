@@ -21,7 +21,7 @@ uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(WeekDaySeeder::class);
-    config()->set('roomz.app.timezone', 'UTC');
+    useAppTimezone('UTC');
     Carbon::setTestNow(Carbon::parse('2026-06-10 08:00:00', 'UTC'));
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 08:00:00', 'UTC'));
 });

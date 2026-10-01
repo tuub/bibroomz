@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\ClosingSubject;
 use App\Traits\HasTranslations;
+use App\Traits\SerializesWallClockDates;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
@@ -39,7 +40,7 @@ class Closing extends Model
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 
-    use HasTranslations, HasUuids, Prunable, SoftDeletes;
+    use HasTranslations, HasUuids, Prunable, SerializesWallClockDates, SoftDeletes;
 
     /**
      * @var array<string, mixed>

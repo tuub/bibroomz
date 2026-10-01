@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Resource;
@@ -347,7 +346,7 @@ test('isPresent returns true when now is strictly between start and end', functi
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
     $user = User::factory()->create();
 
-    // Utility::getCarbonNow() resolves to 2026-07-01 12:00:00 with the configured timezone offset.
+    // CarbonImmutable::now() resolves to 2026-07-01 12:00:00 with the configured timezone offset.
     $present = Happening::create([
         'resource_id' => $resource->id,
         'user_id_01' => $user->id,
@@ -500,7 +499,7 @@ test('withAdjustedStartEndTimes returns self not null', function (): void {
 });
 
 test('isPast is false when end is well in the future', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -522,7 +521,7 @@ test('isPast is false when end is well in the future', function (): void {
 });
 
 test('isPast is true when end is strictly before now', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -563,21 +562,21 @@ test('isPresent is false when start equals now', function (): void {
     expect($happening->isPresent())->toBeFalse();
 });
 
-test('isPresent is false when start equals Utility now exactly in the configured timezone', function (): void {
-    config(['roomz.app.timezone' => 'Europe/Berlin']);
+test('isPresent is false when start equals now exactly in the configured timezone', function (): void {
+    useAppTimezone('Europe/Berlin');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
     $user = User::factory()->create();
 
-    $utilityNow = Utility::getCarbonNow();
+    $appNow = CarbonImmutable::now();
 
     $happening = Happening::create([
         'resource_id' => $resource->id,
         'user_id_01' => $user->id,
-        'start' => $utilityNow,
-        'end' => $utilityNow->addHour(),
+        'start' => $appNow,
+        'end' => $appNow->addHour(),
         'is_verified' => false,
         'reserved_at' => now(),
     ]);
@@ -809,7 +808,7 @@ test('getPermissions returns all three keys with correct types', function (): vo
 });
 
 test('getPermissions returns true for edit when user is owner', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -834,7 +833,7 @@ test('getPermissions returns true for edit when user is owner', function (): voi
 });
 
 test('getPermissions returns true for verify when user matches verifier on future unverified happening', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -855,7 +854,7 @@ test('getPermissions returns true for verify when user matches verifier on futur
 });
 
 test('isPast returns false when end equals now exactly', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
@@ -884,6 +883,8 @@ test('prunable uses 0 as fallback when cleanup_days is not an integer', function
 
     config(['roomz.happenings.cleanup_days' => 'not-an-int']);
 
+    // `start`/`end` are wall-clock values in the app timezone, so the fixture
+    // is built on the same clock `prunable()` compares them against.
     $pastEnough = Happening::create([
         'resource_id' => $resource->id,
         'user_id_01' => $user->id,
@@ -909,7 +910,7 @@ test('prunable uses 0 as fallback when cleanup_days is not an integer', function
 });
 
 test('withAdjustedStartEndTimes applies findOpen result to $start and $end', function (): void {
-    config(['roomz.app.timezone' => 'UTC']);
+    useAppTimezone('UTC');
 
     $this->seed(WeekDaySeeder::class);
 
@@ -986,4 +987,80 @@ test('withAdjustedStartEndTimes applies both open and closed adjustments to star
 
     expect(CarbonImmutable::parse($result->start)->format('H:i'))->toBe('09:30')
         ->and(CarbonImmutable::parse($result->end)->format('H:i'))->toBe('11:30');
+});
+
+/**
+ * `config('app.timezone')` is UTC while `start` and `end` hold wall-clock time
+ * in the app timezone, so a clock read the wrong way lands on the wrong day -
+ * and, at the turn of the week, in the wrong week.
+ */
+test('weekly scope starts the week in the app timezone', function (): void {
+    useAppTimezone('Europe/Berlin');
+    // Sunday 22:30 UTC is already Monday 00:30 in Berlin, so the current week
+    // starts on 15 June there and a week earlier by the browser-free UTC clock.
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-14 22:30:00', 'UTC'));
+
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    $lastWeek = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-10 10:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-10 11:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $thisWeek = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-15 10:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-15 11:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $weekly = Happening::query()->weekly()->pluck('id');
+
+    expect($weekly)->toContain($thisWeek->id)
+        ->and($weekly)->not->toContain($lastWeek->id);
+});
+
+test('prunable measures the cleanup window from the app timezone', function (): void {
+    useAppTimezone('Europe/Berlin');
+    config(['roomz.happenings.cleanup_days' => 1]);
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-10 22:30:00', 'UTC'));
+
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create();
+    $user = User::factory()->create();
+
+    // A day before 11 June 00:30 in Berlin is 10 June 00:30; this ended before
+    // that, and only the UTC clock would still consider it inside the window.
+    $overdue = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-09 22:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-09 23:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $recent = Happening::create([
+        'resource_id' => $resource->id,
+        'user_id_01' => $user->id,
+        'start' => CarbonImmutable::parse('2026-06-10 10:00:00'),
+        'end' => CarbonImmutable::parse('2026-06-10 11:00:00'),
+        'is_verified' => false,
+        'reserved_at' => now(),
+    ]);
+
+    $prunable = (new Happening)->prunable()->pluck('id');
+
+    expect($prunable)->toContain($overdue->id)
+        ->and($prunable)->not->toContain($recent->id);
 });

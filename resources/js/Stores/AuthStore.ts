@@ -8,10 +8,12 @@ import { router } from "@inertiajs/vue3";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
+import utc from "dayjs/plugin/utc";
 import { trans } from "laravel-vue-i18n";
 import { defineStore } from "pinia";
 
 dayjs.extend(isoWeek);
+dayjs.extend(utc);
 
 type User = {
     id?: number | string;
@@ -275,16 +277,22 @@ export const useAuthStore = defineStore("auth", {
             });
         },
 
+        /**
+         * The user's own happenings carry the API's zone-less wall-clock times,
+         * so both sides of every comparison here are read in UTC mode - see
+         * `appTime.ts`. Reading one side in the browser's zone instead would
+         * shift the day and week boundaries by its offset.
+         */
         updateQuotas(currentDateInput: dayjs.ConfigType) {
-            const currentDate = dayjs(currentDateInput);
+            const currentDate = dayjs.utc(currentDateInput);
 
             const happenings = this._filteredUserHappenings();
 
-            const isSameDay = (date?: string) => currentDate.isSame(date, "day");
-            const isSameWeek = (date?: string) => currentDate.isSame(date, "isoWeek");
+            const isSameDay = (date?: string) => currentDate.isSame(dayjs.utc(date), "day");
+            const isSameWeek = (date?: string) => currentDate.isSame(dayjs.utc(date), "isoWeek");
 
             const happeningHoursSum = (hours: number, happening: Happening) =>
-                hours + dayjs(happening.end).diff(happening.start, "hours", true);
+                hours + dayjs.utc(happening.end).diff(dayjs.utc(happening.start), "hours", true);
 
             const sameDayHappenings = happenings.filter((happening: Happening) =>
                 isSameDay(String(happening.start ?? "")),
@@ -300,8 +308,8 @@ export const useAuthStore = defineStore("auth", {
 
         isOverlappingUserHappening(start: Dayjs, end: Dayjs) {
             return this._filteredUserHappenings().some((happening: Happening) => {
-                const happeningStart = dayjs(happening.start);
-                const happeningEnd = dayjs(happening.end);
+                const happeningStart = dayjs.utc(happening.start);
+                const happeningEnd = dayjs.utc(happening.end);
 
                 if (happeningStart >= start && happeningStart < end) {
                     return true;

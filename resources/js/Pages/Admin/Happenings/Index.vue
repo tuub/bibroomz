@@ -81,7 +81,7 @@ function getHappeningTime(datetime: AdminHappening["start"]) {
 }
 
 function isPastHappening(happening: AdminHappening) {
-    return dayjs(happening.end).isBefore(dayjs().utcOffset(0, true));
+    return dayjs.utc(happening.end).isBefore(appStore.now());
 }
 
 function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {

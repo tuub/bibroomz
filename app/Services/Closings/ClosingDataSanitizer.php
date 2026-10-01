@@ -22,14 +22,16 @@ class ClosingDataSanitizer
         $endTime = isset($closingData['end_time']) && is_string($closingData['end_time'])
             ? $closingData['end_time'] : '';
 
+        // Zone-less, like every datetime this app stores: an ISO string would
+        // carry an offset, and reading it back would move the closing by it.
         $closingData['start'] = Utility::createCarbonDateTime(
             $startDate,
             $startTime,
-        )->toISOString();
+        )->toDateTimeString();
         $closingData['end'] = Utility::createCarbonDateTime(
             $endDate,
             $endTime,
-        )->toIsoString();
+        )->toDateTimeString();
 
         return $this->normalizeStringKeys(Arr::except($closingData, [
             'start_date',
