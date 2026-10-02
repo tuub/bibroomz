@@ -1,3 +1,11 @@
+import {
+    assetCreditsCheck,
+    cssImportCheck,
+    npmPackageLockCheck,
+    thirdPartyNotices,
+    unattributedModuleCheck,
+} from "./packages/vite-plugin-third-party-notices/src/index.ts";
+
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import vue from "@vitejs/plugin-vue";
 import { execFileSync } from "child_process";
@@ -30,6 +38,16 @@ function ziggyGenerate(): Plugin {
 export default defineConfig({
     plugins: [
         ziggyGenerate(),
+        thirdPartyNotices({
+            fileName: "third-party-notices.txt",
+            includePackages: ["@tailwindcss/typography", "tailwindcss"],
+            checks: [
+                npmPackageLockCheck(),
+                cssImportCheck(),
+                unattributedModuleCheck(),
+                assetCreditsCheck({ creditsFile: "resources/js/credits.json" }),
+            ],
+        }),
         vue({
             template: {
                 transformAssetUrls: {

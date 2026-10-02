@@ -1,6 +1,8 @@
 /build/coverage
 /build/coverage-js
 /build/junit
+/build/pack
+/build/typecheck
 *.cache
 /coverage-html
 coverage*.xml
@@ -17,6 +19,7 @@ _ide_helper.php
 /.ort-cache
 /ort-reports
 /ort-results
+/packages/*/dist
 /public/build
 /public/hot
 /public/images

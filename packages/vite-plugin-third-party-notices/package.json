@@ -1,0 +1,48 @@
+{
+    "name": "@tuub/vite-plugin-third-party-notices",
+    "version": "0.1.0",
+    "description": "Generate a strict third-party license report from a Vite output bundle",
+    "keywords": [
+        "compliance",
+        "license",
+        "rollup",
+        "third-party-notices",
+        "vite",
+        "vite-plugin"
+    ],
+    "license": "GPL-3.0-or-later",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tuub/bibroomz.git",
+        "directory": "packages/vite-plugin-third-party-notices"
+    },
+    "homepage": "https://github.com/tuub/bibroomz/tree/main/packages/vite-plugin-third-party-notices#readme",
+    "bugs": "https://github.com/tuub/bibroomz/issues",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "LICENSE",
+        "README.md",
+        "dist",
+        "src"
+    ],
+    "sideEffects": false,
+    "engines": {
+        "node": ">=20.19.0"
+    },
+    "scripts": {
+        "build": "tsc --project tsconfig.build.json",
+        "prepack": "npm run build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "peerDependencies": {
+        "vite": "^7.0.0 || ^8.0.0"
+    }
+}

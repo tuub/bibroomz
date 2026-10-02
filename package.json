@@ -4,18 +4,21 @@
     "license": "GPL-3.0-or-later",
     "packageManager": "npm@11.12.1",
     "type": "module",
+    "workspaces": [
+        "packages/*"
+    ],
     "scripts": {
         "build": "vite build",
         "coverage": "vitest run --coverage",
         "dev": "vite",
-        "eslint": "eslint resources/ *.ts",
-        "format": "prettier --write resources/ *.ts",
-        "format:check": "prettier --list-different resources/ *.ts",
+        "eslint": "eslint packages/ resources/ scripts/ *.ts",
+        "format": "prettier --write packages/ resources/ scripts/ *.ts",
+        "format:check": "prettier --list-different packages/ resources/ scripts/ *.ts",
         "lint": "npm run eslint && npm run stylelint",
         "prepare": "husky",
         "stylelint": "stylelint resources/",
         "test": "vitest run",
-        "typecheck": "vue-tsc"
+        "typecheck": "vue-tsc --build --force"
     },
     "devDependencies": {
         "@commitlint/cli": "^21.2.3",

@@ -37,7 +37,13 @@ const typeAwareRules: Linter.Config["rules"] = {
 
 export default [
     {
-        ignores: ["node_modules/**", "public/build/**", "resources/js/ziggy.js", "**/resources/js/ziggy.js"],
+        ignores: [
+            "node_modules/**",
+            "packages/*/dist/**",
+            "public/build/**",
+            "resources/js/ziggy.js",
+            "**/resources/js/ziggy.js",
+        ],
     },
     {
         languageOptions: {

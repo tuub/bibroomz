@@ -1,0 +1,15 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "lib": ["ESNext"],
+        "noEmit": false,
+        "outDir": "../../build/typecheck/vite-plugin-third-party-notices",
+        "tsBuildInfoFile": "../../build/typecheck/vite-plugin-third-party-notices/tsconfig.tsbuildinfo",
+        "types": ["node"]
+    },
+    "include": ["index.test.ts", "node-only.typecheck.ts", "pack.test.ts", "src"],
+    "exclude": []
+}

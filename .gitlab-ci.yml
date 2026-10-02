@@ -7,6 +7,9 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_PIPELINE_SOURCE == 'schedule'
+    # The only tags that get a pipeline are the ones npm:publish reacts to, so
+    # no other tag creates a pipeline without a single job in it.
+    - if: $CI_COMMIT_TAG =~ /^vite-plugin-third-party-notices@/
 
 stages:
   - automation
@@ -94,6 +97,8 @@ ci-image:
     - if: $CI_PIPELINE_SOURCE == 'web'
     # install:deps runs in these too, and needs the tag.
     - if: $REBUILD_CACHE == 'true'
+    # npm:publish builds the tarball on the toolchain image as well.
+    - if: $CI_COMMIT_TAG =~ /^vite-plugin-third-party-notices@/
   script:
     - |
       # Nothing but these two files goes into the images: flake.nix imports
@@ -832,6 +837,38 @@ vitest:
       junit: build/junit/vitest.xml
 
 ### Deploy stage
+# Publishes packages/vite-plugin-third-party-notices to this project's npm
+# registry, from a tag that names the package: vite-plugin-third-party-notices@1.2.3.
+# .github/workflows/publish-plugin.yml publishes the same tag to GitHub
+# Packages, so the package is installable from either side.
+#
+# This is the project-level endpoint, which, unlike the instance-level one,
+# accepts any scope, so the @tuub name GitHub Packages requires works here
+# too. CI_JOB_TOKEN authenticates as the job, so no deploy token is needed.
+npm:publish:
+  extends: .ci-node
+  stage: deploy
+  needs:
+    - job: ci-image
+      optional: true
+  variables:
+    PACKAGE: "@tuub/vite-plugin-third-party-notices"
+    PACKAGE_DIRECTORY: packages/vite-plugin-third-party-notices
+    PACKAGE_TAG: $CI_COMMIT_TAG
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^vite-plugin-third-party-notices@/
+  interruptible: false
+  script:
+    - npm run test -- "$PACKAGE_DIRECTORY"
+    - |
+      registry="${CI_API_V4_URL#https:}/projects/$CI_PROJECT_ID/packages/npm/"
+      echo "@tuub:registry=https:$registry" > .npmrc
+      echo "$registry:_authToken=$CI_JOB_TOKEN" >> .npmrc
+    # The publish-plugin workflow in .github/workflows/ runs the same script,
+    # so both registries get a tarball held to the same checks.
+    - PACKAGE_TARBALL=$(node scripts/pack-package.ts "$PACKAGE_DIRECTORY")
+    - npm publish "$PACKAGE_TARBALL"
+
 deploy-staging:
   extends: .deploy
   environment:

@@ -1,0 +1,24 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        // The package ships to consumers whose toolchain this repository does
+        // not pick, so the emit cannot rely on anything of the repository's
+        // own: no tslib for downlevelled helpers, and no .ts specifiers, which
+        // TypeScript forbids emitting anyway.
+        "allowImportingTsExtensions": false,
+        "importHelpers": false,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "noEmit": false,
+        "outDir": "dist",
+        "rootDir": "src",
+        // The oldest Node the package supports is the floor for the output.
+        "target": "es2023",
+        "lib": ["ESNext"],
+        "types": ["node"],
+        "tsBuildInfoFile": "../../build/typecheck/vite-plugin-third-party-notices/tsconfig.build.tsbuildinfo"
+    },
+    "include": ["src"],
+    "exclude": []
+}

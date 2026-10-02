@@ -1,0 +1,110 @@
+name: Publish vite-plugin-third-party-notices
+
+# The package lives in a monorepo whose own version is not published, so the
+# tag carries the package name: vite-plugin-third-party-notices@1.2.3. GitLab
+# CI publishes the same tag to the GitLab package registry; see npm:publish in
+# .gitlab-ci.yml. Both registries get the same tarball, built from the same
+# tag, so a consumer can install from whichever it can reach.
+#
+# The same tarball is also attached to a GitHub release. Both npm registries
+# ask for a token on every read -- GitHub Packages even for a public package --
+# while a release asset of a public repository downloads anonymously, so this
+# is the one way to install the plugin without provisioning a token anywhere.
+on:
+  push:
+    tags:
+      - "vite-plugin-third-party-notices@*"
+  # Lets a publish that failed on this side alone be retried from the tag
+  # without cutting a new one.
+  workflow_dispatch:
+
+# A tag push and a manual retry of the same tag would otherwise race each
+# other for the release, and neither registry nor release lets a half-written
+# version be cleaned up afterwards.
+concurrency:
+  group: publish-plugin-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  # Writable for the release the tarball is attached to.
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE: "@tuub/vite-plugin-third-party-notices"
+      PACKAGE_DIRECTORY: packages/vite-plugin-third-party-notices
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # GitHub Packages serves scopes under the repository owner, which is why
+      # the package is named @tuub rather than @tu-berlin. setup-node writes
+      # the scope mapping and the auth line into ~/.npmrc.
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Matches nodejs_24 from flake.nix, which is what the GitLab
+          # pipeline and the devshell build the package with.
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@tuub"
+
+      # The plugin has no dependencies of its own, but packing compiles its
+      # TypeScript source, which needs the repository's TypeScript.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Test the package
+        run: npm run test -- "$PACKAGE_DIRECTORY"
+
+      # npm publish would pack for itself, but the release needs the file
+      # too, and packing once keeps the two tarballs identical. npm:publish in
+      # .gitlab-ci.yml runs the same script, so both registries get a tarball
+      # held to the same checks.
+      - name: Pack and check the tarball
+        env:
+          PACKAGE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          # Assigned first: inside the echo, a failing pack would be the
+          # status of the echo rather than of the step.
+          tarball=$(node scripts/pack-package.ts "$PACKAGE_DIRECTORY")
+          echo "PACKAGE_TARBALL=$tarball" >> "$GITHUB_ENV"
+
+      # Both steps below are written to survive a re-run: neither registry nor
+      # release lets a version be replaced, and a re-run after a half-finished
+      # release should finish it rather than fail on the half that worked.
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node --print "require('./$PACKAGE_DIRECTORY/package.json').version")
+          if npm view "$PACKAGE@$version" version > /dev/null 2>&1; then
+            echo "$PACKAGE@$version is already on GitHub Packages; leaving it alone."
+            exit 0
+          fi
+          npm publish "$PACKAGE_TARBALL"
+
+      - name: Attach the tarball to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$PACKAGE_TARBALL" --clobber
+            exit 0
+          fi
+          url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/$(basename "$PACKAGE_TARBALL")"
+          gh release create "$GITHUB_REF_NAME" "$PACKAGE_TARBALL" --title "$GITHUB_REF_NAME" --notes "$(
+          cat <<NOTES
+          Install without a token, from this release:
+
+          \`\`\`sh
+          npm install --save-dev $url
+          \`\`\`
+
+          Or from a registry, as $PACKAGE_DIRECTORY/README.md describes.
+          NOTES
+          )"

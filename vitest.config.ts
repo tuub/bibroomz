@@ -12,11 +12,11 @@ export default defineConfig({
     test: {
         environment: "happy-dom",
         pool: "vmThreads",
-        include: ["resources/js/**/*.test.ts"],
+        include: ["packages/**/*.test.ts", "resources/js/**/*.test.ts"],
         coverage: {
             provider: "v8",
-            include: ["resources/js/**/*.{ts,vue}"],
-            exclude: ["resources/js/**/*.test.ts", "resources/js/**/*.d.ts"],
+            include: ["packages/*/src/**/*.ts", "resources/js/**/*.{ts,vue}"],
+            exclude: ["packages/**/*.test.ts", "resources/js/**/*.test.ts", "resources/js/**/*.d.ts"],
             reporter: ["text-summary", "cobertura"],
             reportsDirectory: "build/coverage-js",
             thresholds: {
@@ -24,6 +24,17 @@ export default defineConfig({
                 functions: 52,
                 lines: 63,
                 statements: 63,
+                // The packages here ship to consumers outside this repository
+                // and are small enough to cover whole, so they answer for
+                // themselves rather than hiding inside the application's
+                // numbers. A glob-matched file is held to these thresholds
+                // instead of the ones above, not as well as.
+                "packages/*/src/**/*.ts": {
+                    branches: 97,
+                    functions: 100,
+                    lines: 99,
+                    statements: 99,
+                },
             },
         },
     },
