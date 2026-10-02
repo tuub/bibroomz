@@ -1,0 +1,46 @@
+# What ORT leaves out when it walks this repository. The policy the rest is
+# judged against is ort/rules.kts; the license lists it reads are in
+# ort/license-classifications.yml.
+
+excludes:
+  paths:
+    # Six Composer packages ship an npm manifest of their own. The analyzer
+    # reads each as an NPM project in its own right: two fail for want of a
+    # lockfile, and tightenco/ziggy aborts the entire run because the repository
+    # url in its manifest does not match the one being analysed. composer.lock
+    # already accounts for all six.
+    #
+    # Only takes effect together with ort.analyzer.skipExcluded, which
+    # ort/config.yml sets: without it the manifest is read first and excluded
+    # afterwards, too late to avoid the crash.
+    - pattern: "vendor/**/package.json"
+      reason: "OTHER"
+      comment: "Covered by composer.lock; reading them as npm projects aborts the analyzer."
+
+# No scope is excluded: ort/rules.kts reads the npm scopes itself to tell what
+# the frontend bundle is built from apart from the build and test tooling, and
+# skipExcluded would drop one of those halves from the analysis altogether.
+
+# When a package does fail, a curation corrects metadata ORT read wrong and the
+# corrected value is then judged like any other, so a curated package can still
+# fail; a resolution accepts a finding that is correct. ort/config.yml enables
+# both, and ORT fails rather than ignoring one written without that.
+#
+# curations:
+#   packages:
+#     - id: "NPM::example:1.2.3"
+#       curations:
+#         concluded_license: "MIT"  # or declared_license_mapping, where the
+#                                   # declaration is there but unrecognised
+#         comment: "LICENSE in the tarball is the MIT text; package.json omits the field."
+#
+# resolutions:
+#   rule_violations:
+#     - message: "NPM::example:1\\.2\\.3 ships to users inside the frontend bundle.*"
+#       reason: "LICENSE_ACQUIRED_EXCEPTION"
+#       comment: "Commercial license purchased on <date>, see <where it is filed>."
+#
+# Neither is the first thing to reach for. A license acceptable from any package
+# belongs in ort/license-classifications.yml, where it is decided once; a
+# build-only npm package belongs in devDependencies, where the conveyed rule
+# stops applying to it on its own.

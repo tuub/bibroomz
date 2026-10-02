@@ -36,5 +36,30 @@ return [
             'link_label' => 'on GitHub',
             'link' => 'https://github.com/tuub/bibroomz',
         ],
+        'third_party' => [
+            'header' => 'Fonts and Icons',
+            'content' => 'The typefaces and the icons on this site were made by others and come with licenses
+                          of their own:',
+            'noto_sans' => [
+                'content' => 'Noto Sans, copyright 2022 The Noto Project Authors, under the',
+                'link_label' => 'SIL Open Font License 1.1',
+                'link' => 'https://openfontlicense.org/open-font-license-official-text/',
+            ],
+            'remix_icon' => [
+                'content' => 'Remix Icon, copyright RemixIcon.com, under the',
+                'link_label' => 'Apache License 2.0',
+                'link' => 'https://www.apache.org/licenses/LICENSE-2.0',
+            ],
+            'prime_icons' => [
+                'content' => 'PrimeIcons, copyright 2018-2021 PrimeTek, under the',
+                'link_label' => 'MIT License',
+                'link' => 'https://opensource.org/license/mit',
+            ],
+            'notices' => [
+                'content' => 'The site also serves code written by others. The license of every package inside
+                              it, in full, is collected in the',
+                'link_label' => 'third-party notices',
+            ],
+        ],
     ],
 ];

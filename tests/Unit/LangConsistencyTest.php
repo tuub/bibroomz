@@ -25,6 +25,36 @@ function flattenLang(array $arr, string $prefix = ''): array
 
 dataset('locales', ['en', 'de']);
 
+/**
+ * The works the site credits page lists, as the credits list names them.
+ *
+ * The frontend build keeps that list honest about the bundle; this only asks
+ * that each work has something to render in every locale, a key with no text
+ * behind it putting the key itself on the page.
+ *
+ * @return list<string>
+ */
+function creditedWorks(): array
+{
+    $contents = file_get_contents(base_path('resources/js/credits.json'));
+
+    expect($contents)->not->toBeFalse('resources/js/credits.json could not be read');
+
+    /** @var array<array-key, mixed> $credits */
+    $credits = json_decode((string) $contents, true, 512, JSON_THROW_ON_ERROR);
+    $works = [];
+
+    foreach ($credits as $credit) {
+        $key = is_array($credit) ? ($credit['key'] ?? null) : null;
+
+        if (is_string($key)) {
+            $works[] = $key;
+        }
+    }
+
+    return $works;
+}
+
 test('admin lang file has resource_groups_count in institutions table header', function (string $locale): void {
     /** @var array<array-key, mixed> $raw */
     $raw = include base_path("lang/$locale/admin.php");
@@ -85,5 +115,23 @@ test('admin lang files have no empty string values for keys used in Vue template
     foreach ($usedKeys as $key) {
         expect(isset($flat[$key]))->toBeTrue("Missing key '$key' in $locale")
             ->and($flat[$key] ?? '')->not->toBeEmpty("Key '$key' is empty in $locale");
+    }
+})->with('locales');
+
+test('site credits lang files have text for every credited work', function (string $locale): void {
+    /** @var array<array-key, mixed> $raw */
+    $raw = include base_path("lang/$locale/site_credits.php");
+    $flat = flattenLang($raw);
+    $works = creditedWorks();
+
+    expect($works)->not->toBeEmpty('The credits list names no work at all');
+
+    foreach ($works as $work) {
+        foreach (['content', 'link_label', 'link'] as $field) {
+            $key = "paragraphs.third_party.$work.$field";
+
+            expect(isset($flat[$key]))->toBeTrue("Missing key '$key' in $locale")
+                ->and($flat[$key] ?? '')->not->toBeEmpty("Key '$key' is empty in $locale");
+        }
     }
 })->with('locales');

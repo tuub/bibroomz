@@ -236,6 +236,18 @@ test('site credits route renders its inertia component', function (): void {
         ->assertInertia(fn (Assert $page): AssertableInertia => $page->component('SiteCredits'));
 });
 
+test('site credits point at the license notices of the build being served', function (string $configured, string $directory): void {
+    config(['roomz.frontend.build_directory' => $configured]);
+
+    $this->get(route('site_credits'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
+            ->where('noticesUrl', asset($directory.'/third-party-notices.txt')));
+})->with([
+    'the directory the app was told to build into' => ['build-test', 'build-test'],
+    'vite\'s own default, when nothing is configured' => ['', 'build'],
+]);
+
 test('switch language queues the locale cookie', function (): void {
     $this->post(route('switch_lang'), ['locale' => 'de'])
         ->assertOk()

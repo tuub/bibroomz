@@ -1,0 +1,141 @@
+# The two license lists this project's policy turns on: ort/rules.kts decides
+# which list a package has to be in, this file what is in them. A license in
+# neither fails, because an unlisted license is one nobody here has ruled on.
+
+categories:
+  - name: "distributable"
+    description: >-
+      Can be conveyed as part of a GPL-3.0-or-later work. Every package the
+      frontend build compiles into the bundle has to be under one of these.
+
+  - name: "operable-only"
+    description: >-
+      Free software whose copyleft or notice terms the GPL cannot absorb, so
+      it cannot be conveyed -- but running it was never in question. Nothing
+      in either lock file is under one of these today.
+
+categorizations:
+  ### distributable
+
+  # Permissive: no conditions this project cannot meet. Apache-2.0 is one-way
+  # compatible -- it can go into a GPL-3.0 work, which is the direction that
+  # matters here, but not into a GPL-2.0-only one.
+  - id: "0BSD"
+    categories: ["distributable"]
+  - id: "Apache-2.0"
+    categories: ["distributable"]
+  - id: "Artistic-2.0"
+    categories: ["distributable"]
+  - id: "BlueOak-1.0.0"
+    categories: ["distributable"]
+  - id: "BSD-2-Clause"
+    categories: ["distributable"]
+  - id: "BSD-3-Clause"
+    categories: ["distributable"]
+  - id: "CC0-1.0"
+    categories: ["distributable"]
+  - id: "ISC"
+    categories: ["distributable"]
+  - id: "MIT"
+    categories: ["distributable"]
+  - id: "MIT-0"
+    categories: ["distributable"]
+  - id: "Python-2.0"
+    categories: ["distributable"]
+  - id: "Unlicense"
+    categories: ["distributable"]
+  - id: "Zlib"
+    categories: ["distributable"]
+
+  # Weak copyleft, GPL-compatible: obligations stay with the dependency rather
+  # than reaching this project's own sources. LGPL-2.1-only is here because its
+  # section 3 lets a recipient take the library under the ordinary GPL, this
+  # version or a later one.
+  - id: "LGPL-2.1-only"
+    categories: ["distributable"]
+  - id: "LGPL-2.1-or-later"
+    categories: ["distributable"]
+  - id: "LGPL-3.0-only"
+    categories: ["distributable"]
+  - id: "LGPL-3.0-or-later"
+    categories: ["distributable"]
+  - id: "MPL-2.0"
+    categories: ["distributable"]
+
+  # Copyleft that combines with this project's own license. GPL-2.0-only is
+  # deliberately absent: it cannot be combined with GPL-3.0 code.
+  - id: "GPL-2.0-or-later"
+    categories: ["distributable"]
+  - id: "GPL-3.0-only"
+    categories: ["distributable"]
+  - id: "GPL-3.0-or-later"
+    categories: ["distributable"]
+
+  # Assets rather than code: fonts, icons, data tables. They ask for
+  # attribution, which this project can meet -- but allowing the license is not
+  # having met it. Minification does not carry the notice, which is what the
+  # Vite notices plugin and resources/js/credits.json are for.
+  #
+  # CC-BY-SA-4.0 is one-way compatible: Creative Commons names GPL-3.0 as a
+  # compatible license, so BY-SA material can go into this work, and not the
+  # other way round.
+  - id: "CC-BY-4.0"
+    categories: ["distributable"]
+  - id: "CC-BY-SA-4.0"
+    categories: ["distributable"]
+  - id: "OFL-1.1"
+    categories: ["distributable"]
+
+  ### operable-only
+  #
+  # None of these is in either lock file today. They are written down so that
+  # the one that turns up is a two-line diff rather than an argument about
+  # whether a server is a distribution.
+
+  # Copyleft the GPL cannot absorb in either direction. EPL-2.0 can be combined
+  # where the author has designated GPL-2.0-or-later as a Secondary License,
+  # which only the package's own notice says.
+  - id: "CDDL-1.0"
+    categories: ["operable-only"]
+  - id: "CDDL-1.1"
+    categories: ["operable-only"]
+  - id: "EPL-1.0"
+    categories: ["operable-only"]
+  - id: "EPL-2.0"
+    categories: ["operable-only"]
+  - id: "MPL-2.0-no-copyleft-exception"
+    categories: ["operable-only"]
+  - id: "MS-PL"
+    categories: ["operable-only"]
+  - id: "MS-RL"
+    categories: ["operable-only"]
+
+  # GPL-2.0 without the "or later": combining it with this project's GPL-3.0
+  # sources produces something neither license permits.
+  - id: "GPL-2.0-only"
+    categories: ["operable-only"]
+
+  # Notice terms the GPL has no room for: the BSD advertising clause and the
+  # licenses that inherited it.
+  - id: "Artistic-1.0"
+    categories: ["operable-only"]
+  - id: "BSD-4-Clause"
+    categories: ["operable-only"]
+  - id: "BSD-4-Clause-UC"
+    categories: ["operable-only"]
+  - id: "OpenSSL"
+    categories: ["operable-only"]
+
+# In neither list, deliberately:
+#
+#   AGPL-3.0-only, AGPL-3.0-or-later -- combinable under GPLv3 section 13, but
+#     the AGPL then obliges this project to offer the whole service's source to
+#     its users. A decision about what bibroomz promises, so it gets made in a
+#     merge request rather than by a lock file.
+#
+#   BUSL-1.1, SSPL-1.0, Elastic-2.0, Commons Clause, PolyForm, Prosperity --
+#     restrict running the software, so operable-only is no refuge.
+#
+#   JSON -- "used for Good, not Evil" is a term on use nobody can promise.
+#
+#   proprietary, UNLICENSED, "SEE LICENSE IN ...", undeclared -- no grant at all.

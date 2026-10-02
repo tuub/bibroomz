@@ -458,6 +458,135 @@ hadolint:
   script:
     - hadolint Dockerfile
 
+# Checks what every dependency is licensed under against what this project does
+# with it: what npm's dependencies scope reaches ships to users inside the
+# frontend bundle, everything else only ever runs on a machine here.
+# ort/rules.kts is that policy, ort/license-classifications.yml the two license
+# lists it judges against, .ort.yml what the analyzer leaves out, ort/config.yml
+# how ORT itself is set up.
+#
+# No dependency cache and no waiting: the Composer half is read out of
+# composer.lock, and for the npm half the analyzer runs an npm install of its
+# own.
+#
+# The only image here that does not run as root, and it writes into the
+# checkout. That works because the helper container clones under umask 0000; a
+# job stopping at "Could not create directory .../ort-results" means the runner
+# has FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR set.
+.ort:
+  extends: .ci
+  stage: lint
+  image:
+    name: ghcr.io/oss-review-toolkit/ort:94.2.0@sha256:7504a0929236a9bd22946d1cce9359af5cc1f822e25379dfb03e9150613eff4a
+    entrypoint: [""]
+  needs: []
+  variables:
+    # npm installs an os/cpu-restricted package only on a machine that matches,
+    # so the analyzer sees one platform's binaries. Pinned rather than left to
+    # whatever the runner is; a family that ships no linux/x64 variant at all is
+    # invisible here, so override these in a web pipeline to check another.
+    ORT_NPM_OS: "linux"
+    ORT_NPM_CPU: "x64"
+
+# `ort analyze` fails on an analysis issue, which is what a package manager that
+# cannot resolve its tree comes out as.
+.ort-analyze:
+  script:
+    - >-
+      ort --config ort/config.yml
+      -P ort.analyzer.packageManagers.NPM.options.os=$ORT_NPM_OS
+      -P ort.analyzer.packageManagers.NPM.options.cpu=$ORT_NPM_CPU
+      analyze --input-dir . --output-dir ort-results
+
+# Two SBOMs and a single-file HTML report listing every package, its license and
+# any violation. About two seconds on top of the analysis.
+.ort-report:
+  script:
+    - >-
+      ort --config ort/config.yml report --ort-file ort-results/evaluation-result.yml
+      --output-dir ort-reports --report-formats CycloneDX,SpdxDocument,WebApp
+      --license-classifications-file ort/license-classifications.yml
+      --report-option CycloneDX=outputFileFormats=JSON,XML
+      --report-option CycloneDX=singleBomComponentName=roomz
+      --report-option SpdxDocument=outputFileFormats=JSON
+      --report-option SpdxDocument=documentName=roomz
+
+ort:
+  extends: .ort
+  script:
+    - !reference [.ort-analyze, script]
+    - |
+      # `ort evaluate` exits 2 on the first ERROR, but the reports are built
+      # out of its output, so the status waits until they exist.
+      ORT_EVALUATE_STATUS=0
+      ort --config ort/config.yml evaluate --ort-file ort-results/analyzer-result.yml \
+        --output-dir ort-results --rules-file ort/rules.kts \
+        --license-classifications-file ort/license-classifications.yml || ORT_EVALUATE_STATUS=$?
+    - !reference [.ort-report, script]
+    - exit $ORT_EVALUATE_STATUS
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      # Kept alongside the evaluation result because a failed `ort analyze`
+      # leaves no evaluation result to read the resolved tree from.
+      - ort-results/analyzer-result.yml
+      - ort-results/evaluation-result.yml
+      - ort-reports/
+    reports:
+      # Feeds GitLab's dependency list; tiers below Ultimate ignore it.
+      cyclonedx: ort-reports/bom.cyclonedx.json
+
+# What the job above cannot establish: it trusts the declaration, so a package
+# that declares MIT and ships something else passes. This one runs ScanCode over
+# every package's source and judges what it actually finds.
+#
+# Slow, because the scanner clones each package's sources before scanning them:
+# a cold run is hours. ort/config.yml keeps the results in .ort-cache/, which the
+# cache below carries between pipelines, so a later run only scans what the
+# store does not hold. Needs a schedule with SCHEDULE_TASK=license-scan.
+#
+# Non-blocking for now: a scanner reports every license text it finds anywhere,
+# test fixtures and vendored code included. Drop allow_failure once those
+# findings have been read and the false ones written down as package
+# configurations.
+ort:scan:
+  extends: .ort
+  script:
+    - !reference [.ort-analyze, script]
+    # Packages only: this project's own sources are not a dependency.
+    - >-
+      ort --config ort/config.yml scan --ort-file ort-results/analyzer-result.yml
+      --output-dir ort-results --package-types=PACKAGE
+    - |
+      ORT_EVALUATE_STATUS=0
+      ort --config ort/config.yml evaluate --ort-file ort-results/scan-result.yml \
+        --output-dir ort-results --rules-file ort/rules.kts \
+        --license-classifications-file ort/license-classifications.yml || ORT_EVALUATE_STATUS=$?
+    - !reference [.ort-report, script]
+    - exit $ORT_EVALUATE_STATUS
+  cache:
+    key: ort-scanner-results
+    paths:
+      - .ort-cache/scanner/results
+    policy: pull-push
+  # Hours on a cold cache, and a cancelled scan stores what it already finished.
+  timeout: 6h
+  interruptible: false
+  allow_failure: true
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - ort-results/analyzer-result.yml
+      - ort-results/scan-result.yml
+      - ort-results/evaluation-result.yml
+      - ort-reports/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'license-scan'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
 # Blocks only where the lock file changes, like composer:audit.
 npm:audit:
   extends: .ci

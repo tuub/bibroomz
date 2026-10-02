@@ -1,0 +1,5 @@
+[
+    { "package": "@fontsource-variable/noto-sans", "key": "noto_sans" },
+    { "package": "remixicon", "key": "remix_icon" },
+    { "package": "primeicons", "key": "prime_icons" }
+]

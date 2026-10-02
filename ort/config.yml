@@ -1,0 +1,51 @@
+# How the ORT tools themselves are set up, as opposed to .ort.yml, which says
+# what the analyzer leaves out. Has to be passed with `--config ort/config.yml`:
+# the path ORT reads by default does not exist in its image, and every setting
+# here would revert to its default. `ort config --check-syntax` validates it.
+ort:
+  # Without these, a curation or package configuration written into .ort.yml
+  # fails the run rather than being honoured.
+  enableRepositoryPackageCurations: true
+  enableRepositoryPackageConfigurations: true
+
+  analyzer:
+    # Applies .ort.yml's path excludes before the excluded manifests are read
+    # rather than after, which is what avoids the crash tightenco/ziggy's
+    # manifest causes.
+    skipExcluded: true
+
+  # Only the scheduled ort:scan job gets this far; the per-merge-request job
+  # stops after the evaluator.
+  scanner:
+    # A concluded license has already been read by a person, and that ruling is
+    # what rules.kts judges; scanning it again would change nothing.
+    skipConcluded: true
+
+    skipExcluded: true
+
+    # Results keyed by package and provenance, so a second run only scans what
+    # the first did not. Inside the checkout because that is the only place the
+    # GitLab cache can carry between pipelines. ScanCode's command line is part
+    # of the key: change the options below and the next run is a full rescan.
+    storages:
+      local:
+        backend:
+          localFileStorage:
+            directory: ".ort-cache/scanner/results"
+            compression: true
+
+    storageReaders: ["local"]
+    storageWriters: ["local"]
+
+    # Only matters to reporters that inline the text of a license ORT does not
+    # already know, and nothing here generates those.
+    archive:
+      enabled: false
+
+    config:
+      ScanCode:
+        options:
+          # Pinned because they are part of the storage key: an ORT upgrade
+          # changing the default would silently invalidate every result.
+          commandLine: "--copyright,--license,--info,--strip-root,--timeout,300"
+          commandLineNonConfig: "--processes,4"

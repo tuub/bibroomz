@@ -62,7 +62,9 @@ class HomeController extends Controller
 
     public function getSiteCredits(): Response
     {
-        return Inertia::render('SiteCredits');
+        return Inertia::render('SiteCredits', [
+            'noticesUrl' => $this->noticesUrl(),
+        ]);
     }
 
     public function getTerminalView(ResourceGroupRouteRequest $request): Response|RedirectResponse
@@ -83,5 +85,20 @@ class HomeController extends Controller
     public function switchLanguage(SwitchLanguageRequest $request): void
     {
         $this->localePreferenceManager->queue($request->locale());
+    }
+
+    /**
+     * Where the build left the license texts of everything in the frontend bundle.
+     *
+     * A plain asset path rather than Vite::asset(): the notices plugin emits the
+     * file under a fixed name and keeps it out of the manifest, which a test run
+     * that never builds the frontend does not have either.
+     */
+    private function noticesUrl(): string
+    {
+        $buildDirectory = config('roomz.frontend.build_directory');
+        $directory = is_string($buildDirectory) && $buildDirectory !== '' ? $buildDirectory : 'build';
+
+        return asset($directory.'/third-party-notices.txt');
     }
 }
