@@ -16,6 +16,9 @@ commitlint:
 composer:audit:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - composer audit --locked --no-dev
   rules:
@@ -29,6 +32,9 @@ composer:audit:
 composer:validate:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - composer validate --strict
 
@@ -74,6 +80,9 @@ gitleaks:history:
 hadolint:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - hadolint Dockerfile
 
@@ -210,6 +219,9 @@ ort:scan:
 npm:audit:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - npm audit --omit=dev
   rules:
@@ -224,6 +236,9 @@ npm:audit:
 npm:lockfile:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - npm ci --dry-run --ignore-scripts
 
@@ -271,6 +286,9 @@ rector:
 shellcheck:
   extends: .ci
   stage: lint
+  needs:
+    - job: ci-image
+      optional: true
   script:
     - git ls-files -z '*.sh' | xargs --null shellcheck
 
