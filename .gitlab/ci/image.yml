@@ -1,0 +1,117 @@
+# Included from .gitlab-ci.yml.
+### Image stage
+# The toolchain used to arrive as a nix binary cache: every job restored a
+# ~284 MiB archive and had `nix develop` unpack it into a ~943 MiB store of its
+# own, thirteen times a pipeline. It ships as an image instead, so the runner
+# keeps it between jobs and pipelines and the jobs below start with php, node
+# and composer already on PATH. Both images come out of flake.nix, from the
+# same package list the devshell is built from, so the two cannot drift.
+#
+# Each image is tagged `flake-<hash>`, where the hash covers flake.nix and
+# flake.lock, so the tag names the toolchain rather than the branch it was
+# built for. Every pipeline starts with ci-image, which works out that tag
+# from its own checkout and hands it to the jobs below through a dotenv
+# report. Nothing in a pipeline can then run on an image built from a
+# different lock file.
+#
+# The tag used to be `main`, moved by a rebuild after the merge. That left a
+# window after every flake.lock bump: a merge request built on the new main
+# got the new npm playwright pin but still ran on the old browsers until the
+# rebuild finished, and one still on the old lock broke the other way round
+# once it had.
+#
+# ci-image only builds when the tag is not in the registry yet, which in
+# practice is once per flake.lock bump -- about weekly, since
+# .github/workflows/update-flake-lock.yml proposes a nixpkgs bump every
+# Monday. That build lands in the merge request that makes the bump, and the
+# merge to main then finds it already there. Every other pipeline spends a
+# few seconds checking the registry.
+#
+# Unlike the caches this replaced, a missing image is fatal rather than slow:
+# jobs cannot start at all. A missing tag simply gets rebuilt, but a registry
+# cleanup policy has to keep `flake-.*` tags alive for as long as a pipeline
+# might still run on them. The warm-cache schedule re-pushes the current tag
+# weekly, so the one main is on is never the oldest. To rebuild regardless,
+# run a pipeline with REBUILD_IMAGE=true.
+ci-image:
+  stage: image
+  image: ${DOCKERHUB_IMAGE_PREFIX}nixos/nix:2.34.7@sha256:898e3874bc80a8fbd7df6001b6c83d6e0c904a942e3a4cdf8a89881458333cac
+  needs: []
+  variables:
+    NIX_CONFIG: "extra-experimental-features = nix-command flakes"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'warm-cache'
+      variables:
+        REBUILD_IMAGE: "true"
+    - if: $REBUILD_IMAGE == 'true'
+    # pest:mutate runs on the toolchain image, so it needs the tag.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'mutate'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+    # install:deps runs in these too, and needs the tag.
+    - if: $REBUILD_CACHE == 'true'
+    # npm:publish builds the tarball on the toolchain image as well.
+    - if: $CI_COMMIT_TAG =~ /^vite-plugin-third-party-notices@/
+  script:
+    - |
+      # Nothing but these two files goes into the images: flake.nix imports
+      # no other file from the repository.
+      CI_IMAGE_TAG="flake-$(cat flake.nix flake.lock | sha256sum | cut --characters=1-32)"
+      echo "CI_IMAGE_TAG=$CI_IMAGE_TAG" > ci-image.env
+      echo "Toolchain image tag: $CI_IMAGE_TAG"
+
+      # Asks the registry for the manifest directly: skopeo would have to be
+      # built from the flake first, which costs more than the check saves.
+      # The nix image ships curl, grep and coreutils, but no sed or jq.
+      exists() {
+        repository="${1#"$CI_REGISTRY"/}"
+        token=$(
+          curl --silent --show-error --fail \
+            --user "$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD" \
+            "$CI_SERVER_URL/jwt/auth?service=container_registry&scope=repository:$repository:pull" |
+            grep --only-matching '"token":"[^"]*"' |
+            cut --delimiter='"' --fields=4
+        )
+        curl --silent --fail --head --output /dev/null \
+          --header "Authorization: Bearer $token" \
+          --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+          --header "Accept: application/vnd.oci.image.manifest.v1+json" \
+          "https://$CI_REGISTRY/v2/$repository/manifests/$CI_IMAGE_TAG"
+      }
+
+      if [ "$REBUILD_IMAGE" != true ] &&
+        exists "$CI_REGISTRY_IMAGE/roomz-ci" &&
+        exists "$CI_REGISTRY_IMAGE/roomz-ci-browser"; then
+        echo "Both images already exist. Nothing to build."
+        exit 0
+      fi
+    - nix build .#ci-image --out-link /tmp/ci-image
+    - nix build .#ci-browser-image --out-link /tmp/ci-browser-image
+    - |
+      # skopeo comes from this flake's pinned nixpkgs rather than the ambient
+      # registry, and it pushes straight from the archive nix just built --
+      # no docker daemon and no dind service anywhere in this job.
+      #
+      # --insecure-policy because skopeo refuses to run at all without a
+      # trust policy, and this container has no /etc/containers/policy.json.
+      # It governs what skopeo is willing to *read*; both sides here are the
+      # archive nix just built and a registry this job authenticates to.
+      publish() {
+        nix shell .#skopeo --command skopeo --insecure-policy copy \
+          --dest-creds "$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD" \
+          "docker-archive:$1" \
+          "docker://$2:$CI_IMAGE_TAG"
+      }
+
+      # buildLayeredImage splits the closure across 120 layers, so a nixpkgs
+      # bump re-uploads the store paths that moved and skips the rest.
+      publish /tmp/ci-image "$CI_REGISTRY_IMAGE/roomz-ci"
+      publish /tmp/ci-browser-image "$CI_REGISTRY_IMAGE/roomz-ci-browser"
+  artifacts:
+    # CI_IMAGE_TAG for every job below. A dotenv variable is expanded in
+    # `image:` because the runner, not the pipeline, resolves that keyword --
+    # which also means it only reaches jobs that take this job's artifacts:
+    # every job in a later stage without `needs`, and any job listing it there.
+    reports:
+      dotenv: ci-image.env

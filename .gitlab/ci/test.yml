@@ -1,0 +1,144 @@
+# Included from .gitlab-ci.yml, whose .ci* templates these jobs extend.
+### Test stage
+# The jobs that need a real database rather than the SQLite the default test
+# suite runs on. Sharing one definition keeps the credentials and the image
+# digest in step between them.
+.mariadb:
+  services:
+    - name: ${DOCKERHUB_IMAGE_PREFIX}mariadb:10.11.17-jammy@sha256:8acd4a5561e8897cfc8a99480f25bcecb10b726fa17b1ec7381c6ef36fa00a79
+      alias: mariadb
+  variables:
+    MARIADB_ROOT_PASSWORD: roomz
+    MARIADB_DATABASE: roomz_testing
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_DATABASE: roomz_testing
+    DB_USERNAME: root
+    DB_PASSWORD: roomz
+
+pest:coverage:
+  extends: .ci-php
+  stage: test
+  coverage: '/Total:\s+(\d+(?:\.\d+)?)\s*\%/'
+  needs:
+    - job: ci-image
+      optional: true
+    - job: frontend-build
+      artifacts: true
+  script:
+    - mkdir --parents build/coverage
+    - composer run coverage -- --log-junit build/junit/pest.xml
+
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage/cobertura.xml
+      junit: build/junit/pest.xml
+    paths:
+      - build/coverage/
+
+pest:mariadb:
+  extends:
+    - .ci-php
+    - .mariadb
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+    - install:deps
+  script:
+    - composer run pest -- --log-junit build/junit/pest-mariadb.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: build/junit/pest-mariadb.xml
+
+# Every migration defines down() and nothing ever ran one: the test suites
+# build their schema from scratch, and deploy.sh only migrates forward. This
+# migrates up, rolls the whole schema back and builds it again, against the
+# database production uses. See scripts/check-migrations.sh.
+migrations:rollback:
+  extends:
+    - .ci-php
+    - .mariadb
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+    - install:deps
+  script:
+    - scripts/check-migrations.sh
+
+# Changes the code under test in small ways and checks that some test fails
+# for each change. Too slow for every merge request, so it needs a pipeline
+# schedule with SCHEDULE_TASK=mutate; a web pipeline can also start it by
+# hand. Only tests with covers() take part.
+pest:mutate:
+  extends: .ci-php
+  stage: test
+  needs:
+    - job: ci-image
+      optional: true
+  script:
+    - composer run mutate
+  # A cancelled run reports nothing, and a restart starts from scratch.
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'mutate'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
+browser:
+  extends: .ci-full
+  stage: test
+  # The only job that launches a browser, so the only one on the image that
+  # carries the ~2 GiB Playwright closure on top of the shared toolchain.
+  image: $CI_REGISTRY_IMAGE/roomz-ci-browser:$CI_IMAGE_TAG
+  needs:
+    - job: ci-image
+      optional: true
+    - job: frontend-build
+      artifacts: true
+  variables:
+    SKIP_FRONTEND_BUILD: "1"
+  # Browser tests stall rather than slow down when the runner is busy, because
+  # every Pest worker talks to one shared `playwright run-server`. Running a
+  # single browser job at a time keeps the machine out of the state that
+  # triggers it, at the cost of queueing this job across merge requests.
+  resource_group: browser
+  script:
+    - composer run test:browser -- --log-junit build/junit/browser.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: build/junit/browser.xml
+    # Pest saves a screenshot of the page for every failed browser assertion.
+    paths:
+      - tests/Browser/Screenshots/
+
+# Coverage transforms the browser entry point, so reuse the generated Ziggy
+# route configuration from the frontend build.
+vitest:
+  extends: .ci-full
+  stage: test
+  coverage: '/Lines\s*:\s*(\d+(?:\.\d+)?)%/'
+  needs:
+    - job: ci-image
+      optional: true
+    - job: frontend-build
+      artifacts: true
+  script:
+    - npm run coverage -- --reporter=default --reporter=junit --outputFile.junit=build/junit/vitest.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage-js/cobertura-coverage.xml
+      junit: build/junit/vitest.xml

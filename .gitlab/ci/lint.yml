@@ -1,0 +1,332 @@
+# Included from .gitlab-ci.yml, whose .ci* templates these jobs extend.
+### Lint stage
+commitlint:
+  extends: .ci-node
+  stage: lint
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - node_modules/.bin/commitlint --from $CI_MERGE_REQUEST_DIFF_BASE_SHA
+
+# Advisories are published independently of this repository, so a new one can
+# turn these audits red on a merge request that touches no dependency. They
+# only block the merge request that changes the lock file; everywhere else
+# they warn.
+composer:audit:
+  extends: .ci
+  stage: lint
+  script:
+    - composer audit --locked --no-dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - composer.json
+        - composer.lock
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      allow_failure: true
+
+composer:validate:
+  extends: .ci
+  stage: lint
+  script:
+    - composer validate --strict
+
+# tsconfig resolves ziggy-js inside vendor/, and type-aware rules follow
+# that import, so this one needs both dependency caches.
+eslint:
+  extends: .ci-full
+  stage: lint
+  script:
+    - npm run eslint
+
+.gitleaks:
+  image:
+    name: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+    entrypoint: [""]
+  stage: lint
+  needs: []
+
+gitleaks:
+  extends: .gitleaks
+  script: gitleaks git --platform=gitlab --log-opts=$CI_MERGE_REQUEST_DIFF_BASE_SHA..
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+# The job above sees one merge request's commits and nothing else, so a secret
+# that landed before gitleaks was added, or by any route other than a merge
+# request, stays unreported however often it runs. This one reads every commit
+# on every ref instead. Needs a pipeline schedule with
+# SCHEDULE_TASK=secret-scan; a web pipeline can also start it by hand.
+gitleaks:history:
+  extends: .gitleaks
+  variables:
+    # The whole point is the history the default shallow clone leaves out.
+    GIT_DEPTH: "0"
+  script: gitleaks git --platform=gitlab --log-opts=--all
+  # A cancelled scan reports nothing, which looks exactly like a clean one.
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'secret-scan'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
+hadolint:
+  extends: .ci
+  stage: lint
+  script:
+    - hadolint Dockerfile
+
+# Checks what every dependency is licensed under against what this project does
+# with it: what npm's dependencies scope reaches ships to users inside the
+# frontend bundle, everything else only ever runs on a machine here.
+# ort/rules.kts is that policy, ort/license-classifications.yml the two license
+# lists it judges against, .ort.yml what the analyzer leaves out, ort/config.yml
+# how ORT itself is set up.
+#
+# No dependency cache and no waiting: the Composer half is read out of
+# composer.lock, and for the npm half the analyzer runs an npm install of its
+# own.
+#
+# The only image here that does not run as root, and it writes into the
+# checkout. That works because the helper container clones under umask 0000; a
+# job stopping at "Could not create directory .../ort-results" means the runner
+# has FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR set.
+.ort:
+  extends: .ci
+  stage: lint
+  image:
+    name: ghcr.io/oss-review-toolkit/ort:94.2.0@sha256:7504a0929236a9bd22946d1cce9359af5cc1f822e25379dfb03e9150613eff4a
+    entrypoint: [""]
+  needs: []
+  variables:
+    # npm installs an os/cpu-restricted package only on a machine that matches,
+    # so the analyzer sees one platform's binaries. Pinned rather than left to
+    # whatever the runner is; a family that ships no linux/x64 variant at all is
+    # invisible here, so override these in a web pipeline to check another.
+    ORT_NPM_OS: "linux"
+    ORT_NPM_CPU: "x64"
+
+# `ort analyze` fails on an analysis issue, which is what a package manager that
+# cannot resolve its tree comes out as.
+.ort-analyze:
+  script:
+    - >-
+      ort --config ort/config.yml
+      -P ort.analyzer.packageManagers.NPM.options.os=$ORT_NPM_OS
+      -P ort.analyzer.packageManagers.NPM.options.cpu=$ORT_NPM_CPU
+      analyze --input-dir . --output-dir ort-results
+
+# Two SBOMs and a single-file HTML report listing every package, its license and
+# any violation. About two seconds on top of the analysis.
+.ort-report:
+  script:
+    - >-
+      ort --config ort/config.yml report --ort-file ort-results/evaluation-result.yml
+      --output-dir ort-reports --report-formats CycloneDX,SpdxDocument,WebApp
+      --license-classifications-file ort/license-classifications.yml
+      --report-option CycloneDX=outputFileFormats=JSON,XML
+      --report-option CycloneDX=singleBomComponentName=roomz
+      --report-option SpdxDocument=outputFileFormats=JSON
+      --report-option SpdxDocument=documentName=roomz
+
+ort:
+  extends: .ort
+  script:
+    - !reference [.ort-analyze, script]
+    - |
+      # `ort evaluate` exits 2 on the first ERROR, but the reports are built
+      # out of its output, so the status waits until they exist.
+      ORT_EVALUATE_STATUS=0
+      ort --config ort/config.yml evaluate --ort-file ort-results/analyzer-result.yml \
+        --output-dir ort-results --rules-file ort/rules.kts \
+        --license-classifications-file ort/license-classifications.yml || ORT_EVALUATE_STATUS=$?
+    - !reference [.ort-report, script]
+    - exit $ORT_EVALUATE_STATUS
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      # Kept alongside the evaluation result because a failed `ort analyze`
+      # leaves no evaluation result to read the resolved tree from.
+      - ort-results/analyzer-result.yml
+      - ort-results/evaluation-result.yml
+      - ort-reports/
+    reports:
+      # Feeds GitLab's dependency list; tiers below Ultimate ignore it.
+      cyclonedx: ort-reports/bom.cyclonedx.json
+
+# What the job above cannot establish: it trusts the declaration, so a package
+# that declares MIT and ships something else passes. This one runs ScanCode over
+# every package's source and judges what it actually finds.
+#
+# Slow, because the scanner clones each package's sources before scanning them:
+# a cold run is hours. ort/config.yml keeps the results in .ort-cache/, which the
+# cache below carries between pipelines, so a later run only scans what the
+# store does not hold. Needs a schedule with SCHEDULE_TASK=license-scan.
+#
+# Non-blocking for now: a scanner reports every license text it finds anywhere,
+# test fixtures and vendored code included. Drop allow_failure once those
+# findings have been read and the false ones written down as package
+# configurations.
+ort:scan:
+  extends: .ort
+  script:
+    - !reference [.ort-analyze, script]
+    # Packages only: this project's own sources are not a dependency.
+    - >-
+      ort --config ort/config.yml scan --ort-file ort-results/analyzer-result.yml
+      --output-dir ort-results --package-types=PACKAGE
+    - |
+      ORT_EVALUATE_STATUS=0
+      ort --config ort/config.yml evaluate --ort-file ort-results/scan-result.yml \
+        --output-dir ort-results --rules-file ort/rules.kts \
+        --license-classifications-file ort/license-classifications.yml || ORT_EVALUATE_STATUS=$?
+    - !reference [.ort-report, script]
+    - exit $ORT_EVALUATE_STATUS
+  cache:
+    key: ort-scanner-results
+    paths:
+      - .ort-cache/scanner/results
+    policy: pull-push
+  # Hours on a cold cache, and a cancelled scan stores what it already finished.
+  timeout: 6h
+  interruptible: false
+  allow_failure: true
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - ort-results/analyzer-result.yml
+      - ort-results/scan-result.yml
+      - ort-results/evaluation-result.yml
+      - ort-reports/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'license-scan'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
+# Blocks only where the lock file changes, like composer:audit.
+npm:audit:
+  extends: .ci
+  stage: lint
+  script:
+    - npm audit --omit=dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - package.json
+        - package-lock.json
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      allow_failure: true
+
+# Fails when package.json and package-lock.json disagree, without installing.
+npm:lockfile:
+  extends: .ci
+  stage: lint
+  script:
+    - npm ci --dry-run --ignore-scripts
+
+permission-registry:
+  extends: .ci-php
+  stage: lint
+  script:
+    - composer run permissions:check
+
+pest:type-coverage:
+  extends: .ci-php
+  stage: lint
+  script:
+    - composer run type-coverage
+
+phpstan:
+  extends: .ci-php
+  stage: lint
+  script:
+    - vendor/bin/phpstan --no-progress
+
+pint:
+  extends: .ci-php
+  stage: lint
+  script:
+    - vendor/bin/pint --test
+
+prettier:
+  extends: .ci-node
+  stage: lint
+  script:
+    - npm run format:check
+
+rector:
+  extends: .ci-php
+  stage: lint
+  script:
+    - vendor/bin/rector --dry-run --no-progress-bar
+
+shellcheck:
+  extends: .ci
+  stage: lint
+  script:
+    - git ls-files -z '*.sh' | xargs --null shellcheck
+
+stylelint:
+  extends: .ci-node
+  stage: lint
+  script:
+    - npm run stylelint
+
+# vue-tsc resolves ziggy-js inside vendor/, so this one needs both caches too.
+typescript:
+  extends: .ci-full
+  stage: lint
+  script:
+    - npm run typecheck
+
+# Builds every image compose.yaml describes, starts the stack and asks the app
+# for a page. Nothing else touches the Dockerfile or compose.yaml, so a base
+# image bump or an edit can break them unnoticed. Needs a pipeline schedule
+# with SCHEDULE_TASK=docker; a web pipeline can also start it by hand. Docker
+# in Docker only works on a runner that allows privileged containers.
+docker:compose:
+  stage: build
+  image: ${DOCKERHUB_IMAGE_PREFIX}docker:29.1.3-cli@sha256:4fa0ee1f3a7e4354c4ea34558b6d4ee32859baf4973d4c8ccc8e7fe3dd730c04
+  services:
+    - name: ${DOCKERHUB_IMAGE_PREFIX}docker:29.1.3-dind@sha256:173f284a4299164772a90f52b373e73e087583c0963f1334c9995f190ef6f3f5
+      alias: docker
+  needs: []
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    # The daemon only listens inside the job's network, so TLS buys nothing.
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    # The runner logs in to the dependency proxy for the job's own image only;
+    # the daemon in the job pulls through it on its own.
+    - |
+      if [ -n "$DOCKERHUB_IMAGE_PREFIX" ]; then
+        echo "$CI_DEPENDENCY_PROXY_PASSWORD" | docker login \
+          --username "$CI_DEPENDENCY_PROXY_USER" --password-stdin "$CI_DEPENDENCY_PROXY_SERVER"
+      fi
+    - scripts/check-compose-stack.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'docker'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+
+# vite shells out to `php artisan ziggy:generate` and aliases ziggy-js into
+# vendor/, so this one needs both dependency caches.
+frontend-build:
+  extends: .ci-full
+  stage: build
+  needs:
+    - job: ci-image
+      optional: true
+    - install:deps
+  variables:
+    APP_URL: http://127.0.0.1:$BROWSER_SERVER_PORT
+    VITE_REVERB_PORT: $BROWSER_REVERB_PORT
+  script:
+    - scripts/build-frontend-assets.sh
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - public/build/
+      - resources/js/ziggy.js

@@ -1,0 +1,129 @@
+# Included from .gitlab-ci.yml. review/gitlab-ci.yml extends .ssh and
+# references .smoke-check from here.
+### Deploy stage
+.ssh:
+  stage: deploy
+  image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+  needs: []
+  before_script:
+    - apk add --update curl openssh
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir --parents ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  interruptible: false
+
+# deploy.sh exiting 0 says every step ran, not that the app answers. The start
+# page reads from the database, so a 200 from it covers PHP, the web server and
+# the database connection. Retries give the web server time to pick up the new
+# release.
+.smoke-check:
+  script:
+    - |
+      curl --silent --show-error --fail --location --output /dev/null \
+        --retry 5 --retry-delay 5 --retry-all-errors --max-time 30 \
+        "$CI_ENVIRONMENT_URL"
+      echo "$CI_ENVIRONMENT_URL answers."
+
+# Nothing on a deployed host runs the tests, the linters or the code generators,
+# and one development dependency renders a debug page. What a host does need is
+# required for production.
+.deploy:
+  extends: .ssh
+  script:
+    - |
+      ssh "${SSH_USER}@${SSH_HOSTNAME}" bash -o errexit -o xtrace <<EOT
+      cd $SSH_GIT_DIR
+      git fetch $CI_REPOSITORY_URL $CI_COMMIT_SHA
+      git checkout FETCH_HEAD
+      scripts/deploy.sh --no-dev $BUILD_PREFIX
+      EOT
+    - !reference [.smoke-check, script]
+  resource_group: $SSH_HOSTNAME
+
+# Deploy from the default branch only, and not from the scheduled pipelines
+# that run on it for unrelated tasks.
+.deploy-manual: &deploy-manual
+  if: $CI_PIPELINE_SOURCE != 'schedule' && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
+
+# Publishes packages/vite-plugin-third-party-notices to this project's npm
+# registry, from a tag that names the package: vite-plugin-third-party-notices@1.2.3.
+# .github/workflows/publish-plugin.yml publishes the same tag to GitHub
+# Packages, so the package is installable from either side.
+#
+# This is the project-level endpoint, which, unlike the instance-level one,
+# accepts any scope, so the @tuub name GitHub Packages requires works here
+# too. CI_JOB_TOKEN authenticates as the job, so no deploy token is needed.
+npm:publish:
+  extends: .ci-node
+  stage: deploy
+  needs:
+    - job: ci-image
+      optional: true
+  variables:
+    PACKAGE: "@tuub/vite-plugin-third-party-notices"
+    PACKAGE_DIRECTORY: packages/vite-plugin-third-party-notices
+    PACKAGE_TAG: $CI_COMMIT_TAG
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^vite-plugin-third-party-notices@/
+  interruptible: false
+  script:
+    - npm run test -- "$PACKAGE_DIRECTORY"
+    - |
+      registry="${CI_API_V4_URL#https:}/projects/$CI_PROJECT_ID/packages/npm/"
+      echo "@tuub:registry=https:$registry" > .npmrc
+      echo "$registry:_authToken=$CI_JOB_TOKEN" >> .npmrc
+    # The publish-plugin workflow in .github/workflows/ runs the same script,
+    # so both registries get a tarball held to the same checks.
+    - PACKAGE_TARBALL=$(node scripts/pack-package.ts "$PACKAGE_DIRECTORY")
+    - npm publish "$PACKAGE_TARBALL"
+
+deploy-staging:
+  extends: .deploy
+  environment:
+    name: staging
+    url: https://roomz.onit-ub.tu-berlin.de
+  rules:
+    # A schedule with SCHEDULE_TASK=deploy-staging deploys without a click.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'deploy-staging'
+    - *deploy-manual
+
+deploy-demo:
+  extends: .deploy
+  environment:
+    name: demo
+    url: https://demo.ub.tu-berlin.de/bibroomz
+  rules:
+    # A schedule with SCHEDULE_TASK=deploy-demo deploys without a click.
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'deploy-demo'
+    - *deploy-manual
+
+import-database:
+  stage: deploy
+  image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+  needs: []
+  environment:
+    name: import-database
+    action: access
+  before_script:
+    - apk add --update bash openssh
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SOURCE_SSH_PRIVATE_KEY" "$TARGET_SSH_PRIVATE_KEY"
+    - ssh-add "$SOURCE_SSH_PRIVATE_KEY"
+    - ssh-add "$TARGET_SSH_PRIVATE_KEY"
+    - mkdir --parents ~/.ssh
+    - chmod 700 ~/.ssh
+    - cat "$SOURCE_SSH_KNOWN_HOSTS" "$TARGET_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - scripts/db-import.sh
+  resource_group: $TARGET_SSH_HOSTNAME
+  interruptible: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TASK == 'import-database'
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
