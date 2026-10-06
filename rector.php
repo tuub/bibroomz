@@ -18,6 +18,7 @@ return RectorConfig::configure()
         __DIR__.'/routes',
         __DIR__.'/scripts',
         __DIR__.'/tests',
+        __DIR__.'/tools',
 
         __DIR__.'/rector.php',
     ])

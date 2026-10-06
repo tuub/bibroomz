@@ -13,6 +13,7 @@ parameters:
     - database
     - routes
     - scripts
+    - tools
     - tests
     # The tool configs are PHP too, and they are where a deprecated set or rule
     # name goes unnoticed.
@@ -101,3 +102,11 @@ parameters:
       reportUnmatched: false
   tmpDir: .phpstan-cache
   reportUnmatchedIgnoredErrors: true
+
+services:
+  # Catches a datetime serialized with a timezone conversion or an offset, which
+  # this app never wants: see the rule's own docblock for the bug it exists for.
+  -
+    class: Tools\PHPStan\NoZoneConvertingDateSerializationRule
+    tags:
+      - phpstan.rules.rule
