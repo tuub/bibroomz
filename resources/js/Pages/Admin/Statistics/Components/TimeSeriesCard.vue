@@ -43,6 +43,20 @@ const chartModeOptions = computed(() => [
     { id: "grouped" as const, label: trans("admin.statistics.index.time_series.chart_mode.grouped") },
 ]);
 
+// A long range at a fine granularity has more columns than the page is wide.
+// Chart.js would squeeze them all into the canvas until the bars and their
+// labels are unreadable, so we give the canvas the width its columns need and
+// let the surrounding container scroll instead.
+const minimumColumnWidth = 40;
+const minimumBarWidth = 14;
+
+function chartWidthStyle(data: ChartData<"bar">): Record<string, string> {
+    const columns = data.labels?.length ?? 0;
+    const barsPerColumn = selectedChartMode.value === "grouped" ? data.datasets.length : 1;
+
+    return { minWidth: `${columns * Math.max(minimumColumnWidth, barsPerColumn * minimumBarWidth)}px` };
+}
+
 const emit = defineEmits<{
     "institution-change": [value: SelectionId[]];
     "resource-group-change": [value: SelectionId[]];
@@ -196,14 +210,23 @@ function toSelectionIds(value: unknown): SelectionId[] {
                 <p v-if="timeSeries.length === 0" class="text-app-muted italic">
                     {{ $t("admin.statistics.index.no_data") }}
                 </p>
-                <div v-else class="h-80">
-                    <Chart
-                        type="bar"
-                        :data="timeSeriesChartData"
-                        :options="timeSeriesChartOptions"
-                        class="h-full w-full"
-                        data-test="time-series-chart"
-                    />
+                <div
+                    v-else
+                    class="overflow-x-auto"
+                    tabindex="0"
+                    role="group"
+                    :aria-label="$t('admin.statistics.index.time_series.title')"
+                    data-test="time-series-chart-scroll"
+                >
+                    <div class="h-80" :style="chartWidthStyle(timeSeriesChartData)">
+                        <Chart
+                            type="bar"
+                            :data="timeSeriesChartData"
+                            :options="timeSeriesChartOptions"
+                            class="h-full w-full"
+                            data-test="time-series-chart"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -231,14 +254,23 @@ function toSelectionIds(value: unknown): SelectionId[] {
                 <p v-if="comparison.timeSeries.length === 0" class="text-app-muted italic">
                     {{ $t("admin.statistics.index.no_data") }}
                 </p>
-                <div v-else class="h-80">
-                    <Chart
-                        type="bar"
-                        :data="comparisonTimeSeriesChartData"
-                        :options="timeSeriesChartOptions"
-                        class="h-full w-full"
-                        data-test="comparison-time-series-chart"
-                    />
+                <div
+                    v-else
+                    class="overflow-x-auto"
+                    tabindex="0"
+                    role="group"
+                    :aria-label="$t('admin.statistics.index.comparison.title')"
+                    data-test="comparison-time-series-chart-scroll"
+                >
+                    <div class="h-80" :style="chartWidthStyle(comparisonTimeSeriesChartData)">
+                        <Chart
+                            type="bar"
+                            :data="comparisonTimeSeriesChartData"
+                            :options="timeSeriesChartOptions"
+                            class="h-full w-full"
+                            data-test="comparison-time-series-chart"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

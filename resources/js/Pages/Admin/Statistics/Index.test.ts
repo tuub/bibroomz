@@ -680,6 +680,57 @@ describe("Admin/Statistics/Index", () => {
         expect(chartOptions.scales.y.stacked).toBe(false);
     });
 
+    test("scrolls bookings over time instead of squeezing every column into the page width", () => {
+        const wrapper = render({
+            timeSeries: Array.from({ length: 40 }, (_, index) => ({
+                label: `2026-06-${String(index + 1).padStart(2, "0")}`,
+                count: index,
+            })),
+        });
+
+        const scroller = wrapper.find('[data-test="time-series-chart-scroll"]');
+
+        expect(scroller.classes()).toContain("overflow-x-auto");
+        expect(scroller.attributes("tabindex")).toBe("0");
+        expect(scroller.find("div").attributes("style")).toContain("min-width: 1600px");
+    });
+
+    test("widens the bookings-over-time columns for every bar of a grouped split", async () => {
+        const segments = Array.from({ length: 5 }, (_, index) => ({
+            id: index + 1,
+            title: { en: `Institution ${index + 1}` },
+            count: index,
+        }));
+        const wrapper = render({
+            timeSeriesSplit: "institution",
+            timeSeries: [
+                { label: "2026-06", count: 10, segments },
+                { label: "2026-07", count: 10, segments },
+            ],
+        });
+
+        expect(wrapper.find('[data-test="time-series-chart-scroll"] div').attributes("style")).toContain(
+            "min-width: 80px",
+        );
+
+        const chartModeSelect = getStub(wrapper, "time-series-chart-mode");
+        chartModeSelect.vm.$emit("update:modelValue", "grouped");
+        await nextTick();
+
+        expect(wrapper.find('[data-test="time-series-chart-scroll"] div').attributes("style")).toContain(
+            "min-width: 140px",
+        );
+    });
+
+    test("scrolls the comparison chart on its own", () => {
+        const wrapper = render({ comparison: buildComparison() });
+
+        const scroller = wrapper.find('[data-test="comparison-time-series-chart-scroll"]');
+
+        expect(scroller.classes()).toContain("overflow-x-auto");
+        expect(scroller.find("div").attributes("style")).toContain("min-width: 80px");
+    });
+
     test("renders a separate CSV export link for each statistic", () => {
         const wrapper = render();
 
