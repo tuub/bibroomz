@@ -1,3 +1,7 @@
+# Script-block comments quote a command as 'ort evaluate' rather than with
+# backticks: gitlab-ci-local echoes a collapsed block through double quotes and
+# would run whatever the backticks enclose. Comments outside a script are free.
+
 # The stages live in .gitlab/ci/, one file each. `extends:` and `!reference`
 # reach across these boundaries; a YAML anchor does not, so every anchor below
 # is consumed in this file and offered to the others as a template.

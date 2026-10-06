@@ -179,7 +179,7 @@ ort:
   script:
     - !reference [.ort-analyze, script]
     - |
-      # `ort evaluate` exits 2 on the first ERROR, but the reports are built
+      # 'ort evaluate' exits 2 on the first ERROR, but the reports are built
       # out of its output, so the status waits until they exist.
       ORT_EVALUATE_STATUS=0
       ort --config ort/config.yml evaluate --ort-file ort-results/analyzer-result.yml \

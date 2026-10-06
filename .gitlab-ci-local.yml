@@ -5,38 +5,200 @@ workflow:
 variables:
   DOCKERHUB_IMAGE_PREFIX: ""
 
-# gitlab-ci-local has no project registry to pull from, so jobs run against
-# images built and loaded by hand:
-#
-#   nix build .#ci-image --out-link /tmp/ci-image
-#   docker load --input /tmp/ci-image
-#   nix build .#ci-browser-image --out-link /tmp/ci-browser-image
-#   docker load --input /tmp/ci-browser-image
-#
-# Both land as <name>:latest, which is what the overrides below point at.
-# PULL_POLICY=if-not-present in .gitlab-ci-local-env keeps docker from looking
-# for them anywhere else.
+### Cache fragments
+# gitlab-ci-local keys caches by their position in the cache array, so the
+# one-runtime jobs cannot reach the real installer's Node cache at position 1.
+# One combined cache locally gives every job the same entry.
+.local-dependencies:
+  cache:
+    - &local-dependencies-cache
+      key:
+        files:
+          - composer.lock
+          - package-lock.json
+        prefix: dependencies
+      paths:
+        - node_modules/
+        - vendor/
+      policy: pull
+
+.ci-full:
+  cache:
+    - *local-dependencies-cache
+
+.ci-node:
+  cache:
+    - *local-dependencies-cache
+
+.ci-php:
+  cache:
+    - *local-dependencies-cache
+
+### Image fragments
+# No project registry here, so the images come from the local Docker daemon,
+# loaded by the image stage below under the `flake-<hash>` tag the real
+# pipeline pushes: a changed toolchain cannot be served a stale image, and an
+# older flake.lock finds the image that belongs to it still loaded.
+# PULL_POLICY=if-not-present keeps docker from looking elsewhere for them.
 .ci:
-  image: roomz-ci:latest
-  rules:
+  image: roomz-ci:$CI_IMAGE_TAG
+  rules: &local-ci-rules
     - if: $GITLAB_CI == 'false'
 
-browser:
-  image: roomz-ci-browser:latest
+# The real job builds in a nixos/nix container and pushes; here the build runs
+# on the host, whose nix store already holds the closure that container would
+# download again, and the push becomes a `docker load`.
+#
+# gitlab-ci-local runs a job on the host only when it declares no image, and
+# an inherited image cannot be unset from this file, hence the separate jobs
+# and SHELL_EXECUTOR_NO_IMAGE=true in .gitlab-ci-local-env.
+.load-ci-image:
+  script:
+    - |
+      # The same tag off the same two files as the real job.
+      tag="flake-$(cat flake.nix flake.lock | sha256sum | cut --characters=1-32)"
+      echo "CI_IMAGE_TAG=$tag" > ci-image.env
+      echo "Toolchain image tag: $tag"
 
-# Builds and pushes to the project registry, which does not exist here. Run
-# the two nix build commands above instead.
+      # The daemon serving the jobs below answers what the registry answers
+      # for the real job.
+      if docker image inspect "$IMAGE_NAME:$tag" > /dev/null 2>&1; then
+        echo "$IMAGE_NAME:$tag is loaded already. Nothing to build."
+      else
+        archive=$(nix build ".#$NIX_PACKAGE" --no-link --print-out-paths)
+
+        # dockerTools names what it builds `<image>:latest`.
+        docker load --input "$archive"
+        docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:$tag"
+      fi
+
+### Image stage
+# Most jobs list `ci-image` in needs and a dotenv report reaches only a job's
+# own needs, so the tag has to come from a job under that name. Needing the
+# load job also holds those fifteen back until their image is in the daemon.
 ci-image:
-  rules:
-    - if: $GITLAB_CI == 'false'
-      when: never
+  image: ${DOCKERHUB_IMAGE_PREFIX}alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+  needs:
+    - job: ci-image:load
+  rules: *local-ci-rules
+  script:
+    - echo "CI_IMAGE_TAG=$CI_IMAGE_TAG" > ci-image.env
 
-# install:deps overrides `.ci`'s rules to drive CACHE_POLICY, so the override
-# above no longer reaches it. Mirror the real behaviour: restore only, unless
-# REBUILD_CACHE is passed (`gitlab-ci-local --variable REBUILD_CACHE=true`).
+ci-image:load:
+  stage: image
+  needs: []
+  variables:
+    NIX_PACKAGE: ci-image
+    IMAGE_NAME: roomz-ci
+  rules: *local-ci-rules
+  script:
+    - !reference [.load-ci-image, script]
+  artifacts:
+    reports:
+      dotenv: ci-image.env
+
+### Install stage
+# Populate the cache once, so no later job's cache-recovery hook installs its
+# own copy.
 install:deps:
+  cache:
+    - <<: *local-dependencies-cache
+      policy: pull-push
   rules:
-    - if: $GITLAB_CI == 'false' && $REBUILD_CACHE == 'true'
-      variables:
-        CACHE_POLICY: pull-push
     - if: $GITLAB_CI == 'false'
+
+### Lint stage
+# $CI_MERGE_REQUEST_DIFF_BASE_SHA is empty outside a merge request pipeline,
+# which left commitlint walking the whole history. The local refs give the
+# same base; on the default branch it is HEAD, and an empty range passes.
+commitlint:
+  script:
+    - |
+      from=$(git merge-base "$CI_DEFAULT_BRANCH" HEAD 2>/dev/null || true)
+
+      if [ -z "$from" ]; then
+        echo "This checkout has no ref for $CI_DEFAULT_BRANCH, so there is nothing to"
+        echo "lint from. Fetch it and run again."
+        exit 1
+      fi
+
+      echo "Linting the commits this checkout adds on top of $from."
+      node_modules/.bin/commitlint --from "$from"
+
+# Job-level rules replace `.ci`'s, so the path-filtered checks have to restate
+# the local ones to stay in a full local pipeline. So does migrations:rollback
+# in the test stage.
+composer:validate:
+  rules: *local-ci-rules
+
+hadolint:
+  rules: *local-ci-rules
+
+npm:lockfile:
+  rules: *local-ci-rules
+
+ort:
+  rules: *local-ci-rules
+
+permission-registry:
+  rules: *local-ci-rules
+
+shellcheck:
+  rules: *local-ci-rules
+
+# The three jobs below carry a cache of their own, so the `.ci-php` override
+# above no longer reaches them: each restates the combined local cache at
+# position 1, where install:deps wrote it, and keeps its tool cache behind that.
+phpstan:
+  cache:
+    - *local-dependencies-cache
+    - key: phpstan-result-cache
+      paths:
+        - .phpstan-cache/
+      policy: pull-push
+
+pint:
+  cache:
+    - *local-dependencies-cache
+    - key: pint-cache
+      paths:
+        - .pint-cache
+      policy: pull-push
+
+rector:
+  cache:
+    - *local-dependencies-cache
+    - key:
+        files:
+          - composer.lock
+        prefix: rector
+      paths:
+        - .rector-cache/
+      policy: pull-push
+
+### Test stage
+browser:
+  image: roomz-ci-browser:$CI_IMAGE_TAG
+  needs:
+    - job: ci-image
+    - job: ci-image:load-browser
+    - job: frontend-build
+      artifacts: true
+
+# Only the job above runs on the image with the ~2 GiB Playwright closure, so
+# this loader stays in the test stage, reached through that job's needs: in the
+# image stage every local lint run would pull it in and build it. `needs: []`
+# is what keeps that reversed -- without it the job inherits every earlier
+# stage, and asking for the browser job runs the whole pipeline.
+ci-image:load-browser:
+  stage: test
+  needs: []
+  variables:
+    NIX_PACKAGE: ci-browser-image
+    IMAGE_NAME: roomz-ci-browser
+  rules: *local-ci-rules
+  script:
+    - !reference [.load-ci-image, script]
+
+migrations:rollback:
+  rules: *local-ci-rules

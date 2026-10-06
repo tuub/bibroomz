@@ -4,6 +4,7 @@
 /build/pack
 /build/typecheck
 *.cache
+/ci-image.env
 /coverage-html
 coverage*.xml
 *.d.ts
