@@ -14,6 +14,13 @@ export default defineConfig({
         environment: "happy-dom",
         pool: "vmThreads",
         include: ["packages/**/*.test.ts", "resources/js/**/*.test.ts"],
+        // The minimal reporter suppresses passing-test logs before onConsoleLog can validate them.
+        reporters: ["default"],
+        onConsoleLog(log, type) {
+            if (type === "stderr") {
+                throw new Error(`Unexpected stderr output:\n${log}`);
+            }
+        },
         coverage: {
             provider: "v8",
             include: ["packages/*/src/**/*.ts", "resources/js/**/*.{ts,vue}"],
