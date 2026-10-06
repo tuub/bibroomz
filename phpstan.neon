@@ -99,5 +99,5 @@ parameters:
       paths:
         - tests
       reportUnmatched: false
-  tmpDir: /tmp/phpstan-roomz
+  tmpDir: .phpstan-cache
   reportUnmatchedIgnoredErrors: true

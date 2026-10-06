@@ -1,4 +1,5 @@
-# Included from .gitlab-ci.yml, whose .ci* templates these jobs extend.
+# Included from .gitlab-ci.yml, whose .ci* templates and .cache-set-* lists
+# these jobs extend and reference.
 ### Lint stage
 commitlint:
   extends: .ci-node
@@ -243,12 +244,16 @@ phpstan:
   stage: lint
   script:
     - vendor/bin/phpstan --no-progress
+  cache: !reference [.cache-set-phpstan, cache]
 
 pint:
   extends: .ci-php
   stage: lint
   script:
-    - vendor/bin/pint --test
+    # Pint caches in the system temp directory by default, which no pipeline can
+    # carry to the next one. A cold run is a minute, a cached one is under one second.
+    - vendor/bin/pint --test --cache-file=.pint-cache
+  cache: !reference [.cache-set-pint, cache]
 
 prettier:
   extends: .ci-node
@@ -261,6 +266,7 @@ rector:
   stage: lint
   script:
     - vendor/bin/rector --dry-run --no-progress-bar
+  cache: !reference [.cache-set-rector, cache]
 
 shellcheck:
   extends: .ci

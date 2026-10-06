@@ -21,6 +21,9 @@ return RectorConfig::configure()
 
         __DIR__.'/rector.php',
     ])
+    // Rector caches in the system temp directory by default, where CI cannot
+    // reach it between pipelines. A cold run is a minute, a cached one seconds.
+    ->withCache(cacheDirectory: __DIR__.'/.rector-cache')
     ->withPhpSets()
     // Reads the installed laravel/framework version out of composer.lock and
     // registers the upgrade rules up to it, so this keeps pace with the

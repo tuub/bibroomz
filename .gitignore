@@ -20,11 +20,14 @@ _ide_helper.php
 /ort-reports
 /ort-results
 /packages/*/dist
+/.phpstan-cache
+/.pint-cache
 /public/build
 /public/hot
 /public/images
 /public/storage
 /public/vendor
+/.rector-cache
 !/resources/js/env.d.ts
 !/resources/js/ziggy.d.ts
 /resources/js/ziggy.js

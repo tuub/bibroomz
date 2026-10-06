@@ -67,6 +67,62 @@ default:
     - vendor/
   policy: pull
 
+# PHPStan's result cache, which turns a two-minute full analysis into seconds.
+# Keyed on nothing, unlike the two above, because the cache file carries its own
+# metadata -- phpstan.neon, composer.lock, Composer's installed.php, the PHP
+# version and a hash per analysed file -- and re-analyses as much as the
+# differences reach, from one file up to everything. A stale hit is slow at
+# worst, never wrong, so a dependency bump re-checks the files that depend on the
+# bumped package instead of starting from zero. 92 MiB of mostly per-file parse
+# caches, under 4 MiB once the runner has zipped it.
+.cache-phpstan: &cache-phpstan
+  key: phpstan-result-cache
+  paths:
+    - .phpstan-cache/
+  policy: pull-push
+
+# Pint validates its cache the same way: the file records the PHP version, the
+# PHP-CS-Fixer version and every resolved rule, and a mismatch discards it.
+.cache-pint: &cache-pint
+  key: pint-cache
+  paths:
+    - .pint-cache
+  policy: pull-push
+
+# Rector cannot be trusted that far, so its key carries composer.lock instead.
+# It hashes rector.php, its rules and its sets, but not the version of the
+# package a rule comes from: a bump that changes what a rule reports would
+# otherwise be served a cache that says the file was clean. A changed lock file
+# starts it cold, which is what the lint job does today anyway.
+.cache-rector: &cache-rector
+  key:
+    files:
+      - composer.lock
+    prefix: rector
+  paths:
+    - .rector-cache/
+  policy: pull-push
+
+### Cache sets
+# A job-level cache replaces the inherited one rather than adding to it, so a job
+# that wants one of the tool caches above has to restate vendor/ alongside it.
+# The combined lists live here, next to the anchors they are built from, and the
+# lint jobs reach them with `!reference`.
+.cache-set-phpstan:
+  cache:
+    - *cache-composer
+    - *cache-phpstan
+
+.cache-set-pint:
+  cache:
+    - *cache-composer
+    - *cache-pint
+
+.cache-set-rector:
+  cache:
+    - *cache-composer
+    - *cache-rector
+
 ### Cache recovery
 # The GitLab cache is best effort, and install:deps only pushes when a lock
 # file moved, so an evicted cache arrives here as an empty directory.
