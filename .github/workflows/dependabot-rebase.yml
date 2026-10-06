@@ -7,6 +7,9 @@ on:
 
 jobs:
   rebase:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Ask Dependabot to rebase its open PRs onto main
@@ -46,7 +49,7 @@ jobs:
 
       - name: Rebase the flake.lock PR onto main
         env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_REBASE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           BASE: ${{ github.ref_name }}
           BRANCH: dependabot/nix/flake-lock
