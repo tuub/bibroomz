@@ -325,7 +325,8 @@ frontend-build:
   needs:
     - job: ci-image
       optional: true
-    - install:deps
+    - job: install:deps
+      optional: true
   variables:
     APP_URL: http://127.0.0.1:$BROWSER_SERVER_PORT
     VITE_REVERB_PORT: $BROWSER_REVERB_PORT

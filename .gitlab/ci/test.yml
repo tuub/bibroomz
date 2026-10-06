@@ -48,7 +48,8 @@ pest:mariadb:
   needs:
     - job: ci-image
       optional: true
-    - install:deps
+    - job: install:deps
+      optional: true
   script:
     - composer run pest -- --log-junit build/junit/pest-mariadb.xml
   artifacts:
@@ -69,7 +70,8 @@ migrations:rollback:
   needs:
     - job: ci-image
       optional: true
-    - install:deps
+    - job: install:deps
+      optional: true
   script:
     - scripts/check-migrations.sh
 

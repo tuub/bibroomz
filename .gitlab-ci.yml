@@ -124,8 +124,8 @@ default:
     - *cache-rector
 
 ### Cache recovery
-# The GitLab cache is best effort, and install:deps only pushes when a lock
-# file moved, so an evicted cache arrives here as an empty directory.
+# The GitLab cache is best effort, so an evicted cache arrives here as an empty
+# directory even when install:deps populated it in an earlier pipeline.
 # Reinstalling costs about a minute; failing costs the whole pipeline.
 .restore-node:
   script:
@@ -186,10 +186,8 @@ install:deps:
     - job: ci-image
       optional: true
   variables:
-    # Both caches are keyed on nothing but the lock files listed in the rules
-    # below, so when neither changed a push would overwrite an identical
-    # object. Restoring is cheap and pushing is not, so the default is not to
-    # push.
+    # Also gives static/local CI parsers a valid cache policy before rules are
+    # evaluated; every GitLab path that pushes replaces it below.
     CACHE_POLICY: pull
   rules:
     # A new toolchain is reason enough to reinstall against it.
@@ -199,6 +197,12 @@ install:deps:
         - flake.lock
       variables:
         CACHE_POLICY: pull-push
+    # Exercise changes to the installer without overwriting lock-keyed caches.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+      variables:
+        CACHE_POLICY: pull
     # Everything merges here, so this is what keeps the caches that merge
     # requests branch from alive, and it recovers an evicted cache without
     # anyone noticing. It is off the critical path of merge request feedback.
@@ -222,35 +226,11 @@ install:deps:
     - if: $REBUILD_CACHE == 'true'
       variables:
         CACHE_POLICY: pull-push
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   cache:
     - <<: *cache-composer
       policy: $CACHE_POLICY
     - <<: *cache-node
       policy: $CACHE_POLICY
   script:
-    - |
-      if [ "$CACHE_POLICY" = pull ]; then
-        # Nothing installed here would be uploaded, so the only work left worth
-        # doing is checking that what the rest of the pipeline reads came back.
-        missing=""
-
-        [ -d vendor ] || missing="$missing vendor"
-        [ -d node_modules ] || missing="$missing node_modules"
-
-        if [ -n "$missing" ]; then
-          # Not fatal: the lint and test jobs reinstall what they need, so the
-          # pipeline is slower but still correct.
-          echo "Not restored from the cache:$missing"
-          echo "No lock file changed here, so this pipeline cannot refill it. The next"
-          echo "default-branch pipeline or the warm-cache schedule will. To refill it"
-          echo "now, re-run this pipeline with the variable REBUILD_CACHE=true."
-          exit 0
-        fi
-
-        echo "Both caches restored, and no lock file changed. Nothing to install."
-        exit 0
-      fi
-
     - composer install --no-interaction --quiet
     - npm ci --ignore-scripts
