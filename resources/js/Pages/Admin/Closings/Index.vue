@@ -7,6 +7,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, Closable, Closing, DataTableRef } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -47,7 +48,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -116,8 +117,11 @@ const isPastClosing = (closing: Closing) => {
                             />
                         </IconField>
                         <CreateLink
+                            v-if="
+                                institutionId != null &&
+                                hasInstitutionPermission(PermissionKey.CreateClosings, institutionId)
+                            "
                             model="closing"
-                            :institution-id="institutionId"
                             :params="{ closable_type: closable_type, closable_id: closable.id }"
                         />
                     </div>
@@ -153,13 +157,19 @@ const isPastClosing = (closing: Closing) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_closings', institutionId)"
+                            v-if="
+                                institutionId != null &&
+                                hasInstitutionPermission(PermissionKey.EditClosings, institutionId)
+                            "
                             action="edit"
                             model="closing"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_closings', institutionId)"
+                            v-if="
+                                institutionId != null &&
+                                hasInstitutionPermission(PermissionKey.DeleteClosings, institutionId)
+                            "
                             action="delete"
                             model="closing"
                             :params="{ id: slotProps.data.id }"

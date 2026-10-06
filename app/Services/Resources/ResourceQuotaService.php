@@ -2,6 +2,7 @@
 
 namespace App\Services\Resources;
 
+use App\Enums\PermissionKey;
 use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
@@ -44,7 +45,7 @@ class ResourceQuotaService
             return false;
         }
 
-        if ($user->can('unlimited_quotas', $resource->resource_group->institution)) {
+        if ($user->can(PermissionKey::UnlimitedQuotas->value, $resource->resource_group->institution)) {
             return false;
         }
 

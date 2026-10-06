@@ -2,6 +2,7 @@
 
 namespace Tests\Concerns;
 
+use App\Enums\PermissionKey;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\Permission;
@@ -16,8 +17,12 @@ trait InteractsWithPermissions
         $this->seed(PermissionSeeder::class);
     }
 
-    protected function grantPermission(User $user, Institution $institution, string $permissionKey): Role
-    {
+    protected function grantPermission(
+        User $user,
+        Institution $institution,
+        PermissionKey|string $permissionKey,
+    ): Role {
+        $permissionKey = $permissionKey instanceof PermissionKey ? $permissionKey->value : $permissionKey;
         $permission = Permission::firstWhere('key', $permissionKey);
 
         $role = Role::create([
@@ -30,5 +35,44 @@ trait InteractsWithPermissions
         $user->unsetRelation('institutions');
 
         return $role;
+    }
+
+    protected function assertScopedGetAuthorizationMatrix(
+        string $uri,
+        Institution $targetInstitution,
+        PermissionKey $requiredPermission,
+        PermissionKey $unrelatedPermission = PermissionKey::ViewUsers,
+    ): void {
+        $this->get($uri)->assertRedirect();
+
+        $unrelatedActor = User::factory()->create();
+        $this->grantPermission($unrelatedActor, $targetInstitution, $unrelatedPermission);
+        $this->actingAs($unrelatedActor)->get($uri)->assertForbidden();
+
+        $otherInstitution = Institution::factory()->create();
+        $crossInstitutionActor = User::factory()->create();
+        $this->grantPermission($crossInstitutionActor, $otherInstitution, $requiredPermission);
+        $this->actingAs($crossInstitutionActor)->get($uri)->assertForbidden();
+
+        $allowedActor = User::factory()->create();
+        $this->grantPermission($allowedActor, $targetInstitution, $requiredPermission);
+        $this->actingAs($allowedActor)->get($uri)->assertSuccessful();
+    }
+
+    protected function assertGlobalGetAuthorizationMatrix(
+        string $uri,
+        PermissionKey $requiredPermission,
+        PermissionKey $unrelatedPermission = PermissionKey::ViewUsers,
+    ): void {
+        $this->get($uri)->assertRedirect();
+
+        $institution = Institution::factory()->create();
+        $unrelatedActor = User::factory()->create();
+        $this->grantPermission($unrelatedActor, $institution, $unrelatedPermission);
+        $this->actingAs($unrelatedActor)->get($uri)->assertForbidden();
+
+        $allowedActor = User::factory()->create();
+        $this->grantPermission($allowedActor, $institution, $requiredPermission);
+        $this->actingAs($allowedActor)->get($uri)->assertSuccessful();
     }
 }

@@ -1,6 +1,7 @@
 import Header from "@/Shared/Header.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
@@ -39,7 +40,7 @@ function render({
 
     const authStore = useAuthStore();
     authStore.isAdmin = isPrivileged;
-    authStore.permissions = isPrivileged ? { "1": ["view_users"] } : {};
+    authStore.permissions = isPrivileged ? { "1": [PermissionKey.ViewUsers] } : {};
     authStore.isImpersonating = isImpersonating;
     authStore.user = { id: 1, name: "Alice" };
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Auth\AlmaUserProvider;
+use App\Enums\PermissionKey;
 use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\Permission;
@@ -11,8 +12,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Ixudra\Curl\Facades\Curl;
 
-function grantAdminPermission(User $user, Institution $institution, string $permissionKey): void
+function grantAdminPermission(User $user, Institution $institution, PermissionKey|string $permissionKey): void
 {
+    $permissionKey = $permissionKey instanceof PermissionKey ? $permissionKey->value : $permissionKey;
     $permission = Permission::firstWhere('key', $permissionKey);
     $role = Role::create(['name' => Utility::getTranslatable($permissionKey)]);
     $role->permissions()->attach($permission);

@@ -613,6 +613,12 @@ npm:lockfile:
   script:
     - npm ci --dry-run --ignore-scripts
 
+permission-registry:
+  extends: .ci-php
+  stage: lint
+  script:
+    - composer run permissions:check
+
 pest:type-coverage:
   extends: .ci-php
   stage: lint

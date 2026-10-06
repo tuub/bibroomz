@@ -99,7 +99,14 @@
         "pest": [
             "pest --cache-directory=/tmp/phpunit-cache --display-all-issues --parallel"
         ],
+        "permissions:generate": [
+            "@php artisan roomz:generate-permission-types"
+        ],
+        "permissions:check": [
+            "@php artisan roomz:generate-permission-types --check"
+        ],
         "check": [
+            "@permissions:check",
             "rector --dry-run",
             "pint --test",
             "phpstan"

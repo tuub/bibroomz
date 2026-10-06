@@ -7,6 +7,7 @@ import RelationLink from "@/Components/Admin/Index/RelationLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { DataTableRef, UserGroup } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -41,7 +42,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasGlobalPermission, hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -91,7 +92,7 @@ const recordsCount = computed(() => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="user_group" />
+                        <CreateLink v-if="hasGlobalPermission(PermissionKey.CreateUserGroups)" model="user_group" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -114,26 +115,28 @@ const recordsCount = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <RelationLink
-                            v-if="hasPermission('view_user_groups', slotProps.data.institution_id)"
+                            v-if="hasInstitutionPermission(PermissionKey.ViewUserGroups, slotProps.data.institution_id)"
                             current="user_group"
                             relation="user"
                             route="admin.user_group.users"
                             :params="{ id: slotProps.data.id }"
                         />
                         <ActionLink
-                            v-if="hasPermission('edit_user_groups', slotProps.data.institution_id)"
+                            v-if="hasInstitutionPermission(PermissionKey.EditUserGroups, slotProps.data.institution_id)"
                             action="import"
                             model="user_group"
                             :params="{ id: slotProps.data.id }"
                         />
                         <ActionLink
-                            v-if="hasPermission('edit_user_groups', slotProps.data.institution_id)"
+                            v-if="hasInstitutionPermission(PermissionKey.EditUserGroups, slotProps.data.institution_id)"
                             action="edit"
                             model="user_group"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_user_groups', slotProps.data.institution_id)"
+                            v-if="
+                                hasInstitutionPermission(PermissionKey.DeleteUserGroups, slotProps.data.institution_id)
+                            "
                             action="delete"
                             model="user_group"
                             :params="{ id: slotProps.data.id }"

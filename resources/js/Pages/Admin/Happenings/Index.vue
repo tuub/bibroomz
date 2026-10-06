@@ -7,6 +7,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminHappening, DataTableRef } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import type { Dayjs } from "dayjs";
@@ -41,7 +42,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasGlobalPermission, hasInstitutionPermission } = authStore;
 const { formatDate, formatTime, translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -135,7 +136,7 @@ function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="happening" />
+                        <CreateLink v-if="hasGlobalPermission(PermissionKey.CreateHappenings)" model="happening" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -191,13 +192,15 @@ function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_happenings', slotProps.data.institution_id)"
+                            v-if="hasInstitutionPermission(PermissionKey.EditHappenings, slotProps.data.institution_id)"
                             action="edit"
                             model="happening"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_happenings', slotProps.data.institution_id)"
+                            v-if="
+                                hasInstitutionPermission(PermissionKey.DeleteHappenings, slotProps.data.institution_id)
+                            "
                             action="delete"
                             model="happening"
                             :params="{ id: slotProps.data.id }"

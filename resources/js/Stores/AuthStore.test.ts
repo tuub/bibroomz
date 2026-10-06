@@ -1,5 +1,6 @@
 import type { Institution, ResourceGroup, Settings } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -86,7 +87,7 @@ describe("check", () => {
                 user: { id: 1, name: "Alice" },
                 isAdmin: true,
                 isImpersonating: true,
-                permissions: { 1: ["view"] },
+                permissions: { 1: [PermissionKey.ViewResources] },
                 allowedResourceGroups: [1],
             },
         });
@@ -98,7 +99,7 @@ describe("check", () => {
         expect(store.isAuthenticated).toBe(true);
         expect(store.isAdmin).toBe(true);
         expect(store.isImpersonating).toBe(true);
-        expect(store.permissions).toEqual({ 1: ["view"] });
+        expect(store.permissions).toEqual({ 1: [PermissionKey.ViewResources] });
         expect(store.allowedResourceGroups).toEqual([1]);
         expect(echoMock.private).toHaveBeenCalledWith("happenings.1");
     });
@@ -389,6 +390,7 @@ describe("isExceedingQuotas", () => {
     }
 
     test("bypasses all checks when the user has unlimited quotas", async () => {
+        appStoreMock.institution = { id: 7 };
         const store = useAuthStore();
         store.isAdmin = true;
         const { start, end } = await dayjsRange("2026-03-05T10:00:00", "2026-03-05T12:00:00");
@@ -416,6 +418,16 @@ describe("isExceedingQuotas", () => {
         expect(toastStoreMock.addQuotaToast).toHaveBeenCalled();
     });
 
+    test("does not apply unlimited quotas from another institution", async () => {
+        appStoreMock.institution = { id: 7 };
+        appStoreMock.settings = { resource_group: { quota_happening_block_hours: 1 } };
+        const store = useAuthStore();
+        store.permissions = { 8: [PermissionKey.UnlimitedQuotas] };
+        const { start, end } = await dayjsRange("2026-03-05T10:00:00", "2026-03-05T12:00:00");
+
+        expect(store.isExceedingQuotas(start, end)).toBe(true);
+    });
+
     test("returns false when under every quota", async () => {
         appStoreMock.settings = {
             resource_group: {
@@ -434,33 +446,34 @@ describe("isExceedingQuotas", () => {
 });
 
 describe("permissions", () => {
-    test("can() checks permission against the current institution", () => {
-        appStoreMock.institution = { id: 7 };
+    test("hasInstitutionPermission checks only the requested institution", () => {
         const store = useAuthStore();
-        store.permissions = { 7: ["edit_resources"] };
+        store.permissions = { 7: [PermissionKey.EditResources] };
 
-        expect(store.can("edit_resources")).toBe(true);
-        expect(store.can("delete_resources")).toBe(false);
+        expect(store.hasInstitutionPermission(PermissionKey.EditResources, 7)).toBe(true);
+        expect(store.hasInstitutionPermission(PermissionKey.EditResources, 8)).toBe(false);
+        expect(store.hasInstitutionPermission(PermissionKey.DeleteResources, 7)).toBe(false);
     });
 
-    test("hasPermission grants everything to admins", () => {
+    test("permission checks grant registered permissions to admins", () => {
         const store = useAuthStore();
         store.isAdmin = true;
 
-        expect(store.hasPermission("anything")).toBe(true);
+        expect(store.hasGlobalPermission(PermissionKey.ViewRoles)).toBe(true);
+        expect(store.hasInstitutionPermission(PermissionKey.EditResources, 7)).toBe(true);
     });
 
-    test("hasPermission checks the global permission list without an institution", () => {
+    test("hasGlobalPermission checks every institution assignment", () => {
         const store = useAuthStore();
-        store.permissions = { 3: ["view_institution"] };
+        store.permissions = { 3: [PermissionKey.ViewInstitution] };
 
-        expect(store.hasPermission("view_institution")).toBe(true);
-        expect(store.hasPermission("missing")).toBe(false);
+        expect(store.hasGlobalPermission(PermissionKey.ViewInstitution)).toBe(true);
+        expect(store.hasGlobalPermission(PermissionKey.DeleteInstitution)).toBe(false);
     });
 
     test("canViewInstitutions is true for either the plural or singular permission", () => {
         const store = useAuthStore();
-        store.permissions = { 1: ["view_institution"] };
+        store.permissions = { 1: [PermissionKey.ViewInstitution] };
 
         expect(store.canViewInstitutions()).toBe(true);
     });

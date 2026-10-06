@@ -8,6 +8,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminUser, DataTableRef } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
@@ -35,7 +36,7 @@ const authStore = useAuthStore();
 // Variables
 // ------------------------------------------------
 const { translate } = appStore;
-const { hasPermission } = authStore;
+const { hasGlobalPermission } = authStore;
 const indexTable = ref<DataTableRef>(null);
 
 const filters = ref({
@@ -87,7 +88,7 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="user" />
+                        <CreateLink v-if="hasGlobalPermission(PermissionKey.CreateUsers)" model="user" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -151,19 +152,19 @@ const translateUserGroups = (userGroups: AdminUser["user_groups"] = []) => {
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('edit_users')"
+                            v-if="hasGlobalPermission(PermissionKey.EditUsers)"
                             :action="slotProps.data.is_banned ? 'unban' : 'ban'"
                             model="user"
                             :params="{ id: slotProps.data.id }"
                         />
                         <ActionLink
-                            v-if="hasPermission('edit_users')"
+                            v-if="hasGlobalPermission(PermissionKey.EditUsers)"
                             action="edit"
                             model="user"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_users')"
+                            v-if="hasGlobalPermission(PermissionKey.DeleteUsers)"
                             action="delete"
                             model="user"
                             :params="{ id: slotProps.data.id }"

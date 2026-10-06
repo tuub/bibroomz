@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -12,25 +13,25 @@ class InstitutionPolicy
 
     public function view(User $user, Institution $institution): bool
     {
-        if ($user->can('view_institutions')) {
+        if ($user->can(PermissionKey::ViewInstitutions->value)) {
             return true;
         }
 
-        return $user->can('view_institution', $institution);
+        return $user->can(PermissionKey::ViewInstitution->value, $institution);
     }
 
     public function create(User $user): bool
     {
-        return $user->can('create_institutions');
+        return $user->can(PermissionKey::CreateInstitutions->value);
     }
 
     public function update(User $user, Institution $institution): bool
     {
-        if ($user->can('edit_institutions')) {
+        if ($user->can(PermissionKey::EditInstitutions->value)) {
             return true;
         }
 
-        return $user->can('edit_institution', $institution);
+        return $user->can(PermissionKey::EditInstitution->value, $institution);
     }
 
     public function edit(User $user, Institution $institution): bool
@@ -40,10 +41,10 @@ class InstitutionPolicy
 
     public function delete(User $user, Institution $institution): bool
     {
-        if ($user->can('delete_institutions')) {
+        if ($user->can(PermissionKey::DeleteInstitutions->value)) {
             return true;
         }
 
-        return $user->can('delete_institution', $institution);
+        return $user->can(PermissionKey::DeleteInstitution->value, $institution);
     }
 }

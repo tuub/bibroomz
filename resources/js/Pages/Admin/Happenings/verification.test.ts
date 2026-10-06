@@ -1,5 +1,6 @@
 import { requiresAdminHappeningVerification } from "@/Pages/Admin/Happenings/verification";
 import type { AdminResource, AdminUser } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { describe, expect, test } from "vitest";
 
@@ -34,7 +35,7 @@ describe("requiresAdminHappeningVerification", () => {
     test("does not require verifier controls for users with no_verifier at the resource institution", () => {
         expect(
             requiresAdminHappeningVerification({
-                user: user({ "1": ["no_verifier"] }),
+                user: user({ "1": [PermissionKey.NoVerifier] }),
                 resource: resource(),
             }),
         ).toBe(false);
@@ -43,7 +44,7 @@ describe("requiresAdminHappeningVerification", () => {
     test("requires verifier controls when verification is enabled and no matching permission exists", () => {
         expect(
             requiresAdminHappeningVerification({
-                user: user({ "2": ["no_verifier"] }),
+                user: user({ "2": [PermissionKey.NoVerifier] }),
                 resource: resource(),
             }),
         ).toBe(true);
@@ -52,7 +53,7 @@ describe("requiresAdminHappeningVerification", () => {
     test("requires verifier controls when verification is enabled but institution context is missing", () => {
         expect(
             requiresAdminHappeningVerification({
-                user: user({ "1": ["no_verifier"] }),
+                user: user({ "1": [PermissionKey.NoVerifier] }),
                 resource: resource({ institution_id: undefined }),
             }),
         ).toBe(true);

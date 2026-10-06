@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\Setting;
@@ -18,7 +19,7 @@ class UpdateSettingRequest extends SettingKeyRequest
 
         return $user instanceof User
             && ($settingable instanceof Institution || $settingable instanceof ResourceGroup)
-            && $user->can('edit_settings', $settingable->institutionForSettings());
+            && $user->can(PermissionKey::EditSettings->value, $settingable->institutionForSettings());
     }
 
     /**

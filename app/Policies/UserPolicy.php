@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -11,21 +12,21 @@ class UserPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('view_users');
+        return $user->can(PermissionKey::ViewUsers->value);
     }
 
     public function create(User $user): bool
     {
-        return $user->can('create_users');
+        return $user->can(PermissionKey::CreateUsers->value);
     }
 
     public function update(User $user, User $model): bool
     {
-        if ($model->isAdmin() && ! $user->can('edit_admin_users')) {
+        if ($model->isAdmin() && ! $user->can(PermissionKey::EditAdminUsers->value)) {
             return false;
         }
 
-        return $user->can('edit_users');
+        return $user->can(PermissionKey::EditUsers->value);
     }
 
     public function edit(User $user, User $model): bool
@@ -35,11 +36,11 @@ class UserPolicy
 
     public function delete(User $user, User $model): bool
     {
-        if ($model->isAdmin() && ! $user->can('delete_admin_users')) {
+        if ($model->isAdmin() && ! $user->can(PermissionKey::DeleteAdminUsers->value)) {
             return false;
         }
 
-        return $user->can('delete_users');
+        return $user->can(PermissionKey::DeleteUsers->value);
     }
 
     public function ban(User $user, User $model): bool

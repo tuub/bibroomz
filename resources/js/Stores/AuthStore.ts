@@ -2,6 +2,8 @@ import { useAppStore } from "@/Stores/AppStore";
 import type { Happening } from "@/Stores/HappeningStore";
 import { useToastStore } from "@/Stores/ToastStore";
 import type { ApiError } from "@/Types/Api";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
+import type { PermissionKey as PermissionKeyType } from "@/Types/PermissionKey.generated";
 import { withBaseUrl } from "@/baseUrl";
 
 import { router } from "@inertiajs/vue3";
@@ -31,7 +33,7 @@ type AuthStoreState = {
     isAuthenticated: boolean;
     isAdmin: boolean;
     isImpersonating: boolean;
-    permissions: Record<string, string[]>;
+    permissions: Record<string, PermissionKeyType[]>;
     userHappenings: Happening[];
     quotas: Quotas;
     error: ApiError;
@@ -325,14 +327,16 @@ export const useAuthStore = defineStore("auth", {
 
         isExceedingQuotas(start: Dayjs, end: Dayjs) {
             const toastStore = useToastStore();
-            const settings = useAppStore().settings?.resource_group;
+            const appStore = useAppStore();
+            const settings = appStore.settings?.resource_group;
 
             const quota_happening_block_hours = Number(settings?.quota_happening_block_hours ?? 0);
             const quota_weekly_happenings = Number(settings?.quota_weekly_happenings ?? 0);
             const quota_weekly_hours = Number(settings?.quota_weekly_hours ?? 0);
             const quota_daily_hours = Number(settings?.quota_daily_hours ?? 0);
 
-            if (this.can("unlimited_quotas")) {
+            const institutionId = appStore.institution?.id;
+            if (institutionId != null && this.hasInstitutionPermission(PermissionKey.UnlimitedQuotas, institutionId)) {
                 return false;
             }
 
@@ -400,31 +404,20 @@ export const useAuthStore = defineStore("auth", {
             return false;
         },
 
-        can(ability: string) {
-            const appStore = useAppStore();
-            const institution = appStore.institution;
-
-            return this.hasPermission(ability, institution?.id);
-        },
-
-        hasPermission(name: string, institution?: string | number) {
+        hasGlobalPermission(permission: PermissionKeyType) {
             if (this.isAdmin) {
                 return true;
             }
 
-            if (!institution) {
-                for (const permission of Object.values(this.permissions).flat()) {
-                    if (permission === name) {
-                        return true;
-                    }
-                }
-            }
+            return Object.values(this.permissions).some((permissions) => permissions.includes(permission));
+        },
 
-            if (this.permissions[institution as string]?.includes(name)) {
+        hasInstitutionPermission(permission: PermissionKeyType, institutionId: string | number) {
+            if (this.isAdmin) {
                 return true;
             }
 
-            return false;
+            return this.permissions[String(institutionId)]?.includes(permission) ?? false;
         },
 
         isAllowedForResource(resource: {
@@ -451,11 +444,11 @@ export const useAuthStore = defineStore("auth", {
         },
 
         canViewInstitutions() {
-            if (this.hasPermission("view_institutions")) {
+            if (this.hasGlobalPermission(PermissionKey.ViewInstitutions)) {
                 return true;
             }
 
-            if (this.hasPermission("view_institution")) {
+            if (this.hasGlobalPermission(PermissionKey.ViewInstitution)) {
                 return true;
             }
 

@@ -36,7 +36,7 @@ withDefaults(
         createParams?: Record<string, unknown>;
     }>(),
     {
-        addCreateButton: true,
+        addCreateButton: false,
         model: "",
         createParams: () => ({}),
     },

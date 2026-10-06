@@ -6,6 +6,7 @@ import { useLogin } from "@/Composables/Login";
 import { useAppStore } from "@/Stores/AppStore";
 import type { ResourceGroup } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
@@ -32,7 +33,6 @@ const authStore = useAuthStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const can = (ability: string) => authStore.can(ability);
 const { loginUser } = useLogin();
 const { allowedResourceGroups, isAuthenticated, userHappenings } = storeToRefs(authStore);
 const translate = appStore.translate;
@@ -41,6 +41,11 @@ const isAllowed = computed(() => {
 });
 const helpURI = computed(() => {
     return props.resourceGroup.help_uri;
+});
+const hasUnlimitedQuotas = computed(() => {
+    const institutionId = appStore.institution?.id;
+
+    return institutionId != null && authStore.hasInstitutionPermission(PermissionKey.UnlimitedQuotas, institutionId);
 });
 
 // ------------------------------------------------
@@ -77,7 +82,7 @@ const helpURI = computed(() => {
             </div>
         </SidebarBlock>
 
-        <SidebarBlock v-if="isAuthenticated && !can('unlimited_quotas')" :title="$t('sidebar.quota.header')">
+        <SidebarBlock v-if="isAuthenticated && !hasUnlimitedQuotas" :title="$t('sidebar.quota.header')">
             <HappeningQuotas :happenings="userHappenings"></HappeningQuotas>
         </SidebarBlock>
 

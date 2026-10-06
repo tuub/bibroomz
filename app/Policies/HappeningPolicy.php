@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\User;
@@ -30,12 +31,12 @@ class HappeningPolicy
 
     public function adminViewAny(User $user): bool
     {
-        return $user->getPermissions(['view_happenings'])->flatten()->isNotEmpty();
+        return $user->getPermissions([PermissionKey::ViewHappenings->value])->flatten()->isNotEmpty();
     }
 
     public function adminCreateAny(User $user): bool
     {
-        return $user->getPermissions(['create_happenings'])->flatten()->isNotEmpty();
+        return $user->getPermissions([PermissionKey::CreateHappenings->value])->flatten()->isNotEmpty();
     }
 
     public function update(User $user, Happening $happening): bool
@@ -97,21 +98,21 @@ class HappeningPolicy
 
     public function adminView(User $user, Happening $happening): bool
     {
-        return $user->can('view_happenings', $happening->resource->resource_group->institution);
+        return $user->can(PermissionKey::ViewHappenings->value, $happening->resource->resource_group->institution);
     }
 
     public function adminCreate(User $user, Institution $institution): bool
     {
-        return $user->can('create_happenings', $institution);
+        return $user->can(PermissionKey::CreateHappenings->value, $institution);
     }
 
     public function adminUpdate(User $user, Happening $happening): bool
     {
-        return $user->can('edit_happenings', $happening->resource->resource_group->institution);
+        return $user->can(PermissionKey::EditHappenings->value, $happening->resource->resource_group->institution);
     }
 
     public function adminDelete(User $user, Happening $happening): bool
     {
-        return $user->can('delete_happenings', $happening->resource->resource_group->institution);
+        return $user->can(PermissionKey::DeleteHappenings->value, $happening->resource->resource_group->institution);
     }
 }

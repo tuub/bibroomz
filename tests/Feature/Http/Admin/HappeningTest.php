@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\PermissionKey;
 use App\Http\Controllers\Admin\HappeningController;
 use App\Http\Requests\Admin\DeleteHappeningRequest;
 use App\Http\Requests\Admin\HappeningRequest;
@@ -44,6 +45,21 @@ beforeEach(function (): void {
 afterEach(function (): void {
     Carbon::setTestNow();
     CarbonImmutable::setTestNow();
+});
+
+test('happening index enforces the global authorization matrix', function (): void {
+    $this->assertGlobalGetAuthorizationMatrix(
+        route('admin.happening.index'),
+        PermissionKey::ViewHappenings,
+    );
+});
+
+test('happening create form does not treat view permission as create permission', function (): void {
+    $this->assertGlobalGetAuthorizationMatrix(
+        route('admin.happening.create'),
+        PermissionKey::CreateHappenings,
+        PermissionKey::ViewHappenings,
+    );
 });
 
 // ---------------------------------------------------------------------------

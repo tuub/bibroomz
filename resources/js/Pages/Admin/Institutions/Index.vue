@@ -9,6 +9,7 @@ import { postReorderedRows } from "@/Composables/Reorder";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, DataTableRef } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { FilterMatchMode } from "@primevue/core/api";
@@ -37,8 +38,7 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const route = inject<ZiggyRouteFn>("ziggyRoute")!;
-const hasPermission = (ability: string, institutionId?: string | number) =>
-    authStore.hasPermission(ability, institutionId);
+const { hasGlobalPermission, hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -62,7 +62,11 @@ const reorderRows = (event: { value: AdminInstitution[] }) => {
 };
 
 const canAccessSettings = (institutionId?: number | string) => {
-    return hasPermission("view_settings", institutionId) || hasPermission("edit_settings", institutionId);
+    return (
+        institutionId != null &&
+        (hasInstitutionPermission(PermissionKey.ViewSettings, institutionId) ||
+            hasInstitutionPermission(PermissionKey.EditSettings, institutionId))
+    );
 };
 </script>
 
@@ -100,7 +104,7 @@ const canAccessSettings = (institutionId?: number | string) => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="institution" />
+                        <CreateLink v-if="hasGlobalPermission(PermissionKey.CreateInstitutions)" model="institution" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -145,13 +149,13 @@ const canAccessSettings = (institutionId?: number | string) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_institution', slotProps.data.id)"
+                            v-if="hasInstitutionPermission(PermissionKey.EditInstitution, slotProps.data.id)"
                             action="edit"
                             model="institution"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_institution', slotProps.data.id)"
+                            v-if="hasInstitutionPermission(PermissionKey.DeleteInstitution, slotProps.data.id)"
                             action="delete"
                             model="institution"
                             :params="{ id: slotProps.data.id }"
@@ -163,13 +167,13 @@ const canAccessSettings = (institutionId?: number | string) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <RelationLink
-                            v-if="hasPermission('view_resource_groups', slotProps.data.id)"
+                            v-if="hasInstitutionPermission(PermissionKey.ViewResourceGroups, slotProps.data.id)"
                             current="institution"
                             relation="resource_group"
                             :params="{ institution_id: slotProps.data.id }"
                         />
                         <RelationLink
-                            v-if="hasPermission('view_closings', slotProps.data.id)"
+                            v-if="hasInstitutionPermission(PermissionKey.ViewClosings, slotProps.data.id)"
                             current="institution"
                             relation="closing"
                             :params="{ closable_type: 'institution', closable_id: slotProps.data.id }"
@@ -181,7 +185,7 @@ const canAccessSettings = (institutionId?: number | string) => {
                             :params="{ settingable_type: 'institution', settingable_id: slotProps.data.id }"
                         />
                         <RelationLink
-                            v-if="hasPermission('view_mails', slotProps.data.id)"
+                            v-if="hasInstitutionPermission(PermissionKey.ViewMails, slotProps.data.id)"
                             current="institution"
                             relation="mail"
                             :params="{ institution_id: slotProps.data.id }"

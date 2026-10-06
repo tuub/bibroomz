@@ -1,3 +1,5 @@
+import type { PermissionKey } from "@/Types/PermissionKey.generated";
+
 export type Translatable = Record<string, string>;
 
 export type Permission = {
@@ -124,7 +126,7 @@ export type AdminUser = {
     password_confirm?: string;
     banned_at?: string | null;
     roles?: AdminUserRoleAssignment[];
-    permissions?: Record<string, string[]>;
+    permissions?: Record<string, PermissionKey[]>;
     user_groups?: UserGroup[];
 };
 

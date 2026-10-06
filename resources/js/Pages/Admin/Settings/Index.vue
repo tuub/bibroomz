@@ -4,6 +4,7 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AppSetting, DataTableRef, Settingable } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { transChoice } from "laravel-vue-i18n";
 import { computed, ref } from "vue";
@@ -34,7 +35,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -104,7 +105,10 @@ const institutionId = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_settings', institutionId)"
+                            v-if="
+                                institutionId != null &&
+                                hasInstitutionPermission(PermissionKey.EditSettings, institutionId)
+                            "
                             action="edit"
                             model="setting"
                             :params="{

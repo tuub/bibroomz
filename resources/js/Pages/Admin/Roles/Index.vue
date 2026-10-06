@@ -6,6 +6,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { DataTableRef, Permission, Role } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -39,7 +40,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasGlobalPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -89,7 +90,7 @@ const recordsCount = computed(() => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="role" />
+                        <CreateLink v-if="hasGlobalPermission(PermissionKey.CreateRoles)" model="role" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -122,13 +123,13 @@ const recordsCount = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_roles')"
+                            v-if="hasGlobalPermission(PermissionKey.EditRoles)"
                             action="edit"
                             model="role"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_roles')"
+                            v-if="hasGlobalPermission(PermissionKey.DeleteRoles)"
                             action="delete"
                             model="role"
                             :params="{ id: slotProps.data.id }"

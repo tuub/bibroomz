@@ -2,6 +2,7 @@
 
 namespace App\Services\Happenings;
 
+use App\Enums\PermissionKey;
 use App\Events\HappeningCreatedEvent;
 use App\Library\Utility;
 use App\Models\Happening;
@@ -27,7 +28,7 @@ class CreateHappeningAction
     ): Happening {
         $this->validator->execute($user, $resource, $start, $end);
 
-        $isAdmin = $user->hasPermission('no_verifier', $resource->resource_group->institution);
+        $isAdmin = $user->hasPermission(PermissionKey::NoVerifier->value, $resource->resource_group->institution);
         $isVerified = ! $resource->isVerificationRequired() || $isAdmin;
 
         $happening = Happening::create([

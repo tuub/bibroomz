@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\PermissionKey;
 use App\Library\Utility;
 use App\Models\Resource;
 use App\Models\User;
@@ -16,7 +17,10 @@ abstract class HappeningRequest extends AdminRouteRequest
         $user1 = $this->findModel(User::class, 'user_id_01');
         $resource = $this->findModel(Resource::class, 'resource_id');
 
-        $isAdmin = $user1?->hasPermission('no_verifier', $resource?->resource_group->institution) ?? false;
+        $isAdmin = $user1?->hasPermission(
+            PermissionKey::NoVerifier->value,
+            $resource?->resource_group->institution,
+        ) ?? false;
         $isVerificationRequired = ! $isAdmin && (bool) $resource?->is_verification_required;
 
         return [

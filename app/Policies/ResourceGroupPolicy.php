@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\ResourceGroup;
 use App\Models\User;
@@ -15,13 +16,13 @@ class ResourceGroupPolicy
     {
         foreach (
             [
-                'view_resource_groups',
-                'create_resource_groups',
-                'edit_resource_groups',
-                'delete_resource_groups',
+                PermissionKey::ViewResourceGroups,
+                PermissionKey::CreateResourceGroups,
+                PermissionKey::EditResourceGroups,
+                PermissionKey::DeleteResourceGroups,
             ] as $permission
         ) {
-            if ($user->can($permission, $institution)) {
+            if ($user->can($permission->value, $institution)) {
                 return true;
             }
         }
@@ -31,17 +32,17 @@ class ResourceGroupPolicy
 
     public function view(User $user, ResourceGroup $resource_group): bool
     {
-        return $user->can('view_resource_groups', $resource_group->institution);
+        return $user->can(PermissionKey::ViewResourceGroups->value, $resource_group->institution);
     }
 
     public function create(User $user, Institution $institution): bool
     {
-        return $user->can('create_resource_groups', $institution);
+        return $user->can(PermissionKey::CreateResourceGroups->value, $institution);
     }
 
     public function update(User $user, ResourceGroup $resource_group): bool
     {
-        return $user->can('edit_resource_groups', $resource_group->institution);
+        return $user->can(PermissionKey::EditResourceGroups->value, $resource_group->institution);
     }
 
     public function edit(User $user, ResourceGroup $resource_group): bool
@@ -51,11 +52,11 @@ class ResourceGroupPolicy
 
     public function delete(User $user, ResourceGroup $resource_group): bool
     {
-        return $user->can('delete_resource_groups', $resource_group->institution);
+        return $user->can(PermissionKey::DeleteResourceGroups->value, $resource_group->institution);
     }
 
     public function clone(User $user, ResourceGroup $resource_group): bool
     {
-        return $user->can('create_resource_groups', $resource_group->institution);
+        return $user->can(PermissionKey::CreateResourceGroups->value, $resource_group->institution);
     }
 }

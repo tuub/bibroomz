@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
@@ -37,7 +38,10 @@ class StatisticsScopeResolver
             ->with('resource_groups.resources')
             ->orderBy('order')
             ->get()
-            ->filter(fn (Institution $institution): bool => $user->can('view_happenings', $institution))
+            ->filter(fn (Institution $institution): bool => $user->can(
+                PermissionKey::ViewHappenings->value,
+                $institution,
+            ))
             ->values();
 
         $resourceGroups = $institutions->flatMap(fn (Institution $institution): Collection => $institution->resource_groups)

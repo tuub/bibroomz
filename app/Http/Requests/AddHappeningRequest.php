@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PermissionKey;
 use App\Library\Utility;
 use App\Models\Happening;
 use App\Models\Resource;
@@ -32,7 +33,7 @@ class AddHappeningRequest extends FormRequest
         $user = $this->user();
         $isVerificationRequired = $resource->isVerificationRequired()
             && $user instanceof User
-            && ! $user->hasPermission('no_verifier', $resource->resource_group->institution);
+            && ! $user->hasPermission(PermissionKey::NoVerifier->value, $resource->resource_group->institution);
         $normalizedUserName = $user instanceof User
             ? Utility::normalizeLoginName($user->name)
             : null;

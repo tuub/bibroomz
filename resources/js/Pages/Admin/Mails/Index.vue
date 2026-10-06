@@ -7,6 +7,7 @@ import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, DataTableRef, Mail } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import { transChoice } from "laravel-vue-i18n";
@@ -35,7 +36,7 @@ const appStore = useAppStore();
 // ------------------------------------------------
 // Variables
 // ------------------------------------------------
-const { hasPermission } = authStore;
+const { hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 
@@ -88,8 +89,11 @@ const recordsCount = computed(() => {
                             />
                         </IconField>
                         <CreateLink
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.CreateMails, institution.id)
+                            "
                             model="mail"
-                            :institution-id="institution.id"
                             :params="{ institution_id: institution.id }"
                         />
                     </div>
@@ -119,13 +123,19 @@ const recordsCount = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_mails', institution.id)"
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.EditMails, institution.id)
+                            "
                             action="edit"
                             model="mail"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_mails', institution.id)"
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.DeleteMails, institution.id)
+                            "
                             action="delete"
                             model="mail"
                             :params="{ id: slotProps.data.id }"

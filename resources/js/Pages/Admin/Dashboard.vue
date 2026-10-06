@@ -1,26 +1,27 @@
 <script setup lang="ts">
 import DashboardCard from "@/Components/Admin/DashboardCard.vue";
 import { useAuthStore } from "@/Stores/AuthStore";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { inject } from "vue";
 
 const authStore = useAuthStore();
-const { hasPermission, canViewInstitutions } = authStore;
+const { hasGlobalPermission, canViewInstitutions } = authStore;
 const route = inject<ZiggyRouteFn>("ziggyRoute")!;
 </script>
 
 <template>
     <div class="flex flex-row flex-wrap items-stretch justify-around">
         <DashboardCard
-            v-if="hasPermission('view_happenings')"
+            v-if="hasGlobalPermission(PermissionKey.ViewHappenings)"
             :title="$t('admin.happenings.index.title')"
             :description="$t('admin.happenings.index.description')"
             :link="route('admin.happening.index')"
             icon="ri-calendar-event-fill"
         />
         <DashboardCard
-            v-if="hasPermission('view_happenings')"
+            v-if="hasGlobalPermission(PermissionKey.ViewHappenings)"
             :title="$t('admin.statistics.index.title')"
             :description="$t('admin.statistics.index.description')"
             :link="route('admin.statistics.index')"
@@ -34,21 +35,21 @@ const route = inject<ZiggyRouteFn>("ziggyRoute")!;
             icon="ri-home-smile-fill"
         />
         <DashboardCard
-            v-if="hasPermission('view_users')"
+            v-if="hasGlobalPermission(PermissionKey.ViewUsers)"
             :title="$t('admin.users.index.title')"
             :description="$t('admin.users.index.description')"
             :link="route('admin.user.index')"
             icon="ri-user-fill"
         />
         <DashboardCard
-            v-if="hasPermission('view_roles')"
+            v-if="hasGlobalPermission(PermissionKey.ViewRoles)"
             :title="$t('admin.roles.index.title')"
             :description="$t('admin.roles.index.description')"
             :link="route('admin.role.index')"
             icon="ri-group-line"
         />
         <DashboardCard
-            v-if="hasPermission('view_user_groups')"
+            v-if="hasGlobalPermission(PermissionKey.ViewUserGroups)"
             :title="$t('admin.user_groups.index.title')"
             :description="$t('admin.user_groups.index.description')"
             :link="route('admin.user_group.index')"

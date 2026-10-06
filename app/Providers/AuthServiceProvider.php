@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\AlmaUserProvider;
+use App\Enums\PermissionKey;
 use App\Models\Happening;
 use App\Models\Institution;
 use App\Models\Role;
@@ -36,9 +37,15 @@ class AuthServiceProvider extends ServiceProvider
                 return true;
             }
 
+            $permission = PermissionKey::tryFrom($ability);
+
+            if ($permission === null) {
+                return null;
+            }
+
             if (! $target instanceof Institution) {
                 // check global permissions
-                if ($user->roles->contains(fn (Role $role): bool => $role->hasPermission($ability))) {
+                if ($user->roles->contains(fn (Role $role): bool => $role->hasPermission($permission->value))) {
                     return true;
                 }
 
@@ -48,7 +55,7 @@ class AuthServiceProvider extends ServiceProvider
             // check institution scoped permissions
             if (
                 $user->roles->contains(
-                    fn (Role $role): bool => $role->hasPermission($ability, $target)
+                    fn (Role $role): bool => $role->hasPermission($permission->value, $target)
                 )
             ) {
                 return true;

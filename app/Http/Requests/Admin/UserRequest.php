@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\User;
 use App\Rules\CurrentPasswordRule;
@@ -44,7 +45,7 @@ class UserRequest extends AdminRouteRequest
      */
     public function rules(): array
     {
-        $canEditAdminUsers = $this->userModel()?->can('edit_admin_users') ?? false;
+        $canEditAdminUsers = $this->userModel()?->can(PermissionKey::EditAdminUsers->value) ?? false;
 
         return [
             'id' => ['nullable', 'uuid', 'exists:users,id'],

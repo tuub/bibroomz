@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PermissionKey;
 use App\Models\Happening;
 use App\Models\Resource;
 use App\Models\User;
@@ -199,6 +200,6 @@ class HappeningAdminService
      */
     private function userPermissions(User $user): Collection
     {
-        return $user->getPermissions(['no_verifier']);
+        return $user->getPermissions([PermissionKey::NoVerifier->value]);
     }
 }

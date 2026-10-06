@@ -1,4 +1,5 @@
 import type { AdminResource, AdminUser } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 
 type VerificationInput = {
     resource?: AdminResource;
@@ -18,5 +19,5 @@ export function requiresAdminHappeningVerification({ resource, user }: Verificat
         return true;
     }
 
-    return !user.permissions[String(resource.institution_id)]?.includes("no_verifier");
+    return !user.permissions[String(resource.institution_id)]?.includes(PermissionKey.NoVerifier);
 }

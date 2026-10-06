@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\PermissionKey;
 use App\Library\Utility;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
-covers(Permission::class);
+covers(Permission::class, PermissionKey::class);
 
 uses(LazilyRefreshDatabase::class);
 
@@ -22,6 +23,15 @@ test('permission can be retrieved from seeded data by key', function (): void {
 
     expect($permission)->not->toBeNull()
         ->and($permission?->key)->toBe('view_mails');
+});
+
+test('the seeder creates exactly the registered permission keys', function (): void {
+    $this->seed(PermissionSeeder::class);
+
+    $registeredKeys = collect(PermissionKey::cases())->map->value->sort()->values()->all();
+    $seededKeys = Permission::query()->pluck('key')->sort()->values()->all();
+
+    expect($seededKeys)->toBe($registeredKeys);
 });
 
 test('permission name stores translations', function (): void {

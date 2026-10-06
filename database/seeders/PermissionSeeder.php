@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PermissionKey;
 use App\Models\Permission;
 use App\Models\PermissionGroup;
 use Illuminate\Database\Seeder;
@@ -105,56 +106,9 @@ class PermissionSeeder extends Seeder
             $this->createPermissionGroup($key, $name);
         }
 
-        $this->createPermissions([
-            'view',
-            'create',
-            'edit',
-            'delete',
-        ], [
-            'closings',
-            'happenings',
-            'institutions',
-            'mails',
-            'resource_groups',
-            'resources',
-            'roles',
-            'users',
-            'user_groups',
-        ]);
-
-        $this->createPermissions([
-            'view',
-            'edit',
-            'delete',
-        ], [
-            'admin_users',
-            'institution',
-        ]);
-
-        $this->createPermissions([
-            'view',
-            'edit',
-        ], [
-            'permission_groups',
-            'permissions',
-            'settings',
-        ]);
-
-        $this->createPermission(
-            'unlimited_quotas',
-            [
-                'en' => 'Unlimited quotas',
-                'de' => 'Unbegrenzte Kontingente',
-            ],
-        );
-
-        $this->createPermission(
-            'no_verifier',
-            [
-                'en' => 'No verification necessary',
-                'de' => 'Keine Bestätigung notwendig',
-            ],
-        );
+        foreach (PermissionKey::cases() as $permission) {
+            $this->createRegisteredPermission($permission);
+        }
     }
 
     /** @param array<string, string> $name */
@@ -170,31 +124,42 @@ class PermissionSeeder extends Seeder
         ]);
     }
 
-    /**
-     * @param  array<string>  $verbs
-     * @param  array<string>  $groups
-     */
-    private function createPermissions(array $verbs, array $groups): void
+    private function createRegisteredPermission(PermissionKey $permissionKey): void
     {
-        foreach ($verbs as $verbKey) {
-            foreach ($groups as $groupKey) {
-                /** @var array{en: string, de: string} $verbName */
-                $verbName = $this->verbs->get($verbKey) ?? ['en' => '', 'de' => ''];
-                /** @var array{en: string, de: string} $groupName */
-                $groupName = $this->groups->get($groupKey) ?? ['en' => '', 'de' => ''];
+        $verbKey = $permissionKey->verbKey();
+        $groupKey = $permissionKey->groupKey();
 
-                $permission = $this->createPermission(
-                    $verbKey.'_'.$groupKey,
-                    [
-                        'en' => ucfirst($verbName['en']).' '.lcfirst($groupName['en']),
-                        'de' => ucfirst($groupName['de']).' '.lcfirst($verbName['de']),
-                    ],
-                );
+        if ($verbKey === null || $groupKey === null) {
+            $this->createPermission($permissionKey->value, match ($permissionKey) {
+                PermissionKey::UnlimitedQuotas => [
+                    'en' => 'Unlimited quotas',
+                    'de' => 'Unbegrenzte Kontingente',
+                ],
+                PermissionKey::NoVerifier => [
+                    'en' => 'No verification necessary',
+                    'de' => 'Keine Bestätigung notwendig',
+                ],
+                default => throw new \LogicException('Missing permission translation.'),
+            });
 
-                $group = PermissionGroup::where('key', '=', $groupKey)->first();
-                $permission?->group()->associate($group)->save();
-            }
+            return;
         }
+
+        /** @var array{en: string, de: string} $verbName */
+        $verbName = $this->verbs->get($verbKey) ?? throw new \LogicException('Unknown permission verb.');
+        /** @var array{en: string, de: string} $groupName */
+        $groupName = $this->groups->get($groupKey) ?? throw new \LogicException('Unknown permission group.');
+
+        $permission = $this->createPermission(
+            $permissionKey->value,
+            [
+                'en' => ucfirst($verbName['en']).' '.lcfirst($groupName['en']),
+                'de' => ucfirst($groupName['de']).' '.lcfirst($verbName['de']),
+            ],
+        );
+
+        $group = PermissionGroup::where('key', '=', $groupKey)->first();
+        $permission?->group()->associate($group)->save();
     }
 
     /** @param array<string, string> $name */

@@ -125,6 +125,9 @@ These values match `.env.example`, where Laravel connects to MariaDB through `DB
 14. Run the scheduler
     - See https://laravel.com/docs/11.x/scheduling#running-the-scheduler
 
+Permission changes must follow the registry, authorization, and test checklist in
+[`docs/permissions.md`](docs/permissions.md).
+
 # Local Process Runner
 This repository includes `process-compose.yaml` for local development. It starts MariaDB, Redis, and Mailpit through
 Docker Compose, then runs the Laravel server, Vite, Reverb, the queue worker, and the scheduler on the host.

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\MailContent;
 use App\Models\User;
@@ -13,7 +14,7 @@ class MailContentPolicy
      */
     public function viewAny(User $user, Institution $institution): bool
     {
-        return $user->can('view_mails', $institution);
+        return $user->can(PermissionKey::ViewMails->value, $institution);
     }
 
     /**
@@ -21,7 +22,7 @@ class MailContentPolicy
      */
     public function view(User $user, MailContent $mailContent): bool
     {
-        return $user->can('view_mails', $mailContent->institution);
+        return $user->can(PermissionKey::ViewMails->value, $mailContent->institution);
     }
 
     /**
@@ -29,7 +30,7 @@ class MailContentPolicy
      */
     public function create(User $user, Institution $institution): bool
     {
-        return $user->can('create_mails', $institution);
+        return $user->can(PermissionKey::CreateMails->value, $institution);
     }
 
     /**
@@ -37,7 +38,7 @@ class MailContentPolicy
      */
     public function update(User $user, MailContent $mailContent): bool
     {
-        return $user->can('edit_mails', $mailContent->institution);
+        return $user->can(PermissionKey::EditMails->value, $mailContent->institution);
     }
 
     public function edit(User $user, MailContent $mailContent): bool
@@ -50,6 +51,6 @@ class MailContentPolicy
      */
     public function delete(User $user, MailContent $mailContent): bool
     {
-        return $user->can('delete_mails', $mailContent->institution);
+        return $user->can(PermissionKey::DeleteMails->value, $mailContent->institution);
     }
 }

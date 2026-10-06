@@ -9,6 +9,7 @@ import { postReorderedRows } from "@/Composables/Reorder";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import type { AdminInstitution, DataTableRef, ResourceGroup } from "@/Types/Admin";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
 
 import { FilterMatchMode } from "@primevue/core/api";
@@ -40,8 +41,7 @@ const appStore = useAppStore();
 // Variables
 // ------------------------------------------------
 const route = inject<ZiggyRouteFn>("ziggyRoute")!;
-const hasPermission = (ability: string, institutionId?: string | number) =>
-    authStore.hasPermission(ability, institutionId);
+const { hasInstitutionPermission } = authStore;
 const { translate } = appStore;
 const indexTable = ref<DataTableRef>(null);
 const routeParams = {
@@ -68,7 +68,11 @@ const reorderRows = (event: { value: ResourceGroup[] }) => {
 };
 
 const canAccessSettings = () => {
-    return hasPermission("view_settings", props.institution.id) || hasPermission("edit_settings", props.institution.id);
+    return (
+        props.institution.id != null &&
+        (hasInstitutionPermission(PermissionKey.ViewSettings, props.institution.id) ||
+            hasInstitutionPermission(PermissionKey.EditSettings, props.institution.id))
+    );
 };
 </script>
 
@@ -110,7 +114,14 @@ const canAccessSettings = () => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="resource_group" :institution-id="institution.id" :params="routeParams" />
+                        <CreateLink
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.CreateResourceGroups, institution.id)
+                            "
+                            model="resource_group"
+                            :params="routeParams"
+                        />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -144,13 +155,19 @@ const canAccessSettings = () => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_resource_groups', institution.id)"
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.EditResourceGroups, institution.id)
+                            "
                             action="edit"
                             model="resource_group"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_resource_groups', institution.id)"
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.DeleteResourceGroups, institution.id)
+                            "
                             action="delete"
                             model="resource_group"
                             :params="{ id: slotProps.data.id }"
@@ -162,7 +179,10 @@ const canAccessSettings = () => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <RelationLink
-                            v-if="hasPermission('view_resources', institution.id)"
+                            v-if="
+                                institution.id != null &&
+                                hasInstitutionPermission(PermissionKey.ViewResources, institution.id)
+                            "
                             current="resource_group"
                             relation="resource"
                             :params="{ resource_group_id: slotProps.data.id }"

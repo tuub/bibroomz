@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\UserGroup;
@@ -14,31 +15,31 @@ class UserGroupPolicy
     public function viewAny(User $user): bool
     {
         return $this->hasAnyPermission($user, [
-            'view_user_groups',
-            'create_user_groups',
-            'edit_user_groups',
-            'delete_user_groups',
+            PermissionKey::ViewUserGroups,
+            PermissionKey::CreateUserGroups,
+            PermissionKey::EditUserGroups,
+            PermissionKey::DeleteUserGroups,
         ]);
     }
 
     public function createAny(User $user): bool
     {
-        return $this->hasAnyPermission($user, ['create_user_groups']);
+        return $this->hasAnyPermission($user, [PermissionKey::CreateUserGroups]);
     }
 
     public function view(User $user, UserGroup $userGroup): bool
     {
-        return $user->can('view_user_groups', $userGroup->institution);
+        return $user->can(PermissionKey::ViewUserGroups->value, $userGroup->institution);
     }
 
     public function create(User $user, Institution $institution): bool
     {
-        return $user->can('create_user_groups', $institution);
+        return $user->can(PermissionKey::CreateUserGroups->value, $institution);
     }
 
     public function update(User $user, UserGroup $userGroup): bool
     {
-        return $user->can('edit_user_groups', $userGroup->institution);
+        return $user->can(PermissionKey::EditUserGroups->value, $userGroup->institution);
     }
 
     public function edit(User $user, UserGroup $userGroup): bool
@@ -48,19 +49,21 @@ class UserGroupPolicy
 
     public function delete(User $user, UserGroup $userGroup): bool
     {
-        return $user->can('delete_user_groups', $userGroup->institution);
+        return $user->can(PermissionKey::DeleteUserGroups->value, $userGroup->institution);
     }
 
     public function import(User $user, UserGroup $userGroup): bool
     {
-        return $user->can('edit_user_groups', $userGroup->institution);
+        return $user->can(PermissionKey::EditUserGroups->value, $userGroup->institution);
     }
 
     /**
-     * @param  list<string>  $permissions
+     * @param  list<PermissionKey>  $permissions
      */
     private function hasAnyPermission(User $user, array $permissions): bool
     {
-        return $user->getPermissions($permissions)->flatten()->isNotEmpty();
+        return $user->getPermissions(
+            array_map(fn (PermissionKey $permission): string => $permission->value, $permissions),
+        )->flatten()->isNotEmpty();
     }
 }

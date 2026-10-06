@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\PermissionKey;
 use App\Http\Controllers\Admin\ResourceController;
 use App\Library\Utility;
 use App\Models\Institution;
@@ -21,6 +22,29 @@ uses(InteractsWithPermissions::class, LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->seed(PermissionSeeder::class);
+});
+
+test('resource index enforces the scoped authorization matrix', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+
+    $this->assertScopedGetAuthorizationMatrix(
+        route('admin.resource.index', ['resource_group_id' => $resourceGroup->id]),
+        $institution,
+        PermissionKey::ViewResources,
+    );
+});
+
+test('resource create form does not treat view permission as create permission', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+
+    $this->assertScopedGetAuthorizationMatrix(
+        route('admin.resource.create', ['resource_group_id' => $resourceGroup->id]),
+        $institution,
+        PermissionKey::CreateResources,
+        PermissionKey::ViewResources,
+    );
 });
 
 // ---------------------------------------------------------------------------

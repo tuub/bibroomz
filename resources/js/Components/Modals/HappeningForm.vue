@@ -54,7 +54,7 @@
             />
         </div>
 
-        <div v-if="happening.isVerificationRequired && !can('no_verifier')">
+        <div v-if="happening.isVerificationRequired && !canSkipVerification">
             <FormLabel field="verifier" field-key="modal.form.fields.verifier"></FormLabel>
             <input
                 id="verifier"
@@ -100,6 +100,7 @@ import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
 import { type Happening, type HappeningEditPayload, useHappeningStore } from "@/Stores/HappeningStore";
 import useModal from "@/Stores/Modal";
+import { PermissionKey } from "@/Types/PermissionKey.generated";
 import { appWallClock } from "@/appTime";
 import { withBaseUrl } from "@/baseUrl";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
@@ -267,7 +268,11 @@ const updateEndTimeSlot = (event: TimeSlotSelectChangeEvent) => {
     emit("update-happening", happening);
 };
 
-const can = authStore.can;
+const canSkipVerification = computed(() => {
+    const institutionId = appStore.institution?.id;
+
+    return institutionId != null && authStore.hasInstitutionPermission(PermissionKey.NoVerifier, institutionId);
+});
 
 const fetchFormUsers = async () => {
     try {

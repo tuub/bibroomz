@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermissionKey;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\User;
@@ -13,22 +14,22 @@ class ResourcePolicy
 
     public function viewAny(User $user, Institution $institution): bool
     {
-        return $user->can('view_resources', $institution);
+        return $user->can(PermissionKey::ViewResources->value, $institution);
     }
 
     public function view(User $user, Resource $resource): bool
     {
-        return $user->can('view_resources', $resource->resource_group->institution);
+        return $user->can(PermissionKey::ViewResources->value, $resource->resource_group->institution);
     }
 
     public function create(User $user, Institution $institution): bool
     {
-        return $user->can('create_resources', $institution);
+        return $user->can(PermissionKey::CreateResources->value, $institution);
     }
 
     public function update(User $user, Resource $resource): bool
     {
-        return $user->can('edit_resources', $resource->resource_group->institution);
+        return $user->can(PermissionKey::EditResources->value, $resource->resource_group->institution);
     }
 
     public function edit(User $user, Resource $resource): bool
@@ -38,11 +39,11 @@ class ResourcePolicy
 
     public function delete(User $user, Resource $resource): bool
     {
-        return $user->can('delete_resources', $resource->resource_group->institution);
+        return $user->can(PermissionKey::DeleteResources->value, $resource->resource_group->institution);
     }
 
     public function clone(User $user, Resource $resource): bool
     {
-        return $user->can('create_resources', $resource->resource_group->institution);
+        return $user->can(PermissionKey::CreateResources->value, $resource->resource_group->institution);
     }
 }
