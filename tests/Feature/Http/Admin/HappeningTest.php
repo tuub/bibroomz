@@ -269,6 +269,54 @@ test('admin happening routes render and mutate happenings', function (): void {
     $this->assertSoftDeleted('happenings', ['id' => $happening->id]);
 });
 
+test('an ordinary admin booking is stored as the wall clock it was entered as', function (): void {
+    $institution = Institution::factory()->create();
+    $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
+    $resource = Resource::factory()->for($resourceGroup, 'resource_group')->create([
+        'is_verification_required' => false,
+    ]);
+    $bookedUser = User::factory()->create(['is_system_user' => true]);
+
+    actingHappeningFeatureAdmin($institution, [
+        'view_happenings',
+        'create_happenings',
+        'edit_happenings',
+    ]);
+
+    $this->post(route('admin.happening.store'), [
+        'start_date' => '10.06.2026',
+        'start_time' => '09:00',
+        'end_date' => '10.06.2026',
+        'end_time' => '10:00',
+        'resource_id' => $resource->id,
+        'user_id_01' => $bookedUser->id,
+        'is_verified' => false,
+        'label' => adminHappeningFeatureTranslatable('Wall clock booking'),
+    ])->assertRedirect(route('admin.happening.index'));
+
+    // Literal values on purpose. Rebuilding the expectation with the same helper
+    // the request uses would pass against any implementation of it, which is how
+    // a conversion to UTC survived every unit test on this method.
+    $this->assertDatabaseHas('happenings', [
+        'resource_id' => $resource->id,
+        'start' => '2026-06-10 09:00:00',
+        'end' => '2026-06-10 10:00:00',
+    ]);
+
+    // The edit form formats those two columns straight back out, so a shifted
+    // value is what the next person to open the booking is shown.
+    $happening = Happening::query()->where('resource_id', $resource->id)->firstOrFail();
+
+    $this->get(route('admin.happening.edit', ['id' => $happening->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/Happenings/Form')
+            ->where('happening.start_date', '10.06.2026')
+            ->where('happening.start_time', '09:00')
+            ->where('happening.end_date', '10.06.2026')
+            ->where('happening.end_time', '10:00'));
+});
+
 // ---------------------------------------------------------------------------
 // From AdminHappeningIndexAndVisibilityTest — happening index test
 // ---------------------------------------------------------------------------
