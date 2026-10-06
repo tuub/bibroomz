@@ -39,8 +39,11 @@ to loopback ports 6100-6199. Deploying a branch never edits or reloads that conf
 
 `REVIEW_ROOT` moves the whole tree elsewhere. All three review jobs forward it to the host, so it belongs in the CI
 variables and not in `review.env`, which is itself read from `$REVIEW_ROOT/review.env`. An unset or empty value keeps
-the default. Nothing derives the path from anywhere else, so the web server snippet's `root` or `Alias` has to be
-pointed at the same directory by hand.
+the default. It describes the host rather than an environment -- `import-database` resolves a review app under it
+too, from a fourth environment -- so it is scoped to all environments and not to `review*` like the `SSH_*`
+variables. It is a path and not a credential, and no job that does not name it is affected by seeing it. Nothing
+derives the path from anywhere else, so the web server snippet's `root` or `Alias` has to be pointed at the same
+directory by hand.
 
 A review app occupies roughly 90 MB: review deployments install production dependencies only and delete `node_modules`
 once the assets are built, which cuts about 780 MB per app. Nothing reads `node_modules` at runtime because the app
@@ -156,7 +159,8 @@ builds no SSR bundle, and the shared caches keep the reinstall on the next deplo
 
 6. Scope the `SSH_*` CI variables to `review*` as well as to `staging`, so all three review jobs can reach the host.
    The wildcard covers both `review/<slug>` and the `review-cleanup` environment that `cleanup-review` attaches itself
-   to for exactly this reason. Add `REVIEW_ROOT` there too if the review tree does not live at `/srv/review`.
+   to for exactly this reason. `REVIEW_ROOT` does not belong in that scope: if the review tree does not live at
+   `/srv/review`, set it for all environments, so `import-database` resolves review apps under the same tree.
 
 7. Create a pipeline schedule on the default branch with `SCHEDULE_TASK=cleanup-review`, daily. It runs
    `cleanup-review`, which needs the `GITLAB_TOKEN` the automation jobs already use.
@@ -171,6 +175,40 @@ all of it, including dropping the database, removing the app's keys from Redis d
 (cache), and deleting the checkout. Teardown is self-contained and also works if the checkout is already missing.
 
 Redeploying a branch reuses its port, database and `APP_KEY`, so sessions and data survive.
+
+A review app can be filled with real data by the `import-database` job, which is not a review job: it lives in
+[`.gitlab/ci/deploy.yml`](../.gitlab/ci/deploy.yml) and runs on a pipeline started from the default branch, because
+that is the only branch the `workflow:rules` let a web pipeline run on. `REVIEW_SLUG` is prefilled as a documented
+field on the **Run** **pipeline** form by the top-level `variables:` block in
+[`.gitlab-ci.yml`](../.gitlab-ci.yml): fill in the branch or the slug it deployed under -- either reaches the same
+app, because [`scripts/db-import.sh`](../scripts/db-import.sh) applies `CI_COMMIT_REF_SLUG`'s rule itself before it
+builds `$REVIEW_ROOT/apps/<slug>` -- and run the pipeline. A filled field starts `import-database` by itself:
+filling it in is already the request, and it is the case the check below guards. The empty field is what keeps the
+job manual, because that import goes into the host's own deployment, where there is nothing to guard it. The job has
+`needs: []`, so it starts at once rather than behind the lint and test stages of the pipeline it rides along with.
+
+Which branch the pipeline runs on does not matter: each host executes `scripts/db-dump.sh` and
+`scripts/db-restore.sh` from its own checkout, and the app's copy is at the commit it was deployed from, so the
+restored schema is migrated by that branch's code.
+
+On a host whose tree is not at `/srv/review`, this depends on `REVIEW_ROOT` being scoped to all environments rather
+than to `review*`: the job runs in the `import-database` environment, and a value it cannot see leaves the path under
+the default tree, which the check below refuses, naming `REVIEW_ROOT` as a cause. Prefilling it on the form next to
+`REVIEW_SLUG` is not the alternative. A form field arrives as a pipeline variable, which outranks a project
+variable, so every job in that pipeline would get this file's value -- empty, by default -- instead of the
+configured one, and `cleanup-review` is manual on a web pipeline and reads it.
+
+Before it streams anything, `db-import.sh` reads `DB_DATABASE` out of the target `.env` and refuses to go on unless
+the name starts with `review_`. [`scripts/db-restore.sh`](../scripts/db-restore.sh) drops every table before it
+restores, so without that check a mistyped `REVIEW_SLUG` would wipe whichever deployment the path it builds reaches. A
+slug that names no app is refused before the dump starts; a slug that names the wrong review app is not, so the branch
+it belongs to loses its data until it is redeployed. Nothing serialises an import against a `deploy-review` of the
+same branch, so do not start one while the other is running.
+
+An import replaces the seeded data. `scripts/deploy.sh` runs `migrate --force --seed`, while `db-restore.sh` only
+migrates the restored schema up to what the deployed code expects, so whatever the seeders provide -- the accounts
+behind `IS_TEST_ACCOUNTS_ENABLED` among them -- is gone until the branch is redeployed, which seeds again on top of the
+imported data.
 
 `stop-review` is the one job that does not pipe the script in. GitLab usually starts it once the branch is gone, when
 there is no ref left to check out, so it sets `GIT_STRATEGY: none` and runs
@@ -212,3 +250,18 @@ nix shell --inputs-from . nixpkgs#jq --command bash review/tests/test-prune-revi
 
 They cover which apps are destroyed, that a live branch keeps its app and environment even when its slug differs from
 its name, and that an empty branch list destroys nothing.
+
+The import has checks of its own, which need nothing but bash because the dump and the restore are the only stubbed
+parts:
+
+```bash
+bash review/tests/test-db-import.sh
+```
+
+They run the slug rule, the path it builds and the pre-flight read of the target `.env` against a host tree in a
+temporary directory. They cover the app a slug resolves to, a branch name reaching that same app, an input with
+separators in it ending up as one segment under `apps/`, one that slugifies to nothing being refused, an unset
+`REVIEW_ROOT` falling back to the default tree, and the three targets that are refused before the dump starts: a
+`.env` naming a database outside `review_*`, a checkout with no database at all, and an app that was never deployed.
+Two more cover the import without a slug, which is how the scheduled task reaches the shared deployment: the
+explicit target directory is used as before, and nothing is pre-checked.
