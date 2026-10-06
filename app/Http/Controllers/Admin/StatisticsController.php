@@ -55,6 +55,7 @@ class StatisticsController extends AdminController
             'timeSeriesInstitutionId' => fn (): ?string => $eagerData()['timeSeriesInstitutionId'],
             'timeSeriesResourceGroupId' => fn (): ?string => $eagerData()['timeSeriesResourceGroupId'],
             'timeSeriesResourceId' => fn (): ?string => $eagerData()['timeSeriesResourceId'],
+            'retention' => fn (): array => $eagerData()['retention'],
             'timeSeries' => Inertia::defer(fn (): array => $timeSeriesGroupData()['timeSeries'], 'timeSeries'),
             'cancellations' => Inertia::defer(fn (): array => $timeSeriesGroupData()['cancellations'], 'timeSeries'),
             'heatmap' => Inertia::defer(fn (): array => $this->statisticsAdminService->getHeatmapData(

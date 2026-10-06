@@ -91,7 +91,10 @@ return [
                 'cancelled' => 'Cancelled',
                 'active' => 'Active',
                 'rate' => 'Rate',
-                'retention_notice' => 'Bookings older than :days days may have already been removed by cleanup, so this range can be incomplete.',
+            ],
+            'retention' => [
+                'notice' => 'Bookings are only kept for :days days. Everything that ended before :cutoff has already been deleted, so those bookings are missing here.',
+                'notice_range' => 'Bookings are only kept for :days days. Everything that ended before :cutoff has already been deleted, so the bookings from :from to :to are missing from this period.',
             ],
             'range' => [
                 'label' => 'Time range',

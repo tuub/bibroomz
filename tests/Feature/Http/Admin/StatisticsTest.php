@@ -80,6 +80,30 @@ test('admin statistics page presents cancellation status by institution, resourc
                 ->etc()));
 });
 
+test('admin statistics page reports which bookings a period reaching past cleanup is missing', function (): void {
+    config(['roomz.happenings.cleanup_days' => 30]);
+    $institution = Institution::factory()->create();
+    ResourceGroup::factory()->for($institution, 'institution')->create();
+
+    $admin = User::factory()->create();
+    grantAdminPermission($admin, $institution, 'view_happenings');
+
+    $this->actingAs($admin)
+        ->get(route('admin.statistics.index', [
+            'range' => 'custom',
+            'from' => now()->subYear()->toDateString(),
+            'to' => now()->toDateString(),
+        ]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): AssertableJson => $page
+            ->component('Admin/Statistics/Index')
+            ->where('retention.days', 30)
+            ->where('retention.exceeded', true)
+            ->where('retention.missingFrom', now()->subYear()->toDateString())
+            ->where('retention.missingTo', now()->subDays(30)->toDateString())
+            ->etc());
+});
+
 test('admin statistics page presents peak-times heatmap data', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();

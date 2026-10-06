@@ -18,8 +18,7 @@ defineProps<{
     selectedTimeSeriesResourceGroupIds: SelectionId[];
     selectedTimeSeriesResourceIds: SelectionId[];
     timeSeriesIsSplit: boolean;
-    retentionExceeded: boolean;
-    retentionDays: number;
+    retentionNotice: string;
     hasComparison: boolean;
     comparison: StatisticsComparison | null;
     timeSeries: TimeSeriesEntry[];
@@ -181,12 +180,8 @@ function toSelectionIds(value: unknown): SelectionId[] {
                 </MultiSelect>
             </div>
         </div>
-        <p v-if="retentionExceeded" class="text-app-muted mb-3 text-sm italic" data-test="retention-notice">
-            {{
-                $t("admin.statistics.index.cancellations.retention_notice", {
-                    days: String(retentionDays),
-                })
-            }}
+        <p v-if="retentionNotice" class="text-app-muted mb-3 text-sm italic" data-test="retention-notice">
+            {{ retentionNotice }}
         </p>
         <div class="grid grid-cols-1 gap-4" :class="{ 'xl:grid-cols-2': hasComparison }">
             <div>

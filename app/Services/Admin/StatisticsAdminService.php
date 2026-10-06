@@ -15,6 +15,7 @@ class StatisticsAdminService
         private readonly StatisticsBookingCountsCalculator $bookingCountsCalculator,
         private readonly StatisticsTimeSeriesBuilder $timeSeriesBuilder,
         private readonly StatisticsCancellationCalculator $cancellationCalculator,
+        private readonly StatisticsRetentionResolver $retentionResolver,
         private readonly StatisticsHeatmapBuilder $heatmapBuilder,
         private readonly StatisticsComparisonBuilder $comparisonBuilder,
         private readonly StatisticsCsvExporter $csvExporter,
@@ -41,7 +42,7 @@ class StatisticsAdminService
      *     timeSeriesInstitutionId: ?string,
      *     timeSeriesResourceGroupId: ?string,
      *     timeSeriesResourceId: ?string,
-     *     cancellations: array{cancelled: int, active: int, rate: float, retentionDays: int, retentionExceeded: bool},
+     *     cancellations: array{cancelled: int, active: int, rate: float},
      *     heatmap: array{cells: array<int, array{dayOfWeek: int, hour: int, count: int, percentage: float}>, maxCount: int, totalCount: int},
      *     comparison: ?array{
      *         from: string,
@@ -148,6 +149,7 @@ class StatisticsAdminService
      *     timeSeriesInstitutionId: ?string,
      *     timeSeriesResourceGroupId: ?string,
      *     timeSeriesResourceId: ?string,
+     *     retention: array{days: int, cutoff: string, exceeded: bool, missingFrom: ?string, missingTo: ?string},
      * }
      */
     public function getBookingCountsAndFilterState(
@@ -185,6 +187,7 @@ class StatisticsAdminService
             'timeSeriesInstitutionId' => $institutionIds[0] ?? null,
             'timeSeriesResourceGroupId' => $resourceGroupIds[0] ?? null,
             'timeSeriesResourceId' => $resourceIds[0] ?? null,
+            'retention' => $this->retentionResolver->resolve($rangeFrom, $rangeTo),
         ];
     }
 
@@ -198,7 +201,7 @@ class StatisticsAdminService
      * @param  list<string>  $resourceIds
      * @return array{
      *     timeSeries: array<int, array{label: string, count: int, segments?: array<int, array{id: string, title: array<string, string>, count: int}>}>,
-     *     cancellations: array{cancelled: int, active: int, rate: float, retentionDays: int, retentionExceeded: bool},
+     *     cancellations: array{cancelled: int, active: int, rate: float},
      * }
      */
     public function getTimeSeriesGroupData(

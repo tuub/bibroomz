@@ -178,8 +178,6 @@ function render(props: Record<string, unknown> = {}) {
                 cancelled: 1,
                 active: 4,
                 rate: 20,
-                retentionDays: 1000,
-                retentionExceeded: false,
             },
             heatmap: {
                 cells: buildHeatmapCells([
@@ -790,18 +788,53 @@ describe("Admin/Statistics/Index", () => {
         expect(resourceRows[0]!.text()).toContain("33.3%");
     });
 
-    test("shows the cancellation retention notice when the selected range exceeds cleanup retention", () => {
+    test("names the span the selected period is missing to cleanup", () => {
         const wrapper = render({
-            cancellations: {
-                cancelled: 1,
-                active: 4,
-                rate: 20,
-                retentionDays: 1000,
-                retentionExceeded: true,
+            retention: {
+                days: 1000,
+                cutoff: "2024-01-10",
+                exceeded: true,
+                missingFrom: "2020-01-01",
+                missingTo: "2024-01-10",
             },
         });
 
-        expect(wrapper.find('[data-test="retention-notice"]').exists()).toBe(true);
+        const notice = wrapper.find('[data-test="retention-notice"]');
+
+        expect(notice.exists()).toBe(true);
+        expect(notice.text()).toBe(
+            "admin.statistics.index.retention.notice_range 1000 2024-01-10 2020-01-01 2024-01-10",
+        );
+    });
+
+    test("names only the cleanup cut-off for a period without a lower bound", () => {
+        const wrapper = render({
+            retention: {
+                days: 1000,
+                cutoff: "2024-01-10",
+                exceeded: true,
+                missingFrom: null,
+                missingTo: null,
+            },
+        });
+
+        expect(wrapper.find('[data-test="retention-notice"]').text()).toBe(
+            "admin.statistics.index.retention.notice 1000 2024-01-10",
+        );
+    });
+
+    test("shows no retention notice while the selected period stays inside the retention window", () => {
+        const wrapper = render({
+            retention: {
+                days: 1000,
+                cutoff: "2024-01-10",
+                exceeded: false,
+                missingFrom: null,
+                missingTo: null,
+            },
+        });
+
+        expect(wrapper.find('[data-test="retention-notice"]').exists()).toBe(false);
     });
 
     test("shows a single entry as text instead of a chart with only one item", () => {

@@ -275,8 +275,14 @@ export type CancellationStatistic = {
     cancelled: number;
     active: number;
     rate: number;
-    retentionDays: number;
-    retentionExceeded: boolean;
+};
+
+export type StatisticsRetention = {
+    days: number;
+    cutoff: string;
+    exceeded: boolean;
+    missingFrom: string | null;
+    missingTo: string | null;
 };
 
 export type UserGroup = {

@@ -19,6 +19,7 @@ import type {
     ResourceGroupStatistic,
     ResourceStatistic,
     StatisticsComparison,
+    StatisticsRetention,
     TimeSeriesEntry,
 } from "@/Types/Admin";
 import type { ZiggyRouteFn } from "@/ziggyRoute";
@@ -55,6 +56,7 @@ const props = withDefaults(
         timeSeriesResourceGroupIds?: (number | string)[];
         timeSeriesResourceIds?: (number | string)[];
         cancellations?: CancellationStatistic;
+        retention?: StatisticsRetention;
         heatmap?: PeakTimesHeatmap;
         comparison?: StatisticsComparison | null;
     }>(),
@@ -75,8 +77,13 @@ const props = withDefaults(
             cancelled: 0,
             active: 0,
             rate: 0,
-            retentionDays: 0,
-            retentionExceeded: false,
+        }),
+        retention: () => ({
+            days: 0,
+            cutoff: "",
+            exceeded: false,
+            missingFrom: null,
+            missingTo: null,
         }),
         heatmap: () => ({
             cells: [],
@@ -325,6 +332,29 @@ const currentPeriodCountLabel = computed(() =>
         : "",
 );
 
+// Cleanup prunes happenings once they ended more than the retention window
+// ago, so a period reaching past the cut-off has nothing left to show there.
+// Name the gap, rather than leave the empty buckets unexplained.
+const retentionNotice = computed(() => {
+    if (!props.retention.exceeded) {
+        return "";
+    }
+
+    const days = String(props.retention.days);
+    const cutoff = appStore.formatDate(props.retention.cutoff);
+
+    if (!props.retention.missingFrom || !props.retention.missingTo) {
+        return trans("admin.statistics.index.retention.notice", { days, cutoff });
+    }
+
+    return trans("admin.statistics.index.retention.notice_range", {
+        days,
+        cutoff,
+        from: appStore.formatDate(props.retention.missingFrom),
+        to: appStore.formatDate(props.retention.missingTo),
+    });
+});
+
 const comparisonDateRangeLabel = computed(() =>
     props.comparison ? formatDateRange(props.comparison.from, props.comparison.to, appStore.formatDate) : "",
 );
@@ -402,8 +432,7 @@ const heatmapRows = usePeakTimesHeatmap(computed(() => props.heatmap));
                 :selected-time-series-institution-ids="selectedTimeSeriesInstitutionIds"
                 :selected-time-series-resource-group-ids="selectedTimeSeriesResourceGroupIds"
                 :selected-time-series-resource-ids="selectedTimeSeriesResourceIds"
-                :retention-exceeded="cancellations.retentionExceeded"
-                :retention-days="cancellations.retentionDays"
+                :retention-notice="retentionNotice"
                 :has-comparison="hasComparison"
                 :comparison="comparison"
                 :time-series="timeSeries"

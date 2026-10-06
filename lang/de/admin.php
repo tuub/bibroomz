@@ -91,7 +91,10 @@ return [
                 'cancelled' => 'Storniert',
                 'active' => 'Aktiv',
                 'rate' => 'Quote',
-                'retention_notice' => 'Buchungen, die älter als :days Tage sind, wurden möglicherweise bereits bereinigt. Dieser Zeitraum kann daher unvollständig sein.',
+            ],
+            'retention' => [
+                'notice' => 'Buchungen werden nur :days Tage aufbewahrt. Alles, was vor dem :cutoff geendet hat, wurde bereits gelöscht und fehlt hier.',
+                'notice_range' => 'Buchungen werden nur :days Tage aufbewahrt. Alles, was vor dem :cutoff geendet hat, wurde bereits gelöscht; die Buchungen vom :from bis :to fehlen daher in diesem Zeitraum.',
             ],
             'range' => [
                 'label' => 'Zeitraum',
