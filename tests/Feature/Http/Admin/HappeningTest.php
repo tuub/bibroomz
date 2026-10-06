@@ -127,6 +127,29 @@ function buildHappeningIndexFixture(): array
 // From AdminHappeningFlowTest
 // ---------------------------------------------------------------------------
 
+test('unrelated admin permissions cannot open happening index or create form', function (): void {
+    $institution = Institution::factory()->create();
+    $actor = buildScopedActorForHappenings($institution);
+
+    $this->actingAs($actor)
+        ->get(route('admin.happening.index'))
+        ->assertForbidden();
+
+    $this->get(route('admin.happening.create'))
+        ->assertForbidden();
+});
+
+test('view permission does not grant access to the happening create form', function (): void {
+    $institution = Institution::factory()->create();
+    actingHappeningFeatureAdmin($institution, ['view_happenings']);
+
+    $this->get(route('admin.happening.index'))
+        ->assertOk();
+
+    $this->get(route('admin.happening.create'))
+        ->assertForbidden();
+});
+
 test('scoped admins without happening create permission cannot store admin happenings', function (): void {
     $institution = Institution::factory()->create();
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();

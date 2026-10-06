@@ -1,6 +1,6 @@
 <template>
     <Button
-        v-if="hasPermission('create_' + model + 's')"
+        v-if="hasPermission('create_' + model + 's', institutionId)"
         icon="ri-add-circle-line"
         :aria-label="buttonLabel"
         :label="buttonLabel"
@@ -23,9 +23,11 @@ import { computed, inject } from "vue";
 const props = withDefaults(
     defineProps<{
         model: string;
+        institutionId?: string | number;
         params?: Record<string, unknown>;
     }>(),
     {
+        institutionId: undefined,
         params: () => ({}),
     },
 );

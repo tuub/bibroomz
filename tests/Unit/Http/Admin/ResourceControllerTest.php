@@ -43,7 +43,9 @@ test('resource controller renders the index data for a resource group', function
     $resourceGroup = ResourceGroup::factory()->for($institution, 'institution')->create();
     $service = Mockery::mock(ResourceAdminService::class);
     $request = Mockery::mock(ResourceGroupContextRequest::class);
+    $actor = User::factory()->create(['is_admin' => true, 'is_system_user' => true]);
 
+    $this->actingAs($actor);
     $service->shouldReceive('getIndexData')->once()->with($resourceGroup->id)->andReturn(['resources' => []]);
     $request->shouldReceive('resourceGroup')->once()->andReturn($resourceGroup);
 

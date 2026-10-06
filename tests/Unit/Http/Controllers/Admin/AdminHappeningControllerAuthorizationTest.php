@@ -14,6 +14,18 @@ covers(AdminHappeningController::class);
 
 uses(MockeryPHPUnitIntegration::class);
 
+test('getHappenings enforces authorization when no user is authenticated', function (): void {
+    $controller = new AdminHappeningController(Mockery::mock(HappeningAdminService::class));
+
+    expect(fn (): Response => $controller->getHappenings())->toThrow(AuthorizationException::class);
+});
+
+test('createHappening enforces authorization when no user is authenticated', function (): void {
+    $controller = new AdminHappeningController(Mockery::mock(HappeningAdminService::class));
+
+    expect(fn (): Response => $controller->createHappening())->toThrow(AuthorizationException::class);
+});
+
 test('editHappening enforces authorization when no user is authenticated', function (): void {
     $happening = new Happening;
 

@@ -138,7 +138,7 @@ const reorderRows = (event: { value: AdminResource[] }) => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="resource" :params="routeParams" />
+                        <CreateLink model="resource" :institution-id="institution.id" :params="routeParams" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -189,19 +189,19 @@ const reorderRows = (event: { value: AdminResource[] }) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_resource', slotProps.data.id)"
+                            v-if="hasPermission('edit_resources', institution.id)"
                             action="edit"
                             model="resource"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('create_resources', slotProps.data.institution_id)"
+                            v-if="hasPermission('create_resources', institution.id)"
                             action="clone"
                             model="resource"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_resource', slotProps.data.id)"
+                            v-if="hasPermission('delete_resources', institution.id)"
                             action="delete"
                             model="resource"
                             :params="{ id: slotProps.data.id }"
@@ -213,7 +213,7 @@ const reorderRows = (event: { value: AdminResource[] }) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <RelationLink
-                            v-if="hasPermission('view_closings', slotProps.data.id)"
+                            v-if="hasPermission('view_closings', institution.id)"
                             current="resource"
                             relation="closing"
                             :params="{ closable_type: 'resource', closable_id: slotProps.data.id }"

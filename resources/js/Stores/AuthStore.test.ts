@@ -437,10 +437,10 @@ describe("permissions", () => {
     test("can() checks permission against the current institution", () => {
         appStoreMock.institution = { id: 7 };
         const store = useAuthStore();
-        store.permissions = { 7: ["edit_resource"] };
+        store.permissions = { 7: ["edit_resources"] };
 
-        expect(store.can("edit_resource")).toBe(true);
-        expect(store.can("delete_resource")).toBe(false);
+        expect(store.can("edit_resources")).toBe(true);
+        expect(store.can("delete_resources")).toBe(false);
     });
 
     test("hasPermission grants everything to admins", () => {

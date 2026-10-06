@@ -186,10 +186,31 @@ test('admin happening actions are scoped to institution permissions', function (
     $this->grantPermission($user, $institution, 'edit_happenings');
     $this->grantPermission($user, $institution, 'delete_happenings');
 
-    expect($policy->adminView($user, $happening))->toBeTrue()
+    expect($policy->adminViewAny($user))->toBeTrue()
+        ->and($policy->adminCreateAny($user))->toBeTrue()
+        ->and($policy->adminView($user, $happening))->toBeTrue()
         ->and($policy->adminCreate($user, $institution))->toBeTrue()
         ->and($policy->adminUpdate($user, $happening))->toBeTrue()
         ->and($policy->adminDelete($user, $happening))->toBeTrue();
+});
+
+test('admin happening index and create form require their matching permissions', function (): void {
+    $institution = Institution::factory()->create();
+    $viewer = User::factory()->create();
+    $creator = User::factory()->create();
+    $unrelated = User::factory()->create();
+    $policy = new HappeningPolicy;
+
+    $this->grantPermission($viewer, $institution, 'view_happenings');
+    $this->grantPermission($creator, $institution, 'create_happenings');
+    $this->grantPermission($unrelated, $institution, 'view_users');
+
+    expect($policy->adminViewAny($viewer))->toBeTrue()
+        ->and($policy->adminCreateAny($viewer))->toBeFalse()
+        ->and($policy->adminViewAny($creator))->toBeFalse()
+        ->and($policy->adminCreateAny($creator))->toBeTrue()
+        ->and($policy->adminViewAny($unrelated))->toBeFalse()
+        ->and($policy->adminCreateAny($unrelated))->toBeFalse();
 });
 
 test('update returns false when happening has no user1', function (): void {

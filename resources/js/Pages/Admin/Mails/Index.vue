@@ -87,7 +87,11 @@ const recordsCount = computed(() => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="mail" />
+                        <CreateLink
+                            model="mail"
+                            :institution-id="institution.id"
+                            :params="{ institution_id: institution.id }"
+                        />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -115,13 +119,13 @@ const recordsCount = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_mail', slotProps.data.id)"
+                            v-if="hasPermission('edit_mails', institution.id)"
                             action="edit"
                             model="mail"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_mail', slotProps.data.id)"
+                            v-if="hasPermission('delete_mails', institution.id)"
                             action="delete"
                             model="mail"
                             :params="{ id: slotProps.data.id }"

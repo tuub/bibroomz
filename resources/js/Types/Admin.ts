@@ -32,6 +32,7 @@ export type DataTableRef = {
 export type AdminHappening = {
     id?: number | string;
     resource_id?: number | string;
+    institution_id?: number | string;
     institution?: Translatable;
     resource_group?: Translatable;
     resource?: Translatable;

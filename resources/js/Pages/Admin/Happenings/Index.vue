@@ -191,13 +191,13 @@ function mapHappenings(happenings: AdminHappening[]): MappedAdminHappening[] {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_happening', slotProps.data.id)"
+                            v-if="hasPermission('edit_happenings', slotProps.data.institution_id)"
                             action="edit"
                             model="happening"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_happening', slotProps.data.id)"
+                            v-if="hasPermission('delete_happenings', slotProps.data.institution_id)"
                             action="delete"
                             model="happening"
                             :params="{ id: slotProps.data.id }"

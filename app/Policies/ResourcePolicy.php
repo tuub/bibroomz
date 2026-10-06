@@ -11,6 +11,11 @@ class ResourcePolicy
 {
     use HandlesAuthorization;
 
+    public function viewAny(User $user, Institution $institution): bool
+    {
+        return $user->can('view_resources', $institution);
+    }
+
     public function view(User $user, Resource $resource): bool
     {
         return $user->can('view_resources', $resource->resource_group->institution);

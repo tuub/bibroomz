@@ -122,13 +122,13 @@ const recordsCount = computed(() => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_role', slotProps.data.id)"
+                            v-if="hasPermission('edit_roles')"
                             action="edit"
                             model="role"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_role', slotProps.data.id)"
+                            v-if="hasPermission('delete_roles')"
                             action="delete"
                             model="role"
                             :params="{ id: slotProps.data.id }"

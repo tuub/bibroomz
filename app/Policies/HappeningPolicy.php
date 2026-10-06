@@ -28,6 +28,16 @@ class HappeningPolicy
         return true;
     }
 
+    public function adminViewAny(User $user): bool
+    {
+        return $user->getPermissions(['view_happenings'])->flatten()->isNotEmpty();
+    }
+
+    public function adminCreateAny(User $user): bool
+    {
+        return $user->getPermissions(['create_happenings'])->flatten()->isNotEmpty();
+    }
+
     public function update(User $user, Happening $happening): bool
     {
         if ($user->isAdmin() && ! $happening->isPast()) {

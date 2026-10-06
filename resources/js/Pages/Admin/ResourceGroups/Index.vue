@@ -110,7 +110,7 @@ const canAccessSettings = () => {
                                 :placeholder="$t('admin.general.table.keyword_search')"
                             />
                         </IconField>
-                        <CreateLink model="resource_group" :params="routeParams" />
+                        <CreateLink model="resource_group" :institution-id="institution.id" :params="routeParams" />
                     </div>
                 </div>
                 <div class="mt-2 text-right text-xs">
@@ -144,13 +144,13 @@ const canAccessSettings = () => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_resource_group', slotProps.data.id)"
+                            v-if="hasPermission('edit_resource_groups', institution.id)"
                             action="edit"
                             model="resource_group"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_resource_group', slotProps.data.id)"
+                            v-if="hasPermission('delete_resource_groups', institution.id)"
                             action="delete"
                             model="resource_group"
                             :params="{ id: slotProps.data.id }"
@@ -162,7 +162,7 @@ const canAccessSettings = () => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <RelationLink
-                            v-if="hasPermission('view_resources', slotProps.data.id)"
+                            v-if="hasPermission('view_resources', institution.id)"
                             current="resource_group"
                             relation="resource"
                             :params="{ resource_group_id: slotProps.data.id }"

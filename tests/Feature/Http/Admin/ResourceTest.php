@@ -115,6 +115,18 @@ test('admin resource index filters resources through visibility service for auth
             ->has('resources', 1));
 });
 
+test('resource index is forbidden outside the permitted institution', function (): void {
+    $permittedInstitution = Institution::factory()->create();
+    $otherInstitution = Institution::factory()->create();
+    $otherResourceGroup = ResourceGroup::factory()->for($otherInstitution, 'institution')->create();
+    $actor = User::factory()->create(['is_admin' => false]);
+    grantAdminPermission($actor, $permittedInstitution, 'view_resources');
+
+    $this->actingAs($actor)
+        ->get(route('admin.resource.index', ['resource_group_id' => $otherResourceGroup->id]))
+        ->assertForbidden();
+});
+
 // ---------------------------------------------------------------------------
 // From AdminPermissionMatrixTest — resource tests
 // ---------------------------------------------------------------------------

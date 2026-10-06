@@ -17,6 +17,20 @@ covers(ResourceController::class);
 
 uses(MockeryPHPUnitIntegration::class);
 
+test('getResources enforces authorization when no user is authenticated', function (): void {
+    $institution = new Institution;
+    $resourceGroup = Mockery::mock(ResourceGroup::class);
+    $resourceGroup->shouldReceive('load')->with('institution')->andReturnSelf();
+    $resourceGroup->shouldReceive('getAttribute')->with('institution')->andReturn($institution);
+
+    $request = Mockery::mock(ResourceGroupContextRequest::class);
+    $request->shouldReceive('resourceGroup')->andReturn($resourceGroup);
+
+    $controller = new ResourceController(Mockery::mock(ResourceAdminService::class));
+
+    expect(fn (): Response => $controller->getResources($request))->toThrow(AuthorizationException::class);
+});
+
 test('createResource enforces authorization when no user is authenticated', function (): void {
     $resourceGroup = Mockery::mock(ResourceGroup::class);
     $resourceGroup->shouldReceive('load')->andReturnSelf();

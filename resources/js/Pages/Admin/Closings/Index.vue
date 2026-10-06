@@ -6,7 +6,7 @@ import LinkGroup from "@/Components/Admin/Index/LinkGroup.vue";
 import PopupLink from "@/Components/Admin/Index/PopupLink.vue";
 import { useAppStore } from "@/Stores/AppStore";
 import { useAuthStore } from "@/Stores/AuthStore";
-import type { Closable, Closing, DataTableRef } from "@/Types/Admin";
+import type { AdminInstitution, Closable, Closing, DataTableRef } from "@/Types/Admin";
 
 import { FilterMatchMode } from "@primevue/core/api";
 import dayjs from "dayjs";
@@ -23,11 +23,13 @@ const props = withDefaults(
         // eslint-disable-next-line vue/prop-name-casing
         closable_type?: string;
         closings?: Closing[];
+        institution?: AdminInstitution | null;
     }>(),
     {
         closable: () => ({}),
         closable_type: "",
         closings: () => [],
+        institution: null,
     },
 );
 
@@ -55,6 +57,10 @@ const filters = ref({
 
 const recordsCount = computed(() => {
     return indexTable.value?.processedData ? indexTable.value.processedData.length : props.closings.length;
+});
+
+const institutionId = computed(() => {
+    return props.closable_type === "institution" ? props.closable.id : props.institution?.id;
 });
 
 // ------------------------------------------------
@@ -111,6 +117,7 @@ const isPastClosing = (closing: Closing) => {
                         </IconField>
                         <CreateLink
                             model="closing"
+                            :institution-id="institutionId"
                             :params="{ closable_type: closable_type, closable_id: closable.id }"
                         />
                     </div>
@@ -146,13 +153,13 @@ const isPastClosing = (closing: Closing) => {
                 <template #body="slotProps">
                     <LinkGroup>
                         <ActionLink
-                            v-if="hasPermission('edit_closings')"
+                            v-if="hasPermission('edit_closings', institutionId)"
                             action="edit"
                             model="closing"
                             :params="{ id: slotProps.data.id }"
                         />
                         <PopupLink
-                            v-if="hasPermission('delete_closings')"
+                            v-if="hasPermission('delete_closings', institutionId)"
                             action="delete"
                             model="closing"
                             :params="{ id: slotProps.data.id }"

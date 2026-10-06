@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\DeleteHappeningRequest;
 use App\Http\Requests\Admin\HappeningIdRequest;
 use App\Http\Requests\Admin\StoreHappeningRequest;
 use App\Http\Requests\Admin\UpdateHappeningRequest;
+use App\Models\Happening;
 use App\Services\Admin\HappeningAdminService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -19,6 +20,8 @@ class HappeningController extends AdminController
 
     public function getHappenings(): Response
     {
+        $this->authorize('adminViewAny', Happening::class);
+
         return Inertia::render(
             'Admin/Happenings/Index',
             $this->happeningAdminService->getIndexData($this->authenticatedUser()),
@@ -27,6 +30,8 @@ class HappeningController extends AdminController
 
     public function createHappening(): Response
     {
+        $this->authorize('adminCreateAny', Happening::class);
+
         return Inertia::render('Admin/Happenings/Form', $this->happeningAdminService->getCreateFormData(
             $this->authenticatedUser(),
         ));

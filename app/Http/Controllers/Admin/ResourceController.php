@@ -21,8 +21,11 @@ class ResourceController extends AdminController
 
     public function getResources(ResourceGroupContextRequest $request): Response
     {
+        $resourceGroup = $request->resourceGroup()->load('institution');
+        $this->authorize('viewAny', [Resource::class, $resourceGroup->institution]);
+
         return Inertia::render('Admin/Resources/Index', $this->resourceAdminService->getIndexData(
-            $request->resourceGroup()->id,
+            $resourceGroup->id,
         ));
     }
 

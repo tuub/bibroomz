@@ -62,7 +62,8 @@ test('resource policy grants all resource operations in the same institution', f
     $this->grantPermission($user, $institution, 'edit_resources');
     $this->grantPermission($user, $institution, 'delete_resources');
 
-    expect($policy->view($user, $resource))->toBeTrue()
+    expect($policy->viewAny($user, $institution))->toBeTrue()
+        ->and($policy->view($user, $resource))->toBeTrue()
         ->and($policy->create($user, $institution))->toBeTrue()
         ->and($policy->update($user, $resource))->toBeTrue()
         ->and($policy->edit($user, $resource))->toBeTrue()
