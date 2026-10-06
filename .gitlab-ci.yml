@@ -716,6 +716,7 @@ frontend-build:
     expire_in: 1 week
     paths:
       - public/build/
+      - resources/js/ziggy.js
 
 ### Test stage
 pest:coverage:
@@ -823,8 +824,8 @@ browser:
     paths:
       - tests/Browser/Screenshots/
 
-# Coverage transforms the browser entry point, which resolves ziggy-js from
-# Composer's tightenco/ziggy package.
+# Coverage transforms the browser entry point, so reuse the generated Ziggy
+# route configuration from the frontend build.
 vitest:
   extends: .ci-full
   stage: test
@@ -832,7 +833,8 @@ vitest:
   needs:
     - job: ci-image
       optional: true
-    - install:deps
+    - job: frontend-build
+      artifacts: true
   script:
     - npm run coverage -- --reporter=default --reporter=junit --outputFile.junit=build/junit/vitest.xml
   artifacts:
