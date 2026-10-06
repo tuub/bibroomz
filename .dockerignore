@@ -13,6 +13,7 @@
 !lang/
 !package-lock.json
 !package.json
+!packages/
 !postcss.config.ts
 !public/images/
 !public/index.php
