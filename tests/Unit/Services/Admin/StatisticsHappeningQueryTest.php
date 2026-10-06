@@ -66,6 +66,29 @@ test('forResources only returns soft-deleted rows when onlyTrashed is true', fun
         ->and($query->forResources(collect([$fixture['resource']]), null, null, onlyTrashed: true)->count())->toBe(1);
 });
 
+test('bookedPeriod returns the first and last booking of the given resources', function (): void {
+    $fixture = buildHappeningQueryFixture();
+    $otherResource = Resource::factory()->for($fixture['resourceGroup'], 'resource_group')->create();
+
+    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => '2024-02-03 10:00:00', 'end' => '2024-02-03 11:00:00']);
+    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => '2026-06-15 10:00:00', 'end' => '2026-06-15 11:00:00']);
+    Happening::factory()->for($otherResource, 'resource')->create(['start' => '2020-01-01 10:00:00', 'end' => '2020-01-01 11:00:00']);
+
+    $query = app(StatisticsHappeningQuery::class);
+    [$first, $last] = $query->bookedPeriod(collect([$fixture['resource']]));
+
+    expect($first?->toDateTimeString())->toBe('2024-02-03 10:00:00')
+        ->and($last?->toDateTimeString())->toBe('2026-06-15 10:00:00');
+});
+
+test('bookedPeriod returns no period when the resources hold no booking', function (): void {
+    $fixture = buildHappeningQueryFixture();
+
+    $query = app(StatisticsHappeningQuery::class);
+
+    expect($query->bookedPeriod(collect([$fixture['resource']])))->toBe([null, null]);
+});
+
 test('retentionDays reads the configured cleanup window', function (): void {
     config(['roomz.happenings.cleanup_days' => 45]);
 

@@ -13,7 +13,12 @@ use Illuminate\Support\Collection;
 
 class StatisticsTimeSeriesBuilder
 {
-    private const int MAX_TIME_SERIES_BUCKETS = 104;
+    /**
+     * A ceiling on the payload, not a display window: the chart scrolls, so
+     * every bucket of the chosen period is rendered. Only a range far beyond
+     * what bookings are kept for is cut back to the most recent buckets.
+     */
+    private const int MAX_TIME_SERIES_BUCKETS = 600;
 
     public function __construct(
         private readonly StatisticsHappeningQuery $happeningQuery,
@@ -36,7 +41,7 @@ class StatisticsTimeSeriesBuilder
         ?CarbonInterface $rangeTo,
         string $split,
     ): array {
-        [$bucketStarts, $windowStart, $format] = $this->buildTimeSeriesBuckets($granularity, $rangeFrom, $rangeTo);
+        [$bucketStarts, $windowStart, $format] = $this->buildTimeSeriesBuckets($resources, $granularity, $rangeFrom, $rangeTo);
 
         $rows = $this->happeningQuery->forResources($resources, $windowStart, $rangeTo)
             ->toBase()
@@ -80,10 +85,15 @@ class StatisticsTimeSeriesBuilder
     }
 
     /**
+     * @param  Collection<int, Resource>  $resources
      * @return array{0: array<int, CarbonImmutable>, 1: CarbonImmutable, 2: string}
      */
-    private function buildTimeSeriesBuckets(string $granularity, ?CarbonInterface $rangeFrom, ?CarbonInterface $rangeTo): array
-    {
+    private function buildTimeSeriesBuckets(
+        Collection $resources,
+        string $granularity,
+        ?CarbonInterface $rangeFrom,
+        ?CarbonInterface $rangeTo,
+    ): array {
         $format = match ($granularity) {
             'week' => 'o-\WW',
             'year' => 'Y',
@@ -91,24 +101,26 @@ class StatisticsTimeSeriesBuilder
         };
 
         $now = CarbonImmutable::now();
+        $defaultStart = $this->defaultWindowStart($now, $granularity);
 
-        if ($rangeFrom instanceof CarbonInterface || $rangeTo instanceof CarbonInterface) {
-            $windowStart = $this->startOfPeriod(CarbonImmutable::parse($rangeFrom ?? $now->subMonths(12)), $granularity);
-            $windowEnd = $this->startOfPeriod(CarbonImmutable::parse($rangeTo ?? $now), $granularity);
-        } else {
-            $defaultPeriods = match ($granularity) {
-                'week' => 12,
-                'year' => 5,
-                default => 12,
-            };
+        // Without a range of its own the window has to come from the bookings
+        // themselves, so that "all" covers every period that holds one -
+        // including the ones booked ahead of today. An empty installation
+        // still gets the default window, rather than a single bucket.
+        [$firstBooking, $lastBooking] = $rangeFrom instanceof CarbonInterface && $rangeTo instanceof CarbonInterface
+            ? [null, null]
+            : $this->happeningQuery->bookedPeriod($resources);
 
-            $windowEnd = $this->startOfPeriod($now, $granularity);
-            $windowStart = match ($granularity) {
-                'week' => $windowEnd->subWeeks($defaultPeriods - 1),
-                'year' => $windowEnd->subYears($defaultPeriods - 1),
-                default => $windowEnd->subMonths($defaultPeriods - 1),
-            };
-        }
+        $start = $rangeFrom ?? ($firstBooking instanceof CarbonImmutable && $firstBooking->lessThan($defaultStart)
+            ? $firstBooking
+            : $defaultStart);
+
+        $end = $rangeTo ?? ($lastBooking instanceof CarbonImmutable && $lastBooking->greaterThan($now)
+            ? $lastBooking
+            : $now);
+
+        $windowStart = $this->startOfPeriod(CarbonImmutable::parse($start), $granularity);
+        $windowEnd = $this->startOfPeriod(CarbonImmutable::parse($end), $granularity);
 
         $earliestAllowedStart = match ($granularity) {
             'week' => $windowEnd->subWeeks(self::MAX_TIME_SERIES_BUCKETS - 1),
@@ -305,6 +317,17 @@ class StatisticsTimeSeriesBuilder
         }
 
         return $institutionIdByResourceId;
+    }
+
+    private function defaultWindowStart(CarbonImmutable $now, string $granularity): CarbonImmutable
+    {
+        $windowEnd = $this->startOfPeriod($now, $granularity);
+
+        return match ($granularity) {
+            'week' => $windowEnd->subWeeks(11),
+            'year' => $windowEnd->subYears(4),
+            default => $windowEnd->subMonths(11),
+        };
     }
 
     private function startOfPeriod(CarbonImmutable $date, string $granularity): CarbonImmutable

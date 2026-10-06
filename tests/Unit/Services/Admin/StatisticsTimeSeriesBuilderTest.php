@@ -60,7 +60,7 @@ test('build year granularity returns 5 buckets labelled by year', function (): v
         ->and($result[4]['label'])->toBe(CarbonImmutable::now()->format('Y'));
 });
 
-test('build counts bookings into the current monthly bucket and excludes bookings older than the window', function (): void {
+test('build without a range reaches back to the oldest booking', function (): void {
     $fixture = buildTimeSeriesFixture();
     $appNow = CarbonImmutable::now();
     Happening::factory()->count(2)->for($fixture['resource'], 'resource')->create(['start' => $appNow, 'end' => $appNow->addHour()]);
@@ -69,8 +69,25 @@ test('build counts bookings into the current monthly bucket and excludes booking
     $builder = app(StatisticsTimeSeriesBuilder::class);
     $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'month', null, null, 'none');
 
-    expect($result[11]['count'])->toBe(2)
-        ->and(collect($result)->sum(fn (array $bucket): int => $bucket['count']))->toBe(2);
+    expect($result)->toHaveCount(25)
+        ->and($result[0]['label'])->toBe($appNow->subYears(2)->format('Y-m'))
+        ->and($result[0]['count'])->toBe(1)
+        ->and($result[24]['label'])->toBe($appNow->format('Y-m'))
+        ->and($result[24]['count'])->toBe(2)
+        ->and(collect($result)->sum(fn (array $bucket): int => $bucket['count']))->toBe(3);
+});
+
+test('build without a range reaches forward to the latest booking', function (): void {
+    $fixture = buildTimeSeriesFixture();
+    $appNow = CarbonImmutable::now();
+    $ahead = $appNow->addMonths(3);
+    Happening::factory()->for($fixture['resource'], 'resource')->create(['start' => $ahead, 'end' => $ahead->addHour()]);
+
+    $builder = app(StatisticsTimeSeriesBuilder::class);
+    $result = $builder->build(collect([$fixture['resource']]), collect([$fixture['resourceGroup']]), collect([$fixture['institution']]), 'month', null, null, 'none');
+
+    expect(array_column($result, 'label'))->toContain($ahead->format('Y-m'))
+        ->and(collect($result)->sum(fn (array $bucket): int => $bucket['count']))->toBe(1);
 });
 
 test('build window shrinks to match a given custom range', function (): void {
@@ -91,7 +108,28 @@ test('build window shrinks to match a given custom range', function (): void {
         ->and(array_column($result, 'label'))->toBe(['2026-01', '2026-02', '2026-03']);
 });
 
-test('build clamps the window to the maximum number of buckets for a very wide range', function (): void {
+test('build keeps every bucket of a range wider than fits the page', function (): void {
+    $fixture = buildTimeSeriesFixture();
+    $from = CarbonImmutable::parse('2000-01-01');
+    $to = CarbonImmutable::parse('2026-03-31');
+
+    $builder = app(StatisticsTimeSeriesBuilder::class);
+    $result = $builder->build(
+        collect([$fixture['resource']]),
+        collect([$fixture['resourceGroup']]),
+        collect([$fixture['institution']]),
+        'month',
+        $from,
+        $to,
+        'none',
+    );
+
+    expect($result)->toHaveCount(315)
+        ->and($result[0]['label'])->toBe('2000-01')
+        ->and($result[314]['label'])->toBe('2026-03');
+});
+
+test('build clamps the window to the maximum number of buckets for an absurd range', function (): void {
     $fixture = buildTimeSeriesFixture();
 
     $builder = app(StatisticsTimeSeriesBuilder::class);
@@ -100,13 +138,13 @@ test('build clamps the window to the maximum number of buckets for a very wide r
         collect([$fixture['resourceGroup']]),
         collect([$fixture['institution']]),
         'month',
-        CarbonImmutable::parse('2000-01-01'),
+        CarbonImmutable::parse('1900-01-01'),
         CarbonImmutable::now(),
         'none',
     );
 
-    expect($result)->toHaveCount(104)
-        ->and($result[103]['label'])->toBe(CarbonImmutable::now()->startOfMonth()->format('Y-m'));
+    expect($result)->toHaveCount(600)
+        ->and($result[599]['label'])->toBe(CarbonImmutable::now()->startOfMonth()->format('Y-m'));
 });
 
 test('build with split "none" omits segments', function (): void {
