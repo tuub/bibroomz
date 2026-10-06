@@ -1,4 +1,4 @@
-name: Rebase Dependabot branches
+name: Rebase dependency update branches
 
 on:
   push:
@@ -42,4 +42,35 @@ jobs:
               esac
 
               gh pr comment "$pr" --repo "$REPO" --body "@dependabot rebase"
+            done
+
+      - name: Rebase the flake.lock PR onto main
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_REBASE_TOKEN }}
+          REPO: ${{ github.repository }}
+          BASE: ${{ github.ref_name }}
+          BRANCH: dependabot/nix/flake-lock
+        run: |
+          # update-flake-lock creates this branch as github-actions[bot], so
+          # Dependabot cannot act on it. Update it directly when main has
+          # moved since the pull request was created.
+          gh pr list --repo "$REPO" --state open --base "$BASE" --head "$BRANCH" \
+            --json number,headRefOid --jq '.[] | "\(.number) \(.headRefOid)"' |
+            while read -r pr sha; do
+              if ! status="$(gh api "repos/$REPO/compare/$BASE...$sha" --jq '.status')"; then
+                echo "Could not compare PR #$pr against $BASE; leaving it alone."
+                continue
+              fi
+
+              case "$status" in
+                diverged)
+                  gh pr update-branch "$pr" --repo "$REPO" --rebase
+                  ;;
+                ahead)
+                  echo "PR #$pr is already based on $BASE."
+                  ;;
+                identical | behind)
+                  echo "PR #$pr is already in $BASE; not rebasing it."
+                  ;;
+              esac
             done
