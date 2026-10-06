@@ -823,8 +823,10 @@ browser:
     paths:
       - tests/Browser/Screenshots/
 
+# Coverage transforms the browser entry point, which resolves ziggy-js from
+# Composer's tightenco/ziggy package.
 vitest:
-  extends: .ci-node
+  extends: .ci-full
   stage: test
   coverage: '/Lines\s*:\s*(\d+(?:\.\d+)?)%/'
   needs:
