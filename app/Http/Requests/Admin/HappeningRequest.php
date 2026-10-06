@@ -72,16 +72,18 @@ abstract class HappeningRequest extends AdminRouteRequest
         $endDate = $this->validated('end_date');
         $endTime = $this->validated('end_time');
 
+        // Zone-less, like every datetime this app stores: an ISO string would
+        // carry an offset, and reading it back would move the happening by it.
         return $this->normalizeStringKeyedArray($this->safe()->collect()
             ->merge([
                 'start' => Utility::createCarbonDateTime(
                     is_string($startDate) ? $startDate : '',
                     is_string($startTime) ? $startTime : '',
-                )->toIsoString(),
+                )->toDateTimeString(),
                 'end' => Utility::createCarbonDateTime(
                     is_string($endDate) ? $endDate : '',
                     is_string($endTime) ? $endTime : '',
-                )->toIsoString(),
+                )->toDateTimeString(),
             ])->except([
                 'start_date',
                 'start_time',

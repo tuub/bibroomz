@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Http\Requests\Admin\HappeningRequest;
 use App\Http\Requests\Admin\StoreHappeningRequest;
-use App\Library\Utility;
 use App\Models\Institution;
 use App\Models\Resource;
 use App\Models\ResourceGroup;
@@ -523,7 +522,7 @@ test('sanitized passes empty string to createCarbonDateTime when startDate is no
     $request->setValidator($validator);
     $sanitized = $request->sanitized();
 
-    expect($sanitized['start'])->toBe(Utility::createCarbonDateTime('10.06.2026', '09:00')->toIsoString());
+    expect($sanitized['start'])->toBe('2026-06-10 09:00:00');
 });
 
 test('sanitized passes empty string to createCarbonDateTime when endDate is not a string', function (): void {
@@ -547,7 +546,7 @@ test('sanitized passes empty string to createCarbonDateTime when endDate is not 
     $request->setValidator($validator);
     $sanitized = $request->sanitized();
 
-    expect($sanitized['end'])->toBe(Utility::createCarbonDateTime('10.06.2026', '11:00')->toIsoString());
+    expect($sanitized['end'])->toBe('2026-06-10 11:00:00');
 });
 
 test('sanitized start_date in sanitized output uses empty string fallback not original value (EmptyStringToNotEmpty lines 74 75)', function (): void {
@@ -572,8 +571,8 @@ test('sanitized start_date in sanitized output uses empty string fallback not or
     $sanitized = $request->sanitized();
 
     expect($sanitized['start'])->not->toBe('')
-        ->and($sanitized['start'])->toBe(Utility::createCarbonDateTime('15.07.2026', '14:00')->toIsoString())
-        ->and($sanitized['end'])->toBe(Utility::createCarbonDateTime('15.07.2026', '15:30')->toIsoString());
+        ->and($sanitized['start'])->toBe('2026-07-15 14:00:00')
+        ->and($sanitized['end'])->toBe('2026-07-15 15:30:00');
 });
 
 test('sanitized returns normalized timestamps and removes the original date and time fields', function (): void {
@@ -598,8 +597,8 @@ test('sanitized returns normalized timestamps and removes the original date and 
     $request->setValidator($validator);
     $sanitized = $request->sanitized();
 
-    expect($sanitized['start'])->toBe(Utility::createCarbonDateTime('10.06.2026', '09:00')->toIsoString())
-        ->and($sanitized['end'])->toBe(Utility::createCarbonDateTime('10.06.2026', '10:30')->toIsoString())
+    expect($sanitized['start'])->toBe('2026-06-10 09:00:00')
+        ->and($sanitized['end'])->toBe('2026-06-10 10:30:00')
         ->and($sanitized)->not->toHaveKey('start_date')
         ->and($sanitized)->not->toHaveKey('start_time')
         ->and($sanitized)->not->toHaveKey('end_date')
