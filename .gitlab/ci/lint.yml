@@ -37,6 +37,16 @@ composer:validate:
       optional: true
   script:
     - composer validate --strict
+  # Application changes cannot make the committed Composer files invalid.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - composer.json
+        - composer.lock
+        - flake.nix
+        - flake.lock
 
 # tsconfig resolves ziggy-js inside vendor/, and type-aware rules follow
 # that import, so this one needs both dependency caches.
@@ -85,6 +95,17 @@ hadolint:
       optional: true
   script:
     - hadolint Dockerfile
+  # The Docker stack itself is exercised separately by its scheduled job.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - .hadolint.yaml
+        - .hadolint.yml
+        - Dockerfile
+        - flake.nix
+        - flake.lock
 
 # Checks what every dependency is licensed under against what this project does
 # with it: what npm's dependencies scope reaches ships to users inside the
@@ -141,6 +162,20 @@ hadolint:
 
 ort:
   extends: .ort
+  # ORT reads dependency metadata and its policy, not application sources.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - .npmrc
+        - .ort.yml
+        - composer.json
+        - composer.lock
+        - package.json
+        - package-lock.json
+        - packages/*/package.json
+        - ort/**/*
   script:
     - !reference [.ort-analyze, script]
     - |
@@ -241,12 +276,38 @@ npm:lockfile:
       optional: true
   script:
     - npm ci --dry-run --ignore-scripts
+  # This only establishes that the workspace manifests and lock agree.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - .npmrc
+        - flake.nix
+        - flake.lock
+        - package.json
+        - package-lock.json
+        - packages/*/package.json
 
 permission-registry:
   extends: .ci-php
   stage: lint
   script:
     - composer run permissions:check
+  # The output is a pure projection of PermissionKey through the generator.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - app/Console/Commands/GeneratePermissionTypesCommand.php
+        - app/Enums/PermissionKey.php
+        - app/Services/Permissions/TypeScriptPermissionGenerator.php
+        - composer.json
+        - composer.lock
+        - flake.nix
+        - flake.lock
+        - resources/js/Types/PermissionKey.generated.ts
 
 pest:type-coverage:
   extends: .ci-php
@@ -291,6 +352,16 @@ shellcheck:
       optional: true
   script:
     - git ls-files -z '*.sh' | xargs --null shellcheck
+  # Changes outside shell scripts cannot affect ShellCheck's input.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - .shellcheckrc
+        - flake.nix
+        - flake.lock
+        - "**/*.sh"
 
 stylelint:
   extends: .ci-node

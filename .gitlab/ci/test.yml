@@ -74,6 +74,19 @@ migrations:rollback:
       optional: true
   script:
     - scripts/check-migrations.sh
+  # This exercises the schema and seeded rollback path, not application code.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .gitlab-ci.yml
+        - .gitlab/ci/*.yml
+        - composer.json
+        - composer.lock
+        - config/database.php
+        - database/**/*
+        - flake.nix
+        - flake.lock
+        - scripts/check-migrations.sh
 
 # Changes the code under test in small ways and checks that some test fails
 # for each change. Too slow for every merge request, so it needs a pipeline
