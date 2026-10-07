@@ -63,8 +63,8 @@ test('execute does not throw when user is allowed', function (): void {
     $user = User::factory()->create(['is_admin' => true]);
 
     $validator = app(ValidateHappeningReservation::class);
-    $start = CarbonImmutable::now()->addHour();
-    $end = CarbonImmutable::now()->addHours(2);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
 
     $thrown = null;
     try {
@@ -105,25 +105,19 @@ test('execute throws closing error when resource is closed', function (): void {
     $user = User::factory()->create(['is_admin' => true]);
 
     Closing::factory()->for($resource, 'closable')->create([
-        'start' => CarbonImmutable::now()->subHour(),
-        'end' => CarbonImmutable::now()->addDay(),
+        'start' => CarbonImmutable::parse('next monday 09:00'),
+        'end' => CarbonImmutable::parse('next monday 12:00'),
     ]);
 
     $validator = app(ValidateHappeningReservation::class);
-    $start = CarbonImmutable::now()->addHour();
-    $end = CarbonImmutable::now()->addHours(2);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
 
     try {
         $validator->execute($user, $resource, $start, $end);
         expect(false)->toBeTrue(); // must not reach here
     } catch (HappeningValidationException $e) {
-        expect($e->translationKey)->toBeIn([
-            'happening.errors.closing',
-            'happening.errors.business_hours',
-            'happening.errors.reserved',
-            'happening.errors.quotas',
-            'happening.errors.concurrent',
-        ]);
+        expect($e->translationKey)->toBe('happening.errors.closing');
     }
 });
 
@@ -136,8 +130,8 @@ test('execute does not throw closing error when resource is not closed', functio
     $user = User::factory()->create(['is_admin' => true]);
 
     $validator = app(ValidateHappeningReservation::class);
-    $start = CarbonImmutable::now()->addHour();
-    $end = CarbonImmutable::now()->addHours(2);
+    $start = CarbonImmutable::parse('next monday 10:00');
+    $end = CarbonImmutable::parse('next monday 11:00');
 
     $thrown = null;
     try {
@@ -145,7 +139,7 @@ test('execute does not throw closing error when resource is not closed', functio
     } catch (HappeningValidationException $e) {
         $thrown = $e->translationKey;
     }
-    expect($thrown)->not->toBe('happening.errors.closing');
+    expect($thrown)->toBeNull();
 });
 
 test('execute throws business_hours when resource has no open hours', function (): void {
