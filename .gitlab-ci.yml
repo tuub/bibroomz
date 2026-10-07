@@ -69,9 +69,15 @@ default:
     - node_modules/
   policy: pull
 
+# Keyed on composer.json as well as the lock file, because vendor/ holds the
+# generated autoloader and Composer's content-hash covers only the keys that
+# resolve dependencies -- 'autoload' and 'autoload-dev' are not among them. A
+# new PSR-4 namespace therefore leaves composer.lock byte-identical, and a key
+# on the lock alone would serve an autoloader that has never heard of it.
 .cache-composer: &cache-composer
   key:
     files:
+      - composer.json
       - composer.lock
     prefix: composer
   paths:
@@ -228,6 +234,7 @@ install:deps:
         CACHE_POLICY: pull-push
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
+        - composer.json
         - composer.lock
         - package-lock.json
       variables:
