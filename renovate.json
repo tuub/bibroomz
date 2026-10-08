@@ -4,6 +4,7 @@
         "local>ub/onit/renovate-config",
         ":automergeMinor",
         ":combinePatchMinorReleases",
+        ":dependencyDashboard",
         ":maintainLockFilesWeekly",
         ":noUnscheduledUpdates",
         "schedule:weekends",
