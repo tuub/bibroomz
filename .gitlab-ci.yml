@@ -33,9 +33,10 @@ stages:
   - deploy
 
 variables:
-  # Set this to "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/" in CI variables
-  # to route Docker Hub pulls through the GitLab dependency proxy.
-  DOCKERHUB_IMAGE_PREFIX: ""
+  # Route Docker Hub image pulls through the GitLab Dependency Proxy in CI.
+  DOCKERHUB_IMAGE_PREFIX:
+    value: "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/"
+    expand: true
   # The frontend bundle has APP_URL (via ziggy:generate) and VITE_REVERB_PORT
   # compiled into it, so frontend-build and the browser job reusing its
   # artifact have to agree on both ports up front.
