@@ -65,6 +65,16 @@
             "enabled": false
         },
         {
+            "description": "Keep the postcss-selector-parser override on 7.x: @tailwindcss/typography hard-pins 6.0.10, which GHSA-rj75-hqrm-r3gf makes npm:audit fail on, and upstream has shipped no 6.x fix. Drop the override once typography depends on 7.1.6 or later itself",
+            "matchDepTypes": [
+                "overrides"
+            ],
+            "matchPackageNames": [
+                "postcss-selector-parser"
+            ],
+            "allowedVersions": ">=7.1.6"
+        },
+        {
             "description": "Only security updates on release branches",
             "matchBaseBranches": [
                 "/^release[/-].*/"
