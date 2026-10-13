@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Services\Console\ImportUsersAction;
@@ -46,7 +48,8 @@ class ImportUsers extends Command
     {
         app()->setLocale('en');
 
-        $path = $this->argument('path') ?? text(
+        $pathArgument = $this->argument('path');
+        $path = is_string($pathArgument) ? $pathArgument : text(
             'Where is the CSV file located?',
             default: 'users.csv',
             required: true,
@@ -60,8 +63,8 @@ class ImportUsers extends Command
 
         try {
             $defaults = $this->defaultsParser->parse(
-                $this->option('from'),
-                $this->option('until'),
+                $this->stringOption('from'),
+                $this->stringOption('until'),
             );
         } catch (InvalidFormatException $exception) {
             error('⚠ Invalid date format.');
@@ -82,7 +85,7 @@ class ImportUsers extends Command
                 $file,
                 $this->modelKeys,
                 $this->relationKeys,
-                $this->option('columns'),
+                $this->stringOption('columns'),
                 $this->option('header'),
             );
             $users = $this->csvReader->readAndValidate($file, $columns);
@@ -94,12 +97,27 @@ class ImportUsers extends Command
 
         fclose($file);
 
-        $group = $this->importUsersAction->resolveGroup($this->option('group'));
+        $group = $this->importUsersAction->resolveGroup($this->stringOption('group'));
         $this->importUsersAction->execute($users, $defaults, $group);
 
         info('Import completed successfully.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Read an option that the signature declares with a value.
+     *
+     * A signature may also declare array and flag options, so the framework
+     * types every option as `array|bool|float|int|string|null`. The ones this
+     * command declares all take a value, which Symfony either fills with a
+     * string or leaves null.
+     */
+    private function stringOption(string $key): ?string
+    {
+        $value = $this->option($key);
+
+        return is_string($value) ? $value : null;
     }
 
     private function handleValidationException(ValidationException $exception): int

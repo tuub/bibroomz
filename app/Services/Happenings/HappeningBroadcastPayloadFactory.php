@@ -29,7 +29,7 @@ class HappeningBroadcastPayloadFactory
             'happening' => [
                 'id' => $happening->id,
                 'user_01' => $user1->name,
-                'user_02' => $happening->user2 !== null ? $happening->user2->name : $happening->verifier,
+                'user_02' => $happening->user2->name ?? $happening->verifier,
                 'start' => Carbon::parse($happening->start)->format('Y-m-d H:i'),
                 'end' => Carbon::parse($happening->end)->format('Y-m-d H:i'),
                 'isVerified' => $happening->is_verified,

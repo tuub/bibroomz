@@ -37,9 +37,9 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
      */
     public function handle(): int
     {
-        $minutes = $this->option('minutes');
-        $hours = $this->option('hours');
-        $days = $this->option('days');
+        $minutes = $this->intervalOption('minutes');
+        $hours = $this->intervalOption('hours');
+        $days = $this->intervalOption('days');
 
         $institution = $this->queryBuilder->resolveInstitution($this->option('institution'));
         $query = $this->queryBuilder->baseQuery();
@@ -108,6 +108,21 @@ class RemoveUnverifiedHappeningsCommand extends Command implements Isolatable
         $this->info('Done.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Read one of the interval options.
+     *
+     * A signature may also declare array and flag options, so the framework
+     * types every option as `array|bool|float|int|string|null`. The command line
+     * fills these three with a string or leaves them null, while a programmatic
+     * call - the scheduler, or a test - may pass an int.
+     */
+    private function intervalOption(string $key): int|string|null
+    {
+        $value = $this->option($key);
+
+        return is_int($value) || is_string($value) ? $value : null;
     }
 
     /**
