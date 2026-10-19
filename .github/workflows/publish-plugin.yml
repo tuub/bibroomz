@@ -44,7 +44,7 @@ jobs:
       # the package is named @tuub rather than @tu-berlin. setup-node writes
       # the scope mapping and the auth line into ~/.npmrc.
       - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           # Matches nodejs_24 from flake.nix, which is what the GitLab
           # pipeline and the devshell build the package with.
