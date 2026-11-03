@@ -20,9 +20,9 @@ github_api="${GITHUB_API_BASE:-https://api.github.com}"
 # and Dependabot rebases change the commit without making it a new update.
 # stale-pull-requests.sh reads the same line back.
 #
-# Sets pr_number and closed_pr_number rather than printing them: BusyBox sh
-# does not apply set -e inside a command substitution, so a failing curl would
-# read as "no pull request yet".
+# Sets pr_number, pr_url and closed_pr_number rather than printing them:
+# BusyBox sh does not apply set -e inside a command substitution, so a failing
+# curl would read as "no pull request yet".
 #
 # GitHub keeps the branch after its pull request is merged, so the mirror can
 # bring it back once GitLab has deleted it. closed_pr_number names the closed
@@ -38,6 +38,8 @@ fetch_pull_request_numbers() {
 
     pr_number="$(echo "$prs" | jq --raw-output \
         'map(select(.state == "open"))[0].number // empty')"
+    pr_url="$(echo "$prs" | jq --raw-output \
+        'map(select(.state == "open"))[0].html_url // empty')"
     closed_pr_number="$(echo "$prs" | jq --raw-output --arg sha "$CI_COMMIT_SHA" \
         'map(select(.state == "closed" and .head.sha == $sha))[0].number // empty')"
 }
@@ -67,7 +69,14 @@ if [ -z "$pr_number" ]; then
     exit 1
 fi
 
+if [ -z "$pr_url" ]; then
+    echo "GitHub pull request #$pr_number has no web URL." >&2
+    exit 1
+fi
+
 marker="GitHub-PR: #$pr_number"
+link="[GitHub pull request #$pr_number]($pr_url)"
+description="$(printf '%s\n\n%s' "$marker" "$link")"
 
 fetch_merge_requests() {
     state="$1"
@@ -93,12 +102,14 @@ if [ -n "$iid" ]; then
     # the merge request pointing at the old one.
     has_marker="$(echo "$existing" | jq --raw-output --arg marker "$marker" \
         '.[0].description // "" | split("\n") | any(. == $marker)')"
+    has_pr_link="$(echo "$existing" | jq --raw-output --arg url "$pr_url" \
+        '.[0].description // "" | contains($url)')"
 
-    if [ "$has_marker" != "true" ]; then
+    if [ "$has_marker" != "true" ] || [ "$has_pr_link" != "true" ]; then
         curl --silent --show-error --fail \
             --request PUT \
             --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-            --data-urlencode "description=$marker" \
+            --data-urlencode "description=$description" \
             "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$iid" >/dev/null
     fi
 else
@@ -119,7 +130,7 @@ else
         --data-urlencode "source_branch=$CI_COMMIT_BRANCH" \
         --data-urlencode "target_branch=$target_branch" \
         --data-urlencode "title=chore(deps): $CI_COMMIT_BRANCH" \
-        --data-urlencode "description=$marker" \
+        --data-urlencode "description=$description" \
         --data-urlencode "remove_source_branch=true" \
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests")"
 
